@@ -1,0 +1,146 @@
+﻿<UserControl x:Class="Caupo.Views.HomePage"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:Caupo.Views"
+       xmlns:svg="http://sharpvectors.codeplex.com/svgc/"
+        Loaded="Window_Loaded"
+             
+         >
+
+    <Grid >
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="55" Background="#323232" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="0.2*"/>
+            </Grid.ColumnDefinitions>
+            <Image Source="pack://application:,,,/Images/dsoftlogosmall.png" Width="50" Height="50" Grid.Column="0" HorizontalAlignment="Left" Margin="20,0,0,0"/>
+            <Label x:Name="lblApp" Content="Caupo POS" Foreground="#fafafa" FontSize="25" Grid.Column="0" HorizontalAlignment="Center"  VerticalAlignment="Center"/>
+            <Label x:Name="lblUlogovaniKorisnik" Content="Ime i prezime" Foreground="#fafafa" FontSize="16" Grid.Column="1" HorizontalAlignment="Right"  VerticalAlignment="Center"/>
+            <Button x:Name="CloseButton" Style="{StaticResource CloseAppButtonStyle}"  VerticalAlignment="Top" HorizontalAlignment="Right" Padding="0" Margin="1" Click="CloseButton_Click" Grid.Column="2" />
+        </Grid>
+        <WrapPanel HorizontalAlignment="Stretch" VerticalAlignment="Center" Width="1200">
+
+
+            <Button Style="{StaticResource MyButtonStyle}"  BorderThickness="2" x:Name="KasaButton"   BorderBrush="#52DB56" Click="KasaButton_Click" Width="150" Height="150"  Margin="5" Padding="1">
+                <StackPanel Orientation="Vertical" VerticalAlignment="Center"  >
+                   <svg:SvgViewbox   Width="120" Height="35" Source="{Binding ImagePathCashRegisterButton, TargetNullValue={x:Null}}"  Stretch="Uniform" Margin="10"/>
+                    <TextBlock   Width="120"  Text = "Kasa" Foreground="{DynamicResource GlobalFontColor}"  FontSize="14"  TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource MyButtonStyle}"  BorderThickness="2"  x:Name="StoloviButton" Click="StoloviButton_Click" BorderBrush="#fac234"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
+                <StackPanel Orientation="Vertical" >
+                    <svg:SvgViewbox   Width="120" Height="35" Source="{Binding ImagePathOrdersButton, TargetNullValue={x:Null}}"  Stretch="Uniform" Margin="10"/>
+                    <TextBlock    Width="120"  Text = "Narudžbe" Foreground="{DynamicResource GlobalFontColor}"  FontSize="14"  TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource MyButtonStyle}"  BorderThickness="2"  x:Name="RacuniButton" Click="RacuniButton_Click" BorderBrush="#1C7ED6"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
+                <StackPanel Orientation="Vertical" >
+                    <svg:SvgViewbox   Width="120" Height="35" Source="{Binding ImagePathReceiptsButton, TargetNullValue={x:Null}}"  Stretch="Uniform" Margin="10"/>
+                    <TextBlock    Text = "Računi" Foreground="{DynamicResource GlobalFontColor}"  FontSize="14"  TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource MyButtonStyle}"  BorderThickness="2"  x:Name="ArtikliButton" Click="ArtikliButton_Click" BorderBrush="#FF6Bdb"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
+                <StackPanel Orientation="Vertical" >
+                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="10" FontSize="32" Height="35" FontWeight="ExtraLight" Text="&#xEB17;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock    Text = "Artikli" FontSize="14"  Foreground="{DynamicResource GlobalFontColor}"  TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource MyButtonStyle}"  BorderThickness="2"  x:Name="UlazPiceButton" Click="UlazPiceButton_Click" BorderBrush="#22B8CF"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
+                <StackPanel Orientation="Vertical" >
+                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="10" FontSize="32" Height="35" FontWeight="ExtraLight" Text="&#xEC26;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock    Text = "Ulaz pića" FontSize="14" Foreground="{DynamicResource GlobalFontColor}" TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource MyButtonStyle}"  BorderThickness="2"  x:Name="UlazNamirnicaButton" Click="UlazNamirnicaButton_Click"  BorderBrush="#8FA9A1"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
+                <StackPanel Orientation="Vertical" >
+                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="10" FontSize="32" Height="35" FontWeight="ExtraLight" Text="&#xEC26;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock    Text = "Ulaz namirnica" FontSize="14" Foreground="{DynamicResource GlobalFontColor}" TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource MyButtonStyle}"  BorderThickness="2"  x:Name="PodesavanjeButton" Click="PodesavanjeButton_Click"  BorderBrush="#6EC207"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
+                <StackPanel Orientation="Vertical" >
+                    <svg:SvgViewbox   Width="120" Height="35" Source="{Binding ImagePathSetupButton, TargetNullValue={x:Null}}"  Stretch="Uniform" Margin="10"/>
+                    <TextBlock    Text = "Postavke" FontSize="14" Foreground="{DynamicResource GlobalFontColor}"  TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource MyButtonStyle}"  BorderThickness="2"  x:Name="KnjigaSankaButton" Click="KnjigaSankaButton_Click"  BorderBrush="#5C7AEA"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
+                <StackPanel Orientation="Vertical" >
+                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="10" FontSize="32" Height="35" FontWeight="ExtraLight" Text="&#xEA62;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock    Text = "Knjiga šanka" FontSize="14" Foreground="{DynamicResource GlobalFontColor}"  TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource MyButtonStyle}"  BorderThickness="2" x:Name="KnjigaKuhinjeButton" Click="KnjigaKuhinjeButton_Click"  BorderBrush="#778267"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
+                <StackPanel Orientation="Vertical" >
+                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="10" FontSize="32" Height="35" FontWeight="ExtraLight" Text="&#xEA62;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock    Text = "Knjiga kuhinje" FontSize="14" Foreground="{DynamicResource GlobalFontColor}"  TextWrapping="Wrap"  TextAlignment="Center"  Padding="10"/>
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource MyButtonStyle}"  BorderThickness="2" x:Name="NamirniceButton" Click="NamirniceButton_Click"  BorderBrush="#7950F2"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
+                <StackPanel Orientation="Vertical" >
+                    <svg:SvgViewbox   Width="120" Height="35" Source="{Binding ImagePathIngredientsButton, TargetNullValue={x:Null}}"  Stretch="Uniform" Margin="10"/>
+                    <TextBlock    Text = "Namirnice" FontSize="14" Foreground="{DynamicResource GlobalFontColor}"  TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource MyButtonStyle}"  BorderThickness="2" x:Name="NormativiButton" Click="NormativiButton_Click"  BorderBrush="#FD7E14"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
+                <StackPanel Orientation="Vertical" >
+                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="10" FontSize="32" Height="35" FontWeight="ExtraLight" Text="&#xEAB3;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock    Text = "Normativi" FontSize="14" Foreground="{DynamicResource GlobalFontColor}"  TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
+                </StackPanel>
+            </Button>
+
+
+            <Button Style="{StaticResource MyButtonStyle}"  BorderThickness="2" x:Name="AnalizaButton" Click="AnalizaButton_Click"  BorderBrush="#269a23"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
+                <StackPanel Orientation="Vertical" >
+                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="10" FontSize="32" Height="35" FontWeight="ExtraLight" Text="&#xEB03;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock    Text = "Analiza" FontSize="14" Foreground="{DynamicResource GlobalFontColor}"   TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
+                </StackPanel>
+            </Button>
+
+            <Button Style="{StaticResource MyButtonStyle}"  BorderThickness="2" x:Name="KupciButton" Click="KupciButton_Click"  BorderBrush="#FFD43B"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
+                <StackPanel Orientation="Vertical" >
+                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="10" FontSize="32" FontWeight="ExtraLight" Height="35"  Text="&#xEB99;" Foreground="{DynamicResource GlobalFontColor}"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock    Text = "Kupci" FontSize="14" Foreground="{DynamicResource GlobalFontColor}"   TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
+                </StackPanel>
+            </Button>
+            <Button Style="{StaticResource MyButtonStyle}"  BorderThickness="2" x:Name="DobavljaciButton" Click="DobavljaciButton_Click" BorderBrush="#8f02b3"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
+                <StackPanel Orientation="Vertical" >
+                    <svg:SvgViewbox   Width="120" Height="35" Source="{Binding ImagePathSuppliersButton, TargetNullValue={x:Null}}"  Stretch="Uniform" Margin="10"/>
+                    <TextBlock    Text = "Dobavljači" FontSize="14" Foreground="{DynamicResource GlobalFontColor}"  TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
+                </StackPanel>
+            </Button>
+            <!-- <Button Style="{StaticResource MyButtonStyle}"  BorderThickness="2" x:Name="LicencaButton" Click="LicencaButton_Click" BorderBrush="#a4e9d1"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
+                <StackPanel Orientation="Vertical" >
+                    <svg:SvgViewbox   Width="120" Height="35" Source="{Binding ImagePathSuppliersButton, TargetNullValue={x:Null}}"  Stretch="Uniform" Margin="10"/>
+                    <TextBlock    Text = "Licenca" FontSize="14" Foreground="{DynamicResource GlobalFontColor}"  TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
+                </StackPanel>
+            </Button>
+
+           <Button Style="{StaticResource MyButtonStyle}"  BorderThickness="2" x:Name="LicenseButton" Click="LicenseButton_Click" BorderBrush="#1449d1"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
+                <StackPanel Orientation="Vertical" >
+                    <svg:SvgViewbox   Width="120" Height="35" Source="{Binding ImagePathSuppliersButton, TargetNullValue={x:Null}}"  Stretch="Uniform" Margin="10"/>
+                    <TextBlock    Text = "Licenca" FontSize="14" Foreground="{DynamicResource GlobalFontColor}"  TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
+                </StackPanel>
+            </Button>-->
+
+        </WrapPanel>
+       
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="5">
+            <Grid Width="24" Height="24">
+                <Image x:Name="imgServer"   Stretch="Uniform"  SnapsToDevicePixels="True"    UseLayoutRounding="True"   RenderOptions.BitmapScalingMode="HighQuality"/>
+            </Grid>
+            <Label x:Name="lblServer"  Margin="10,0,0,0" Foreground="{DynamicResource GlobalFontColor}"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

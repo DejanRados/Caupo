@@ -1,0 +1,313 @@
+﻿<UserControl x:Class="Caupo.Views.IngredientsPage"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
+        xmlns:local="clr-namespace:Caupo.ViewModels"
+         xmlns:syncfusionskin ="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF" 
+         xmlns:svg="http://sharpvectors.codeplex.com/svgc/" xmlns:Caupo="clr-namespace:Caupo"
+        mc:Ignorable="d"
+        UseLayoutRounding="True"
+          >
+
+    <Grid>
+        <!-- Header -->
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="55" Background="#323232" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="0.2*"/>
+            </Grid.ColumnDefinitions>
+            <Image Source="pack://application:,,,/Images/dsoftlogosmall.png" Width="50" Height="50" Grid.Column="0" HorizontalAlignment="Left" Margin="20,0,0,0"/>
+            <Label x:Name="lblApp" Content="Caupo - Namirnice" Foreground="#fafafa" FontSize="25" Grid.Column="0" HorizontalAlignment="Center"  VerticalAlignment="Center"/>
+            <Label x:Name="lblUlogovaniKorisnik" Content="Ime i prezime" Foreground="#fafafa" FontSize="16" Grid.Column="1" HorizontalAlignment="Right"  VerticalAlignment="Center"/>
+            <Button x:Name="CloseButton" Style="{StaticResource CloseButtonStyle}"  VerticalAlignment="Top" HorizontalAlignment="Right" Padding="0" Margin="1" Click="CloseButton_Click" Grid.Column="2" />
+        </Grid>
+
+        <!-- Glavni grid -->
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.4*"/>
+                <ColumnDefinition Width="0.5*"/>
+
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.25*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="0.2*"/>
+            </Grid.RowDefinitions>
+
+            <!--This is the hidden helper Grid which does the resizing -->
+            <Grid Visibility="Hidden">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.5*"/>
+                    <ColumnDefinition Width="0.14*" />
+                    <ColumnDefinition Width="20"/>
+                </Grid.ColumnDefinitions>
+                <!--This is the hidden helper Field which is used to bind to, using the "Fill" column of the helper grid-->
+                <Grid Grid.Column="1" x:Name="helperField"/>
+            </Grid>
+            <Grid  Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Margin="10,60,60,0" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160"  Margin="2" Grid.Column="0">
+                    <Button Style="{StaticResource MyButtonStyle}" BorderBrush="#28a745"  Margin="5"     x:Name="BtnEdit"     Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"   Click="BtnEdit_Click" >
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" >
+                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60019;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Izmjeni"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
+                        </StackPanel>
+                    </Button>
+                </Viewbox>
+                <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160"  Margin="2" Grid.Column="1">
+                    <Button Style="{StaticResource MyButtonStyle}" BorderBrush="#007bff"  Margin="6"  x:Name="BtnAdd"     Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"    Click="BtnAdd_Click">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60000;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Dodaj"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
+                        </StackPanel>
+                    </Button>
+                </Viewbox>
+                <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160"  Margin="2" Grid.Column="2">
+                    <Button Style="{StaticResource MyButtonStyle}" BorderBrush="#e83e8c" Margin="5"  x:Name="BtnDelete"    Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"     Click="BtnDelete_Click">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60033;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Obriši"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
+                        </StackPanel>
+                    </Button>
+
+                </Viewbox>
+                <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160"  Margin="2" Grid.Column="3">
+                    <Button Style="{StaticResource MyButtonStyle}"  BorderBrush="#f0c330" Margin="5" x:Name="BtnExport"    Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"      Click="BtnExport_Click">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#xec28;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Izvoz"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
+                        </StackPanel>
+                    </Button>
+                </Viewbox>
+                <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160"  Margin="2" Grid.Column="4">
+                    <Button Style="{StaticResource MyButtonStyle}"   BorderBrush="#FF7F50" Margin="5" x:Name="BtnImport"    Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"      Click="BtnImport_Click">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#xEC26;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Uvoz"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
+                        </StackPanel>
+                    </Button>
+                </Viewbox>
+
+
+            </Grid>
+        
+
+
+
+            <!--  Search TextBox -->
+            <StackPanel Orientation="Horizontal" Grid.Row="0"  Grid.Column="0" Margin="30,60,0,0"  >
+                <Border Padding="5" Width="300" Height="50" HorizontalAlignment="Left"  BorderThickness="1" Background="Transparent"  BorderBrush="{DynamicResource GlobalFontColor}" CornerRadius="15" >
+                    <DockPanel Grid.Row="1" Grid.Column="1" Margin="1" >
+                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60013;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBox x:Name="SearchTextBox" CaretBrush="{DynamicResource GlobalFontColor}"  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Foreground="{DynamicResource GlobalFontColor}"  FontSize="16" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Background="Transparent" BorderBrush="Transparent" Padding="5" >
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Style.Triggers>
+                                    <Trigger Property="IsFocused" Value="True">
+                                        <Setter Property="BorderBrush" Value="Transparent"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="Background" Value="Transparent"/>
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="BorderBrush" Value="Transparent"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="Background" Value="Transparent"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                </DockPanel>
+                </Border>
+
+                <Button Style="{StaticResource MyButtonStyle}" x:Name="BtnFirst" Click="BtnFirst_Click"  BorderBrush="#484899" Width="50" Height="50" VerticalAlignment="Center"  BorderThickness="1" Grid.Column="0" HorizontalAlignment="Center" ToolTip="Prvi artikl" Margin="10,0,0,0">
+                    <TextBlock 
+                       FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                       FontSize="24"
+                       FontWeight="ExtraLight"
+                       Text="&#60271;" 
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+                </Button>
+                <Button Style="{StaticResource MyButtonStyle}" BorderBrush="#484899" x:Name="BtnLast" Click="BtnLast_Click" Width="50" Height="50" Padding="0"  VerticalAlignment="Center"  Grid.Column="2" ToolTip="Naredni artikl" Margin="10,0,0,0" >
+                    <TextBlock 
+                      FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                      FontSize="24"
+                      FontWeight="ExtraLight"
+                      Text="&#60272;" 
+                      Foreground="{DynamicResource GlobalFontColor}"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"/>
+                </Button>
+
+
+            </StackPanel>
+            <!--     Lista artikala     -->
+            <ListView  x:Name="ListaNamirnica"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" HorizontalAlignment="Stretch"  SelectionChanged="ListaNamirnica_SelectionChanged"  ItemsSource="{Binding IngredientFilter}" SelectedItem="{Binding SelectedIngredient, Mode=TwoWay}"  VerticalAlignment="Top" BorderThickness="0" Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" SelectionMode="Single"  BorderBrush="#AA949494" Margin="20"  ScrollViewer.HorizontalScrollBarVisibility="Disabled" >
+                <ListView.Resources>
+                    <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
+                </ListView.Resources>
+                <ListView.View>
+                    <GridView    >
+                        <!-- Kolona za Artikl -->
+                        <GridViewColumn x:Name="col1"  Header="Namirnica"   Width="160" >
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text ="{Binding Repromaterijal}" TextWrapping="Wrap" HorizontalAlignment="Stretch" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <!-- Kolona za cijenu -->
+                        <GridViewColumn Header="Planska cijena" Width="{Binding ElementName=helperField, Path=ActualWidth}"   >
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text ="{Binding PlanskaCijena, StringFormat={}{0:F2}}" HorizontalAlignment="Right"  TextAlignment="Right" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <!-- Kolona za Sifru -->
+                        <GridViewColumn Header="Nabavna cijena" Width="{Binding ElementName=helperField, Path=ActualWidth}" >
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text ="{Binding NabavnaCijena, StringFormat={}{0:F2}}" TextAlignment="Right" HorizontalAlignment="Stretch"  />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <!-- Kolona za vrstu artikla -->
+                        <GridViewColumn Header="Jed. mjere" Width="{Binding ElementName=helperField, Path=ActualWidth}" >
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate  >
+                                    <TextBlock Text ="{Binding JedinicaMjereName}" HorizontalAlignment="Stretch" TextWrapping="Wrap" TextAlignment="Center"  />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+            <!-- Grid za dodavanje ili izmjenu -->
+            <Grid Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" Margin="50,15,0,0"  >
+                <ScrollViewer VerticalScrollBarVisibility="Hidden"  >
+                    <StackPanel>
+                        <Grid Visibility="Collapsed" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.33*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Label  Content="Id namirnice" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center" Margin="10" Grid.Column="0" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource GlobalFontColor}" VerticalContentAlignment="Bottom" />
+                            <TextBox x:Name="IdNamirniceTextBox" Style="{DynamicResource TextBoxCustom}"  VerticalContentAlignment="Bottom" Padding="3" IsReadOnly="True"  Text ="{Binding SelectedIngredient.IdRepromaterijala}" Grid.Column="1" BorderThickness="0,0,0,1" Background="Transparent" Width="100" HorizontalAlignment="Left"/>
+                        </Grid>
+                        <Grid Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.33*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Content="Namirnica" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center" Margin="8" Grid.Column="0"  VerticalContentAlignment="Bottom"/>
+                            <TextBox x:Name="NamirnicaTextBox" IsReadOnly="True" Style="{DynamicResource TextBoxCustom}"  FontSize="15" Margin="1" Foreground="{DynamicResource GlobalFontColor}" BorderBrush="{DynamicResource GlobalFontColor}" VerticalContentAlignment="Bottom" Padding="3" Text ="{Binding SelectedIngredient.Repromaterijal}" Grid.Column="1" BorderThickness="0,0,0,1" Background="Transparent" Width="200" HorizontalAlignment="Left"  />
+                        </Grid>
+                        <Grid Margin="10" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.33*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Content ="Jedinica mjere" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center" Margin="8" Grid.Column="0" VerticalContentAlignment="Bottom" />
+                            <ComboBox x:Name="JediniceMjerePicker" IsEnabled="False" FontSize="15" Foreground="{DynamicResource GlobalFontColor}"  VerticalContentAlignment="Center" Padding="3"  Width="100"    HorizontalAlignment="Left" Grid.Column="1" Margin="0,5,0,0" 
+                             HorizontalContentAlignment="Left" 
+                                  BorderThickness="0,0,0,1"
+                                  Background="Transparent"
+                               DisplayMemberPath="JedinicaMjere"
+                              ItemsSource="{Binding JediniceMjere }"
+                              SelectedItem="{Binding SelectedJedinicaMjere}"/>
+                        </Grid>
+
+                        <Grid Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.33*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Content ="Planska cijena" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center" Margin="8" Grid.Column="0" VerticalContentAlignment="Bottom"/>
+                            <TextBox x:Name="PlanskaCijenaTextBox"  IsReadOnly="True" Style="{DynamicResource TextBoxCustom}" 
+           FontSize="15"
+           VerticalContentAlignment="Bottom"
+           Padding="3"
+           Text ="{Binding SelectedIngredient.PlanskaCijena, StringFormat='{}{0:F2}',TargetNullValue='', FallbackValue=''}"
+           Grid.Column="1"
+           BorderBrush="{DynamicResource GlobalFontColor}"
+           BorderThickness="0,0,0,1"
+           Background="Transparent"
+           Width="100" HorizontalAlignment="Left" />
+                        </Grid>
+                        <Grid Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.33*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Content ="Nabavna cijena"   Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center" Margin="8" Grid.Column="0" VerticalContentAlignment="Bottom"/>
+                            <TextBox x:Name="NabavnaCijenaTextBox" IsReadOnly="True" Style="{DynamicResource TextBoxCustom}" 
+       FontSize="15"
+       VerticalContentAlignment="Bottom"
+       Padding="3"
+       Text ="{Binding SelectedIngredient.NabavnaCijena,StringFormat='{}{0:F2}',TargetNullValue='', FallbackValue=''}"
+       Grid.Column="1"
+       BorderBrush="{DynamicResource GlobalFontColor}"
+       BorderThickness="0,0,0,1"
+       Background="Transparent"
+       Width="100" HorizontalAlignment="Left" />
+                        </Grid>
+        
+
+                        <Grid x:Name="EditGrid" Visibility="Collapsed" Margin="5"  >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.33*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Style="{StaticResource MyButtonStyle}" BorderBrush="#ff3232" x:Name="CancelEditButton"    Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"  Click="CancelEditButton_Click" Grid.Column="0">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60039;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Odustani"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Style="{StaticResource MyButtonStyle}" BorderBrush="#32ff32" x:Name="SaveEditButton"    Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"   Click="SaveEditButton_Click" Grid.Column="1" HorizontalAlignment="Left">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#xEB4B;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Spremi"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
+                                </StackPanel>
+                            </Button>
+
+                        </Grid>
+                        <Grid x:Name="AddGrid" Visibility="Collapsed" Margin="5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.33*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Button Style="{StaticResource MyButtonStyle}" BorderBrush="#ff3232" x:Name="CancelAddButton"    Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"      Click="CancelAddButton_Click" Grid.Column="0">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60039;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Odustani"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Style="{StaticResource MyButtonStyle}"  BorderBrush="#32ff32"  x:Name="SaveAddButton"    Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"      Click="SaveAddButton_Click" Grid.Column="1" HorizontalAlignment="Left">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#xEB4B;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Spremi"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

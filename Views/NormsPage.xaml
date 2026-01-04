@@ -1,0 +1,277 @@
+﻿<UserControl x:Class="Caupo.Views.NormsPage"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
+        xmlns:local="clr-namespace:Caupo.ViewModels"
+         xmlns:syncfusionskin ="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF" 
+
+         xmlns:svg="http://sharpvectors.codeplex.com/svgc/" xmlns:Caupo="clr-namespace:Caupo"
+        mc:Ignorable="d"
+        UseLayoutRounding="True"
+          >
+
+    <Grid>
+        <!-- Header -->
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="55" Background="#323232" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="0.2*"/>
+            </Grid.ColumnDefinitions>
+            <Image Source="pack://application:,,,/Images/dsoftlogosmall.png" Width="50" Height="50" Grid.Column="0" HorizontalAlignment="Left" Margin="20,0,0,0"/>
+            <Label x:Name="lblApp" Content="Caupo - Normativi" Foreground="#fafafa" FontSize="25" Grid.Column="0" HorizontalAlignment="Center"  VerticalAlignment="Center"/>
+            <Label x:Name="lblUlogovaniKorisnik" Content="Ime i prezime" Foreground="#fafafa" FontSize="16" Grid.Column="1" HorizontalAlignment="Right"  VerticalAlignment="Center"/>
+            <Button x:Name="CloseButton" Style="{StaticResource CloseButtonStyle}"  VerticalAlignment="Top" HorizontalAlignment="Right" Padding="0" Margin="1" Click="CloseButton_Click" Grid.Column="2" />
+        </Grid>
+
+        <!-- Glavni grid -->
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,55,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.1*"/>
+                <RowDefinition Height="0.3*"/>
+                <RowDefinition Height="0.7*"/>
+            </Grid.RowDefinitions>
+
+
+            <Grid Grid.Column="0" Grid.Row="0" Margin="20,0" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <!-- Border + TextBox -->
+                <Border Grid.Column="0" Padding="5" MinWidth="300" Height="50" HorizontalAlignment="Left"    BorderThickness="1" Background="Transparent" BorderBrush="{DynamicResource GlobalFontColor}" CornerRadius="15">
+                     <DockPanel>
+                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"    Margin="5" FontSize="24" Width="30"
+                                        FontWeight="ExtraLight" Text="&#60013;"        Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBox x:Name="SearchTextBox" Style= "{StaticResource TextBoxCustom}"      CaretBrush="{DynamicResource GlobalFontColor}" GotFocus="TextBox_GotFocus" LostFocus="TextBox_LostFocus"
+                                        Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"    Foreground="{DynamicResource GlobalFontColor}"
+                                        FontSize="16"    HorizontalAlignment="Stretch"   VerticalContentAlignment="Center"   Background="Transparent"
+                                        BorderBrush="Transparent"      Padding="5"/>
+                      </DockPanel>
+                </Border>
+
+                <!-- Popup za prijedloge -->
+                <Popup IsOpen="{Binding IsSuggestionsOpen}" PlacementTarget="{Binding ElementName=SearchTextBox}" StaysOpen="False"   AllowsTransparency="True" Placement="Bottom" Width="350">
+                    <ListBox ItemsSource="{Binding Suggestions}" MaxHeight="350"  Foreground="{DynamicResource GlobalFontColor}" Background="{Binding BackColor}" BorderBrush="{DynamicResource GlobalFontColor}"   SelectionChanged="lstSuggestions_SelectionChanged"/>
+                </Popup>
+                <Button Grid.Column="1"  Style="{StaticResource MyButtonStyle}" x:Name="BtnFirst" Click="BtnFirst_Click"  BorderBrush="#484899" Width="50" Height="50" VerticalAlignment="Center"  BorderThickness="1"  HorizontalAlignment="Center" ToolTip="Prvi artikl" Margin="10,0,0,0">
+                    <TextBlock 
+                      FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                      FontSize="24"
+                      FontWeight="ExtraLight"
+                      Text="&#60271;" 
+                      Foreground="{DynamicResource GlobalFontColor}"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"/>
+            </Button>
+             <Button Grid.Column="2" Style="{StaticResource MyButtonStyle}" BorderBrush="#484899" x:Name="BtnLast" Click="BtnLast_Click" Width="50" Height="50" Padding="0"  VerticalAlignment="Center"   ToolTip="Naredni artikl" Margin="10,0,0,0" >
+                    <TextBlock 
+                 FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                 FontSize="24"
+                 FontWeight="ExtraLight"
+                 Text="&#60272;" 
+                 Foreground="{DynamicResource GlobalFontColor}"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Center"/>
+              </Button>
+          </Grid>
+
+            <Grid Grid.Row="0" Grid.Column="1" Margin="20,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="310"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+
+                <Border Grid.Column="0" Padding="5" Width="300" Height="50" HorizontalAlignment="Left" BorderThickness="1" Background="Transparent" BorderBrush="{DynamicResource GlobalFontColor}" CornerRadius="15">
+                    <DockPanel>
+                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60013;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBox x:Name="SearchIngredientTextBox" Style= "{StaticResource TextBoxCustom}" CaretBrush="{DynamicResource GlobalFontColor}"
+                                 Text="{Binding SearchTextIngredient, UpdateSourceTrigger=PropertyChanged}" GotFocus="TextBox_GotFocus" LostFocus="TextBox_LostFocus"
+                                  Foreground="{DynamicResource GlobalFontColor}"  FontSize="16"  HorizontalAlignment="Stretch"
+                                 VerticalContentAlignment="Center" Background="Transparent" BorderBrush="Transparent" Padding="5"/>
+                    </DockPanel>
+                </Border>
+
+            </Grid>
+
+                <Border Grid.Column="0" Grid.Row="1" BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="1" Padding="10" CornerRadius="20" Margin="20" MaxWidth="650" MinWidth="500" HorizontalAlignment="Left">
+                    <Grid Margin="10"  >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Label x:Name="lblJelo" Content="{Binding SelectedJelo.Artikl}" Foreground="{DynamicResource GlobalFontColor}" Grid.ColumnSpan="2" Grid.Row="0" Grid.Column="0"  FontSize="20" Margin="10,0,10,0" Padding="2"/>
+                        <Label   Foreground="{DynamicResource GlobalFontColor}"  Grid.Row="1" Grid.Column="0" Content="Proizvodna cijena" FontSize="12" Margin="10,0,10,0" />
+                        <Label   Foreground="{DynamicResource GlobalFontColor}"  Grid.Row="2" Grid.Column="0" Content="Prodajna cijena" FontSize="12" Margin="10,0,10,0"/>
+                        <Label   Foreground="{DynamicResource GlobalFontColor}"  Grid.Row="3" Grid.Column="0" Content="Marža" FontSize="12" Margin="10,0,10,0"/>
+                        <Label x:Name="lblProizvodnaCijena" Content="{Binding ProizvodnaCijena}" ContentStringFormat="{}{0:F2} KM" Foreground="{DynamicResource GlobalFontColor}"  Grid.Row="1" Grid.Column="1"  FontSize="14" Margin="10,0,10,0"/>
+                        <Label x:Name="lblProdajnaCijena"  Content="{Binding ProdajnaCijena}" ContentStringFormat="{}{0:F2} KM" Foreground="{DynamicResource GlobalFontColor}"  Grid.Row="2" Grid.Column="1"  FontSize="14" Margin="10,0,10,0"/>
+                        <Label x:Name="lblMarža"  Content="{Binding Marza}" Foreground="{DynamicResource GlobalFontColor}"  Grid.Row="3" Grid.Column="1"  FontSize="14" Margin="10,0,10,0"/>
+                    </Grid>
+                </Border>
+
+            <Grid Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Margin="20" >
+                
+                <DataGrid x:Name="ListaNormativ"  VerticalAlignment="Top" 
+                Grid.Row="1" Grid.RowSpan="2" Grid.Column="0"
+                MaxWidth="750" MaxHeight="800"
+                GridLinesVisibility="None"
+                ItemsSource="{Binding Norm}"
+                SelectedItem="{Binding SelectedNorm, Mode=TwoWay}"
+                AutoGenerateColumns="False"
+                MouseUp="ListaNormativ_MouseDoubleClick"
+                HeadersVisibility="Column"
+                CanUserAddRows="False"
+                CanUserResizeRows="False"
+                CanUserSortColumns="False"
+                HorizontalScrollBarVisibility="Disabled"
+                Background="Transparent"
+                BorderThickness="0"
+                ClipToBounds="True"
+                BorderBrush="{DynamicResource GlobalFontColor}"
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                SelectionMode="Single">
+                  
+                    <DataGrid.Resources>
+                        <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+
+                        <DataGridTemplateColumn Header="Namirnica" Width="2*" >
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Repromaterijal}" TextWrapping="Wrap"  HorizontalAlignment="Left" VerticalAlignment="Center" Padding="10"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Jed.mjere" Width="*" >
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding JedinicaMjere}"   TextAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Cijena" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Cijena, StringFormat={}{0:F2}}"
+                 TextAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Količina" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Kolicina, StringFormat={}{0:F2}}"
+TextAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Iznos" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Ukupno, StringFormat={}{0:F2}}" 
+                 TextAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="#"  Width="*" >
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button  Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}" PreviewMouseLeftButtonDown="Button_PreviewMouseLeftButtonDown"  Style="{StaticResource MyButtonStyle}"  BorderBrush="#ff3232"      Width="30"    Height="30"   Foreground="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type ListView}}}" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="1" Padding="1" FontSize="18" Width="35"  FontWeight="ExtraLight" Text="&#xEA81;" Foreground="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                    </DataGrid.Columns>
+                </DataGrid>
+
+          
+            </Grid>
+            <Grid Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" Margin="20"  >
+
+                <DataGrid x:Name="ListaNamirnica"  VerticalAlignment="Top" 
+                Grid.Row="1" Grid.RowSpan="2" Grid.Column="0"
+                MaxWidth="750" MaxHeight="800"
+                          HorizontalAlignment="Left"
+                SelectionChanged="ListaNamirnica_SelectionChanged"
+                GridLinesVisibility="None"
+                ItemsSource="{Binding IngredientFilter}"
+                SelectedItem="{Binding SelectedIngredient, Mode=TwoWay}"
+                 AutoGenerateColumns="False"
+                 MouseUp="ListaNamirnica_MouseDoubleClick"
+                HeadersVisibility="Column"
+                CanUserAddRows="False"
+                CanUserResizeRows="False"
+                CanUserSortColumns="False"
+                HorizontalScrollBarVisibility="Disabled"
+                Background="Transparent"
+                BorderThickness="0"
+                ClipToBounds="True"
+                BorderBrush="{DynamicResource GlobalFontColor}"
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                SelectionMode="Single">
+
+                    <DataGrid.Resources>
+                        <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+
+                        <DataGridTemplateColumn Header="Namirnica" Width="2*" >
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Repromaterijal}" TextWrapping="Wrap"  HorizontalAlignment="Left" VerticalAlignment="Center" Padding="10"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Jed.mjere" Width="*" >
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding JedinicaMjere}"   TextAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Nab. cijena" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding NabavnaCijena, StringFormat={}{0:F2}}"
+                 TextAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+
+
+                    </DataGrid.Columns>
+                </DataGrid>
+            
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

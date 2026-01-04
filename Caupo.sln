@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35219.272
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Caupo", "Caupo.csproj", "{B129ED28-A8D0-4EBC-86EF-BD47F5A50A1F}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "CaupoSetup", "..\CaupoSetup\CaupoSetup.vdproj", "{8384AB01-2504-FA16-5E1B-F0E1B8470A68}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B129ED28-A8D0-4EBC-86EF-BD47F5A50A1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B129ED28-A8D0-4EBC-86EF-BD47F5A50A1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B129ED28-A8D0-4EBC-86EF-BD47F5A50A1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B129ED28-A8D0-4EBC-86EF-BD47F5A50A1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8384AB01-2504-FA16-5E1B-F0E1B8470A68}.Debug|Any CPU.ActiveCfg = Debug
+		{8384AB01-2504-FA16-5E1B-F0E1B8470A68}.Release|Any CPU.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6B657EAB-2872-4DAF-980A-E6C1455731B0}
+	EndGlobalSection
+EndGlobal

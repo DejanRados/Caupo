@@ -1,0 +1,246 @@
+﻿<UserControl x:Class="Caupo.Views.OrderPage"
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Caupo.ViewModels"
+         xmlns:loc="clr-namespace:Caupo"
+        xmlns:Syncfusion="http://schemas.microsoft.com/netfx/2009/xaml/presentation"
+        xmlns:syncfusion="http://schemas.syncfusion.com/wpf" xmlns:svg="http://sharpvectors.codeplex.com/svgc/"
+        mc:Ignorable="d" >
+
+    <Grid VerticalAlignment="Top" MinWidth="1300" >
+        <Grid.RowDefinitions>
+            <RowDefinition Height="56"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+             <RowDefinition Height="100"/>
+        </Grid.RowDefinitions>
+        <Border x:Name="RacunIdikator" Background="#66323232" HorizontalAlignment="Stretch" Panel.ZIndex="999" Grid.RowSpan="4" CornerRadius="25" Visibility="Collapsed" VerticalAlignment="Stretch">
+            <mah:ProgressRing IsActive="True" Width="100" Height="100" Foreground="{DynamicResource GlobalFontColor}" />
+
+        </Border>
+        <Grid VerticalAlignment="Center" Height="55" Background="#323232">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="0.2*"/>
+            </Grid.ColumnDefinitions>
+            <Image Source="pack://application:,,,/Images/dsoftlogosmall.png" Width="50" Height="50" Grid.Column="0" HorizontalAlignment="Left" Margin="20,0,0,0"/>
+            <Label x:Name="lblApp" Content="Caupo - Narudžba" Foreground="#dedede" FontSize="25" Grid.Column="0" HorizontalAlignment="Center"  VerticalAlignment="Center"/>
+            <Label x:Name="lblSto" Content="{Binding ImeStola}" Foreground="#dedede" FontSize="25" Grid.Column="0" HorizontalAlignment="Right"  VerticalAlignment="Center"/>
+            <Label x:Name="lblUlogovaniKorisnik" Content="Ime i prezime" Foreground="#dedede" FontSize="15" Grid.Column="1" HorizontalAlignment="Right"  VerticalAlignment="Center"/>
+            <Button x:Name="CloseButton" Style="{StaticResource CloseButtonStyle}"  VerticalAlignment="Top" HorizontalAlignment="Right" Padding="0" Margin="1" Click="CloseButton_Click" Grid.Column="2" />
+        </Grid>
+
+        <Grid  Grid.Row="1" HorizontalAlignment="Stretch" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.5*"/>
+                <ColumnDefinition Width="0.5*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Viewbox x:Name="ViewKolicina" Grid.Row="0" Grid.Column="0" MaxHeight="100" VerticalAlignment="Stretch" HorizontalAlignment="Right" Visibility="Collapsed">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Label x:Name="lblKolicina" Foreground="{DynamicResource GlobalFontColor}"  Content="Količina"  HorizontalContentAlignment="Center" Width="100" Grid.Row="0"/>
+                <TextBox x:Name="txtKolicina"   Text="1" Width="100"  Foreground="{DynamicResource GlobalFontColor}"  VerticalContentAlignment="Center" BorderThickness="0,0,0,1" Padding="1" HorizontalContentAlignment="Center" FontSize="20" Background="Transparent" Grid.Row="1"/>
+                </Grid>
+            </Viewbox>
+            <Viewbox  Grid.Row="0"  Grid.Column="2" MaxWidth="260"  VerticalAlignment="Stretch" HorizontalAlignment="Center" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <ComboBox Grid.Row="0" x:Name="cmbNacinPlacanja"  Foreground="{DynamicResource GlobalFontColor}" SelectedIndex="0" Margin="1"  Height="30" Width="120" HorizontalAlignment="Left"  >
+                    <ComboBoxItem Content="Gotovina" />
+                    <ComboBoxItem Content="Kartica" />
+                    <ComboBoxItem Content="Ček" />
+                    <ComboBoxItem Content="Virman" />
+                </ComboBox>
+                <ComboBox Grid.Row="1" x:Name="cmbKupac"  Foreground="{DynamicResource GlobalFontColor}"  Margin="1" Height="30" Width="180" HorizontalAlignment="Left" 
+                   ItemsSource="{Binding Kupci}"
+                   SelectedItem="{Binding SelectedKupac}"
+                   DisplayMemberPath="Kupac">
+                </ComboBox>
+                </Grid>
+            </Viewbox>
+            <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="180"  Margin="30" Grid.Column="1" HorizontalAlignment="Right">
+                <Button Style="{StaticResource MyButtonStyle}"  BorderBrush="LightGreen" Margin="5"  x:Name="BtnRacun"     Click="BtnRacun_Click"   Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"   >
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <svg:SvgViewbox   Width="30" Height="32" Source="{Binding ImagePathReceiptButton, TargetNullValue={x:Null}}"  Stretch="Uniform" Margin="0,0,10,0"/>
+                        <TextBlock Text="Račun"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
+                    </StackPanel>
+                </Button>
+            </Viewbox>
+
+        </Grid>
+
+        <Grid   Grid.Row="2" HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.5*"/>
+                <ColumnDefinition Width="0.5*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid Visibility="Hidden" Grid.Column="0" >
+                <Grid.ColumnDefinitions>
+                    <!--Width is bound to width of the first GridViewColumn -->
+                    <ColumnDefinition Width="*" />
+                    <!--Width is set to "Fill"-->
+                    <ColumnDefinition Width="{Binding ElementName=col1, Path=ActualWidth}"/>
+                    <!--Correction Width-->
+                    <ColumnDefinition Width="3*"/>
+                </Grid.ColumnDefinitions>
+                <!--This is the hidden helper Field which is used to bind to, using the "Fill" column of the helper grid-->
+                <Grid Grid.Column="0" x:Name="helperField"/>
+            </Grid>
+            <Border Grid.Column="0" Grid.Row="0" Padding="3" VerticalAlignment="Stretch" MinHeight="400" BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0.5"  CornerRadius="10" Margin="30,10,30,10">
+                <DataGrid x:Name="ListaNarudzbeStavke" VerticalAlignment="Top" 
+                  Grid.Row="1" Grid.Column="0" 
+                  MaxWidth="950" MaxHeight="800"
+                          GridLinesVisibility="None"
+                  PreviewMouseLeftButtonUp="ListnarudzbeStavke_PreviewMouseLeftButtonUp"
+                  ItemsSource="{Binding NarudzbeStavke}"
+                  SelectedItem="{Binding SelectedStavka, Mode=TwoWay}"  
+                  AutoGenerateColumns="False"
+                  HeadersVisibility="Column"
+                  CanUserAddRows="False"
+                  CanUserResizeRows="False"
+                  CanUserSortColumns="False"
+                  RowHeight="35"
+                  HorizontalScrollBarVisibility="Disabled"
+                  Background="Transparent"
+                  BorderThickness="0"
+                  ClipToBounds="True"
+                  BorderBrush="{DynamicResource GlobalFontColor}"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  SelectionMode="Single">
+                    <DataGrid.Resources>
+                        <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+
+                        <DataGridTemplateColumn Header="Artikl" Width="2*" >
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Količina" Width="*" >
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Quantity, StringFormat={}{0:F2}}"   TextAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Cijena" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding UnitPrice, StringFormat={}{0:F2}}"    TextAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Iznos" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding TotalAmount, StringFormat={}{0:F2}}"  TextAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                    </DataGrid.Columns>
+                </DataGrid>
+           
+            </Border>
+
+
+            <Border  x:Name="BorderRacunStavke" Padding="3" Visibility="Collapsed" MinHeight="400" VerticalAlignment="Stretch" Background="Transparent" Grid.Column="1" Grid.Row="0" BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0.5"  CornerRadius="10" Margin="30,10,30,10">
+                <DataGrid x:Name="ListGostRacunStavke" VerticalAlignment="Top" 
+  Grid.Row="1" Grid.Column="0" 
+  MaxWidth="950" MaxHeight="800"
+  GridLinesVisibility="None"
+  PreviewMouseLeftButtonUp ="ListGostRacunStavke_PreviewMouseLeftButtonUp"
+  ItemsSource="{Binding GostRacunStavke}"
+  SelectedItem="{Binding SelectedStavkaRacunGost, Mode=TwoWay}" 
+  AutoGenerateColumns="False"
+  HeadersVisibility="Column"
+  CanUserAddRows="False"
+  CanUserResizeRows="False"
+  CanUserSortColumns="False"
+  RowHeight="35"
+  HorizontalScrollBarVisibility="Disabled"
+  Background="Transparent"
+  BorderThickness="0"
+  ClipToBounds="True"
+  BorderBrush="{DynamicResource GlobalFontColor}"
+  ScrollViewer.VerticalScrollBarVisibility="Auto"
+  SelectionMode="Single">
+                    <DataGrid.Resources>
+                        <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+
+                        <DataGridTemplateColumn Header="Artikl" Width="2*" >
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Količina" Width="*" >
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Quantity, StringFormat={}{0:F2}}"   TextAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Cijena" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding UnitPrice, StringFormat={}{0:F2}}"    TextAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Iznos" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding TotalAmount, StringFormat={}{0:F2}}"  TextAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                    </DataGrid.Columns>
+                </DataGrid>
+
+            </Border>
+
+        </Grid>
+        <Grid  Grid.Row="3" HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.5*"/>
+                <ColumnDefinition Width="0.5*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Label x:Name="lblIznos" Content="{Binding TotalSum}" Foreground="{DynamicResource GlobalFontColor}" ContentStringFormat="{}{0:0.00}" FontSize="40" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Right" Margin="0,0,50,0"/>
+            <Label x:Name="lblIznosGostRacun" Visibility="Collapsed" Foreground="{DynamicResource GlobalFontColor}" Content="{Binding TotalSumGostRacun}" ContentStringFormat="{}{0:0.00}" FontSize="40" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,50,0"/>
+        </Grid>
+    </Grid>
+
+</UserControl>

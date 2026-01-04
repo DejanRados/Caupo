@@ -1,0 +1,335 @@
+﻿<UserControl x:Class="Caupo.Views.KnjigaSankaPage"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:local="clr-namespace:Caupo.ViewModels"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+   xmlns:syncfusionskin ="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF" 
+   xmlns:svg="http://sharpvectors.codeplex.com/svgc/"
+   xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+   Loaded="Window_Loaded"
+    >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="55"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="55" Background="#323232" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="0.2*"/>
+            </Grid.ColumnDefinitions>
+            <Image Source="pack://application:,,,/Images/dsoftlogosmall.png" Width="50" Height="50" Grid.Column="0" HorizontalAlignment="Left" Margin="20,0,0,0"/>
+            <Label x:Name="lblApp" Content="Caupo - Knjiga šanka" Foreground="#fafafa" FontSize="25" Grid.Column="0" HorizontalAlignment="Center"  VerticalAlignment="Center"/>
+            <Label x:Name="lblUlogovaniKorisnik" Content="Ime i prezime" Foreground="#fafafa" FontSize="16" Grid.Column="1" HorizontalAlignment="Right"  VerticalAlignment="Center"/>
+            <Button x:Name="CloseButton" Style="{StaticResource CloseButtonStyle}"  VerticalAlignment="Top" HorizontalAlignment="Right" Padding="0" Margin="1" Click="CloseButton_Click" Grid.Column="2" />
+        </Grid>
+        <Grid Grid.Row="1" Margin="120,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Button Style="{StaticResource MyButtonStyle}"  BorderBrush="#484899" x:Name="BtnFirst" Click="BtnFirst_Click" Width="50" Height="50" VerticalAlignment="Center"  BorderThickness="1" Grid.Column="0" HorizontalAlignment="Center" ToolTip="Prvi artikl" Margin="10,0,0,0">
+                <TextBlock  FontFamily="pack://application:,,,/Assets/Fonts/#codicon" FontSize="24" FontWeight="ExtraLight" Text="&#xEB6F;"  Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Button>
+            <Border Grid.Column="1"  BorderThickness="1" CornerRadius="10" Height="50" VerticalAlignment="Center"  HorizontalAlignment="Stretch" Padding="0" Margin="20" >
+                <Border.Style>
+                    <Style TargetType="{x:Type Border}">
+                        <Setter Property="BorderBrush" Value="#484899"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Style.Triggers>
+                            <!-- Trigger za MouseOver -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="BorderBrush" Value="Gray"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <DatePicker Focusable="False" FontFamily="Arial" CalendarStyle="{StaticResource styleCalendar}"  x:Name="DpDate" SelectedDate="{Binding OdabraniDatum, StringFormat=dd.MM.yyyy}"  Width="150"  BorderThickness="0"  Background="Transparent" Foreground="{DynamicResource GlobalFontColor}"   HorizontalContentAlignment="Center" VerticalAlignment="Center">
+                    <DatePicker.Resources>
+                        <Style TargetType="DatePickerTextBox">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="DatePickerTextBox">
+                                        <ScrollViewer x:Name="PART_ContentHost"
+                            Background="Transparent"
+                            Focusable="False"/>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Text">
+                                <Setter.Value>
+                                    <Binding Path="SelectedDate" 
+                             RelativeSource="{RelativeSource AncestorType=DatePicker}"
+                             StringFormat="dd.MM.yyyy"/>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+
+                    
+                    </DatePicker.Resources>
+                </DatePicker>
+            
+            </Border>
+            <Button Style="{StaticResource MyButtonStyle}"    BorderBrush="#484899"  x:Name="BtnLast" Click="BtnLast_Click" Width="50" Height="50" Padding="0"  VerticalAlignment="Center"  Grid.Column="2" ToolTip="Naredni artikl" Margin="10,0,0,0" >
+                <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" FontSize="24" FontWeight="ExtraLight" Text="&#xEB70;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Button>
+            <Button  Grid.Column="4" Style="{StaticResource MyButtonStyle}"  BorderBrush="#32ff32"  x:Name="BtnPrint"    Width="120"    Height="50"     Click="BtnPrint_Click" HorizontalAlignment="Left">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <svg:SvgViewbox Width="24"  Height="24"  Source="{Binding ImagePathPrintButton, TargetNullValue={x:Null}}"  Stretch="Uniform"  Margin="0,0,5,0"/>
+                    <TextBlock Text="Štampaj"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
+                </StackPanel>
+            </Button>
+
+
+        </Grid>
+        <Grid Grid.Row="2" Margin=" 120,0" VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid  Grid.Row="0">
+                <StackPanel Orientation="Vertical" >
+                    <Label  Content="{Binding Firma.NazivFirme}"   FontSize="14"  HorizontalAlignment="Left" Foreground="{DynamicResource GlobalFontColor}" />
+                    <Label  Content="{Binding Firma.Adresa}"   FontSize="12"  HorizontalAlignment="Left" Foreground="{DynamicResource GlobalFontColor}" />
+                    <Label  Content="{Binding Firma.Grad}"   FontSize="12"  HorizontalAlignment="Left" Foreground="{DynamicResource GlobalFontColor}" />
+                    <Label  Content="{Binding Firma.JIB}"   FontSize="12"  HorizontalAlignment="Left" Foreground="{DynamicResource GlobalFontColor}" />
+                    <Label  Content="{Binding Firma.PDV}"   FontSize="12"  HorizontalAlignment="Left" Foreground="{DynamicResource GlobalFontColor}" />
+                </StackPanel>
+                <StackPanel Orientation="Vertical" >
+                 
+                    <Label Content="Dnevni list šanka za dan:" FontSize="25" HorizontalAlignment="Center" Foreground="{DynamicResource GlobalFontColor}" />
+                    <Label  Content="{Binding OdabraniDatum}" ContentStringFormat="dd.MM.yyyy"  FontSize="12" FontWeight="Medium"  HorizontalAlignment="Center" Foreground="{DynamicResource GlobalFontColor}" />
+                </StackPanel>
+            </Grid>
+            <DataGrid ItemsSource="{Binding Knjiga}" VerticalAlignment="Stretch"
+                       FontSize="12"   Foreground="{DynamicResource GlobalFontColor}"
+                      GridLinesVisibility="None"  Background="Transparent" BorderThickness="0.1" BorderBrush="{DynamicResource GlobalFontColor}"
+                      AutoGenerateColumns="False" Grid.Row="1"  MaxHeight="700" MaxWidth="1200" ColumnHeaderHeight="55"  
+                  CanUserAddRows="False" IsReadOnly="True" Margin="0,10,0,0" RowHeaderWidth="0" Padding="1"  >
+                <DataGrid.Resources>
+                    <!-- Tvoja glavna boja selekcije -->
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#3366FF66"/>
+                    <!-- Boja selekcije kada grid izgubi fokus -->
+                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#3366FF66"/>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#252525"/>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#424242"/>
+                    <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
+                    <!-- Svi DataGridCell koriste istu boju selekcije -->
+                    <Style TargetType="{x:Type DataGridCell}">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="0.05"/>
+                        <Setter Property="BorderBrush" Value="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"/>
+                        
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                    <!-- Stil za redove -->
+                    <Style TargetType="{x:Type DataGridRow}">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Style.Triggers>
+                            <!-- Kada je red selektovan i grid ima fokus -->
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Mode=Self}}" Value="True"/>
+                                    <Condition Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                            </MultiDataTrigger>
+
+                            <!-- Kada je red selektovan, ali grid NEMA fokus -->
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource Mode=Self}}" Value="True"/>
+                                    <Condition Binding="{Binding IsKeyboardFocusWithin, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" Value="False"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.InactiveSelectionHighlightBrushKey}}"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.Resources>
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="{x:Type DataGridColumnHeader}">
+                        <Setter Property="Background" Value="#323232"/>
+                        <Setter Property="Foreground" Value="#dbdbdb"/>
+                        <Setter Property="FontSize" Value="12"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                        <Setter Property="ContentTemplate">
+                            <Setter.Value>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}"
+                        TextWrapping="Wrap"
+                        TextAlignment="Center"
+                        VerticalAlignment="Center"
+                        Margin="4"/>
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="" Binding="{Binding RedniBroj}" Width="40" >
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextAlignment" Value="Center"/>
+                                <Setter Property="Padding" Value="3"/>
+
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsPromet}" Value="True">
+                                        <Setter Property="Background" Value="#4464da64"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Naziv robe" Binding="{Binding Naziv}" Width="*">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextAlignment" Value="Left"/>
+                                <Setter Property="Padding" Value="3"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsPromet}" Value="True">
+                                        <Setter Property="Background" Value="#4464da64"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="JM" Binding="{Binding JedinicaMjere}" Width="40">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextAlignment" Value="Center"/>
+                                <Setter Property="Padding" Value="3"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsPromet}" Value="True">
+                                        <Setter Property="Background" Value="#4464da64"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Prenesene zalihe iz prethodnog dana" Binding="{Binding OstatakOdJuce, StringFormat=\{0:F2\}}" Width="100">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextAlignment" Value="Right"/>
+                                <Setter Property="Padding" Value="3"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsPromet}" Value="True">
+                                        <Setter Property="Background" Value="#4464da64"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Nabavke u toku dana" Binding="{Binding NabavljenoDanas, StringFormat=\{0:F2\}}" Width="100">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextAlignment" Value="Right"/>
+                                <Setter Property="Padding" Value="3"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsPromet}" Value="True">
+                                        <Setter Property="Background" Value="#4464da64"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Ukupno zaduženje" Binding="{Binding NaStanju, StringFormat=\{0:F2\}}" Width="100">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextAlignment" Value="Right"/>
+                                <Setter Property="Padding" Value="3"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsPromet}" Value="True">
+                                        <Setter Property="Background" Value="#4464da64"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Utrošak u toku dana" Binding="{Binding UtrosenoDanas, StringFormat=\{0:F3\}}" Width="100">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextAlignment" Value="Right"/>
+                                <Setter Property="Padding" Value="3"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsPromet}" Value="True">
+                                        <Setter Property="Background" Value="#4464da64"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Cijena" Binding="{Binding Cijena, StringFormat=\{0:F2\}}" Width="100"  >
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextAlignment" Value="Right"/>
+                                <Setter Property="Padding" Value="3"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsPromet}" Value="True">
+                                        <Setter Property="Background" Value="#4464da64"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Iznos" Binding="{Binding Promet, StringFormat=\{0:F2\}}" Width="100">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextAlignment" Value="Right"/>
+                                <Setter Property="Padding" Value="3"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsPromet}" Value="True">
+                                        <Setter Property="Background" Value="#4464da64"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                    <DataGridTextColumn Header="Ostatak robe-Prenos za naredni dan" Binding="{Binding OstatakZaSutra, StringFormat=\{0:F2\}}" Width="100">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="TextAlignment" Value="Right"/>
+                                <Setter Property="Padding" Value="3"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsPromet}" Value="True">
+                                        <Setter Property="Background" Value="#4464da64"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+         
+            <Grid  Grid.Row="2"  MaxWidth="1200" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Label Foreground="{DynamicResource GlobalFontColor}" Content="UKUPNO:" Grid.Column="1" HorizontalContentAlignment="Right" Padding="25" HorizontalAlignment="Stretch"/>
+                <Label Foreground="{DynamicResource GlobalFontColor}" Content="{Binding Total}" ContentStringFormat="{}{0:F2}" Grid.Column="2" HorizontalContentAlignment="Right"  Padding="25" HorizontalAlignment="Stretch"/>
+            </Grid>
+        </Grid>
+
+    </Grid>
+</UserControl>

@@ -1,0 +1,81 @@
+﻿<Window x:Class="Caupo.Views.NewWorkerPopup"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Caupo.Views" 
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        Loaded="Window_Loaded"
+        
+        mc:Ignorable="d"
+        Title="NewWorkerPopup" Height="300" Width="400">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.1*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Label x:Name="lblid" Visibility="Hidden"/>
+        <TextBlock x:Name="PopupTitle" Text="Novi radnik" HorizontalAlignment="Center" Foreground="{DynamicResource GlobalFontColor}" FontSize="20" VerticalAlignment="Center" Grid.Row="1"/>
+
+        <Grid Grid.Row="2" Margin="10,0,10,5">
+        <TextBox x:Name="txtRadnik" Background="Transparent" Foreground="{DynamicResource GlobalFontColor}" CaretBrush="{DynamicResource GlobalFontColor}"  VerticalAlignment="Bottom"    Margin="30,0,30,0" Padding="5"  BorderThickness="0,0,0,1" BorderBrush="LightGray" />
+            <TextBlock IsHitTestVisible="False" Text="Ime i prezime radnika...." VerticalAlignment="Top" HorizontalAlignment="Left" Margin="30,0,30,0"  Foreground="DarkGray">
+            <TextBlock.Style>
+                <Style TargetType="{x:Type TextBlock}">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Text, ElementName=txtRadnik}" Value="">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+        </Grid>
+
+        <Grid Grid.Row="3" Margin="10,0,10,5">
+            <TextBox x:Name="txtLozinka" Background="Transparent" Foreground="{DynamicResource GlobalFontColor}" CaretBrush="{DynamicResource GlobalFontColor}"  VerticalAlignment="Bottom"    Margin="30,0,30,0" Padding="5"   BorderThickness="0,0,0,1" BorderBrush="LightGray" />
+            <TextBlock IsHitTestVisible="False" Text="Lozinka...." VerticalAlignment="Top" HorizontalAlignment="Left" Margin="30,0,30,0" Foreground="DarkGray">
+                <TextBlock.Style>
+                    <Style TargetType="{x:Type TextBlock}">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Text, ElementName=txtLozinka}" Value="">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+        </Grid>
+
+     
+        <Label Content="Dopuštenja" HorizontalAlignment="Left" Foreground="{DynamicResource GlobalFontColor}" Grid.Row="4" VerticalAlignment="Center" Margin="30,0,0,0" />
+        <ComboBox x:Name="cmbDozvole"  Margin="0,0,30,0" Foreground="{DynamicResource GlobalFontColor}" Height="30" Width="150"  Grid.Row="4" HorizontalAlignment="Right"  IsEditable="True" >
+            <ComboBoxItem Content="Administrator" />
+            <ComboBoxItem Content="Korisnik" />
+
+        </ComboBox>
+        <StackPanel Orientation="Horizontal" Grid.Row="6" HorizontalAlignment="Center">
+            <Button Style="{StaticResource MyButtonStyle}"  BorderBrush="#ff3232" x:Name="CancelButton"  Click="CancelButton_Click"   Width="100"  Margin="5"  Height="40"   Foreground="{DynamicResource GlobalFontColor}"      Grid.Column="0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="20" Width="20" FontWeight="ExtraLight" Text="&#60039;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock Text="Odustani"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
+                </StackPanel>
+            </Button>
+
+            <Button  Style="{StaticResource MyButtonStyle}"  BorderBrush="#32ff32"  x:Name="OKButton"  Click="OKButton_Click"  Width="100" Margin="5"   Height="40"   Foreground="{DynamicResource GlobalFontColor}"       Grid.Column="1" HorizontalAlignment="Left">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="20" Width="20" FontWeight="ExtraLight" Text="&#xEB4B;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock Text="Spremi"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
+     
+    </Grid>
+</Window>
