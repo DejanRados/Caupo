@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
-using Caupo.Data;
+﻿using Caupo.Data;
 using Caupo.Fiscal;
 using Caupo.Models;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Text.Json;
 using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.Server
@@ -106,20 +102,20 @@ namespace Caupo.Server
                 }
 
                 // Štampa
-            
-                    if(!string.IsNullOrWhiteSpace (Properties.Settings.Default.KuhinjaPrinter) && stavkeKuhinja.Any ())
-                    {
-                        var blok = new BlokPrinter (stavkeKuhinja, "Kuhinja", userId, source);
-                        await blok.Print ();
-                    }
 
-                    if(!string.IsNullOrWhiteSpace (Properties.Settings.Default.SankPrinter) &&  stavkeSank.Any ())
-                    {
-                        var blok = new BlokPrinter (stavkeSank, "Sank", userId, source);
-                        await blok.Print ();
+                if(!string.IsNullOrWhiteSpace (Properties.Settings.Default.KuhinjaPrinter) && stavkeKuhinja.Any ())
+                {
+                    var blok = new BlokPrinter (stavkeKuhinja, "Kuhinja", userId, source);
+                    await blok.Print ();
+                }
 
-                    }
-                
+                if(!string.IsNullOrWhiteSpace (Properties.Settings.Default.SankPrinter) && stavkeSank.Any ())
+                {
+                    var blok = new BlokPrinter (stavkeSank, "Sank", userId, source);
+                    await blok.Print ();
+
+                }
+
 
 
                 return Ok ("Blok poslat na štampanje.");

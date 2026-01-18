@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Management; // Dodajte referencu na System.Management
 using System.Security.Cryptography;
 using System.Text;
@@ -57,7 +56,7 @@ namespace Caupo.Helpers
                     }
                 }
             }
-            catch {  }
+            catch { }
             return "";
         }
 
@@ -73,7 +72,7 @@ namespace Caupo.Helpers
                     }
                 }
             }
-            catch {  }
+            catch { }
             return "";
         }
 
@@ -89,7 +88,7 @@ namespace Caupo.Helpers
                     }
                 }
             }
-            catch {  }
+            catch { }
             return "";
         }
 

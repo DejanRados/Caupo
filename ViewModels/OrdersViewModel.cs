@@ -1,38 +1,32 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
+﻿using Caupo.Data;
+using Caupo.Fiscal;
+using Caupo.Properties;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
-using Caupo.Data;
-using Caupo.Properties;
-using static Caupo.Data.DatabaseTables;
 using System.Windows;
-using Caupo.Fiscal;
+using System.Windows.Media;
+using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.ViewModels
 {
     public class OrdersViewModel : INotifyPropertyChanged
     {
-        private ObservableCollection<FiskalniRacun.Item> _stavkeRacuna = new ObservableCollection<FiskalniRacun.Item>();
+        private ObservableCollection<FiskalniRacun.Item> _stavkeRacuna = new ObservableCollection<FiskalniRacun.Item> ();
         public ObservableCollection<FiskalniRacun.Item> StavkeRacuna
         {
             get => _stavkeRacuna;
             set
             {
                 _stavkeRacuna = value;
-                OnPropertyChanged(nameof(StavkeRacuna));
+                OnPropertyChanged (nameof (StavkeRacuna));
 
-               
+
             }
         }
 
-        private ObservableCollection<DatabaseTables.TblNarudzbe> _narudzbe = new ObservableCollection<TblNarudzbe>();
+        private ObservableCollection<DatabaseTables.TblNarudzbe> _narudzbe = new ObservableCollection<TblNarudzbe> ();
 
         public ObservableCollection<DatabaseTables.TblNarudzbe> Narudzbe
         {
@@ -40,13 +34,13 @@ namespace Caupo.ViewModels
             set
             {
                 _narudzbe = value;
-                OnPropertyChanged(nameof(Narudzbe));
+                OnPropertyChanged (nameof (Narudzbe));
 
 
             }
         }
 
-        private ObservableCollection<DatabaseTables.TblNarudzbeStavke> _narudzbeStavke = new ObservableCollection<TblNarudzbeStavke>();
+        private ObservableCollection<DatabaseTables.TblNarudzbeStavke> _narudzbeStavke = new ObservableCollection<TblNarudzbeStavke> ();
 
         public ObservableCollection<DatabaseTables.TblNarudzbeStavke> NarudzbeStavke
         {
@@ -54,7 +48,7 @@ namespace Caupo.ViewModels
             set
             {
                 _narudzbeStavke = value;
-                OnPropertyChanged(nameof(NarudzbeStavke));
+                OnPropertyChanged (nameof (NarudzbeStavke));
 
 
             }
@@ -68,7 +62,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathSaveButton = value;
-                OnPropertyChanged(nameof(ImagePathSaveButton));
+                OnPropertyChanged (nameof (ImagePathSaveButton));
             }
         }
 
@@ -79,7 +73,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathDeleteButton = value;
-                OnPropertyChanged(nameof(ImagePathDeleteButton));
+                OnPropertyChanged (nameof (ImagePathDeleteButton));
             }
         }
 
@@ -89,10 +83,10 @@ namespace Caupo.ViewModels
             get { return _fontColor; }
             set
             {
-                if (_fontColor != value)
+                if(_fontColor != value)
                 {
                     _fontColor = value;
-                    OnPropertyChanged(nameof(FontColor));
+                    OnPropertyChanged (nameof (FontColor));
                 }
             }
         }
@@ -103,10 +97,10 @@ namespace Caupo.ViewModels
             get { return _backColor; }
             set
             {
-                if (_backColor != value)
+                if(_backColor != value)
                 {
                     _backColor = value;
-                    OnPropertyChanged(nameof(BackColor));
+                    OnPropertyChanged (nameof (BackColor));
                 }
             }
         }
@@ -117,10 +111,10 @@ namespace Caupo.ViewModels
             get { return _idStola; }
             set
             {
-                if (_idStola != value)
+                if(_idStola != value)
                 {
                     _idStola = value;
-                    OnPropertyChanged(nameof(IdStola));
+                    OnPropertyChanged (nameof (IdStola));
                 }
             }
         }
@@ -130,10 +124,10 @@ namespace Caupo.ViewModels
             get { return _imeStola; }
             set
             {
-                if (_imeStola != value)
+                if(_imeStola != value)
                 {
                     _imeStola = value;
-                    OnPropertyChanged(nameof(ImeStola));
+                    OnPropertyChanged (nameof (ImeStola));
                 }
             }
         }
@@ -144,10 +138,10 @@ namespace Caupo.ViewModels
             get { return _sala; }
             set
             {
-                if (_sala != value)
+                if(_sala != value)
                 {
                     _sala = value;
-                    OnPropertyChanged(nameof(Sala));
+                    OnPropertyChanged (nameof (Sala));
                 }
             }
         }
@@ -155,38 +149,40 @@ namespace Caupo.ViewModels
 
 
         private KasaViewModel _kasaViewModel;
-        public OrdersViewModel(KasaViewModel kasaViewModel) {
-           
-            _kasaViewModel = kasaViewModel;
-            if (kasaViewModel != null)
-            {
-                StavkeRacuna = _kasaViewModel.StavkeRacuna ?? new ObservableCollection<FiskalniRacun.Item>();
+        public OrdersViewModel(KasaViewModel kasaViewModel)
+        {
 
-                Debug.WriteLine(" Prenesene StavkeRacuna iz kase --- " + StavkeRacuna.Count);
+            _kasaViewModel = kasaViewModel;
+            if(kasaViewModel != null)
+            {
+                StavkeRacuna = _kasaViewModel.StavkeRacuna ?? new ObservableCollection<FiskalniRacun.Item> ();
+
+                Debug.WriteLine (" Prenesene StavkeRacuna iz kase --- " + StavkeRacuna.Count);
             }
-            else { 
-            
-              StavkeRacuna =  new ObservableCollection<FiskalniRacun.Item>();
+            else
+            {
+
+                StavkeRacuna = new ObservableCollection<FiskalniRacun.Item> ();
             }
-            SetColors();
-        
+            SetColors ();
+
         }
 
-      
 
 
-        public  void SetColors()
+
+        public void SetColors()
         {
 
             string tema = Settings.Default.Tema;
-            Debug.WriteLine("Aktivna tema koju vidi viewmodel je : " + tema);
-            if (tema == "Tamna")
+            Debug.WriteLine ("Aktivna tema koju vidi viewmodel je : " + tema);
+            if(tema == "Tamna")
             {
                 ImagePathSaveButton = "pack://application:,,,/Images/Dark/save.png";
                 ImagePathDeleteButton = "pack://application:,,,/Images/Dark/delete.png";
-                FontColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(212, 212, 212)); 
-                Application.Current.Resources["GlobalFontColor"] =    FontColor;
-                BackColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 50, 50));
+                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
+                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
 
 
             }
@@ -194,9 +190,9 @@ namespace Caupo.ViewModels
             {
                 ImagePathSaveButton = "pack://application:,,,/Images/Light/save.png";
                 ImagePathDeleteButton = "pack://application:,,,/Images/Light/delete.png";
-                FontColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 50, 50)); 
-                Application.Current.Resources["GlobalFontColor"] =    FontColor;
-                BackColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(212, 212, 212));
+                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
+                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
                 //FontColorAdv = new System.Windows.Media.Color();
                 //FontColorAdv = System.Windows.Media.Color.FromRgb(50, 50, 50);
             }
@@ -207,7 +203,7 @@ namespace Caupo.ViewModels
 
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
         }
     }
 

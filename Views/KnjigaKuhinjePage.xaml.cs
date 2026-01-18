@@ -1,23 +1,10 @@
 ﻿
 using Caupo.Data;
 using Caupo.Helpers;
-using Caupo.Models;
 using Caupo.Services;
 using Caupo.ViewModels;
-using Microsoft.EntityFrameworkCore;
-
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using static Caupo.Data.DatabaseTables;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Caupo.Views
 {
@@ -28,10 +15,10 @@ namespace Caupo.Views
     {
         public KnjigaKuhinjePage()
         {
-            InitializeComponent();
-            var db = new AppDbContext();
-            var service = new KnjigaKuhinjeService(db);
-            DataContext = new KnjigaKuhinjeViewModel(service);
+            InitializeComponent ();
+            var db = new AppDbContext ();
+            var service = new KnjigaKuhinjeService (db);
+            DataContext = new KnjigaKuhinjeViewModel (service);
 
         }
 
@@ -53,33 +40,33 @@ namespace Caupo.Views
             };
             myMessageBox.MessageTitle.Text = title;
             myMessageBox.MessageText.Text = message;
-            myMessageBox.ShowDialog();
+            myMessageBox.ShowDialog ();
         }
 
         private async void BtnFirst_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is KnjigaKuhinjeViewModel viewModel)
+            if(DataContext is KnjigaKuhinjeViewModel viewModel)
             {
-                viewModel.OdabraniDatum = viewModel.OdabraniDatum.AddDays(-1);
-                await viewModel.GetJelaZaOdabraniDatumAsync();
+                viewModel.OdabraniDatum = viewModel.OdabraniDatum.AddDays (-1);
+                await viewModel.GetJelaZaOdabraniDatumAsync ();
             }
         }
 
         private async void BtnLast_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is KnjigaKuhinjeViewModel viewModel)
+            if(DataContext is KnjigaKuhinjeViewModel viewModel)
             {
-                viewModel.OdabraniDatum = viewModel.OdabraniDatum.AddDays(1);
-               await viewModel.GetJelaZaOdabraniDatumAsync();
+                viewModel.OdabraniDatum = viewModel.OdabraniDatum.AddDays (1);
+                await viewModel.GetJelaZaOdabraniDatumAsync ();
             }
         }
 
 
         private void BtnPrint_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is KnjigaKuhinjeViewModel viewModel)
+            if(DataContext is KnjigaKuhinjeViewModel viewModel)
             {
-                viewModel.PrintReport(viewModel.Knjiga, viewModel.Firma.NazivFirme, viewModel.Firma.Adresa, viewModel.Firma.Grad, viewModel.Firma.JIB, viewModel.Firma.PDV, viewModel.OdabraniDatum, viewModel.Total);
+                viewModel.PrintReport (viewModel.Knjiga, viewModel.Firma.NazivFirme, viewModel.Firma.Adresa, viewModel.Firma.Grad, viewModel.Firma.JIB, viewModel.Firma.PDV, viewModel.OdabraniDatum, viewModel.Total);
             }
         }
 
@@ -90,7 +77,7 @@ namespace Caupo.Views
 
         private async void DpDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (DataContext is KnjigaKuhinjeViewModel viewModel)
+            if(DataContext is KnjigaKuhinjeViewModel viewModel)
             {
                 //viewModel.OdabraniDatum = viewModel.OdabraniDatum.AddDays (1);
                 await viewModel.GetJelaZaOdabraniDatumAsync ();

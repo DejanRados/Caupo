@@ -1,15 +1,8 @@
-﻿using CommunityToolkit.Mvvm.Input;
-using Caupo.Properties;
-using System;
-using System.Collections.Generic;
+﻿using Caupo.Properties;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Media;
 using static Caupo.Data.DatabaseTables;
 
@@ -24,55 +17,55 @@ namespace Caupo.ViewModels
             get { return _fontColor; }
             set
             {
-                if (_fontColor != value)
+                if(_fontColor != value)
                 {
                     _fontColor = value;
-                    OnPropertyChanged(nameof(FontColor));
+                    OnPropertyChanged (nameof (FontColor));
                 }
             }
         }
 
         public SupplierPopupViewModel()
         {
-            SetImage();
-            Dobavljac = new TblDobavljaci();
-          
+            SetImage ();
+            Dobavljac = new TblDobavljaci ();
+
         }
 
         public SupplierPopupViewModel(TblDobavljaci d)
         {
-            SetImage();
+            SetImage ();
             Dobavljac = d;
-          /*  Dobavljac = new TblDobavljaci
-            {
-                IdDobavljaca = d.IdDobavljaca,
-                Dobavljac = d.Dobavljac,
-                Adresa = d.Adresa,
-                Mjesto = d.Mjesto,
-                JIB = d.JIB,
-                PDV = d.PDV
-            };*/
-         
+            /*  Dobavljac = new TblDobavljaci
+              {
+                  IdDobavljaca = d.IdDobavljaca,
+                  Dobavljac = d.Dobavljac,
+                  Adresa = d.Adresa,
+                  Mjesto = d.Mjesto,
+                  JIB = d.JIB,
+                  PDV = d.PDV
+              };*/
+
         }
 
         public async Task SetImage()
         {
-            await Task.Delay(1);
-           
+            await Task.Delay (1);
+
             string tema = Settings.Default.Tema;
-            Debug.WriteLine("Aktivna tema koju vidi viewmodel popup dobavljac je : " + tema);
-            if (tema == "Tamna")
+            Debug.WriteLine ("Aktivna tema koju vidi viewmodel popup dobavljac je : " + tema);
+            if(tema == "Tamna")
             {
-               
-                FontColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(212, 212, 212));  
-                Application.Current.Resources["GlobalFontColor"] =    FontColor;
-                Debug.WriteLine("Tema tamna, FontColor  je : " + FontColor.ToString());
+
+                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
+                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                Debug.WriteLine ("Tema tamna, FontColor  je : " + FontColor.ToString ());
             }
             else
             {
-                FontColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 50, 50)); 
-                Application.Current.Resources["GlobalFontColor"] =    FontColor;
-                Debug.WriteLine("Tema svijetla, FontColor  je : " + FontColor.ToString());
+                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
+                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                Debug.WriteLine ("Tema svijetla, FontColor  je : " + FontColor.ToString ());
             }
 
         }
@@ -80,7 +73,7 @@ namespace Caupo.ViewModels
         public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
         }
 
     }

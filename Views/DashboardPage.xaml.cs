@@ -21,11 +21,11 @@ namespace Caupo.Views
         }
         public DashboardPage()
         {
-           
 
-            InitializeComponent();
+
+            InitializeComponent ();
             lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
-            _menuItemsWithSubmenus = new List<SidebarMenuItem>();
+            _menuItemsWithSubmenus = new List<SidebarMenuItem> ();
             DataContext = new DashboardViewModel ();
             ViewModel = DataContext as DashboardViewModel;
 
@@ -44,14 +44,14 @@ namespace Caupo.Views
 
 
 
-            var dnevniPromet = CreateMenuItemWithSubitems("Dnevni promet ", "\xEC59", "#FF2FA4A9 ",
-            new [] {
+            var dnevniPromet = CreateMenuItemWithSubitems ("Dnevni promet ", "\xEC59", "#FF2FA4A9 ",
+            new[] {
                    ("Dnevni promet ukupno", "\xE9A6", new Action(() => ViewModel.IzracunajDnevniPromet())),
                    ("Dnevni promet po radniku", "\xE787", new Action(() => ViewModel.IzracunajDnevniPrometPoRadniku())),
                    ("Dnevni promet po artiklima", "\xE8FD", new Action(() => ViewModel.IzracunajDnevniPrometPoArtiklima()))
                });
 
-            var periodicniPromet = CreateMenuItemWithSubitems("Periodični promet", "\xE787", "#FF2FA4A9",
+            var periodicniPromet = CreateMenuItemWithSubitems ("Periodični promet", "\xE787", "#FF2FA4A9",
             new[] {
                      (Header: "Periodični promet ukupno", Icon: "\xE9A6", new Action(() => ViewModel.IzracunajPeriodicniPromet())),
                      (Header: "Periodični promet po radniku", Icon: "", new Action(() => ViewModel.IzracunajPeriodicniPrometPoRadniku())),
@@ -62,31 +62,31 @@ namespace Caupo.Views
             var sankPromet = new SidebarMenuItem
             {
                 Header = "Promet šanka",
-                Background =  (Brush)new BrushConverter().ConvertFrom("#FF2FA4A9"),
+                Background = (Brush)new BrushConverter ().ConvertFrom ("#FF2FA4A9"),
                 Icon = "\xEC32",
-                Command = new RelayCommand(() => ViewModel.IzracunajDnevniPrometSanka())
+                Command = new RelayCommand (() => ViewModel.IzracunajDnevniPrometSanka ())
 
             };
 
             var kuhinjaPromet = new SidebarMenuItem
             {
                 Header = "Promet kuhinje",
-                Background = (Brush)new BrushConverter().ConvertFrom("#FF2FA4A9"),
+                Background = (Brush)new BrushConverter ().ConvertFrom ("#FF2FA4A9"),
                 Icon = "\xED56",
-                Command = new RelayCommand(() => ViewModel.IzracunajDnevniPrometKuhinje())
+                Command = new RelayCommand (() => ViewModel.IzracunajDnevniPrometKuhinje ())
             };
 
             var ostaloPromet = new SidebarMenuItem
             {
                 Header = "Promet ostalo",
-                Background = (Brush)new BrushConverter().ConvertFrom("#FF2FA4A9"),
-                Icon = "\xE8EC", 
-                Command = new RelayCommand(() => ViewModel.IzracunajDnevniPrometOstalo())
+                Background = (Brush)new BrushConverter ().ConvertFrom ("#FF2FA4A9"),
+                Icon = "\xE8EC",
+                Command = new RelayCommand (() => ViewModel.IzracunajDnevniPrometOstalo ())
             };
 
 
 
-            var namirnice = CreateMenuItemWithSubitems("Utrošak namirnica", "\xE719", "#FF2FA4A9",
+            var namirnice = CreateMenuItemWithSubitems ("Utrošak namirnica", "\xE719", "#FF2FA4A9",
                   new[] {
                      (Header: "Dnevni utrošak", Icon: "\xE9A6", new Action(() => ViewModel.IzracunajDnevniUtrosakNamirnica())),
                      (Header: "Periodični utrošak", Icon: "\xE787", new Action(() => ViewModel.IzracunajPeriodicniUtrosakNamirnica())),
@@ -98,9 +98,9 @@ namespace Caupo.Views
             var rekapitulacija = new SidebarMenuItem
             {
                 Header = "Rekapitulacija prometa",
-                Background = (Brush)new BrushConverter().ConvertFrom("#FF2FA4A9"),
+                Background = (Brush)new BrushConverter ().ConvertFrom ("#FF2FA4A9"),
                 Icon = "\xE713",
-                Command = new RelayCommand(async () => await ViewModel.Print(ViewModel.OdDatuma))
+                Command = new RelayCommand (async () => await ViewModel.Print (ViewModel.OdDatuma))
 
             };
 
@@ -114,18 +114,18 @@ namespace Caupo.Views
             namirnice.ItemCollapsed += NamirniceMenuClosed;
 
             // Dodavanje stavki u sidebar
-            SidebarPanel.Children.Add(dnevniPromet);
-            SidebarPanel.Children.Add(periodicniPromet);
-            SidebarPanel.Children.Add(sankPromet);
-            SidebarPanel.Children.Add(kuhinjaPromet);
-            SidebarPanel.Children.Add(ostaloPromet);
-            SidebarPanel.Children.Add(namirnice);
-            SidebarPanel.Children.Add(rekapitulacija);
+            SidebarPanel.Children.Add (dnevniPromet);
+            SidebarPanel.Children.Add (periodicniPromet);
+            SidebarPanel.Children.Add (sankPromet);
+            SidebarPanel.Children.Add (kuhinjaPromet);
+            SidebarPanel.Children.Add (ostaloPromet);
+            SidebarPanel.Children.Add (namirnice);
+            SidebarPanel.Children.Add (rekapitulacija);
         }
 
         private void NamirniceMenuOpened(object sender, SidebarMenuItem item)
         {
-            if (DataContext is DashboardViewModel vm)
+            if(DataContext is DashboardViewModel vm)
             {
                 vm.PeriodicniPrometAktivan = false;
                 vm.IsRadnik = false;
@@ -135,7 +135,7 @@ namespace Caupo.Views
 
         private void NamirniceMenuClosed(object sender, SidebarMenuItem item)
         {
-            if (DataContext is DashboardViewModel vm)
+            if(DataContext is DashboardViewModel vm)
             {
                 vm.CurrentView = null;
                 vm.IsRadnik = false;
@@ -144,7 +144,7 @@ namespace Caupo.Views
         }
         private void DnevniMenuOpened(object sender, SidebarMenuItem item)
         {
-            if (DataContext is DashboardViewModel vm)
+            if(DataContext is DashboardViewModel vm)
             {
                 vm.PeriodicniPrometAktivan = false;
                 vm.IsRadnik = false;
@@ -154,7 +154,7 @@ namespace Caupo.Views
 
         private void DnevniMenuClosed(object sender, SidebarMenuItem item)
         {
-            if (DataContext is DashboardViewModel vm)
+            if(DataContext is DashboardViewModel vm)
             {
                 vm.CurrentView = null;
                 vm.IsRadnik = false;
@@ -164,7 +164,7 @@ namespace Caupo.Views
 
         private void PeriodicniMenuOpened(object sender, SidebarMenuItem item)
         {
-            if (DataContext is DashboardViewModel vm)
+            if(DataContext is DashboardViewModel vm)
             {
                 vm.PeriodicniPrometAktivan = true;
                 vm.IsRadnik = false;
@@ -174,13 +174,13 @@ namespace Caupo.Views
 
         private void PeriodicniMenuClosed(object sender, SidebarMenuItem item)
         {
-            if (DataContext is DashboardViewModel vm)
+            if(DataContext is DashboardViewModel vm)
             {
                 vm.PeriodicniPrometAktivan = false;
                 vm.IsRadnik = false;
                 vm.CurrentView = null;
             }
-               
+
         }
 
 
@@ -190,25 +190,25 @@ namespace Caupo.Views
             var menuItem = new SidebarMenuItem
             {
                 Header = header,
-                Background = (Brush)new BrushConverter().ConvertFrom(color),
+                Background = (Brush)new BrushConverter ().ConvertFrom (color),
                 Icon = icon
             };
 
-            if (menuItem.SubItems == null)
-                menuItem.SubItems = new ObservableCollection<SidebarMenuItem>();
+            if(menuItem.SubItems == null)
+                menuItem.SubItems = new ObservableCollection<SidebarMenuItem> ();
 
-            foreach (var subitem in subitems)
+            foreach(var subitem in subitems)
             {
-                menuItem.AddSubItem(new SidebarMenuItem
+                menuItem.AddSubItem (new SidebarMenuItem
                 {
                     Header = subitem.Header,
                     Icon = subitem.Icon,
-                    Command = new RelayCommand(subitem.Command) 
+                    Command = new RelayCommand (subitem.Command)
                 });
             }
 
             menuItem.ItemExpanded += OnMenuItemExpanded;
-            _menuItemsWithSubmenus.Add(menuItem);
+            _menuItemsWithSubmenus.Add (menuItem);
 
             return menuItem;
         }
@@ -216,11 +216,11 @@ namespace Caupo.Views
         private void OnMenuItemExpanded(object sender, SidebarMenuItem expandedItem)
         {
             // Zatvori sve ostale stavke osim one koja je expandirana
-            foreach (var menuItem in _menuItemsWithSubmenus)
+            foreach(var menuItem in _menuItemsWithSubmenus)
             {
-                if (menuItem != expandedItem && menuItem.IsExpanded)
+                if(menuItem != expandedItem && menuItem.IsExpanded)
                 {
-                    menuItem.Collapse();
+                    menuItem.Collapse ();
                 }
             }
         }
@@ -228,17 +228,18 @@ namespace Caupo.Views
         private void ComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             var vm = DataContext as DashboardViewModel;
-            if (vm == null) return;
+            if(vm == null)
+                return;
 
-            if (vm.TrenutniIzvjestaj == TipIzvjestaja.Dnevni)
+            if(vm.TrenutniIzvjestaj == TipIzvjestaja.Dnevni)
             {
-                
-                vm.IzracunajDnevniPrometPoRadniku();
+
+                vm.IzracunajDnevniPrometPoRadniku ();
             }
-            else if (vm.TrenutniIzvjestaj == TipIzvjestaja.Periodicni)
+            else if(vm.TrenutniIzvjestaj == TipIzvjestaja.Periodicni)
             {
-               
-                vm.IzracunajPeriodicniPrometPoRadniku();
+
+                vm.IzracunajPeriodicniPrometPoRadniku ();
             }
         }
 
@@ -250,9 +251,9 @@ namespace Caupo.Views
 
         private void BtnPrint_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is DashboardViewModel viewModel)
+            if(DataContext is DashboardViewModel viewModel)
             {
-                viewModel.PrintDashboardReport(viewModel.ReportType, viewModel.ProdaniArtikli, viewModel.ReklamiraniArtikli,  viewModel.OdDatuma, viewModel.DoDatuma);
+                viewModel.PrintDashboardReport (viewModel.ReportType, viewModel.ProdaniArtikli, viewModel.ReklamiraniArtikli, viewModel.OdDatuma, viewModel.DoDatuma);
             }
         }
     }

@@ -106,7 +106,7 @@ namespace Caupo.Fiscal
                 get => _quantity;
                 set
                 {
-                    if (_quantity != value)
+                    if(_quantity != value)
                     {
                         _quantity = value;
                         OnPropertyChanged (nameof (Quantity));
@@ -197,7 +197,7 @@ namespace Caupo.Fiscal
             Debug.WriteLine ("UpdateRacunStornoAsync POZVANA");
             Debug.WriteLine ($"Ulazni broj fiskalnog računa: '{brojfiskalnog}'");
 
-            if (string.IsNullOrWhiteSpace (brojfiskalnog))
+            if(string.IsNullOrWhiteSpace (brojfiskalnog))
             {
                 Debug.WriteLine ("❌ brojfiskalnog je NULL ili PRAZAN");
                 return false;
@@ -205,7 +205,7 @@ namespace Caupo.Fiscal
 
             try
             {
-                using (var db = new AppDbContext ())
+                using(var db = new AppDbContext ())
                 {
                     Debug.WriteLine ("✔ AppDbContext kreiran");
 
@@ -215,7 +215,7 @@ namespace Caupo.Fiscal
 
                     Debug.WriteLine ($"Postoji račun sa tim brojem: {postoji}");
 
-                    if (!postoji)
+                    if(!postoji)
                     {
                         Debug.WriteLine ("❌ NIJEDAN RAČUN NIJE PRONAĐEN");
                         return false;
@@ -234,7 +234,7 @@ namespace Caupo.Fiscal
                     return uspjeh;
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Debug.WriteLine ("🔥 EXCEPTION u UpdateRacunStornoAsync");
                 Debug.WriteLine (ex.ToString ());
@@ -260,18 +260,18 @@ namespace Caupo.Fiscal
                 var obj = JObject.Parse (jsonResponse);
 
                 var journal = obj["journal"]?.ToString ();
-                if (string.IsNullOrWhiteSpace (journal))
+                if(string.IsNullOrWhiteSpace (journal))
                     throw new Exception ("Journal nije pronađen u JSON-u.");
 
                 var verificationUrl = obj["verificationUrl"]?.ToString ();
-                if (string.IsNullOrWhiteSpace (verificationUrl))
+                if(string.IsNullOrWhiteSpace (verificationUrl))
                     throw new Exception ("verificationUrl nije pronađen u JSON-u.");
 
                 // Generiranje QR koda u Bitmap (bez spremanja u datoteku)
-                using (QRCodeGenerator qrGenerator = new QRCodeGenerator ())
+                using(QRCodeGenerator qrGenerator = new QRCodeGenerator ())
                 {
                     QRCodeData qrCodeData = qrGenerator.CreateQrCode (verificationUrl, QRCodeGenerator.ECCLevel.Q);
-                    using (QRCode qrCode = new QRCode (qrCodeData))
+                    using(QRCode qrCode = new QRCode (qrCodeData))
                     {
                         _qrBitmap = qrCode.GetGraphic (20);
                     }
@@ -282,13 +282,13 @@ namespace Caupo.Fiscal
                 PrintDocument pd = new PrintDocument ();
                 float sirinaMm = float.Parse (Settings.Default.SirinaTrake);
 
-             //   int paperWidth = MmToHundredthsInch (sirinaMm);
+                //   int paperWidth = MmToHundredthsInch (sirinaMm);
 
                 // Visina može biti velika (roll printer)
                 //int paperHeight = 2000;
 
-              //  pd.DefaultPageSettings.PaperSize =
-               //     new PaperSize ("POS", paperWidth, paperHeight);
+                //  pd.DefaultPageSettings.PaperSize =
+                //     new PaperSize ("POS", paperWidth, paperHeight);
 
                 // Obavezno bez margina
                 pd.DefaultPageSettings.Margins = new Margins (0, 0, 0, 0);
@@ -297,7 +297,7 @@ namespace Caupo.Fiscal
 
                 string printerName = Settings.Default.POSPrinter;
 
-                if (string.IsNullOrWhiteSpace (printerName))
+                if(string.IsNullOrWhiteSpace (printerName))
                 {
                     ShowError ("GREŠKA", $"POS printer nije podešen.\\nMolimo izaberite printer u postavkama.");
                     return;
@@ -308,7 +308,7 @@ namespace Caupo.Fiscal
 
                 pd.Print ();
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Debug.WriteLine ("Greška prilikom ispisa: " + ex.Message);
             }
@@ -317,12 +317,10 @@ namespace Caupo.Fiscal
         private void Pd_PrintPage(object sender, PrintPageEventArgs e)
         {
             float sirinaMm = float.Parse (Settings.Default.SirinaTrake);
-            int fontSize = 9;
             if(sirinaMm < 80)
             {
-                fontSize = 7;
             }
-            using (Font font = new Font ("Consolas", 9))
+            using(Font font = new Font ("Consolas", 9))
             {
 
                 int maxWidth = e.MarginBounds.Width;
@@ -332,13 +330,13 @@ namespace Caupo.Fiscal
                 SizeF textSize = e.Graphics.MeasureString (_journalText, font);
 
                 int qrWidth = 0, qrHeight = 0;
-                if (_qrBitmap != null)
+                if(_qrBitmap != null)
                 {
                     qrWidth = _qrBitmap.Width;
                     qrHeight = _qrBitmap.Height;
 
                     // Skaliranje QR koda ako je širi od trake
-                    if (qrWidth > maxWidth)
+                    if(qrWidth > maxWidth)
                     {
                         float scale = (float)maxWidth / qrWidth;
                         qrWidth = maxWidth;
@@ -354,15 +352,15 @@ namespace Caupo.Fiscal
 
                 // Centriranje teksta horizontalno
 
-                float textX = (maxWidth - textSize.Width) / 2-2; //e.MarginBounds.Left+ ((maxWidth - textSize.Width) / 2);
+                float textX = (maxWidth - textSize.Width) / 2 - 2; //e.MarginBounds.Left+ ((maxWidth - textSize.Width) / 2);
                 float textY = startY;
                 e.Graphics.DrawString (_journalText, font, Brushes.Black, new PointF (textX, textY));
 
                 // Crtanje QR koda ispod teksta
-                if (_qrBitmap != null)
+                if(_qrBitmap != null)
                 {
-                   
-                    int qrX =  (maxWidth - qrWidth) / 2;
+
+                    int qrX = (maxWidth - qrWidth) / 2;
                     int qrY = (int)(textY + textSize.Height + 10); // 10px razmak
                     e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
                     e.Graphics.DrawImage (_qrBitmap, new Rectangle (qrX, qrY, qrWidth, qrHeight));
@@ -377,11 +375,11 @@ namespace Caupo.Fiscal
             int SelectedNacinPlacanjaIndex,
             decimal? TotalSum)
         {
-            if (StavkeRacuna.Count == 0)
+            if(StavkeRacuna.Count == 0)
                 return false;
 
             int brojracuna;
-            using (var db = new AppDbContext ())
+            using(var db = new AppDbContext ())
             {
                 brojracuna = await db.Racuni
                     .MaxAsync (r => (int?)r.BrojRacuna) ?? 0;  // Ako je tabela prazna, vrati 0
@@ -398,7 +396,7 @@ namespace Caupo.Fiscal
                 Kupac = "Gradjani" // default vrijednost
             };
 
-            if (SelectedNacinPlacanjaIndex != -1 && selectedKupac != null)
+            if(SelectedNacinPlacanjaIndex != -1 && selectedKupac != null)
             {
                 Racun.Kupac = selectedKupac.Kupac;
                 Racun.KupacId = selectedKupac.JIB;
@@ -436,17 +434,17 @@ namespace Caupo.Fiscal
                 Items = StavkeRacuna.ToList ()
             };
 
-            if (Racun.Kupac != "Gradjani")
+            if(Racun.Kupac != "Gradjani")
             {
                 InvoiceRequest.BuyerId = Racun.KupacId;
-                if (InvoiceRequest.BuyerId == "0000000000000")
+                if(InvoiceRequest.BuyerId == "0000000000000")
                 {
                     ShowError ("GREŠKA", $"Ne postoje podaci u bazi o kupcu {Racun.Kupac}.\nDodajte kupca u bazu prije izdavanja računa.");
                     return false;
                 }
             }
 
-            if (string.Equals (transactionType, "Refund", StringComparison.OrdinalIgnoreCase) || string.Equals (invoiceType, "Copy", StringComparison.OrdinalIgnoreCase))
+            if(string.Equals (transactionType, "Refund", StringComparison.OrdinalIgnoreCase) || string.Equals (invoiceType, "Copy", StringComparison.OrdinalIgnoreCase))
             {
                 InvoiceRequest.ReferentDocumentNumber = ReferentDocumentNumber;
                 InvoiceRequest.ReferentDocumentDT = referentDocumentDT;
@@ -472,7 +470,7 @@ namespace Caupo.Fiscal
                 var responseAttention = await client.SendAsync (requestAttention);
                 string contentAttention = await responseAttention.Content.ReadAsStringAsync ();
 
-                if (!responseAttention.IsSuccessStatusCode)
+                if(!responseAttention.IsSuccessStatusCode)
                 {
                     ShowError ("GREŠKA", $"Greška provera dostupnosti: {responseAttention.StatusCode}\nIPLPFR: {IPLPFR}, APILPFR: {APILPFR}\nContent: {contentAttention}");
                     return false;
@@ -487,14 +485,14 @@ namespace Caupo.Fiscal
                 var responseStatus = await client.SendAsync (requestStatus);
                 string contentStatus = await responseStatus.Content.ReadAsStringAsync ();
 
-                if (!responseStatus.IsSuccessStatusCode)
+                if(!responseStatus.IsSuccessStatusCode)
                 {
                     ShowError ("GREŠKA", $"Greška na serveru: {responseStatus.StatusCode}\nContent: {contentStatus}");
                     return false;
                 }
 
                 var lpfrStatus = JsonConvert.DeserializeObject<LpfrStatus> (contentStatus);
-                if (lpfrStatus.Gsc.Contains ("1300"))
+                if(lpfrStatus.Gsc.Contains ("1300"))
                 {
                     ShowError ("GREŠKA", "Bezbednosni element nije prisutan.\nProvjerite da li kartica ubačena i pokušajte ponovo.");
                     return false;
@@ -512,7 +510,7 @@ namespace Caupo.Fiscal
 
                 Debug.WriteLine ($"PIN OK: {responsePIN.StatusCode} - {contentPIN}");
 
-                if (!responsePIN.IsSuccessStatusCode)
+                if(!responsePIN.IsSuccessStatusCode)
                 {
                     ShowError ("GREŠKA", $"Greška PIN: {responsePIN.StatusCode}\n{contentPIN}");
                     return false;
@@ -521,10 +519,10 @@ namespace Caupo.Fiscal
 
             }
             // Greška u HTTP Request 
-            catch (HttpRequestException ex)
+            catch(HttpRequestException ex)
             {
                 string details = $"Message: {ex.Message}\n";
-                if (ex.InnerException != null)
+                if(ex.InnerException != null)
                     details += $"InnerException: {ex.InnerException.Message}\n";
                 details += $"StackTrace: {ex.StackTrace}";
 
@@ -533,7 +531,7 @@ namespace Caupo.Fiscal
                 return false;
             }
             //Greška u predugom trajanju
-            catch (TaskCanceledException ex)
+            catch(TaskCanceledException ex)
             {
                 string details = $"Message: {ex.Message}\nStackTrace: {ex.StackTrace}";
                 ShowError ("GREŠKA", "Zahtjev je istekao ili otkazan.\n" + details +
@@ -541,10 +539,10 @@ namespace Caupo.Fiscal
                 return false;
             }
             //Generalna greška
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 string details = $"Message: {ex.Message}\n";
-                if (ex.InnerException != null)
+                if(ex.InnerException != null)
                     details += $"InnerException: {ex.InnerException.Message}\n";
                 details += $"StackTrace: {ex.StackTrace}";
 
@@ -582,7 +580,7 @@ namespace Caupo.Fiscal
                 Debug.WriteLine ("Status code: " + response.StatusCode);
                 Debug.WriteLine ("Content: " + res);
                 //Ako nije uspješan zahtjev 
-                if (!response.IsSuccessStatusCode)
+                if(!response.IsSuccessStatusCode)
                     throw new HttpRequestException ($"Server error: {response.StatusCode}\n{res}");
 
                 var invoiceResponse = JsonConvert.DeserializeObject<InvoiceResponse> (res);
@@ -599,9 +597,9 @@ namespace Caupo.Fiscal
                 // ================= DATABASE =================
                 try
                 {
-                    if (invoiceType != "Copy")
+                    if(invoiceType != "Copy")
                     {
-                        if (transactionType == "Refund")
+                        if(transactionType == "Refund")
                         {
                             await UpdateRacunStornoAsync (ReferentDocumentNumber);
                         }
@@ -617,7 +615,7 @@ namespace Caupo.Fiscal
                             await db.SaveChangesAsync ();
 
                             //Ubacujem stavke racuna u TblRacunStavke
-                            foreach (var s in StavkeRacuna)
+                            foreach(var s in StavkeRacuna)
                             {
                                 var stavka = new TblRacunStavka
                                 {
@@ -641,13 +639,13 @@ namespace Caupo.Fiscal
                             var SankStavke = StavkeRacuna.Where (item => item.Proizvod == 0 && item.Printed != "DA").ToList ();
                             var KuhinjaStavke = StavkeRacuna.Where (item => item.Proizvod == 1 && item.Printed != "DA").ToList ();
 
-                            if (KuhinjaStavke.Any ())
+                            if(KuhinjaStavke.Any ())
                             {
                                 var printer = new BlokPrinter (KuhinjaStavke, "Kuhinja", "Kasa", "Kasa");
                                 await printer.Print ();
                             }
 
-                            if (SankStavke.Any ())
+                            if(SankStavke.Any ())
                             {
                                 var printer = new BlokPrinter (SankStavke, "Sank", "Kasa", "Kasa");
                                 await printer.Print ();
@@ -655,7 +653,7 @@ namespace Caupo.Fiscal
                         }
                     }
                 }
-                catch (Exception dbEx)
+                catch(Exception dbEx)
                 {
                     Debug.WriteLine ("DB GREŠKA: " + dbEx);
                     ShowError ("GREŠKA BAZE", dbEx.Message);
@@ -665,19 +663,19 @@ namespace Caupo.Fiscal
 
                 return true;
             }
-            catch (HttpRequestException httpEx)
+            catch(HttpRequestException httpEx)
             {
                 Debug.WriteLine ("HTTP GREŠKA: " + httpEx);
                 ShowError ("GREŠKA SERVERA", httpEx.Message);
                 return false;
             }
-            catch (JsonException jsonEx)
+            catch(JsonException jsonEx)
             {
                 Debug.WriteLine ("JSON GREŠKA: " + jsonEx);
                 ShowError ("GREŠKA PODATAKA", jsonEx.Message);
                 return false;
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Debug.WriteLine ("NEOČEKIVANA GREŠKA: " + ex);
                 ShowError ("GREŠKA", ex.ToString ());
@@ -694,7 +692,7 @@ namespace Caupo.Fiscal
         {
 
             int ps;
-            switch (taxLabel)
+            switch(taxLabel)
             {
 
                 case "\u0415":

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Caupo.Properties;
-using static Caupo.Data.DatabaseTables;
+﻿using static Caupo.Data.DatabaseTables;
 
 namespace Caupo
 {

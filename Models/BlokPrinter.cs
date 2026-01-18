@@ -1,16 +1,13 @@
 ﻿using Caupo.Data;
 using Caupo.Fiscal;
 using Caupo.Properties;
-using Caupo.ViewModels;
 
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
 using static Caupo.Data.DatabaseTables;
 using static Caupo.ViewModels.KitchenDisplayViewModel;
@@ -19,7 +16,7 @@ using static Caupo.ViewModels.KitchenDisplayViewModel;
 
 namespace Caupo.Models
 {
-  
+
     public class BlokPrinter
     {
         private List<FiskalniRacun.Item> _stavke;
@@ -41,76 +38,76 @@ namespace Caupo.Models
         public BlokPrinter(List<FiskalniRacun.Item> stavke, string vrstaBloka, string sto, string imestola)
         {
             _stavke = stavke;
-            _paperWidthMm = Convert.ToInt32(Settings.Default.SirinaTrake);
+            _paperWidthMm = Convert.ToInt32 (Settings.Default.SirinaTrake);
             _vrstaBloka = vrstaBloka;
             _sto = sto;
             _imestola = imestola;
-      
-           
-            if (!string.IsNullOrEmpty(logoPath) && File.Exists(logoPath))
+
+
+            if(!string.IsNullOrEmpty (logoPath) && File.Exists (logoPath))
             {
-                _logo = Image.FromFile(logoPath);
+                _logo = Image.FromFile (logoPath);
             }
         }
 
 
         public async Task InsertKuhinja()
         {
-            using (var db = new AppDbContext())
+            using(var db = new AppDbContext ())
             {
                 var novaKuhinja = new TblKuhinja
                 {
                     Sto = _sto,
                     Datum = DateTime.Now,
                     Radnik = Globals.ulogovaniKorisnik.Radnik,
-                    NazivStola =  _imestola
+                    NazivStola = _imestola
                 };
-                db.Kuhinja.Add(novaKuhinja);
+                db.Kuhinja.Add (novaKuhinja);
 
-                foreach (var item in _stavke)
+                foreach(var item in _stavke)
                 {
                     var kuhinjaStavke = new TblKuhinjaStavke
                     {
                         Artikl = item.Name,
                         Sifra = item.Sifra,
                         Note = item.Note,
-                        Kolicina = Convert.ToDecimal(item.Quantity),
-                        Cijena = Convert.ToDecimal(item.UnitPrice),
+                        Kolicina = Convert.ToDecimal (item.Quantity),
+                        Cijena = Convert.ToDecimal (item.UnitPrice),
                         Zavrseno = "NE",
-                        IdKuhinje = await BrojBlokaKuhinjaAsync() +1
+                        IdKuhinje = await BrojBlokaKuhinjaAsync () + 1
                     };
-                    db.KuhinjaStavke.Add(kuhinjaStavke);
+                    db.KuhinjaStavke.Add (kuhinjaStavke);
                 }
-                await db.SaveChangesAsync();
+                await db.SaveChangesAsync ();
             }
 
         }
 
         public async Task InsertSank(int brojbloka)
         {
-            using (var db = new AppDbContext())
+            using(var db = new AppDbContext ())
             {
                 var noviSank = new TblBrojBlokaSank
                 {
                     BrojBloka = brojbloka
                 };
-                db.BrojBloka.Add(noviSank);
+                db.BrojBloka.Add (noviSank);
 
-             
-                await db.SaveChangesAsync();
+
+                await db.SaveChangesAsync ();
             }
 
         }
 
         public async Task<int> BrojBlokaKuhinjaAsync()
         {
-            using (var db = new AppDbContext())
+            using(var db = new AppDbContext ())
             {
 
                 var lastIdKuhinje = await db.Kuhinja
-                                                  .OrderByDescending(k => k.IdKuhinje)
-                                                  .Select(k => k.IdKuhinje)
-                                                  .FirstOrDefaultAsync();
+                                                  .OrderByDescending (k => k.IdKuhinje)
+                                                  .Select (k => k.IdKuhinje)
+                                                  .FirstOrDefaultAsync ();
 
                 return lastIdKuhinje;
             }
@@ -118,13 +115,13 @@ namespace Caupo.Models
 
         public async Task<int> BrojBlokaSankAsync()
         {
-            using (var db = new AppDbContext())
+            using(var db = new AppDbContext ())
             {
 
                 var lastIdSanka = await db.BrojBloka
-                                                  .OrderByDescending(k => k.BrojBloka)
-                                                  .Select(k => k.BrojBloka)
-                                                  .FirstOrDefaultAsync();
+                                                  .OrderByDescending (k => k.BrojBloka)
+                                                  .Select (k => k.BrojBloka)
+                                                  .FirstOrDefaultAsync ();
 
                 return lastIdSanka;
             }
@@ -140,18 +137,18 @@ namespace Caupo.Models
                 string? printer = _vrstaBloka == "Kuhinja" ? printerKuhinja : printerSank;
 
                 // provjeri da li je printer definisan
-                if (string.IsNullOrWhiteSpace (printer))
+                if(string.IsNullOrWhiteSpace (printer))
                 {
                     return; // prekini štampu
                 }
 
-                if (!PrinterSettings.InstalledPrinters.Cast<string> ()
+                if(!PrinterSettings.InstalledPrinters.Cast<string> ()
                         .Any (p => p.Equals (printer, StringComparison.OrdinalIgnoreCase)))
                 {
                     return;
                 }
 
-                if (_vrstaBloka == "Kuhinja")
+                if(_vrstaBloka == "Kuhinja")
                 {
                     _brojBloka = await BrojBlokaKuhinjaAsync () + 1;
                     await InsertKuhinja ();
@@ -166,10 +163,12 @@ namespace Caupo.Models
                     await System.Windows.Application.Current.Dispatcher.BeginInvoke (new Action (() =>
                     {
                         var orderItems = new ObservableCollection<OrderItem> (
-                            _stavke.Select (s => new OrderItem { 
+                            _stavke.Select (s => new OrderItem
+                            {
                                 Name = s.Name,
                                 Note = s.Note,
-                                Quantity = s.Quantity })
+                                Quantity = s.Quantity
+                            })
                         );
                         newOrder.Items = orderItems;
                         App.GlobalKitchenVM.Orders.Add (newOrder);
@@ -202,11 +201,11 @@ namespace Caupo.Models
                 for(int i = 0; i < brojKopija; i++)
                 {
                     printDoc.Print ();
-                 }
-            
-                
+                }
+
+
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 System.Windows.MessageBox.Show (
                     $"Greška prilikom štampe: {ex.Message}",
@@ -238,19 +237,19 @@ namespace Caupo.Models
         }
         private void OnPrintPage(object sender, PrintPageEventArgs e)
         {
-        
-            if (e.Graphics != null)
+
+            if(e.Graphics != null)
             {
                 Graphics g = e.Graphics;
 
-                Font font = new Font("Consolas", 9);
-                Font bold = new Font("Consolas", 10, FontStyle.Bold);
+                Font font = new Font ("Consolas", 9);
+                Font bold = new Font ("Consolas", 10, FontStyle.Bold);
                 int y = 0;
-                int lineHeight = (int)font.GetHeight(g) + 2;
+                int lineHeight = (int)font.GetHeight (g) + 2;
                 int pageWidth = e.MarginBounds.Width;
 
                 // LOGO
-                if (_logo != null)
+                if(_logo != null)
                 {
                     int maxLogoHeight = 60;
 
@@ -273,7 +272,7 @@ namespace Caupo.Models
                         {
                             g.DrawImage (_logo, new Rectangle (x, y, scaledWidth, scaledHeight));
                         }
-                        catch (Exception ex)
+                        catch(Exception ex)
                         {
                             Debug.WriteLine ($"Exception type: {ex.GetType ()}");
                             Debug.WriteLine ($"Message: {ex.Message}");
@@ -305,22 +304,23 @@ namespace Caupo.Models
                         $"Konobar: {_konobar}"
                     };
 
-                foreach (var line in headerLines)
+                foreach(var line in headerLines)
                 {
                     // Koristi bold za naziv firme, ostalo obični font
                     var currentFont = line == _firma ? bold : font;
 
                     // Izračunavanje širine teksta i centriranje
-                    var textSize = g.MeasureString(line, currentFont);
+                    var textSize = g.MeasureString (line, currentFont);
                     float x = (pageWidth - textSize.Width) / 2;
 
-                    g.DrawString(line, currentFont, Brushes.Black, x, y);
+                    g.DrawString (line, currentFont, Brushes.Black, x, y);
                     y += lineHeight;
                 }
 
                 y += 5;
 
-                g.DrawLine(Pens.Black, 0, y, pageWidth, y); y += 3;
+                g.DrawLine (Pens.Black, 0, y, pageWidth, y);
+                y += 3;
 
                 // Kolone
                 int col1 = 0;
@@ -329,42 +329,44 @@ namespace Caupo.Models
                 int widthCol2 = 60;
                 int widthCol3 = 60;
 
-                g.DrawString("Artikal", bold, Brushes.Black, col1, y);
+                g.DrawString ("Artikal", bold, Brushes.Black, col1, y);
 
                 // Centrirani naslovi kolona
                 string col2Title = "Cij.";
                 string col3Title = "Iznos";
                 string col1Title = "Kol.";
 
-                SizeF sizeCol1Title = g.MeasureString(col1Title, bold);
-                SizeF sizeCol2Title = g.MeasureString(col2Title, bold);
-                SizeF sizeCol3Title = g.MeasureString(col3Title, bold);
+                SizeF sizeCol1Title = g.MeasureString (col1Title, bold);
+                SizeF sizeCol2Title = g.MeasureString (col2Title, bold);
+                SizeF sizeCol3Title = g.MeasureString (col3Title, bold);
 
-                g.DrawString(col1Title, bold, Brushes.Black, col1 + 60 - sizeCol1Title.Width, y + lineHeight);
-                g.DrawString(col2Title, bold, Brushes.Black, col2 + widthCol2 / 2 - sizeCol2Title.Width / 2, y + lineHeight);
-                g.DrawString(col3Title, bold, Brushes.Black, col3 + widthCol3 / 2 - sizeCol3Title.Width / 2, y + lineHeight);
+                g.DrawString (col1Title, bold, Brushes.Black, col1 + 60 - sizeCol1Title.Width, y + lineHeight);
+                g.DrawString (col2Title, bold, Brushes.Black, col2 + widthCol2 / 2 - sizeCol2Title.Width / 2, y + lineHeight);
+                g.DrawString (col3Title, bold, Brushes.Black, col3 + widthCol3 / 2 - sizeCol3Title.Width / 2, y + lineHeight);
 
                 y += lineHeight * 2;
-                g.DrawLine(Pens.Black, 0, y, pageWidth, y); y += 3;
+                g.DrawLine (Pens.Black, 0, y, pageWidth, y);
+                y += 3;
 
                 // Stavke
-                foreach (var item in _stavke)
+                foreach(var item in _stavke)
                 {
                     string naziv = item.Name ?? "";
-                    string kolicina = item.Quantity?.ToString("0.##") ?? "";
-                    string cijena = item.UnitPrice?.ToString("0.00") ?? "";
-                    string iznos = item.TotalAmount?.ToString("0.00") ?? "";
+                    string kolicina = item.Quantity?.ToString ("0.##") ?? "";
+                    string cijena = item.UnitPrice?.ToString ("0.00") ?? "";
+                    string iznos = item.TotalAmount?.ToString ("0.00") ?? "";
 
-                    g.DrawString(naziv, font, Brushes.Black, col1, y); y += lineHeight;
+                    g.DrawString (naziv, font, Brushes.Black, col1, y);
+                    y += lineHeight;
 
                     // Desno poravnanje vrijednosti
-                    SizeF sizeKolicina = g.MeasureString(kolicina, font);
-                    SizeF sizeCijena = g.MeasureString(cijena, font);
-                    SizeF sizeIznos = g.MeasureString(iznos, font);
+                    SizeF sizeKolicina = g.MeasureString (kolicina, font);
+                    SizeF sizeCijena = g.MeasureString (cijena, font);
+                    SizeF sizeIznos = g.MeasureString (iznos, font);
 
-                    g.DrawString(kolicina, font, Brushes.Black, col1 + 60 - sizeKolicina.Width, y);
-                    g.DrawString(cijena, font, Brushes.Black, col2 + widthCol2 / 2 - sizeCijena.Width / 2, y);
-                    g.DrawString(iznos, font, Brushes.Black, col3 + widthCol3 / 2 - sizeIznos.Width / 2, y);
+                    g.DrawString (kolicina, font, Brushes.Black, col1 + 60 - sizeKolicina.Width, y);
+                    g.DrawString (cijena, font, Brushes.Black, col2 + widthCol2 / 2 - sizeCijena.Width / 2, y);
+                    g.DrawString (iznos, font, Brushes.Black, col3 + widthCol3 / 2 - sizeIznos.Width / 2, y);
 
                     y += lineHeight;
 
@@ -378,27 +380,27 @@ namespace Caupo.Models
 
                     if(!string.IsNullOrEmpty (item.Note))
                     {
-                        g.DrawString ("( "+item.Note + ")", font, Brushes.Black, rect, sf);
+                        g.DrawString ("( " + item.Note + ")", font, Brushes.Black, rect, sf);
 
                         // računa koliko visine tekst zauzima
                         SizeF textSize = g.MeasureString (item.Note, font, pageWidth);
-                        y += Convert.ToInt32(textSize.Height) + lineHeight; // pomjeri y ispod teksta
+                        y += Convert.ToInt32 (textSize.Height) + lineHeight; // pomjeri y ispod teksta
                     }
-                    g.DrawLine(Pens.Gray, 0, y, pageWidth, y);
+                    g.DrawLine (Pens.Gray, 0, y, pageWidth, y);
                     y += lineHeight;
                 }
 
                 // Footer
                 y += 5;
-                g.DrawLine(Pens.Black, 0, y, pageWidth, y);
+                g.DrawLine (Pens.Black, 0, y, pageWidth, y);
                 y += lineHeight;
 
                 // TOTAL suma
-                decimal total = _stavke.Sum(s => (s.UnitPrice ?? 0) * (s.Quantity ?? 0));
+                decimal total = _stavke.Sum (s => (s.UnitPrice ?? 0) * (s.Quantity ?? 0));
 
                 string totalStr = $"Ukupno: {total:0.00} KM";
-                SizeF sizeTotal = g.MeasureString(totalStr, bold);
-                g.DrawString(totalStr, bold, Brushes.Black, pageWidth - sizeTotal.Width - 5, y);
+                SizeF sizeTotal = g.MeasureString (totalStr, bold);
+                g.DrawString (totalStr, bold, Brushes.Black, pageWidth - sizeTotal.Width - 5, y);
 
             }
         }

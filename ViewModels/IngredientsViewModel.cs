@@ -1,19 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-using System;
-using System.Collections.Generic;
+﻿using Caupo.Data;
+using Caupo.Properties;
+using Caupo.Views;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using Caupo.Data;
-using Caupo.Properties;
-using Caupo.Views;
 using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.ViewModels
@@ -28,7 +22,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathFirstButton = value;
-                OnPropertyChanged(nameof(ImagePathFirstButton));
+                OnPropertyChanged (nameof (ImagePathFirstButton));
             }
         }
 
@@ -39,7 +33,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathLastButton = value;
-                OnPropertyChanged(nameof(ImagePathLastButton));
+                OnPropertyChanged (nameof (ImagePathLastButton));
             }
         }
 
@@ -50,7 +44,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathPhotoButton = value;
-                OnPropertyChanged(nameof(ImagePathPhotoButton));
+                OnPropertyChanged (nameof (ImagePathPhotoButton));
             }
         }
         private string? _imagePathEditButton;
@@ -60,7 +54,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathEditButton = value;
-                OnPropertyChanged(nameof(ImagePathEditButton));
+                OnPropertyChanged (nameof (ImagePathEditButton));
             }
         }
         private string? _imagePathAddButton;
@@ -70,7 +64,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathAddButton = value;
-                OnPropertyChanged(nameof(ImagePathAddButton));
+                OnPropertyChanged (nameof (ImagePathAddButton));
             }
         }
         private string? _imagePathDeleteButton;
@@ -80,7 +74,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathDeleteButton = value;
-                OnPropertyChanged(nameof(ImagePathDeleteButton));
+                OnPropertyChanged (nameof (ImagePathDeleteButton));
             }
         }
 
@@ -91,7 +85,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathCancelButton = value;
-                OnPropertyChanged(nameof(ImagePathCancelButton));
+                OnPropertyChanged (nameof (ImagePathCancelButton));
             }
         }
 
@@ -102,7 +96,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathSaveButton = value;
-                OnPropertyChanged(nameof(ImagePathSaveButton));
+                OnPropertyChanged (nameof (ImagePathSaveButton));
             }
         }
 
@@ -113,7 +107,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathExportButton = value;
-                OnPropertyChanged(nameof(ImagePathExportButton));
+                OnPropertyChanged (nameof (ImagePathExportButton));
             }
         }
 
@@ -124,7 +118,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathImportButton = value;
-                OnPropertyChanged(nameof(ImagePathImportButton));
+                OnPropertyChanged (nameof (ImagePathImportButton));
             }
         }
         private string? _imagePathSearchTextBox;
@@ -134,7 +128,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathSearchTextBox = value;
-                OnPropertyChanged(nameof(ImagePathSearchTextBox));
+                OnPropertyChanged (nameof (ImagePathSearchTextBox));
             }
         }
 
@@ -144,10 +138,10 @@ namespace Caupo.ViewModels
             get { return _fontColor; }
             set
             {
-                if (_fontColor != value)
+                if(_fontColor != value)
                 {
                     _fontColor = value;
-                    OnPropertyChanged(nameof(FontColor));
+                    OnPropertyChanged (nameof (FontColor));
                 }
             }
         }
@@ -158,15 +152,15 @@ namespace Caupo.ViewModels
             get { return _backColor; }
             set
             {
-                if (_backColor != value)
+                if(_backColor != value)
                 {
                     _backColor = value;
-                    OnPropertyChanged(nameof(BackColor));
+                    OnPropertyChanged (nameof (BackColor));
                 }
             }
         }
-        public ObservableCollection<DatabaseTables.TblRepromaterijal> Ingredients { get; set; } = new ObservableCollection<DatabaseTables.TblRepromaterijal>();
-        public ObservableCollection<DatabaseTables.TblJediniceMjere> JediniceMjere { get; set; } = new ObservableCollection<DatabaseTables.TblJediniceMjere>();
+        public ObservableCollection<DatabaseTables.TblRepromaterijal> Ingredients { get; set; } = new ObservableCollection<DatabaseTables.TblRepromaterijal> ();
+        public ObservableCollection<DatabaseTables.TblJediniceMjere> JediniceMjere { get; set; } = new ObservableCollection<DatabaseTables.TblJediniceMjere> ();
 
         private DatabaseTables.TblRepromaterijal? _selectedIngredient;
         public DatabaseTables.TblRepromaterijal? SelectedIngredient
@@ -174,11 +168,11 @@ namespace Caupo.ViewModels
             get => _selectedIngredient;
             set
             {
-                if (_selectedIngredient != value)
+                if(_selectedIngredient != value)
                 {
                     _selectedIngredient = value;
-                    OnPropertyChanged(nameof(SelectedIngredient));
-                    UpdateComboBox();
+                    OnPropertyChanged (nameof (SelectedIngredient));
+                    UpdateComboBox ();
                 }
             }
         }
@@ -189,10 +183,10 @@ namespace Caupo.ViewModels
             get => _selectedJedinicaMjere;
             set
             {
-                if (_selectedJedinicaMjere != value)
+                if(_selectedJedinicaMjere != value)
                 {
                     _selectedJedinicaMjere = value;
-                    OnPropertyChanged(nameof(SelectedJedinicaMjere));
+                    OnPropertyChanged (nameof (SelectedJedinicaMjere));
                 }
             }
         }
@@ -205,7 +199,7 @@ namespace Caupo.ViewModels
             set
             {
                 _ingredientFilter = value;
-                OnPropertyChanged(nameof(IngredientFilter));
+                OnPropertyChanged (nameof (IngredientFilter));
             }
         }
 
@@ -215,100 +209,100 @@ namespace Caupo.ViewModels
             get => _searchText;
             set
             {
-                if (_searchText != value)
+                if(_searchText != value)
                 {
                     _searchText = value;
-                    OnPropertyChanged(nameof(SearchText));
-                    Debug.WriteLine($"SearchText changed to: ");  // Dodaj log za testiranje
-                    FilterItems(_searchText);
+                    OnPropertyChanged (nameof (SearchText));
+                    Debug.WriteLine ($"SearchText changed to: ");  // Dodaj log za testiranje
+                    FilterItems (_searchText);
                 }
             }
         }
 
-    
+
 
         public IngredientsViewModel()
         {
-            Start();
-            Ingredients = new ObservableCollection<TblRepromaterijal>();
-           IngredientFilter= new ObservableCollection<TblRepromaterijal>();
-            SelectedIngredient = IngredientFilter?.FirstOrDefault();
-           // Debug.WriteLine("SelectedArticle = " + SelectedIngredient.Repromaterijal);
-            Debug.WriteLine("SearchText = " + SearchText);
+            Start ();
+            Ingredients = new ObservableCollection<TblRepromaterijal> ();
+            IngredientFilter = new ObservableCollection<TblRepromaterijal> ();
+            SelectedIngredient = IngredientFilter?.FirstOrDefault ();
+            // Debug.WriteLine("SelectedArticle = " + SelectedIngredient.Repromaterijal);
+            Debug.WriteLine ("SearchText = " + SearchText);
         }
 
 
 
         private async void Start()
         {
-            await SetImage();
-            await  LoadIngredientsAsync();
-          await LoadJediniceMjere();
-          
+            await SetImage ();
+            await LoadIngredientsAsync ();
+            await LoadJediniceMjere ();
+
         }
 
-       
+
 
         public async Task LoadJediniceMjere()
         {
             try
             {
 
-                using (var db = new AppDbContext())
+                using(var db = new AppDbContext ())
                 {
-                    var JM = await db.JediniceMjere.ToListAsync();
+                    var JM = await db.JediniceMjere.ToListAsync ();
 
-                    JediniceMjere.Clear();
-                    foreach (var jm in JM)
+                    JediniceMjere.Clear ();
+                    foreach(var jm in JM)
                     {
-                        JediniceMjere.Add(jm);
-                        Debug.WriteLine(jm.JedinicaMjere + ", JM Count = " + JediniceMjere.Count);
+                        JediniceMjere.Add (jm);
+                        Debug.WriteLine (jm.JedinicaMjere + ", JM Count = " + JediniceMjere.Count);
                     }
 
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Debug.WriteLine(ex.ToString());
+                Debug.WriteLine (ex.ToString ());
             }
         }
 
         public void UpdateComboBox()
         {
-            Debug.WriteLine("Okida UpdateComboBox() ");
-            if (SelectedIngredient != null)
+            Debug.WriteLine ("Okida UpdateComboBox() ");
+            if(SelectedIngredient != null)
             {
-                Debug.WriteLine("UpdateComboBox() -- SelectedIngredient != null");
-                SelectedJedinicaMjere = JediniceMjere.FirstOrDefault(item => item.IdJedinice == SelectedIngredient.JedinicaMjere);
-             
+                Debug.WriteLine ("UpdateComboBox() -- SelectedIngredient != null");
+                SelectedJedinicaMjere = JediniceMjere.FirstOrDefault (item => item.IdJedinice == SelectedIngredient.JedinicaMjere);
+
             }
         }
         public async Task DeleteIngredients(int ingredientId)
         {
-            using (var db = new AppDbContext())
+            using(var db = new AppDbContext ())
             {
-                var ingredient = await db.Repromaterijal.FindAsync(ingredientId);
+                var ingredient = await db.Repromaterijal.FindAsync (ingredientId);
 
-                if (ingredient != null)
+                if(ingredient != null)
                 {
-                    db.Repromaterijal.Remove(ingredient);
+                    db.Repromaterijal.Remove (ingredient);
 
-                    await db.SaveChangesAsync();
-                    await LoadIngredientsAsync();
-                    SelectedIngredient = Ingredients.FirstOrDefault();
-                    MyMessageBox myMessageBox = new MyMessageBox();
+                    await db.SaveChangesAsync ();
+                    await LoadIngredientsAsync ();
+                    SelectedIngredient = Ingredients.FirstOrDefault ();
+                    MyMessageBox myMessageBox = new MyMessageBox ();
                     myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                     myMessageBox.MessageTitle.Text = "POTVRDA";
                     myMessageBox.MessageText.Text = "Namirnica " + ingredient.Repromaterijal + " je uspješno obrisana iz baze.";
-                    myMessageBox.ShowDialog();
+                    myMessageBox.ShowDialog ();
                 }
                 else
                 {
-                    MyMessageBox myMessageBox = new MyMessageBox();
+                    MyMessageBox myMessageBox = new MyMessageBox ();
                     myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                     myMessageBox.MessageTitle.Text = "Greška";
                     myMessageBox.MessageText.Text = "Namirnica sa ID: " + ingredient?.IdRepromaterijala + " nije pronađena u bazi." + Environment.NewLine + "Neuspješno brisanje namirnice";
-                    myMessageBox.ShowDialog();
+                    myMessageBox.ShowDialog ();
                 }
             }
         }
@@ -317,86 +311,86 @@ namespace Caupo.ViewModels
         public event EventHandler<string?>? ErrorOccurred;
         protected virtual void OnErrorOccurred(string? message)
         {
-            ErrorOccurred?.Invoke(this, message);
+            ErrorOccurred?.Invoke (this, message);
         }
         public async Task InsertIngredient(TblRepromaterijal ingredient)
         {
-            using (var db = new AppDbContext())
+            using(var db = new AppDbContext ())
             {
                 var duplicateIngredient = await db.Repromaterijal
-                    .Where(a => a.Repromaterijal == ingredient.Repromaterijal )
-                    .FirstOrDefaultAsync();
+                    .Where (a => a.Repromaterijal == ingredient.Repromaterijal)
+                    .FirstOrDefaultAsync ();
 
-                if (duplicateIngredient != null)
+                if(duplicateIngredient != null)
                 {
                     string poruka = "";
-         
+
                     poruka = duplicateIngredient.Repromaterijal + " se već koristi u bazi." + Environment.NewLine + "Ta vrsta podataka mora biti jedinstvena za svaku namirnicu";
-                    OnErrorOccurred(poruka);
+                    OnErrorOccurred (poruka);
                     return;
                 }
                 else
-                { 
-                    await db.Repromaterijal.AddAsync(ingredient);
-                    db.SaveChanges();
-                    Debug.WriteLine("Novi zapis je uspešno dodat!");
-                    await LoadIngredientsAsync();
-                    SelectedIngredient = Ingredients.Last();
-                    MyMessageBox myMessageBox = new MyMessageBox();
+                {
+                    await db.Repromaterijal.AddAsync (ingredient);
+                    db.SaveChanges ();
+                    Debug.WriteLine ("Novi zapis je uspešno dodat!");
+                    await LoadIngredientsAsync ();
+                    SelectedIngredient = Ingredients.Last ();
+                    MyMessageBox myMessageBox = new MyMessageBox ();
                     myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                     myMessageBox.MessageTitle.Text = "POTVRDA";
                     myMessageBox.MessageText.Text = "Namirnica " + ingredient.Repromaterijal + " je uspješno dodana u bazu.";
-                    myMessageBox.ShowDialog();
+                    myMessageBox.ShowDialog ();
                 }
             }
         }
 
         public async Task UpdateIngredient(TblRepromaterijal ingredient)
         {
-            using (var db = new AppDbContext())
+            using(var db = new AppDbContext ())
             {
 
-              
 
-                var existingIngredient = await db.Repromaterijal.FindAsync(ingredient.IdRepromaterijala);
 
-                if (existingIngredient != null)
+                var existingIngredient = await db.Repromaterijal.FindAsync (ingredient.IdRepromaterijala);
+
+                if(existingIngredient != null)
                 {
-                    
-                    db.Entry(existingIngredient).CurrentValues.SetValues(ingredient);
-                    await db.SaveChangesAsync();
-                 
-                    await LoadIngredientsAsync();
+
+                    db.Entry (existingIngredient).CurrentValues.SetValues (ingredient);
+                    await db.SaveChangesAsync ();
+
+                    await LoadIngredientsAsync ();
                     SelectedIngredient = existingIngredient;
-                    Debug.WriteLine("Namirnica" + existingIngredient.Repromaterijal + " je uspešno ažurirana!");
-                    Debug.WriteLine("SelectedIngredient = existingIngredient; postavljen" + existingIngredient.Repromaterijal );
-                    Debug.WriteLine("LoadIngredientsAsync() trigerovan");
-                    MyMessageBox myMessageBox = new MyMessageBox();
+                    Debug.WriteLine ("Namirnica" + existingIngredient.Repromaterijal + " je uspešno ažurirana!");
+                    Debug.WriteLine ("SelectedIngredient = existingIngredient; postavljen" + existingIngredient.Repromaterijal);
+                    Debug.WriteLine ("LoadIngredientsAsync() trigerovan");
+                    MyMessageBox myMessageBox = new MyMessageBox ();
                     myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                     myMessageBox.MessageTitle.Text = "POTVRDA";
                     myMessageBox.MessageText.Text = "Namirnica " + existingIngredient.Repromaterijal + " je uspješno ažurirana.";
-                    myMessageBox.ShowDialog();
+                    myMessageBox.ShowDialog ();
 
                 }
                 else
                 {
-                    MyMessageBox myMessageBox = new MyMessageBox();
+                    MyMessageBox myMessageBox = new MyMessageBox ();
                     myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                     myMessageBox.MessageTitle.Text = "Greška";
                     myMessageBox.MessageText.Text = "Namirnica sa ID: " + ingredient.IdRepromaterijala + " nije pronađena u bazi." + Environment.NewLine + "Neuspješno ažuriranje namirnice";
-                    myMessageBox.ShowDialog();
+                    myMessageBox.ShowDialog ();
                 }
             }
         }
 
         public async Task SetImage()
         {
-            await Task.Delay(1);
+            await Task.Delay (1);
             string tema = Settings.Default.Tema;
-         
-            if (tema == "Tamna")
+
+            if(tema == "Tamna")
             {
-                Debug.WriteLine("Aktivna tema koju vidi viewmodel je : " + tema);
+                Debug.WriteLine ("Aktivna tema koju vidi viewmodel je : " + tema);
                 ImagePathFirstButton = "pack://application:,,,/Images/Dark/first.svg";
                 ImagePathLastButton = "pack://application:,,,/Images/Dark/last.svg";
                 ImagePathPhotoButton = "pack://application:,,,/Images/Dark/image.png";
@@ -408,14 +402,15 @@ namespace Caupo.ViewModels
                 ImagePathSaveButton = "pack://application:,,,/Images/Dark/save.svg";
                 ImagePathExportButton = "pack://application:,,,/Images/Dark/export.svg";
                 ImagePathImportButton = "pack://application:,,,/Images/Dark/import.svg";
-                FontColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(212, 212, 212));   Application.Current.Resources["GlobalFontColor"] =    FontColor;
-                BackColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 50, 50));
+                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
+                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
 
 
             }
             else
             {
-                Debug.WriteLine("Aktivna tema koju vidi viewmodel je : " + tema);
+                Debug.WriteLine ("Aktivna tema koju vidi viewmodel je : " + tema);
                 ImagePathFirstButton = "pack://application:,,,/Images/Light/first.svg";
                 ImagePathLastButton = "pack://application:,,,/Images/Light/last.svg";
                 ImagePathPhotoButton = "pack://application:,,,/Images/Light/image.svg";
@@ -427,51 +422,52 @@ namespace Caupo.ViewModels
                 ImagePathSaveButton = "pack://application:,,,/Images/Light/save.svg";
                 ImagePathExportButton = "pack://application:,,,/Images/Light/export.svg";
                 ImagePathImportButton = "pack://application:,,,/Images/Light/import.svg";
-                FontColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 50, 50));  Application.Current.Resources["GlobalFontColor"] =    FontColor;
-                BackColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(212, 212, 212));
+                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
+                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
                 //FontColorAdv = new System.Windows.Media.Color();
                 //FontColorAdv = System.Windows.Media.Color.FromRgb(50, 50, 50);
             }
         }
-       public async Task LoadIngredientsAsync()
+        public async Task LoadIngredientsAsync()
         {
             try
             {
 
-                using (var db = new AppDbContext())
+                using(var db = new AppDbContext ())
                 {
-                    var ingredients = await db.Repromaterijal.ToListAsync();
-                    Ingredients.Clear();
-                    IngredientFilter?.Clear();
-                    foreach (var ingredient in ingredients)
+                    var ingredients = await db.Repromaterijal.ToListAsync ();
+                    Ingredients.Clear ();
+                    IngredientFilter?.Clear ();
+                    foreach(var ingredient in ingredients)
                     {
-                 
-                        Ingredients.Add(ingredient);
-                        IngredientFilter?.Add(ingredient);
-                      
+
+                        Ingredients.Add (ingredient);
+                        IngredientFilter?.Add (ingredient);
+
                     }
-                  
+
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Debug.WriteLine(ex.ToString());
+                Debug.WriteLine (ex.ToString ());
             }
         }
-    
-    
-       public void FilterItems(string? searchtext)
+
+
+        public void FilterItems(string? searchtext)
         {
-            Debug.WriteLine("Okida search");
+            Debug.WriteLine ("Okida search");
 
-			var filtered = Ingredients
-	             .Where(a => (a.Repromaterijal ?? string.Empty)
-	             .ToLower()
-	             .Contains((SearchText ?? string.Empty).ToLower()))
-	             .ToList();
+            var filtered = Ingredients
+                 .Where (a => (a.Repromaterijal ?? string.Empty)
+                 .ToLower ()
+                 .Contains ((SearchText ?? string.Empty).ToLower ()))
+                 .ToList ();
 
 
-			IngredientFilter = new ObservableCollection<DatabaseTables.TblRepromaterijal>(filtered);
+            IngredientFilter = new ObservableCollection<DatabaseTables.TblRepromaterijal> (filtered);
         }
 
 
@@ -479,7 +475,7 @@ namespace Caupo.ViewModels
 
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
         }
     }
 }

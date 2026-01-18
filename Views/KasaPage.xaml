@@ -10,7 +10,7 @@
          xmlns:svg="http://sharpvectors.codeplex.com/svgc/" 
          mc:Ignorable="d"
         x:Name="KasaWindow"
-
+ 
         Loaded="KasaWindow_Loaded"
         
         PreviewKeyDown="KasaWindow_PreviewKeyDown" >
@@ -338,69 +338,74 @@
                 <Grid Grid.Column="0" x:Name="helperField"/>
             </Grid>
             <Border Grid.Row="1" Grid.Column="5" CornerRadius="10" BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0" Margin="10,20,10,0">
-            <ListView  x:Name="ListStavkeRacuna" TouchDown="ListStavkeRacuna_TouchDown" TouchUp="ListStavkeRacuna_TouchUp" HorizontalAlignment="Stretch" BorderThickness="0" PreviewMouseLeftButtonDown="ListStavkeRacuna_PreviewMouseLeftButtonDown" PreviewMouseLeftButtonUp="ListStavkeRacuna_PreviewMouseLeftButtonUp" ItemsSource="{Binding StavkeRacuna}" SelectedItem="{Binding SelectedStavka}"   VerticalAlignment="Top"   SelectionMode="Single" Background="Transparent" Foreground="{DynamicResource GlobalFontColor}"   Margin="5" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" >
-                    <ListView.Resources>
+                <DataGrid  x:Name="ListStavkeRacuna"
+                    TouchDown="ListStavkeRacuna_TouchDown"
+                    TouchUp="ListStavkeRacuna_TouchUp"
+                        ItemsSource="{Binding StavkeRacuna}"
+                        SelectedItem="{Binding SelectedStavka}"
+                    HorizontalAlignment="Stretch"
+                    PreviewMouseLeftButtonDown="ListStavkeRacuna_PreviewMouseLeftButtonDown"
+                    PreviewMouseLeftButtonUp="ListStavkeRacuna_PreviewMouseLeftButtonUp"
+                    Padding="2" 
+                    GridLinesVisibility="None"
+                        AutoGenerateColumns="False"
+                        Background="Transparent"
+                    HeadersVisibility="Column"
+                    CanUserAddRows="False"
+                    CanUserResizeRows="False"
+                    CanUserSortColumns="False"
+                    HorizontalScrollBarVisibility="Disabled"
+                    BorderThickness="0"
+                    ClipToBounds="True"
+                    BorderBrush="{DynamicResource GlobalFontColor}"
+                    SelectionMode="Single">
+                    <DataGrid.Resources>
                         <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
-                    </ListView.Resources>
-                <ListView.View>
-                    <GridView    >
-
-
-                        <!-- Kolona za Artikl -->
-                            <GridViewColumn Header="Artikl" Width="150">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Vertical">
-
-                                            <!-- Naziv artikla -->
-                                            <TextBlock Text="{Binding Name}"
-                           FontWeight="SemiBold"
-                           TextWrapping="Wrap" />
-
-                                            <!-- Note (ako postoji) -->
-                                            <TextBlock Text="{Binding Note}"
-                           FontSize="11"
-                           FontStyle="Italic"
-                           Opacity="0.75"
-                           Margin="8,0,0,0"
-                           TextWrapping="Wrap"
-                        />
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-
-
-                            <!-- Kolona za Količinu -->
-                        <GridViewColumn Header="Kol" Width="{Binding ElementName=helperField, Path=ActualWidth}"   >
-                            <GridViewColumn.CellTemplate>
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="Naziv" Width="2*" >
+                            <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Quantity}" HorizontalAlignment="Stretch"  TextAlignment="Right" />
+                                    <StackPanel Orientation="Vertical">
+                                        <!-- Naziv artikla -->
+                                        <TextBlock Text="{Binding Name}"
+                                                       FontWeight="SemiBold"
+                                                       TextWrapping="Wrap" />
+                                        <!-- Note (ako postoji) -->
+                                        <TextBlock Text="{Binding Note}"
+                                                           FontSize="11"
+                                                           FontStyle="Italic"
+                                                           Opacity="0.75"
+                                                           Margin="8,0,0,0"
+                                                           TextWrapping="Wrap"
+                                                        />
+                                    </StackPanel>
                                 </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-
-                        <!-- Kolona za Cijenu -->
-                        <GridViewColumn Header="Cijena" Width="{Binding ElementName=helperField, Path=ActualWidth}" >
-                            <GridViewColumn.CellTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Količina" Width="*" >
+                            <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding UnitPrice, StringFormat={}{0:F2}}" TextAlignment="Right" HorizontalAlignment="Stretch"  />
+                                    <TextBlock Text="{Binding Quantity}" HorizontalAlignment="Center"  TextAlignment="Right" />
                                 </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-
-                        <!-- Kolona za Iznos -->
-                        <GridViewColumn Header="Iznos" Width="{Binding ElementName=helperField, Path=ActualWidth}" >
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate  >
-                                    <TextBlock Text="{Binding TotalAmount, StringFormat={}{0:F2}}" HorizontalAlignment="Stretch" TextAlignment="Right" Padding="5" />
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Cijena" Width="*" >
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding UnitPrice, StringFormat={}{0:F2}}" TextAlignment="Center" HorizontalAlignment="Stretch"  />
                                 </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-
-                    </GridView>
-                </ListView.View>
-            </ListView>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Iznos" Width="*" >
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding TotalAmount, StringFormat={}{0:F2}}" HorizontalAlignment="Center" TextAlignment="Right" Padding="5" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+            </DataGrid>
             </Border>
             <Label x:Name="lblIznos" Foreground="{DynamicResource GlobalFontColor}"  Content="{Binding TotalSum}" ContentStringFormat="{}{0:0.00}" FontSize="40" Grid.Row="2" Grid.Column="5" HorizontalAlignment="Right" Margin="0,0,50,0"/>
         </Grid>

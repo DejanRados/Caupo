@@ -14,7 +14,7 @@
         Title="BuyerPopup" >
    
     <Border      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#44000000">
-        <Border Background="#3A3A40" CornerRadius="20" Height="500" Width="500">
+        <Border Background="{DynamicResource GlobalBackgroundColor}" CornerRadius="20" Height="500" Width="500">
             <Grid Margin="20">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="40"/>

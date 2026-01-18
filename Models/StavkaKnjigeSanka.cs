@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Caupo.Models
+﻿namespace Caupo.Models
 {
     public class StavkaKnjigeSanka
     {
@@ -70,4 +68,4 @@ namespace Caupo.Models
         }
     }
 }
- 
+

@@ -9,61 +9,61 @@ namespace Caupo
     public static class DecimalTextBoxBehavior
     {
         public static readonly DependencyProperty EnableDecimalParsingProperty =
-            DependencyProperty.RegisterAttached(
+            DependencyProperty.RegisterAttached (
                 "EnableDecimalParsing",
-                typeof(bool),
-                typeof(DecimalTextBoxBehavior),
-                new PropertyMetadata(false, OnEnableDecimalParsingChanged));
+                typeof (bool),
+                typeof (DecimalTextBoxBehavior),
+                new PropertyMetadata (false, OnEnableDecimalParsingChanged));
 
         public static void SetEnableDecimalParsing(DependencyObject element, bool value)
-            => element.SetValue(EnableDecimalParsingProperty, value);
+            => element.SetValue (EnableDecimalParsingProperty, value);
 
         public static bool GetEnableDecimalParsing(DependencyObject element)
-            => (bool)element.GetValue(EnableDecimalParsingProperty);
+            => (bool)element.GetValue (EnableDecimalParsingProperty);
 
         private static void OnEnableDecimalParsingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is TextBox tb)
+            if(d is TextBox tb)
             {
-                if ((bool)e.NewValue)
+                if((bool)e.NewValue)
                 {
                     tb.PreviewTextInput += Tb_PreviewTextInput;
-                    DataObject.AddPastingHandler(tb, OnPaste);
+                    DataObject.AddPastingHandler (tb, OnPaste);
                 }
                 else
                 {
                     tb.PreviewTextInput -= Tb_PreviewTextInput;
-                    DataObject.RemovePastingHandler(tb, OnPaste);
+                    DataObject.RemovePastingHandler (tb, OnPaste);
                 }
             }
         }
 
         private static void Tb_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            e.Handled = !IsTextValidDecimal(e.Text);
+            e.Handled = !IsTextValidDecimal (e.Text);
         }
 
         private static void OnPaste(object sender, DataObjectPastingEventArgs e)
         {
-            if (e.DataObject.GetDataPresent(DataFormats.Text))
+            if(e.DataObject.GetDataPresent (DataFormats.Text))
             {
-                string text = e.DataObject.GetData(DataFormats.Text) as string;
-                if (!IsTextValidDecimal(text))
-                    e.CancelCommand();
+                string text = e.DataObject.GetData (DataFormats.Text) as string;
+                if(!IsTextValidDecimal (text))
+                    e.CancelCommand ();
             }
             else
             {
-                e.CancelCommand();
+                e.CancelCommand ();
             }
         }
 
         private static bool IsTextValidDecimal(string text)
         {
             // Zameni zarez sa tačkom
-            text = text.Replace(',', '.');
+            text = text.Replace (',', '.');
 
             // Proveri da li je validan decimal
-            return decimal.TryParse(text, NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out _);
+            return decimal.TryParse (text, NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out _);
         }
     }
 

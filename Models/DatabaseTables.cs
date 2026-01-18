@@ -1,28 +1,22 @@
-﻿using Microsoft.EntityFrameworkCore;
-//using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+﻿//using Newtonsoft.Json;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Text.Json.Serialization;
 
 
 namespace Caupo.Data
 {
-  public  class DatabaseTables
+    public class DatabaseTables
     {
-        [Table("tblArtikli")]
+        [Table ("tblArtikli")]
         public class TblArtikli : INotifyPropertyChanged
         {
             [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdArtikla { get; set; }
             public string? Sifra { get; set; }
             public string? Artikl { get; set; }
@@ -81,11 +75,11 @@ namespace Caupo.Data
             {
                 get
                 {
-                    if (string.IsNullOrWhiteSpace(Slika))
+                    if(string.IsNullOrWhiteSpace (Slika)|| Slika == "bez_slike")
                         return null; // ili pack URI placeholder slike
                     try
                     {
-                        return new BitmapImage(new Uri(Slika, UriKind.Absolute));
+                        return new BitmapImage (new Uri (Slika, UriKind.Absolute));
                     }
                     catch
                     {
@@ -121,158 +115,158 @@ namespace Caupo.Data
             private bool _isVisible = true;
             [NotMapped]
             [JsonIgnore]
-            public bool IsVisible 
+            public bool IsVisible
             {
                 get => _isVisible;
                 set
                 {
                     _isVisible = value;
-                    OnPropertyChanged(nameof(IsVisible));
+                    OnPropertyChanged (nameof (IsVisible));
                 }
             }
 
             public event PropertyChangedEventHandler? PropertyChanged;
             protected void OnPropertyChanged(string propertyName)
             {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+                PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
             }
         }
 
-        [Table("tblBrojBlokaSank")]
+        [Table ("tblBrojBlokaSank")]
         public class TblBrojBlokaSank
         {
-              [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int Id { get; set; }
             public int BrojBloka { get; set; }
         }
-         [Table("tblBrojPokretanja")] 
+        [Table ("tblBrojPokretanja")]
         public class TblBrojPokretanja
         {
-              [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int BrojPokretanja { get; set; }
             public string? DatumPokretanja { get; set; }
         }
-         [Table("tblDobavljaci")]
+        [Table ("tblDobavljaci")]
 
-public class TblDobavljaci : INotifyPropertyChanged
-    {
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        protected void OnPropertyChanged(string name)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int IdDobavljaca { get; set; }
-
-        private string? _dobavljac;
-        public string? Dobavljac
+        public class TblDobavljaci : INotifyPropertyChanged
         {
-            get => _dobavljac;
-            set
+            public event PropertyChangedEventHandler? PropertyChanged;
+
+            protected void OnPropertyChanged(string name)
+                => PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (name));
+
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
+            public int IdDobavljaca { get; set; }
+
+            private string? _dobavljac;
+            public string? Dobavljac
             {
-                if (_dobavljac != value)
+                get => _dobavljac;
+                set
                 {
-                    _dobavljac = value;
-                    OnPropertyChanged(nameof(Dobavljac));
+                    if(_dobavljac != value)
+                    {
+                        _dobavljac = value;
+                        OnPropertyChanged (nameof (Dobavljac));
+                    }
+                }
+            }
+
+            public override string ToString() => Dobavljac ?? string.Empty;
+
+            private string? _adresa;
+            public string? Adresa
+            {
+                get => _adresa;
+                set
+                {
+                    if(_adresa != value)
+                    {
+                        _adresa = value;
+                        OnPropertyChanged (nameof (Adresa));
+                    }
+                }
+            }
+
+            private string? _mjesto;
+            public string? Mjesto
+            {
+                get => _mjesto;
+                set
+                {
+                    if(_mjesto != value)
+                    {
+                        _mjesto = value;
+                        OnPropertyChanged (nameof (Mjesto));
+                    }
+                }
+            }
+
+            private string? _pdv;
+            public string? PDV
+            {
+                get => _pdv;
+                set
+                {
+                    if(_pdv != value)
+                    {
+                        _pdv = value;
+                        OnPropertyChanged (nameof (PDV));
+                    }
+                }
+            }
+
+            private string? _jib;
+            public string? JIB
+            {
+                get => _jib;
+                set
+                {
+                    if(_jib != value)
+                    {
+                        _jib = value;
+                        OnPropertyChanged (nameof (JIB));
+                    }
+                }
+            }
+
+            private string? _zr;
+            public string? ZR
+            {
+                get => _zr;
+                set
+                {
+                    if(_zr != value)
+                    {
+                        _zr = value;
+                        OnPropertyChanged (nameof (ZR));
+                    }
+                }
+            }
+
+            private decimal? _pocetnoStanje;
+            public decimal? PocetnoStanje
+            {
+                get => _pocetnoStanje;
+                set
+                {
+                    if(_pocetnoStanje != value)
+                    {
+                        _pocetnoStanje = value;
+                        OnPropertyChanged (nameof (PocetnoStanje));
+                    }
                 }
             }
         }
 
-        public override string ToString() => Dobavljac ?? string.Empty;
-
-        private string? _adresa;
-        public string? Adresa
-        {
-            get => _adresa;
-            set
-            {
-                if (_adresa != value)
-                {
-                    _adresa = value;
-                    OnPropertyChanged(nameof(Adresa));
-                }
-            }
-        }
-
-        private string? _mjesto;
-        public string? Mjesto
-        {
-            get => _mjesto;
-            set
-            {
-                if (_mjesto != value)
-                {
-                    _mjesto = value;
-                    OnPropertyChanged(nameof(Mjesto));
-                }
-            }
-        }
-
-        private string? _pdv;
-        public string? PDV
-        {
-            get => _pdv;
-            set
-            {
-                if (_pdv != value)
-                {
-                    _pdv = value;
-                    OnPropertyChanged(nameof(PDV));
-                }
-            }
-        }
-
-        private string? _jib;
-        public string? JIB
-        {
-            get => _jib;
-            set
-            {
-                if (_jib != value)
-                {
-                    _jib = value;
-                    OnPropertyChanged(nameof(JIB));
-                }
-            }
-        }
-
-        private string? _zr;
-        public string? ZR
-        {
-            get => _zr;
-            set
-            {
-                if (_zr != value)
-                {
-                    _zr = value;
-                    OnPropertyChanged(nameof(ZR));
-                }
-            }
-        }
-
-        private decimal? _pocetnoStanje;
-        public decimal? PocetnoStanje
-        {
-            get => _pocetnoStanje;
-            set
-            {
-                if (_pocetnoStanje != value)
-                {
-                    _pocetnoStanje = value;
-                    OnPropertyChanged(nameof(PocetnoStanje));
-                }
-            }
-        }
-    }
-
-    [Table("tblFakturaStavka")]
+        [Table ("tblFakturaStavka")]
         public class TblFakturaStavka
         {
-              [Key] 
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdStavke { get; set; }
             [NotNull]
             public string? Artikl { get; set; }
@@ -306,11 +300,11 @@ public class TblDobavljaci : INotifyPropertyChanged
             }
             public int IdFakture { get; set; }
         }
-         [Table("tblFaktura")] 
+        [Table ("tblFaktura")]
         public class TblFaktura
         {
-              [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdFakture { get; set; }
             [NotNull]
             public DateTime Datum { get; set; }
@@ -320,7 +314,7 @@ public class TblDobavljaci : INotifyPropertyChanged
             public string? Racuni { get; set; }
             public string? Printed { get; set; }
         }
-         [Table("tblFirma")]
+        [Table ("tblFirma")]
         public class TblFirma
         {
             [NotNull]
@@ -333,11 +327,11 @@ public class TblDobavljaci : INotifyPropertyChanged
             public string? Telefon { get; set; }
             public string? Web { get; set; }
         }
-         [Table("tblJediniceMjere")]
+        [Table ("tblJediniceMjere")]
         public class TblJediniceMjere
         {
-              [Key] 
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdJedinice { get; set; }
             [NotNull]
             public string? JedinicaMjere { get; set; }
@@ -346,7 +340,7 @@ public class TblDobavljaci : INotifyPropertyChanged
                 return JedinicaMjere ?? string.Empty;
             }
         }
-         [Table("tblKategorije")] 
+        [Table ("tblKategorije")]
         public class TblKategorije : INotifyPropertyChanged
         {
 
@@ -354,10 +348,10 @@ public class TblDobavljaci : INotifyPropertyChanged
             private void OnPropertyChanged(string prop)
                 => PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (prop));
 
-            [Key] 
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdKategorije { get; set; }
-          
+
             private string? _kategorija;
             [NotNull]
             public string? Kategorija
@@ -396,13 +390,13 @@ public class TblDobavljaci : INotifyPropertyChanged
                 }
             }
         }
-     
-        
-        [Table("tblKnjigaKuhinje")]
+
+
+        [Table ("tblKnjigaKuhinje")]
         public class TblKnjigaKuhinje
         {
-              [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int RedniBroj { get; set; }
             public string? Artikl { get; set; }
             public int JedinicaMjere { get; set; }
@@ -417,11 +411,11 @@ public class TblDobavljaci : INotifyPropertyChanged
             public DateTime Datum { get; set; }
             public string? Sifra { get; set; }
         }
-         [Table("tblKnjigaSanka")]
+        [Table ("tblKnjigaSanka")]
         public class TblKnjigaSanka
         {
-              [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int RedniBroj { get; set; }
             public string? Artikl { get; set; }
             public int JedinicaMjere { get; set; }
@@ -434,22 +428,22 @@ public class TblDobavljaci : INotifyPropertyChanged
             public DateTime Datum { get; set; }
             public string? Sifra { get; set; }
         }
-         [Table("tblKuhinja")]
+        [Table ("tblKuhinja")]
         public class TblKuhinja
         {
-              [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdKuhinje { get; set; }
             public DateTime Datum { get; set; }
             public string? Sto { get; set; }
             public string? Radnik { get; set; }
             public string? NazivStola { get; set; }
         }
-         [Table("tblKuhinjaStavke")]
+        [Table ("tblKuhinjaStavke")]
         public class TblKuhinjaStavke
         {
-              [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdStavke { get; set; }
             public string? Artikl { get; set; }
             public string? Sifra { get; set; }
@@ -459,11 +453,11 @@ public class TblDobavljaci : INotifyPropertyChanged
             public int IdKuhinje { get; set; }
             public string? Note { get; set; }
         }
-         [Table("tblKupci")] 
+        [Table ("tblKupci")]
         public class TblKupci : INotifyPropertyChanged
         {
-              [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdKupca { get; set; }
             private string? kupac;
             public string? Kupac
@@ -471,7 +465,7 @@ public class TblDobavljaci : INotifyPropertyChanged
                 get => kupac;
                 set
                 {
-                    if (kupac != value)
+                    if(kupac != value)
                     {
                         kupac = value;
                         OnPropertyChanged (nameof (Kupac));
@@ -485,7 +479,7 @@ public class TblDobavljaci : INotifyPropertyChanged
                 get => adresa;
                 set
                 {
-                    if (adresa != value)
+                    if(adresa != value)
                     {
                         adresa = value;
                         OnPropertyChanged (nameof (Adresa));
@@ -499,7 +493,7 @@ public class TblDobavljaci : INotifyPropertyChanged
                 get => mjesto;
                 set
                 {
-                    if (mjesto != value)
+                    if(mjesto != value)
                     {
                         mjesto = value;
                         OnPropertyChanged (nameof (Mjesto));
@@ -513,7 +507,7 @@ public class TblDobavljaci : INotifyPropertyChanged
                 get => pdv;
                 set
                 {
-                    if (pdv != value)
+                    if(pdv != value)
                     {
                         pdv = value;
                         OnPropertyChanged (nameof (PDV));
@@ -527,7 +521,7 @@ public class TblDobavljaci : INotifyPropertyChanged
                 get => jib;
                 set
                 {
-                    if (jib != value)
+                    if(jib != value)
                     {
                         jib = value;
                         OnPropertyChanged (nameof (JIB));
@@ -545,11 +539,11 @@ public class TblDobavljaci : INotifyPropertyChanged
             protected void OnPropertyChanged(string name) =>
                 PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (name));
         }
-         [Table("tblKupciNarudzba")]
+        [Table ("tblKupciNarudzba")]
         public class TblKupciNarudzba
         {
-              [Key] 
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdNarudzbe { get; set; }
             public string? Kupac { get; set; }
             public string? JIB { get; set; }
@@ -557,11 +551,11 @@ public class TblDobavljaci : INotifyPropertyChanged
             public string? Radnik { get; set; }
             public string? Fakturisano { get; set; }
         }
-         [Table("tblKupciNarudzbeStavka")]
+        [Table ("tblKupciNarudzbeStavka")]
         public class TblKupciNarudzbeStavka
         {
-              [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdStavke { get; set; }
             public string? Artikl { get; set; }
             public decimal Kolicina { get; set; }
@@ -572,34 +566,34 @@ public class TblDobavljaci : INotifyPropertyChanged
             public int IdNarudzbe { get; set; }
         }
 
-        [Table("tblNarudzbe")]
+        [Table ("tblNarudzbe")]
         public class TblNarudzbe
         {
             [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdNarudzbe { get; set; }
-            public DateTime Datum { get;set; }
+            public DateTime Datum { get; set; }
             public string? Vrijeme { get; set; }
-            public string? Konobar { get;set; }
+            public string? Konobar { get; set; }
         }
 
 
-        [Table("tblNarudzbeStavke")]
+        [Table ("tblNarudzbeStavke")]
         public class TblNarudzbeStavke : INotifyPropertyChanged
         {
             [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdStavke { get; set; }
 
             public string? Name { get; set; }
-            public string? Label { get; set; } 
+            public string? Label { get; set; }
 
             public decimal? TotalAmount
             {
                 get
                 {
                     // Calculate Total based on Qty and Price
-                    if (UnitPrice.HasValue && Quantity > 0)
+                    if(UnitPrice.HasValue && Quantity > 0)
                     {
                         return UnitPrice.Value * Quantity;
                     }
@@ -613,11 +607,11 @@ public class TblDobavljaci : INotifyPropertyChanged
                 get => unitPrice;
                 set
                 {
-                    if (unitPrice != value)
+                    if(unitPrice != value)
                     {
                         unitPrice = value;
-                        OnPropertyChanged(nameof(UnitPrice));
-                        OnPropertyChanged(nameof(TotalAmount)); // Notify that Total might have changed
+                        OnPropertyChanged (nameof (UnitPrice));
+                        OnPropertyChanged (nameof (TotalAmount)); // Notify that Total might have changed
                     }
                 }
             }
@@ -627,11 +621,11 @@ public class TblDobavljaci : INotifyPropertyChanged
                 get => _Quantity;
                 set
                 {
-                    if (_Quantity != value)
+                    if(_Quantity != value)
                     {
                         _Quantity = value;
-                        OnPropertyChanged(nameof(Quantity));
-                        OnPropertyChanged(nameof(TotalAmount));
+                        OnPropertyChanged (nameof (Quantity));
+                        OnPropertyChanged (nameof (TotalAmount));
                     }
                 }
             }
@@ -648,14 +642,14 @@ public class TblDobavljaci : INotifyPropertyChanged
             public event PropertyChangedEventHandler? PropertyChanged;
 
             protected void OnPropertyChanged(string propertyName) =>
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+                PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
         }
 
-         [Table("tblNormativPica")]
+        [Table ("tblNormativPica")]
         public class TblNormativPica
         {
-              [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdNormativa { get; set; }
             public string? Normativ { get; set; }
             public override string ToString()
@@ -663,11 +657,11 @@ public class TblDobavljaci : INotifyPropertyChanged
                 return Normativ ?? string.Empty;
             }
         }
-         [Table("tblNormativi")] 
+        [Table ("tblNormativi")]
         public class TblNormativ
         {
-              [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdStavkeNormativa { get; set; }
             public string? Repromaterijal { get; set; }
             public string? JedinicaMjere { get; set; }
@@ -676,22 +670,22 @@ public class TblDobavljaci : INotifyPropertyChanged
             public decimal? Ukupno => Kolicina * Cijena;
             public int IdProizvoda { get; set; }
         }
-         [Table("tblOtpis")]
+        [Table ("tblOtpis")]
         public class TblOtpis
         {
-              [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int idIdOtpisa { get; set; }
             public int BrojOtpisa { get; set; }
             public DateTime Datum { get; set; }
             public string? Locked { get; set; }
             public string? Radnik { get; set; }
         }
-         [Table("tblOtpisStavka")]
+        [Table ("tblOtpisStavka")]
         public class TblOtpisStavka
         {
-              [Key] 
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int RedniBroj { get; set; }
             public int BrojOtpisa { get; set; }
             public string? Artikl { get; set; }
@@ -699,11 +693,11 @@ public class TblDobavljaci : INotifyPropertyChanged
             public decimal Cijena { get; set; }
             public int JedinicaMjere { get; set; }
         }
-         [Table("tblPoreskeStope")]
+        [Table ("tblPoreskeStope")]
         public class TblPoreskeStope
         {
-              [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdStope { get; set; }
             public decimal? Postotak { get; set; }
             public string? Opis { get; set; }
@@ -712,11 +706,11 @@ public class TblDobavljaci : INotifyPropertyChanged
                 return Opis ?? string.Empty;
             }
         }
-         [Table("tblRacunStavke")]
+        [Table ("tblRacunStavke")]
         public class TblRacunStavka : INotifyPropertyChanged
         {
-              [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdStavke { get; set; }
             public int? BrojRacuna { get; set; }
             public string? Artikl { get; set; }
@@ -728,11 +722,11 @@ public class TblDobavljaci : INotifyPropertyChanged
                 get => _kolicina;
                 set
                 {
-                    if (_kolicina != value)
+                    if(_kolicina != value)
                     {
                         _kolicina = value;
-                        OnPropertyChanged(nameof(Kolicina));
-                        OnPropertyChanged(nameof(Iznos));
+                        OnPropertyChanged (nameof (Kolicina));
+                        OnPropertyChanged (nameof (Iznos));
                     }
                 }
             }
@@ -742,11 +736,11 @@ public class TblDobavljaci : INotifyPropertyChanged
                 get => cijena;
                 set
                 {
-                    if (cijena != value)
+                    if(cijena != value)
                     {
                         cijena = value;
-                        OnPropertyChanged(nameof(Cijena));
-                        OnPropertyChanged(nameof(Iznos)); // Notify that Total might have changed
+                        OnPropertyChanged (nameof (Cijena));
+                        OnPropertyChanged (nameof (Iznos)); // Notify that Total might have changed
                     }
                 }
             }
@@ -755,7 +749,7 @@ public class TblDobavljaci : INotifyPropertyChanged
                 get
                 {
                     // Calculate Total based on Qty and Price
-                    if (Cijena.HasValue && Kolicina > 0)
+                    if(Cijena.HasValue && Kolicina > 0)
                     {
                         return Cijena.Value * (decimal)Kolicina;
                     }
@@ -805,17 +799,17 @@ public class TblDobavljaci : INotifyPropertyChanged
             }
             public int? VrstaArtikla { get; set; }
             public string? ArtiklNormativ { get; set; }
-          
+
             public event PropertyChangedEventHandler? PropertyChanged;
 
             protected void OnPropertyChanged(string propertyName) =>
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+                PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
         }
-         [Table("tblRacuni")]
+        [Table ("tblRacuni")]
         public class TblRacuni : INotifyPropertyChanged
         {
-              [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int BrojRacuna { get; set; }
             public DateTime Datum { get; set; }
             public string? Kupac { get; set; }
@@ -849,11 +843,11 @@ public class TblDobavljaci : INotifyPropertyChanged
                 get => reklamiran;
                 set
                 {
-                    if (reklamiran != value)
+                    if(reklamiran != value)
                     {
                         reklamiran = value;
                         OnPropertyChanged (nameof (Reklamiran));
-                        OnPropertyChanged (nameof (IsReklamiran)); 
+                        OnPropertyChanged (nameof (IsReklamiran));
                     }
                 }
             }
@@ -873,11 +867,11 @@ public class TblDobavljaci : INotifyPropertyChanged
                 PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (name));
         }
 
-        [Table("tblRadnici")]
-         public class TblRadnici
+        [Table ("tblRadnici")]
+        public class TblRadnici
         {
-              [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdRadnika { get; set; }
             public string? Radnik { get; set; }
             public override string ToString()
@@ -887,14 +881,14 @@ public class TblDobavljaci : INotifyPropertyChanged
             public string? Lozinka { get; set; }
             public string? Dozvole { get; set; }
             public string? IB { get; set; }
-   
+
         }
 
-         [Table("tblReklamiraniRacuni")] 
+        [Table ("tblReklamiraniRacuni")]
         public class TblReklamiraniRacun
         {
-              [Key] 
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int BrojRekRacuna { get; set; }
             public int BrojRacuna { get; set; }
             public string? BrojFiskalnogRacuna { get; set; }
@@ -904,11 +898,11 @@ public class TblDobavljaci : INotifyPropertyChanged
             public string? Fiskalizovan { get; set; } = "NE";
             public string? Radnik { get; set; }
         }
-         [Table("tblReklamiraniStavke")]
+        [Table ("tblReklamiraniStavke")]
         public class TblReklamiraniStavka
         {
-              [Key] 
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdStavke { get; set; }
             public int BrojReklamiranogRacuna { get; set; }
             public string? Artikl { get; set; }
@@ -920,16 +914,16 @@ public class TblDobavljaci : INotifyPropertyChanged
             public int IdProizvoda { get; set; }
             public int Proizvod { get; set; }
         }
-         [Table("tblRepromaterijal")] 
+        [Table ("tblRepromaterijal")]
         public class TblRepromaterijal
         {
-              [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int? IdRepromaterijala { get; set; }
             public string? Repromaterijal { get; set; }
             public int? JedinicaMjere { get; set; }
 
-             [NotMapped]
+            [NotMapped]
             [JsonIgnore]
             public string? JedinicaMjereName
             {
@@ -955,11 +949,11 @@ public class TblDobavljaci : INotifyPropertyChanged
             public decimal? PlanskaCijena { get; set; }
             public decimal? Zaliha { get; set; }
         }
-         [Table("tblUlaz")]
+        [Table ("tblUlaz")]
         public class TblUlaz
         {
-              [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdUlaza { get; set; }
             public int BrojUlaza { get; set; }
             public DateTime Datum { get; set; }
@@ -972,11 +966,11 @@ public class TblDobavljaci : INotifyPropertyChanged
             [JsonIgnore]
             public string? RadnikName { get; set; }
         }
-         [Table("tblUlazRepromaterijal")] 
+        [Table ("tblUlazRepromaterijal")]
         public class TblUlazRepromaterijal
         {
-              [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdUlaza { get; set; }
             public int BrojUlaza { get; set; }
             public DateTime Datum { get; set; }
@@ -988,155 +982,11 @@ public class TblDobavljaci : INotifyPropertyChanged
             [JsonIgnore]
             public string? RadnikName { get; set; }
         }
-         [Table("tblUlazRepromaterijalStavke")]
+        [Table ("tblUlazRepromaterijalStavke")]
         public class TblUlazRepromaterijalStavka
         {
-                [Key]
-                [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-                public int RedniBroj { get; set; }
-                public int BrojUlaza { get; set; }
-                public string? Artikl { get; set; }
-
-                private decimal _kolicina;
-                public decimal Kolicina
-                {
-                    get => _kolicina;
-                    set
-                    {
-                        if (_kolicina != value)
-                        {
-                            _kolicina = value;
-                            OnPropertyChanged(nameof(Kolicina));
-                            OnPropertyChanged(nameof(MPVrijednost));
-                            OnPropertyChanged(nameof(IznosIPDV));
-                            OnPropertyChanged(nameof(ProdajnaVrijBezIPDV));
-                            OnPropertyChanged(nameof(FakVrBezPDV));
-                            OnPropertyChanged(nameof(PDVMarza));
-                            OnPropertyChanged(nameof(RazlikaCijBezPDV));
-                            OnPropertyChanged(nameof(MarzaPostotak));
-                        }
-                    }
-                }
-
-                private decimal _cijenaBezUPDV;
-                public decimal CijenaBezUPDV
-                {
-                    get => _cijenaBezUPDV;
-                    set
-                    {
-                        if (_cijenaBezUPDV != value)
-                        {
-                            _cijenaBezUPDV = value;
-                            OnPropertyChanged(nameof(CijenaBezUPDV));
-                            OnPropertyChanged(nameof(FakVrBezPDV));
-
-                        }
-                    }
-                }
-
-                public decimal IznosBezUPDV { get; set; }
-
-                private decimal _rabat;
-                public decimal Rabat
-                {
-                    get => _rabat;
-                    set
-                    {
-                        if (_rabat != value)
-                        {
-                            _rabat = value;
-                            OnPropertyChanged(nameof(Rabat));
-
-                        }
-                    }
-                }
-
-                public int? PoreskaStopa { get; set; }
-
-                [NotMapped]
-                public decimal? PoreskaStopaPostotak => PoreskaStopa switch
-                {
-                    1 => 0,
-                    2 => 17,
-                    3 => 0,
-                    4 => 0,
-                    _ => 0
-                };
-
-                public decimal IznosUPDVa { get; set; }
-                public decimal CijenaSaUPDV { get; set; }
-
-                public decimal? Cijena { get; set; }
-              
-                public int? JedinicaMjere { get; set; }
-                [NotMapped]
-                [JsonIgnore]
-                public string? JedinicaMjereName
-                {
-                    get
-                    {
-                        return JedinicaMjere switch
-                        {
-                            1 => "kom",
-                            2 => "kg",
-                            3 => "m",
-                            4 => "m2",
-                            5 => "m3",
-                            6 => "lit",
-                            7 => "tona",
-                            8 => "g",
-                            9 => "por",
-                            10 => "pak",
-                            _ => ""
-                        };
-                    }
-                }
-                // ---------------------
-                // Kalkulacije koje nisu u bazi
-                // ---------------------
-
-                [NotMapped]
-                public decimal MPVrijednost => Kolicina * (Cijena ?? CijenaBezUPDV);
-
-                [NotMapped]
-                public decimal IPDV => (Cijena ?? CijenaBezUPDV) * 0.1453m;
-
-                [NotMapped]
-                public decimal IznosIPDV => Kolicina * IPDV;
-
-                [NotMapped]
-                public decimal ProdajnaVrijBezIPDV => MPVrijednost - IznosIPDV;
-
-                [NotMapped]
-                public decimal FakVrBezPDV => CijenaBezUPDV * Kolicina;
-
-                [NotMapped]
-                public decimal NabavnaCijenaBezPDV => CijenaBezUPDV;
-                [NotMapped]
-                public decimal NabavnaVrijednostBezPDV => FakVrBezPDV;
-
-                [NotMapped]
-                public decimal PDVMarza => (MPVrijednost - NabavnaVrijednostBezPDV) * 0.1453m;
-
-                [NotMapped]
-                public decimal RazlikaCijBezPDV => MPVrijednost - NabavnaVrijednostBezPDV - PDVMarza;
-
-
-
-
-                [NotMapped]
-                public decimal MarzaPostotak => (ProdajnaVrijBezIPDV - FakVrBezPDV) * 100 / ProdajnaVrijBezIPDV;
-
-                public event PropertyChangedEventHandler? PropertyChanged;
-                protected void OnPropertyChanged(string propertyName) =>
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
-        
-         [Table("tblUlazStavke")]
-        public class TblUlazStavke : INotifyPropertyChanged
-        {
             [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int RedniBroj { get; set; }
             public int BrojUlaza { get; set; }
             public string? Artikl { get; set; }
@@ -1147,17 +997,17 @@ public class TblDobavljaci : INotifyPropertyChanged
                 get => _kolicina;
                 set
                 {
-                    if (_kolicina != value)
+                    if(_kolicina != value)
                     {
                         _kolicina = value;
-                        OnPropertyChanged(nameof(Kolicina));
-                        OnPropertyChanged(nameof(MPVrijednost));
-                        OnPropertyChanged(nameof(IznosIPDV));
-                        OnPropertyChanged(nameof(ProdajnaVrijBezIPDV));
-                        OnPropertyChanged(nameof(FakVrBezPDV));
-                        OnPropertyChanged(nameof(PDVMarza));
-                        OnPropertyChanged(nameof(RazlikaCijBezPDV));
-                        OnPropertyChanged(nameof(MarzaPostotak));
+                        OnPropertyChanged (nameof (Kolicina));
+                        OnPropertyChanged (nameof (MPVrijednost));
+                        OnPropertyChanged (nameof (IznosIPDV));
+                        OnPropertyChanged (nameof (ProdajnaVrijBezIPDV));
+                        OnPropertyChanged (nameof (FakVrBezPDV));
+                        OnPropertyChanged (nameof (PDVMarza));
+                        OnPropertyChanged (nameof (RazlikaCijBezPDV));
+                        OnPropertyChanged (nameof (MarzaPostotak));
                     }
                 }
             }
@@ -1168,12 +1018,12 @@ public class TblDobavljaci : INotifyPropertyChanged
                 get => _cijenaBezUPDV;
                 set
                 {
-                    if (_cijenaBezUPDV != value)
+                    if(_cijenaBezUPDV != value)
                     {
                         _cijenaBezUPDV = value;
-                        OnPropertyChanged(nameof(CijenaBezUPDV));
-                        OnPropertyChanged(nameof(FakVrBezPDV));
-               
+                        OnPropertyChanged (nameof (CijenaBezUPDV));
+                        OnPropertyChanged (nameof (FakVrBezPDV));
+
                     }
                 }
             }
@@ -1186,10 +1036,154 @@ public class TblDobavljaci : INotifyPropertyChanged
                 get => _rabat;
                 set
                 {
-                    if (_rabat != value)
+                    if(_rabat != value)
                     {
                         _rabat = value;
-                        OnPropertyChanged(nameof(Rabat));
+                        OnPropertyChanged (nameof (Rabat));
+
+                    }
+                }
+            }
+
+            public int? PoreskaStopa { get; set; }
+
+            [NotMapped]
+            public decimal? PoreskaStopaPostotak => PoreskaStopa switch
+            {
+                1 => 0,
+                2 => 17,
+                3 => 0,
+                4 => 0,
+                _ => 0
+            };
+
+            public decimal IznosUPDVa { get; set; }
+            public decimal CijenaSaUPDV { get; set; }
+
+            public decimal? Cijena { get; set; }
+
+            public int? JedinicaMjere { get; set; }
+            [NotMapped]
+            [JsonIgnore]
+            public string? JedinicaMjereName
+            {
+                get
+                {
+                    return JedinicaMjere switch
+                    {
+                        1 => "kom",
+                        2 => "kg",
+                        3 => "m",
+                        4 => "m2",
+                        5 => "m3",
+                        6 => "lit",
+                        7 => "tona",
+                        8 => "g",
+                        9 => "por",
+                        10 => "pak",
+                        _ => ""
+                    };
+                }
+            }
+            // ---------------------
+            // Kalkulacije koje nisu u bazi
+            // ---------------------
+
+            [NotMapped]
+            public decimal MPVrijednost => Kolicina * (Cijena ?? CijenaBezUPDV);
+
+            [NotMapped]
+            public decimal IPDV => (Cijena ?? CijenaBezUPDV) * 0.1453m;
+
+            [NotMapped]
+            public decimal IznosIPDV => Kolicina * IPDV;
+
+            [NotMapped]
+            public decimal ProdajnaVrijBezIPDV => MPVrijednost - IznosIPDV;
+
+            [NotMapped]
+            public decimal FakVrBezPDV => CijenaBezUPDV * Kolicina;
+
+            [NotMapped]
+            public decimal NabavnaCijenaBezPDV => CijenaBezUPDV;
+            [NotMapped]
+            public decimal NabavnaVrijednostBezPDV => FakVrBezPDV;
+
+            [NotMapped]
+            public decimal PDVMarza => (MPVrijednost - NabavnaVrijednostBezPDV) * 0.1453m;
+
+            [NotMapped]
+            public decimal RazlikaCijBezPDV => MPVrijednost - NabavnaVrijednostBezPDV - PDVMarza;
+
+
+
+
+            [NotMapped]
+            public decimal MarzaPostotak => (ProdajnaVrijBezIPDV - FakVrBezPDV) * 100 / ProdajnaVrijBezIPDV;
+
+            public event PropertyChangedEventHandler? PropertyChanged;
+            protected void OnPropertyChanged(string propertyName) =>
+                PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
+        }
+
+        [Table ("tblUlazStavke")]
+        public class TblUlazStavke : INotifyPropertyChanged
+        {
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
+            public int RedniBroj { get; set; }
+            public int BrojUlaza { get; set; }
+            public string? Artikl { get; set; }
+
+            private decimal _kolicina;
+            public decimal Kolicina
+            {
+                get => _kolicina;
+                set
+                {
+                    if(_kolicina != value)
+                    {
+                        _kolicina = value;
+                        OnPropertyChanged (nameof (Kolicina));
+                        OnPropertyChanged (nameof (MPVrijednost));
+                        OnPropertyChanged (nameof (IznosIPDV));
+                        OnPropertyChanged (nameof (ProdajnaVrijBezIPDV));
+                        OnPropertyChanged (nameof (FakVrBezPDV));
+                        OnPropertyChanged (nameof (PDVMarza));
+                        OnPropertyChanged (nameof (RazlikaCijBezPDV));
+                        OnPropertyChanged (nameof (MarzaPostotak));
+                    }
+                }
+            }
+
+            private decimal _cijenaBezUPDV;
+            public decimal CijenaBezUPDV
+            {
+                get => _cijenaBezUPDV;
+                set
+                {
+                    if(_cijenaBezUPDV != value)
+                    {
+                        _cijenaBezUPDV = value;
+                        OnPropertyChanged (nameof (CijenaBezUPDV));
+                        OnPropertyChanged (nameof (FakVrBezPDV));
+
+                    }
+                }
+            }
+
+            public decimal IznosBezUPDV { get; set; }
+
+            private decimal _rabat;
+            public decimal Rabat
+            {
+                get => _rabat;
+                set
+                {
+                    if(_rabat != value)
+                    {
+                        _rabat = value;
+                        OnPropertyChanged (nameof (Rabat));
 
                     }
                 }
@@ -1248,7 +1242,7 @@ public class TblDobavljaci : INotifyPropertyChanged
 
             [NotMapped]
             public decimal IPDV => ObracunPDV ? (Cijena ?? CijenaBezUPDV) * 0.1453m : 0;
-       
+
 
             [NotMapped]
             public decimal IznosIPDV => Kolicina * IPDV;
@@ -1275,25 +1269,25 @@ public class TblDobavljaci : INotifyPropertyChanged
 
             public event PropertyChangedEventHandler? PropertyChanged;
             protected void OnPropertyChanged(string propertyName) =>
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+                PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
         }
 
 
-        [Table("tblUplateDobavljacima")] 
+        [Table ("tblUplateDobavljacima")]
         public class TblUplateDobavljacima
         {
-              [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdUplate { get; set; }
             public DateTime Datum { get; set; }
             public string? Dobavljac { get; set; }
             public decimal Iznos { get; set; }
         }
-         [Table("tblUplateKupaca")] 
+        [Table ("tblUplateKupaca")]
         public class TblUplateKupaca
         {
-              [Key] 
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [Key]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdUplate { get; set; }
             public DateTime Datum { get; set; }
             public string? Kupac { get; set; }
@@ -1302,11 +1296,11 @@ public class TblDobavljaci : INotifyPropertyChanged
             public string? Radnik { get; set; }
         }
 
-        [Table("NarudzbeStavke")]
+        [Table ("NarudzbeStavke")]
         public class NarudzbeStavke : INotifyPropertyChanged
         {
             [Key]
-            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdStavke { get; set; }
             public string? Artikl { get; set; }
             public string? Sifra { get; set; }
@@ -1317,11 +1311,11 @@ public class TblDobavljaci : INotifyPropertyChanged
                 get => _kolicina;
                 set
                 {
-                    if (_kolicina != value)
+                    if(_kolicina != value)
                     {
                         _kolicina = value;
-                        OnPropertyChanged(nameof(Kolicina));
-                        OnPropertyChanged(nameof(Iznos));
+                        OnPropertyChanged (nameof (Kolicina));
+                        OnPropertyChanged (nameof (Iznos));
                     }
                 }
             }
@@ -1331,11 +1325,11 @@ public class TblDobavljaci : INotifyPropertyChanged
                 get => cijena;
                 set
                 {
-                    if (cijena != value)
+                    if(cijena != value)
                     {
                         cijena = value;
-                        OnPropertyChanged(nameof(Cijena));
-                        OnPropertyChanged(nameof(Iznos)); // Notify that Total might have changed
+                        OnPropertyChanged (nameof (Cijena));
+                        OnPropertyChanged (nameof (Iznos)); // Notify that Total might have changed
                     }
                 }
             }
@@ -1344,7 +1338,7 @@ public class TblDobavljaci : INotifyPropertyChanged
                 get
                 {
                     // Calculate Total based on Qty and Price
-                    if (Cijena.HasValue && Kolicina > 0)
+                    if(Cijena.HasValue && Kolicina > 0)
                     {
                         return Cijena.Value * Kolicina;
                     }
@@ -1361,7 +1355,7 @@ public class TblDobavljaci : INotifyPropertyChanged
             public event PropertyChangedEventHandler? PropertyChanged;
 
             protected void OnPropertyChanged(string propertyName) =>
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+                PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
 
         }
 

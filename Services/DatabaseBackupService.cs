@@ -1,7 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
-using System;
 using System.IO;
-using System.Threading;
 
 namespace Caupo.Services
 {

@@ -2,21 +2,10 @@
 using Caupo.Fiscal;
 using Caupo.Helpers;
 using Caupo.ViewModels;
-using DocumentFormat.OpenXml.Office2010.Excel;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 
 namespace Caupo.Views
@@ -32,10 +21,10 @@ namespace Caupo.Views
         public OrderPage(OrdersViewModel _ordersViewModel)
         {
             ordersViewModel = _ordersViewModel;
-            orderViewModel = new OrderViewModel(ordersViewModel);
+            orderViewModel = new OrderViewModel (ordersViewModel);
             this.DataContext = orderViewModel;
 
-            InitializeComponent();
+            InitializeComponent ();
             lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
         }
 
@@ -43,17 +32,17 @@ namespace Caupo.Views
         private void ListnarudzbeStavke_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             var listView = sender as DataGrid;
-            if (listView != null)
+            if(listView != null)
             {
                 var clickedItem = listView.SelectedItem as DatabaseTables.TblNarudzbeStavke;
-                if (clickedItem != null && DataContext is OrderViewModel viewModel)
+                if(clickedItem != null && DataContext is OrderViewModel viewModel)
                 {
                     BorderRacunStavke.Visibility = Visibility.Visible;
                     ViewKolicina.Visibility = Visibility.Visible;
                     lblIznosGostRacun.Visibility = Visibility.Visible;
                     ListGostRacunStavke.Visibility = Visibility.Visible;
 
-                    if (decimal.TryParse (txtKolicina.Text, out decimal kolicina))
+                    if(decimal.TryParse (txtKolicina.Text, out decimal kolicina))
                     {
                         viewModel.PrebaciStavku (clickedItem, kolicina);
                     }
@@ -68,24 +57,24 @@ namespace Caupo.Views
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Globals.forma == "Kasa")
+            if(Globals.forma == "Kasa")
             {
-               
+
                 var page = new KasaPage ();
                 page.DataContext = new KasaViewModel ();
-              
+
                 PageNavigator.NavigateWithFade (page);
-               
+
 
             }
             else
             {
-                var page = new OrdersPage(null);
-                page.DataContext = new OrdersViewModel(null);
+                var page = new OrdersPage (null);
+                page.DataContext = new OrdersViewModel (null);
                 PageNavigator.NavigateWithFade (page);
-               
+
             }
-           
+
         }
 
 
@@ -93,7 +82,7 @@ namespace Caupo.Views
         {
             Debug.WriteLine ("[Start] BtnRacun_Click pokrenut");
 
-            if (DataContext is OrderViewModel viewModel)
+            if(DataContext is OrderViewModel viewModel)
             {
                 RacunIdikator.Visibility = Visibility.Visible;
                 Debug.WriteLine ("[Info] DataContext je OrderViewModel");
@@ -101,20 +90,20 @@ namespace Caupo.Views
                 var racun = new FiskalniRacun ();
                 bool result = false;
 
-                if (viewModel.GostRacunStavke != null && viewModel.GostRacunStavke.Count > 0)
+                if(viewModel.GostRacunStavke != null && viewModel.GostRacunStavke.Count > 0)
                 {
                     Debug.WriteLine ($"[Info] GostRacunStavke ima {viewModel.GostRacunStavke.Count} stavki, pozivam KreirajStavkeRacunaPodjela");
                     await viewModel.KreirajStavkeRacunaPodjela ();
-                    result = await racun.IzdajFiskalniRacun ("Training","Sale", null, null, viewModel.StavkeRacuna, viewModel.SelectedKupac, cmbNacinPlacanja.SelectedIndex, viewModel.TotalSumGostRacun);
+                    result = await racun.IzdajFiskalniRacun ("Training", "Sale", null, null, viewModel.StavkeRacuna, viewModel.SelectedKupac, cmbNacinPlacanja.SelectedIndex, viewModel.TotalSumGostRacun);
 
-                    if (result)
+                    if(result)
                     {
-                        using (var db = new AppDbContext ())
+                        using(var db = new AppDbContext ())
                         {
-                            foreach (var stavka in viewModel.GostRacunStavke)
-                             {
-                                var stavkaZaBrisanje = db.NarudzbeStavke.Where (x => x.Name == stavka.Name && x.IdNarudzbe == viewModel.IdStola).FirstOrDefault();
-                                if (stavkaZaBrisanje != null)
+                            foreach(var stavka in viewModel.GostRacunStavke)
+                            {
+                                var stavkaZaBrisanje = db.NarudzbeStavke.Where (x => x.Name == stavka.Name && x.IdNarudzbe == viewModel.IdStola).FirstOrDefault ();
+                                if(stavkaZaBrisanje != null)
                                 {
                                     Debug.WriteLine ($"[DB] Nalazim {stavkaZaBrisanje.Name} stavki za brisanje iz NarudzbeStavke");
                                     db.NarudzbeStavke.Remove (stavkaZaBrisanje);
@@ -127,30 +116,30 @@ namespace Caupo.Views
                             }
                             await db.SaveChangesAsync ();
                         }
-                            Debug.WriteLine ("[Info] Brišem GostRacunStavke i sakrivam UI elemente");
-                            viewModel.GostRacunStavke.Clear ();
-                            viewModel.StavkeRacuna.Clear ();
-                           await  viewModel.UpdateTotalSum ();
-                            BorderRacunStavke.Visibility = Visibility.Collapsed;
-                            ListGostRacunStavke.Visibility = Visibility.Collapsed;
-                            lblKolicina.Visibility = Visibility.Collapsed;
-                            txtKolicina.Visibility = Visibility.Collapsed;
-                            lblIznosGostRacun.Visibility = Visibility.Collapsed;
-                            RacunIdikator.Visibility = Visibility.Collapsed;
+                        Debug.WriteLine ("[Info] Brišem GostRacunStavke i sakrivam UI elemente");
+                        viewModel.GostRacunStavke.Clear ();
+                        viewModel.StavkeRacuna.Clear ();
+                        await viewModel.UpdateTotalSum ();
+                        BorderRacunStavke.Visibility = Visibility.Collapsed;
+                        ListGostRacunStavke.Visibility = Visibility.Collapsed;
+                        lblKolicina.Visibility = Visibility.Collapsed;
+                        txtKolicina.Visibility = Visibility.Collapsed;
+                        lblIznosGostRacun.Visibility = Visibility.Collapsed;
+                        RacunIdikator.Visibility = Visibility.Collapsed;
                     }
                 }
                 else
                 {
                     Debug.WriteLine ("[Info] GostRacunStavke je prazan ili null, pozivam KreirajStavkeRacunaUkupno");
                     await viewModel.KreirajStavkeRacunaUkupno ();
-                    result = await racun.IzdajFiskalniRacun ("Training","Sale", null, null, viewModel.StavkeRacuna, viewModel.SelectedKupac, cmbNacinPlacanja.SelectedIndex, viewModel.TotalSum);
-                    if (result)
+                    result = await racun.IzdajFiskalniRacun ("Training", "Sale", null, null, viewModel.StavkeRacuna, viewModel.SelectedKupac, cmbNacinPlacanja.SelectedIndex, viewModel.TotalSum);
+                    if(result)
                     {
                         Debug.WriteLine ("[Info] Uspešno izdavanje racuna, čistim StavkeRacuna i GostRacunStavke");
                         viewModel.StavkeRacuna.Clear ();
                         viewModel.GostRacunStavke.Clear ();
                         Debug.WriteLine ("[Info] Otvaram AppDbContext za brisanje stavki iz baze");
-                        using (var db = new AppDbContext ())
+                        using(var db = new AppDbContext ())
                         {
 
                             var stavkeZaBrisanje = db.NarudzbeStavke.Where (x => x.IdNarudzbe == viewModel.IdStola).ToList ();
@@ -182,12 +171,12 @@ namespace Caupo.Views
         private void ListGostRacunStavke_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             var listView = sender as DataGrid;
-            if (listView != null)
+            if(listView != null)
             {
                 var clickedItem = listView.SelectedItem as DatabaseTables.TblNarudzbeStavke;
-                if (clickedItem != null && DataContext is OrderViewModel viewModel)
+                if(clickedItem != null && DataContext is OrderViewModel viewModel)
                 {
-                    if (decimal.TryParse (txtKolicina.Text, out decimal kolicina))
+                    if(decimal.TryParse (txtKolicina.Text, out decimal kolicina))
                     {
                         viewModel.VratiStavku (clickedItem, kolicina);
                     }
@@ -198,7 +187,7 @@ namespace Caupo.Views
                 }
 
                 // Nakon vraćanja stavke, proveravamo da li je lista prazna
-                if (listView.Items.Count == 0)
+                if(listView.Items.Count == 0)
                 {
                     BorderRacunStavke.Visibility = Visibility.Collapsed;
                     ViewKolicina.Visibility = Visibility.Collapsed;

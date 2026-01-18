@@ -132,7 +132,7 @@ namespace Caupo.ViewModels
                     MONITORINFOEX monitorInfo = new MONITORINFOEX ();
                     monitorInfo.cbSize = Marshal.SizeOf (typeof (MONITORINFOEX));
 
-                    if (GetMonitorInfo (hMonitor, ref monitorInfo))
+                    if(GetMonitorInfo (hMonitor, ref monitorInfo))
                     {
                         string deviceName = monitorInfo.szDevice;
                         bool isPrimary = (monitorInfo.dwFlags & 0x1) != 0;
@@ -141,7 +141,7 @@ namespace Caupo.ViewModels
                         string monitorName = GetRealMonitorName (deviceName);
 
                         // Ako nismo dobili ime, koristi opšte ime
-                        if (string.IsNullOrEmpty (monitorName))
+                        if(string.IsNullOrEmpty (monitorName))
                         {
                             monitorName = GetDisplayNumberFromDeviceName (deviceName);
                         }
@@ -152,7 +152,7 @@ namespace Caupo.ViewModels
                             Name = $"{monitorName}" + (isPrimary ? " (Primarni)" : ""),
                             DeviceName = deviceName,
                             IsPrimary = isPrimary
-                            
+
                         });
                         Debug.WriteLine ("[Monitors] " + monitorName + ", " + monitorIndex + ", " + deviceName + ", " + isPrimary);
                         monitorIndex++;
@@ -187,19 +187,19 @@ namespace Caupo.ViewModels
                 displayDevice.cb = Marshal.SizeOf (typeof (DISPLAY_DEVICE));
 
                 uint deviceIndex = 0;
-                while (EnumDisplayDevices (deviceName, deviceIndex, ref displayDevice, 0))
+                while(EnumDisplayDevices (deviceName, deviceIndex, ref displayDevice, 0))
                 {
                     // Ako je monitor (a ne grafička kartica)
-                    if ((displayDevice.StateFlags & 0x00000004) != 0) // DISPLAY_DEVICE_ATTACHED_TO_DESKTOP
+                    if((displayDevice.StateFlags & 0x00000004) != 0) // DISPLAY_DEVICE_ATTACHED_TO_DESKTOP
                     {
                         // Pokušaj da dobiješ deteljnije informacije sa EDID_FLAG
                         DISPLAY_DEVICE monitorDevice = new DISPLAY_DEVICE ();
                         monitorDevice.cb = Marshal.SizeOf (typeof (DISPLAY_DEVICE));
 
                         uint monitorIndex = 0;
-                        while (EnumDisplayDevices (displayDevice.DeviceName, monitorIndex, ref monitorDevice, 1)) // EDID_FLAG = 1
+                        while(EnumDisplayDevices (displayDevice.DeviceName, monitorIndex, ref monitorDevice, 1)) // EDID_FLAG = 1
                         {
-                            if (!string.IsNullOrEmpty (monitorDevice.DeviceString) &&
+                            if(!string.IsNullOrEmpty (monitorDevice.DeviceString) &&
                                 monitorDevice.DeviceString != "Generic PnP Monitor")
                             {
                                 return monitorDevice.DeviceString.Trim ();
@@ -221,10 +221,10 @@ namespace Caupo.ViewModels
         private static string GetDisplayNumberFromDeviceName(string deviceName)
         {
             // Ekstraktuj broj iz imena, npr. "\\.\DISPLAY3" -> "Display 3"
-            if (deviceName.StartsWith (@"\\.\DISPLAY", StringComparison.OrdinalIgnoreCase))
+            if(deviceName.StartsWith (@"\\.\DISPLAY", StringComparison.OrdinalIgnoreCase))
             {
                 string numberPart = deviceName.Substring (@"\\.\DISPLAY".Length);
-                if (int.TryParse (numberPart, out int displayNumber))
+                if(int.TryParse (numberPart, out int displayNumber))
                 {
                     return $"Monitor {displayNumber}";
                 }
@@ -246,8 +246,11 @@ namespace Caupo.ViewModels
         public MonitorInfo SelectedMonitor
         {
             get => _selectedMonitor;
-            set { _selectedMonitor = value;
-                OnPropertyChanged (nameof(SelectedMonitor)); }
+            set
+            {
+                _selectedMonitor = value;
+                OnPropertyChanged (nameof (SelectedMonitor));
+            }
         }
 
         public int SelectedMonitorIndex { get; private set; } = -1;
@@ -257,10 +260,10 @@ namespace Caupo.ViewModels
             get { return _fontColor; }
             set
             {
-                if (_fontColor != value)
+                if(_fontColor != value)
                 {
                     _fontColor = value;
-                    OnPropertyChanged(nameof(FontColor));
+                    OnPropertyChanged (nameof (FontColor));
                 }
             }
         }
@@ -272,7 +275,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathFiskalizacijaButton = value;
-                OnPropertyChanged(nameof(ImagePathFiskalizacijaButton));
+                OnPropertyChanged (nameof (ImagePathFiskalizacijaButton));
             }
         }
 
@@ -283,7 +286,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathLogoButton = value;
-                OnPropertyChanged(nameof(ImagePathLogoButton));
+                OnPropertyChanged (nameof (ImagePathLogoButton));
             }
         }
 
@@ -294,7 +297,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathPrinterButton = value;
-                OnPropertyChanged(nameof(ImagePathPrinterButton));
+                OnPropertyChanged (nameof (ImagePathPrinterButton));
             }
         }
 
@@ -305,23 +308,23 @@ namespace Caupo.ViewModels
             get => _radnici;
             set
             {
-                if (_radnici != value) 
+                if(_radnici != value)
                 {
                     _radnici = value;
-                    OnPropertyChanged(nameof(Radnici)); 
+                    OnPropertyChanged (nameof (Radnici));
                 }
             }
         }
-      
+
         //public ObservableCollection<DatabaseTables.TblRadnici> Radnici { get; set; } = new ObservableCollection<DatabaseTables.TblRadnici>();
-        private DatabaseTables.TblRadnici _selectedRadnik = new TblRadnici();
+        private DatabaseTables.TblRadnici _selectedRadnik = new TblRadnici ();
         public DatabaseTables.TblRadnici SelectedRadnik
         {
             get { return _selectedRadnik; }
             set
             {
                 _selectedRadnik = value;
-                OnPropertyChanged(nameof(SelectedRadnik));
+                OnPropertyChanged (nameof (SelectedRadnik));
             }
         }
 
@@ -331,16 +334,16 @@ namespace Caupo.ViewModels
         public ICommand DeleteCommand { get; }
         public SettingsViewModel()
         {
-            Radnici= new ObservableCollection<TblRadnici>();
-            DeleteCommand = new AsyncRelayCommand(async () => await DeleteRadnik(SelectedRadnik));
-            UpdateCommand = new AsyncRelayCommand(async () => await OpenUpdateRadnik(SelectedRadnik));
-            Start();
+            Radnici = new ObservableCollection<TblRadnici> ();
+            DeleteCommand = new AsyncRelayCommand (async () => await DeleteRadnik (SelectedRadnik));
+            UpdateCommand = new AsyncRelayCommand (async () => await OpenUpdateRadnik (SelectedRadnik));
+            Start ();
 
             var all = GetAllMonitors ();
-            foreach (var m in all)
+            foreach(var m in all)
                 Monitors.Add (m);
 
-            if (Monitors.Count > 0)
+            if(Monitors.Count > 0)
                 SelectedMonitor = Monitors[0];
 
             LoadSettingsFromProperties ();
@@ -349,26 +352,26 @@ namespace Caupo.ViewModels
 
         public async void Start()
         {
-          
-            await LoadRadniciAsync();
-            await SetImage();
+
+            await LoadRadniciAsync ();
+            await SetImage ();
         }
         public async Task SetImage()
         {
-            await Task.Delay(1);
+            await Task.Delay (1);
             string tema = Settings.Default.Tema;
-            Debug.WriteLine("Aktivna tema koju vidi viewmodel je : " + tema);
-            if (tema == "Tamna")
+            Debug.WriteLine ("Aktivna tema koju vidi viewmodel je : " + tema);
+            if(tema == "Tamna")
             {
                 ImagePathPrinterButton = "pack://application:,,,/Images/Dark/printer.svg";
                 ImagePathFiskalizacijaButton = "pack://application:,,,/Images/Dark/cashregister.svg";
-                
+
             }
             else
             {
                 ImagePathPrinterButton = "pack://application:,,,/Images/Light/printer.svg";
                 ImagePathFiskalizacijaButton = "pack://application:,,,/Images/Light/cashregister.svg";
-             
+
             }
 
 
@@ -378,29 +381,30 @@ namespace Caupo.ViewModels
         {
             try
             {
-                using (var db = new AppDbContext())
+                using(var db = new AppDbContext ())
                 {
-                    var radnikExists = await db.Radnici.AnyAsync();
-                   
+                    var radnikExists = await db.Radnici.AnyAsync ();
+
                 }
 
 
-                using (var db = new AppDbContext())
+                using(var db = new AppDbContext ())
                 {
-                    var radnici = await db.Radnici.ToListAsync();
-                 
-                    Radnici?.Clear();
-                    foreach (var radnik in radnici)
+                    var radnici = await db.Radnici.ToListAsync ();
+
+                    Radnici?.Clear ();
+                    foreach(var radnik in radnici)
                     {
-                       
-                       
-                        Radnici?.Add(radnik);
+
+
+                        Radnici?.Add (radnik);
                     }
-                  
+
                 }
             }
-            catch (Exception ex) {
-                Debug.WriteLine(ex.ToString());
+            catch(Exception ex)
+            {
+                Debug.WriteLine (ex.ToString ());
             }
         }
 
@@ -408,17 +412,17 @@ namespace Caupo.ViewModels
         {
             try
             {
-                using (var db = new AppDbContext())
+                using(var db = new AppDbContext ())
                 {
-                    await db.Radnici.AddAsync(radnik);
-                    await db.SaveChangesAsync();
+                    await db.Radnici.AddAsync (radnik);
+                    await db.SaveChangesAsync ();
                 }
 
-                Radnici?.Add(radnik);  
+                Radnici?.Add (radnik);
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Debug.WriteLine(ex.ToString());
+                Debug.WriteLine (ex.ToString ());
             }
         }
 
@@ -426,61 +430,61 @@ namespace Caupo.ViewModels
         {
             try
             {
-                Debug.WriteLine("id radnika:" + radnik.IdRadnika);
-                Debug.WriteLine("Update rlozinka:" + radnik.Lozinka);
-                using (var db = new AppDbContext())
+                Debug.WriteLine ("id radnika:" + radnik.IdRadnika);
+                Debug.WriteLine ("Update rlozinka:" + radnik.Lozinka);
+                using(var db = new AppDbContext ())
                 {
-                    var user = await db.Radnici.FindAsync(radnik.IdRadnika);
-                    if (user != null)
+                    var user = await db.Radnici.FindAsync (radnik.IdRadnika);
+                    if(user != null)
                     {
-                  
+
                         user.Radnik = radnik.Radnik;
                         user.Lozinka = radnik.Lozinka;
                         user.Dozvole = radnik.Dozvole;
 
-                      
-                        db.Radnici.Update(user);
 
-                        await db.SaveChangesAsync();
+                        db.Radnici.Update (user);
 
-                        await LoadRadniciAsync();
+                        await db.SaveChangesAsync ();
+
+                        await LoadRadniciAsync ();
                         //Debug.WriteLine("--------------------------- Radnik -" +    Radnici[4]?.Radnik);
-                        OnPropertyChanged(nameof(Radnici));
+                        OnPropertyChanged (nameof (Radnici));
                     }
                     else
                     {
-                        Debug.WriteLine("Nenadje radnika:" + radnik.Radnik);
-                        
+                        Debug.WriteLine ("Nenadje radnika:" + radnik.Radnik);
+
                     }
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Debug.WriteLine(ex.ToString());
+                Debug.WriteLine (ex.ToString ());
             }
         }
 
         public async Task DeleteRadnik(DatabaseTables.TblRadnici radnik)
         {
-          
 
-            YesNoPopup myMessageBox = new YesNoPopup();
-            
+
+            YesNoPopup myMessageBox = new YesNoPopup ();
+
             myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-         
+
             myMessageBox.MessageTitle.Text = "POTVRDA BRISANJA";
             myMessageBox.MessageText.Text = "Da li ste sigurni da želite obrisati radnika:" + Environment.NewLine + radnik.Radnik + " ?";
-            myMessageBox.ShowDialog();
-            if (myMessageBox.Kliknuo == "Da")
+            myMessageBox.ShowDialog ();
+            if(myMessageBox.Kliknuo == "Da")
             {
-                Radnici?.Remove(radnik);
-                using (var db = new AppDbContext())
+                Radnici?.Remove (radnik);
+                using(var db = new AppDbContext ())
                 {
-                    var user = await db.Radnici.FindAsync(radnik.IdRadnika);
-                    if (user != null)
+                    var user = await db.Radnici.FindAsync (radnik.IdRadnika);
+                    if(user != null)
                     {
-                        db.Radnici.Remove(user);
-                        await db.SaveChangesAsync();
+                        db.Radnici.Remove (user);
+                        await db.SaveChangesAsync ();
                     }
                 }
             }
@@ -488,114 +492,114 @@ namespace Caupo.ViewModels
 
         public async Task OpenUpdateRadnik(DatabaseTables.TblRadnici radnik)
         {
-            await Task.Delay(1);
-            if (radnik != null)
+            await Task.Delay (1);
+            if(radnik != null)
             {
-                
-               NewWorkerPopup update = new NewWorkerPopup(this);
+
+                NewWorkerPopup update = new NewWorkerPopup (this);
                 update.isUpdate = true;
                 update.DataContext = this;
                 update.lblid.Content = radnik.IdRadnika;
                 update.PopupTitle.Text = "Uredi radnika";
                 update.txtRadnik.Text = radnik.Radnik;
                 update.txtLozinka.Text = radnik.Lozinka;
-                update.cmbDozvole.SelectedItem = update.cmbDozvole.Items.Cast<ComboBoxItem>().FirstOrDefault(i => (string)i.Content == radnik.Dozvole);
-                
-                update.ShowDialog();
-              
+                update.cmbDozvole.SelectedItem = update.cmbDozvole.Items.Cast<ComboBoxItem> ().FirstOrDefault (i => (string)i.Content == radnik.Dozvole);
+
+                update.ShowDialog ();
+
 
             }
             else
             {
-                MessageBox.Show("Nema selektovanog radnika!", "Greška", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show ("Nema selektovanog radnika!", "Greška", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
-         
+
         }
 
-            private void LoadSettingsFromProperties()
-            {
-                Firma = Properties.Settings.Default.Firma;
-                Adresa = Properties.Settings.Default.Adresa;
-                Mjesto = Properties.Settings.Default.Mjesto;
-                JIB = Properties.Settings.Default.JIB;
-                PDV = Properties.Settings.Default.PDV;
-                ZR = Properties.Settings.Default.ZR;
-                Email = Properties.Settings.Default.Email;
+        private void LoadSettingsFromProperties()
+        {
+            Firma = Properties.Settings.Default.Firma;
+            Adresa = Properties.Settings.Default.Adresa;
+            Mjesto = Properties.Settings.Default.Mjesto;
+            JIB = Properties.Settings.Default.JIB;
+            PDV = Properties.Settings.Default.PDV;
+            ZR = Properties.Settings.Default.ZR;
+            Email = Properties.Settings.Default.Email;
 
-                Tema = Properties.Settings.Default.Tema;
-                POSPrinter = Properties.Settings.Default.POSPrinter;
-                A4Printer = Properties.Settings.Default.A4Printer;
-                KuhinjaPrinter = Properties.Settings.Default.KuhinjaPrinter;
-                SankPrinter = Properties.Settings.Default.SankPrinter;
-                ExterniPrinter = Properties.Settings.Default.ExterniPrinter;
+            Tema = Properties.Settings.Default.Tema;
+            POSPrinter = Properties.Settings.Default.POSPrinter;
+            A4Printer = Properties.Settings.Default.A4Printer;
+            KuhinjaPrinter = Properties.Settings.Default.KuhinjaPrinter;
+            SankPrinter = Properties.Settings.Default.SankPrinter;
+            ExterniPrinter = Properties.Settings.Default.ExterniPrinter;
 
-                ServerIP = Properties.Settings.Default.ServerIP;
-                DbPath = Properties.Settings.Default.DbPath;
-                ServerMode = !string.IsNullOrEmpty (DbPath);
+            ServerIP = Properties.Settings.Default.ServerIP;
+            DbPath = Properties.Settings.Default.DbPath;
+            ServerMode = !string.IsNullOrEmpty (DbPath);
 
-                LPFRIP = Properties.Settings.Default.LPFR_IP;
-                LPFRKey = Properties.Settings.Default.LPFR_Key;
-                LPFRPin = Properties.Settings.Default.LPFR_Pin;
+            LPFRIP = Properties.Settings.Default.LPFR_IP;
+            LPFRKey = Properties.Settings.Default.LPFR_Key;
+            LPFRPin = Properties.Settings.Default.LPFR_Pin;
 
-                BackupUrl = Properties.Settings.Default.BackupUrl;
-                LogoUrl = Properties.Settings.Default.LogoUrl;
+            BackupUrl = Properties.Settings.Default.BackupUrl;
+            LogoUrl = Properties.Settings.Default.LogoUrl;
 
-                MultiUser = Properties.Settings.Default.MultiUser;
-                BrojKopijaBloka = Properties.Settings.Default.BlokKopija;
-                ProdajaMinus = Properties.Settings.Default.ProdajaMinus;
-                PDVKorisnik = Properties.Settings.Default.PDVKorisnik;
-                DisplayKuhinja = int.TryParse (Properties.Settings.Default.DisplayKuhinja, out int d) ? d : 0;
-                SirinaTrake = Properties.Settings.Default.SirinaTrake;
+            MultiUser = Properties.Settings.Default.MultiUser;
+            BrojKopijaBloka = Properties.Settings.Default.BlokKopija;
+            ProdajaMinus = Properties.Settings.Default.ProdajaMinus;
+            PDVKorisnik = Properties.Settings.Default.PDVKorisnik;
+            DisplayKuhinja = int.TryParse (Properties.Settings.Default.DisplayKuhinja, out int d) ? d : 0;
+            SirinaTrake = Properties.Settings.Default.SirinaTrake;
 
-               SelectedMonitor = Monitors.FirstOrDefault (m => m.Index == DisplayKuhinja);
+            SelectedMonitor = Monitors.FirstOrDefault (m => m.Index == DisplayKuhinja);
         }
 
-            public async Task SaveSettingsAsync()
-            {
-                Properties.Settings.Default.Firma = Firma;
-                Properties.Settings.Default.Adresa = Adresa;
-                Properties.Settings.Default.Mjesto = Mjesto;
-                Properties.Settings.Default.JIB = JIB;
-                Properties.Settings.Default.PDV = PDV;
-                Properties.Settings.Default.ZR = ZR;
-                Properties.Settings.Default.Email = Email;
+        public async Task SaveSettingsAsync()
+        {
+            Properties.Settings.Default.Firma = Firma;
+            Properties.Settings.Default.Adresa = Adresa;
+            Properties.Settings.Default.Mjesto = Mjesto;
+            Properties.Settings.Default.JIB = JIB;
+            Properties.Settings.Default.PDV = PDV;
+            Properties.Settings.Default.ZR = ZR;
+            Properties.Settings.Default.Email = Email;
 
-                Properties.Settings.Default.Tema = Tema;
-                Properties.Settings.Default.POSPrinter = POSPrinter;
-                Properties.Settings.Default.A4Printer = A4Printer;
-                Properties.Settings.Default.KuhinjaPrinter = KuhinjaPrinter;
-                Properties.Settings.Default.SankPrinter = SankPrinter;
-                Properties.Settings.Default.ExterniPrinter = ExterniPrinter;
+            Properties.Settings.Default.Tema = Tema;
+            Properties.Settings.Default.POSPrinter = POSPrinter;
+            Properties.Settings.Default.A4Printer = A4Printer;
+            Properties.Settings.Default.KuhinjaPrinter = KuhinjaPrinter;
+            Properties.Settings.Default.SankPrinter = SankPrinter;
+            Properties.Settings.Default.ExterniPrinter = ExterniPrinter;
 
-                Properties.Settings.Default.ServerIP = ServerIP;
-                Properties.Settings.Default.DbPath = DbPath;
+            Properties.Settings.Default.ServerIP = ServerIP;
+            Properties.Settings.Default.DbPath = DbPath;
 
-                Properties.Settings.Default.LPFR_IP = LPFRIP;
-                Properties.Settings.Default.LPFR_Key = LPFRKey;
-                Properties.Settings.Default.LPFR_Pin = LPFRPin;
+            Properties.Settings.Default.LPFR_IP = LPFRIP;
+            Properties.Settings.Default.LPFR_Key = LPFRKey;
+            Properties.Settings.Default.LPFR_Pin = LPFRPin;
 
-                Properties.Settings.Default.BackupUrl = BackupUrl;
-                Properties.Settings.Default.LogoUrl = LogoUrl;
+            Properties.Settings.Default.BackupUrl = BackupUrl;
+            Properties.Settings.Default.LogoUrl = LogoUrl;
 
-                Properties.Settings.Default.MultiUser = MultiUser;
-                Properties.Settings.Default.BlokKopija = BrojKopijaBloka;
-                Properties.Settings.Default.ProdajaMinus = ProdajaMinus;
-                Properties.Settings.Default.PDVKorisnik = PDVKorisnik;
-                Properties.Settings.Default.DisplayKuhinja = DisplayKuhinja.ToString ();
-                Properties.Settings.Default.SirinaTrake = SirinaTrake;
+            Properties.Settings.Default.MultiUser = MultiUser;
+            Properties.Settings.Default.BlokKopija = BrojKopijaBloka;
+            Properties.Settings.Default.ProdajaMinus = ProdajaMinus;
+            Properties.Settings.Default.PDVKorisnik = PDVKorisnik;
+            Properties.Settings.Default.DisplayKuhinja = DisplayKuhinja.ToString ();
+            Properties.Settings.Default.SirinaTrake = SirinaTrake;
 
-                Properties.Settings.Default.Save ();
-           }
-       
+            Properties.Settings.Default.Save ();
+        }
+
 
 
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string? propertyName)
         {
-            Debug.WriteLine($"Property Changed: {propertyName}"); 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            Debug.WriteLine ($"Property Changed: {propertyName}");
+            PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
         }
 
 

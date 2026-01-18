@@ -10,7 +10,6 @@ using System.Globalization;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
-using System.Windows.Media;
 
 namespace Caupo
 {
@@ -29,21 +28,21 @@ namespace Caupo
             this.DispatcherUnhandledException += App_DispatcherUnhandledException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
-            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8 / V1NNaF5cXmBCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWXtcc3VWRWlYV0d3X0tWYUA =");
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense ("Ngo9BigBOggjHTQxAR8 / V1NNaF5cXmBCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWXtcc3VWRWlYV0d3X0tWYUA =");
         }
 
 
         private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
-            Debug.WriteLine($"🚨 [UI Thread Exception] {e.Exception.Message}\n{e.Exception.StackTrace}");
-            e.Handled = true; 
+            Debug.WriteLine ($"🚨 [UI Thread Exception] {e.Exception.Message}\n{e.Exception.StackTrace}");
+            e.Handled = true;
         }
 
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            if (e.ExceptionObject is Exception ex)
+            if(e.ExceptionObject is Exception ex)
             {
-                Debug.WriteLine($"💥 [Non-UI Exception] {ex.Message}\n{ex.StackTrace}");
+                Debug.WriteLine ($"💥 [Non-UI Exception] {ex.Message}\n{ex.StackTrace}");
             }
         }
 
@@ -51,10 +50,10 @@ namespace Caupo
         {
             Debug.WriteLine ($"⚠️ [Async Task Exception] {e.Exception.Message}\n{e.Exception.StackTrace}");
             e.SetObserved ();
-        } 
+        }
 
 
-       
+
         protected override void OnExit(ExitEventArgs e)
         {
             _backupService?.Dispose ();
@@ -76,7 +75,7 @@ namespace Caupo
                 SfSkinManager.ApplicationTheme = new Theme ("Office2019Colorful");
             }
 
-            base.OnStartup(e);
+            base.OnStartup (e);
 
             string tempPath = Path.Combine (Path.GetTempPath (), ElevationStateFile);
 
@@ -143,42 +142,42 @@ namespace Caupo
 
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
-           /*  if (sender is Window window)
-             {
-                 // Primijeni trenutnu temu na novi prozor
-                 if (CurrentTheme == "Tamna")
-                 {
-                     SfSkinManager.SetTheme(window, new Theme("Office2019Black"));
-                 }
-                 else
-                 {
-                     SfSkinManager.SetTheme(window, new Theme("Office2019Colorful"));
-                 }
-             }*/
-         
+            /*  if (sender is Window window)
+              {
+                  // Primijeni trenutnu temu na novi prozor
+                  if (CurrentTheme == "Tamna")
+                  {
+                      SfSkinManager.SetTheme(window, new Theme("Office2019Black"));
+                  }
+                  else
+                  {
+                      SfSkinManager.SetTheme(window, new Theme("Office2019Colorful"));
+                  }
+              }*/
+
         }
 
         public static void ApplyTheme(string tema)
         {
-            if (string.IsNullOrWhiteSpace (tema))
+            if(string.IsNullOrWhiteSpace (tema))
             {
                 Settings.Default.Tema = "Tamna";
                 Settings.Default.Save ();
                 tema = "Tamna";
             }
             CurrentTheme = tema;
-            
+
             // Postavi temu za sve trenutno otvorene prozore
-            foreach (Window window in Current.Windows)
+            foreach(Window window in Current.Windows)
             {
-                if (tema == "Tamna")
+                if(tema == "Tamna")
                 {
-                    SfSkinManager.SetTheme(window, new Theme("Office2019Black"));
-                 
+                    SfSkinManager.SetTheme (window, new Theme ("Office2019Black"));
+
                 }
                 else
                 {
-                    SfSkinManager.SetTheme(window, new Theme("Office2019Colorful"));
+                    SfSkinManager.SetTheme (window, new Theme ("Office2019Colorful"));
                 }
             }
         }

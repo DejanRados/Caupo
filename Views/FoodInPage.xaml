@@ -72,23 +72,8 @@
                 <Border Padding="5" Width="300" Height="50" HorizontalAlignment="Left"  BorderThickness="1" Background="Transparent"  BorderBrush="{DynamicResource GlobalFontColor}" CornerRadius="15" >
                     <DockPanel Grid.Row="1" Grid.Column="1" Margin="1" >
                         <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60013;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBox x:Name="SearchTextBox" CaretBrush="{DynamicResource GlobalFontColor}"  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Foreground="{DynamicResource GlobalFontColor}"  FontSize="16" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Background="Transparent" BorderBrush="Transparent" Padding="5" >
-                        <TextBox.Style>
-                            <Style TargetType="TextBox">
-                                <Style.Triggers>
-                                    <Trigger Property="IsFocused" Value="True">
-                                        <Setter Property="BorderBrush" Value="Transparent"/>
-                                        <Setter Property="BorderThickness" Value="0"/>
-                                        <Setter Property="Background" Value="Transparent"/>
-                                    </Trigger>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="BorderBrush" Value="Transparent"/>
-                                        <Setter Property="BorderThickness" Value="0"/>
-                                        <Setter Property="Background" Value="Transparent"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
+                        <TextBox x:Name="SearchTextBox" Style="{StaticResource TextBoxCustom}" CaretBrush="{DynamicResource GlobalFontColor}"  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Foreground="{DynamicResource GlobalFontColor}"  FontSize="16" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Background="Transparent" BorderBrush="Transparent" Padding="5" >
+       
                     </TextBox>
                 </DockPanel>
                 </Border>
@@ -307,98 +292,108 @@
             </DataGrid>
             </Grid>
 
-
-            <ListView  x:Name="ListaStavki" Focusable="False"  ItemsSource="{Binding StockInItems}"  SelectedItem="{Binding  SelectedStockInItem, Mode=TwoWay}" Foreground="{DynamicResource GlobalFontColor}" MouseUp="ListaStavki_MouseDoubleClick" Background="Transparent" HorizontalAlignment="Stretch"     VerticalAlignment="Stretch" BorderThickness="0" Grid.Row="1"  Grid.Column="2" Grid.RowSpan="2" SelectionMode="Single"  BorderBrush="#AA949494" Margin="1" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Disabled" >
-                <ListView.Resources>
+            <DataGrid  x:Name="ListaStavki"  Grid.Row="1"    Grid.Column="2"   Grid.RowSpan="2"
+                 Focusable="False"
+                 Margin="10" 
+                 ItemsSource="{Binding StockInItems}"
+                 SelectedItem="{Binding  SelectedStockInItem, Mode=TwoWay}" 
+                 Foreground="{DynamicResource GlobalFontColor}" 
+                 MouseUp="ListaStavki_MouseDoubleClick" 
+                 HorizontalAlignment="Stretch"
+                 VerticalAlignment="Stretch"
+                 Padding="2" 
+                GridLinesVisibility="None"
+                 AutoGenerateColumns="False"
+                 Background="Transparent"
+                HeadersVisibility="Column"
+                CanUserAddRows="False"
+                CanUserResizeRows="False"
+                CanUserSortColumns="False"
+                HorizontalScrollBarVisibility="Disabled"
+                BorderThickness="0"
+                ClipToBounds="True"
+                BorderBrush="{DynamicResource GlobalFontColor}"
+                SelectionMode="Single">
+                <DataGrid.Resources>
                     <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
-                </ListView.Resources>
-                <ListView.View>
-                        <GridView    >
+                </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="Naziv" Width="2*"  >
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text ="{Binding Artikl}" TextWrapping="Wrap" HorizontalAlignment="Left" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Količina" Width="*" >
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text ="{Binding Kolicina, StringFormat={}{0:0.00}}" HorizontalAlignment="Center"  TextAlignment="Center" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Nab.cijena bez PDV" Width="*" >
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text ="{Binding CijenaBezUPDV, StringFormat={}{0:0.00}}" TextAlignment="Center" HorizontalAlignment="Stretch"  />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Nab.cijena sa PDV" Width="*" >
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text ="{Binding CijenaSaUPDV, StringFormat={}{0:0.00}}" TextAlignment="Center" HorizontalAlignment="Stretch"  />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Cijena" Width="*" >
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text ="{Binding Cijena, StringFormat={}{0:0.00}}" TextAlignment="Center" HorizontalAlignment="Stretch"  />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Iznos PDV" Width="*" >
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text ="{Binding IznosUPDVa, StringFormat={}{0:0.00}}" TextAlignment="Center" HorizontalAlignment="Stretch"  />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Stopa %" Width="*" >
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text ="{Binding PoreskaStopaPostotak}" HorizontalAlignment="Stretch" TextWrapping="Wrap" TextAlignment="Center"  />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Namirnica" Width="*" >
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Style="{StaticResource CancelButtonStyle}"
+                                 BorderBrush="Transparent"
+                                 x:Name="BtnDelete" 
+                                 Command="{Binding DataContext.DeleteArticleCommand,   RelativeSource={RelativeSource AncestorType=ListView}}"
+                                 CommandParameter="{Binding}" Width="30" Height="30" Padding="0"  VerticalAlignment="Center"   ToolTip="Obriši stavku" >
+                                    <TextBlock 
+                               FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                               FontSize="24"
+                               FontWeight="ExtraLight"
+                               Text="&#60033;" 
+                               Foreground="{DynamicResource GlobalFontColor}" 
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                                </Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
 
-                            <GridViewColumn x:Name="col2"  Header="Artikl"   Width="200" >
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text ="{Binding Artikl}" TextWrapping="Wrap" HorizontalAlignment="Left" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
 
-                        <GridViewColumn Header="Kol" Width="{Binding ElementName=helperField, Path=ActualWidth}" >
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text ="{Binding Kolicina, StringFormat={}{0:0.00}}" HorizontalAlignment="Right"  TextAlignment="Right" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                        <GridViewColumn Width="{Binding ElementName=helperField, Path=ActualWidth}">
-                            <GridViewColumn.HeaderTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="Nab. cijena bez PDV" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
-                                </DataTemplate>
-                            </GridViewColumn.HeaderTemplate>
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text ="{Binding CijenaBezUPDV, StringFormat={}{0:0.00}}" TextAlignment="Right" HorizontalAlignment="Stretch"  />
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Width="{Binding ElementName=helperField, Path=ActualWidth}">
-                           
-                            <GridViewColumn.HeaderTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="Nab. cijena sa PDV" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" />
-                                </DataTemplate>
-                            </GridViewColumn.HeaderTemplate>
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text ="{Binding CijenaSaUPDV, StringFormat={}{0:0.00}}" TextAlignment="Right" HorizontalAlignment="Stretch"  />
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                   
-                        <GridViewColumn Header="Iznos PDV" Width="{Binding ElementName=helperField, Path=ActualWidth}" >
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text ="{Binding IznosUPDVa, StringFormat={}{0:0.00}}" TextAlignment="Right" HorizontalAlignment="Stretch"  />
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="Stopa %" Width="{Binding ElementName=helperField, Path=ActualWidth}" >
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate  >
-                                        <TextBlock Text ="{Binding PoreskaStopaPostotak}" HorizontalAlignment="Stretch" TextWrapping="Wrap" TextAlignment="Center"  />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                        <!-- Dugme za brisanje -->
-                        <GridViewColumn Header="#" Width="{Binding ElementName=helperField, Path=ActualWidth}">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                       
-                                    <Button Style="{StaticResource CancelButtonStyle}"
-                                            BorderBrush="Transparent"
-                                            x:Name="BtnDelete" 
-                                            Command="{Binding DataContext.DeleteArticleCommand,   RelativeSource={RelativeSource AncestorType=ListView}}"
-                                            CommandParameter="{Binding}" Width="30" Height="30" Padding="0"  VerticalAlignment="Center"   ToolTip="Obriši stavku" >
-                                        <TextBlock 
-                                          FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
-                                          FontSize="24"
-                                          FontWeight="ExtraLight"
-                                          Text="&#60033;" 
-                                          Foreground="{DynamicResource GlobalFontColor}" 
-                                          HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"/>
-                                    </Button>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                    </GridView>
-                    </ListView.View>
-                </ListView>
 
-        
 
-         
+
         </Grid>
     </Grid>
 </UserControl>

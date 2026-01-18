@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 
 namespace Caupo.ViewModels
 {
@@ -13,19 +8,19 @@ namespace Caupo.ViewModels
 
         protected override Freezable CreateInstanceCore()
         {
-            return new BindingProxy();
+            return new BindingProxy ();
         }
 
         #endregion
 
         public object Data
         {
-            get { return (object)GetValue(DataProperty); }
-            set { SetValue(DataProperty, value); }
+            get { return GetValue (DataProperty); }
+            set { SetValue (DataProperty, value); }
         }
 
         public static readonly DependencyProperty DataProperty =
-            DependencyProperty.Register("Data", typeof(object), typeof(BindingProxy), new UIPropertyMetadata(null));
+            DependencyProperty.Register ("Data", typeof (object), typeof (BindingProxy), new UIPropertyMetadata (null));
     }
 
 }

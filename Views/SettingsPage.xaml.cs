@@ -1,14 +1,9 @@
-﻿using Caupo.Data;
-using Caupo.Helpers;
+﻿using Caupo.Helpers;
 using Caupo.Models;
 using Caupo.Properties;
 using Caupo.Services;
 using Caupo.ViewModels;
 using Microsoft.Win32;
-using Syncfusion.SfSkinManager;
-using Syncfusion.Themes.Office2019Black;
-using Syncfusion.Themes.Office2019Colorful;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Net.NetworkInformation;
@@ -17,8 +12,6 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 
 namespace Caupo.Views
 {
@@ -30,13 +23,13 @@ namespace Caupo.Views
         private readonly ShareService _shareService = new ShareService ();
         public SettingsPage()
         {
-            InitializeComponent();
+            InitializeComponent ();
             DataContext = new SettingsViewModel ();
             LoadNetworkInterfaces ();
-            LoadSettings();
-            
+            LoadSettings ();
+
             lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
-            this.DataContext = new SettingsViewModel();
+            this.DataContext = new SettingsViewModel ();
         }
         private bool _loading = true;
         private void LoadSettings()
@@ -54,39 +47,39 @@ namespace Caupo.Views
             // General settings
             string DbPath = Properties.Settings.Default.DbPath;
             string tema = Properties.Settings.Default.Tema;
-            cmbTema.SelectedItem = cmbTema.Items.Cast<ComboBoxItem>().FirstOrDefault(item => item.Content.ToString() == tema);
+            cmbTema.SelectedItem = cmbTema.Items.Cast<ComboBoxItem> ().FirstOrDefault (item => item.Content.ToString () == tema);
 
             string serverMode = Properties.Settings.Default.ServerMod;
-            if (string.IsNullOrEmpty(serverMode) || serverMode == "NE" )
-            { 
-                cmbServerskiMod.SelectedItem = cmbServerskiMod.Items.Cast<ComboBoxItem>().FirstOrDefault(item => item.Content.ToString() == "NE");
+            if(string.IsNullOrEmpty (serverMode) || serverMode == "NE")
+            {
+                cmbServerskiMod.SelectedItem = cmbServerskiMod.Items.Cast<ComboBoxItem> ().FirstOrDefault (item => item.Content.ToString () == "NE");
                 txtDBPath.Visibility = Visibility.Collapsed;
                 DbPathButton.Visibility = Visibility.Collapsed;
             }
             else
             {
-                cmbServerskiMod.SelectedItem = cmbServerskiMod.Items.Cast<ComboBoxItem>().FirstOrDefault(item => item.Content.ToString() == "DA");
+                cmbServerskiMod.SelectedItem = cmbServerskiMod.Items.Cast<ComboBoxItem> ().FirstOrDefault (item => item.Content.ToString () == "DA");
                 txtDBPath.Visibility = Visibility.Visible;
                 DbPathButton.Visibility = Visibility.Visible;
                 txtDBPath.Text = DbPath;
             }
-                txtBackup.Text = Properties.Settings.Default.BackupUrl;
+            txtBackup.Text = Properties.Settings.Default.BackupUrl;
             txtLogo.Text = Properties.Settings.Default.LogoUrl;
 
             string blokKopija = Properties.Settings.Default.BlokKopija;
-            cmbBrojKopijaBloka.SelectedItem = cmbBrojKopijaBloka.Items.Cast<ComboBoxItem>().FirstOrDefault(item => item.Content.ToString() == blokKopija);
+            cmbBrojKopijaBloka.SelectedItem = cmbBrojKopijaBloka.Items.Cast<ComboBoxItem> ().FirstOrDefault (item => item.Content.ToString () == blokKopija);
 
             string prodajaMinus = Properties.Settings.Default.ProdajaMinus;
-            cmbProdajaMinus.SelectedItem = cmbProdajaMinus.Items.Cast<ComboBoxItem>().FirstOrDefault(item => item.Content.ToString() == prodajaMinus);
+            cmbProdajaMinus.SelectedItem = cmbProdajaMinus.Items.Cast<ComboBoxItem> ().FirstOrDefault (item => item.Content.ToString () == prodajaMinus);
 
             string multiUser = Properties.Settings.Default.MultiUser;
-            cmbMultiUser.SelectedItem = cmbMultiUser.Items.Cast<ComboBoxItem>().FirstOrDefault(item => item.Content.ToString() == multiUser);
+            cmbMultiUser.SelectedItem = cmbMultiUser.Items.Cast<ComboBoxItem> ().FirstOrDefault (item => item.Content.ToString () == multiUser);
 
             string pdvKorisnik = Properties.Settings.Default.PDVKorisnik;
-            cmbPDV.SelectedItem = cmbPDV.Items.Cast<ComboBoxItem>().FirstOrDefault(item => item.Content.ToString() == pdvKorisnik);
+            cmbPDV.SelectedItem = cmbPDV.Items.Cast<ComboBoxItem> ().FirstOrDefault (item => item.Content.ToString () == pdvKorisnik);
 
             //string displayKuhinja = Properties.Settings.Default.DisplayKuhinja ?? "0";
-           // cmbDisplejKuhinja.SelectedItem = cmbDisplejKuhinja.Items.Cast<SettingsViewModel.MonitorInfo> ().FirstOrDefault (m => m.Index == Convert.ToInt32(displayKuhinja));
+            // cmbDisplejKuhinja.SelectedItem = cmbDisplejKuhinja.Items.Cast<SettingsViewModel.MonitorInfo> ().FirstOrDefault (m => m.Index == Convert.ToInt32(displayKuhinja));
             //Debug.WriteLine ("[Settings] load cmbDisplejKuhinja.SelectedItem = " + cmbDisplejKuhinja.Items.Cast<SettingsViewModel.MonitorInfo> ().FirstOrDefault (m => m.Index == Convert.ToInt32 (displayKuhinja)));
             // Printers
             txtPrinterRacuni.Text = Properties.Settings.Default.POSPrinter;
@@ -101,15 +94,15 @@ namespace Caupo.Views
             txtLPFRPIN.Text = Properties.Settings.Default.LPFR_Pin;
 
             string extPrinter = Properties.Settings.Default.ExterniPrinter;
-            cmbExterniPrinter.SelectedItem = cmbExterniPrinter.Items.Cast<ComboBoxItem>().FirstOrDefault(item => item.Content.ToString() == extPrinter);
+            cmbExterniPrinter.SelectedItem = cmbExterniPrinter.Items.Cast<ComboBoxItem> ().FirstOrDefault (item => item.Content.ToString () == extPrinter);
             string sirinaTrake = Properties.Settings.Default.SirinaTrake;
-            cmbSirinaTrake.SelectedItem = cmbSirinaTrake.Items.Cast<ComboBoxItem>().FirstOrDefault(item => item.Content.ToString() == sirinaTrake);
+            cmbSirinaTrake.SelectedItem = cmbSirinaTrake.Items.Cast<ComboBoxItem> ().FirstOrDefault (item => item.Content.ToString () == sirinaTrake);
 
             // Network settings
             txtIPServer.Text = Properties.Settings.Default.ServerIP;
 
             // Server Mod
-       
+
 
             _loading = false;
         }
@@ -238,7 +231,7 @@ namespace Caupo.Views
                     else
                     {
                         // NE → vraćamo se na lokalnu bazu
-                     
+
                         string localDbFolder = Path.Combine (Directory.GetCurrentDirectory (), "Data");
                         string dbPath = Path.Combine (localDbFolder, "sysFormWPF.db");
                         txtDBPath.Visibility = Visibility.Collapsed;
@@ -253,7 +246,7 @@ namespace Caupo.Views
 
                 // Čuvanje podešavanja
                 Properties.Settings.Default.Save ();
-              
+
                 MyMessageBox myMessageBox = new MyMessageBox ();
                 ////myMessageBox.Owner = this;
                 myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -427,74 +420,74 @@ namespace Caupo.Views
 
         private void NoviRadnikButton_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is SettingsViewModel viewModel)
+            if(DataContext is SettingsViewModel viewModel)
             {
-                NewWorkerPopup noviradnik = new NewWorkerPopup(viewModel);
+                NewWorkerPopup noviradnik = new NewWorkerPopup (viewModel);
                 noviradnik.isUpdate = false;
 
-                noviradnik.ShowDialog();
+                noviradnik.ShowDialog ();
             }
         }
 
 
 
-        BrushConverter bc = new BrushConverter();
+        BrushConverter bc = new BrushConverter ();
         private async Task<bool> CheckFirma()
         {
-            await Task.Delay(5);
+            await Task.Delay (5);
 
-            if (string.IsNullOrWhiteSpace(txtFrima.Text))
+            if(string.IsNullOrWhiteSpace (txtFrima.Text))
             {
                 txtFrima.BorderBrush = Brushes.Red;
-               // txtFrima.Watermark = "Naziv firme je obavezan podatak";
+                // txtFrima.Watermark = "Naziv firme je obavezan podatak";
                 FirmaTab.IsSelected = true;
-                await txtFrima.Dispatcher.BeginInvoke(new Action(() => txtFrima.Focus()), System.Windows.Threading.DispatcherPriority.Background);
+                await txtFrima.Dispatcher.BeginInvoke (new Action (() => txtFrima.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
             }
             else
             {
-                txtFrima.BorderBrush = (Brush)bc.ConvertFrom("#FFABADB3");
+                txtFrima.BorderBrush = (Brush)bc.ConvertFrom ("#FFABADB3");
 
             }
 
 
-            if (string.IsNullOrWhiteSpace(txtAdresa.Text))
+            if(string.IsNullOrWhiteSpace (txtAdresa.Text))
             {
                 txtAdresa.BorderBrush = Brushes.Red;
-              //  txtAdresa.Watermark = "Adresa firme je obavezan podatak";
+                //  txtAdresa.Watermark = "Adresa firme je obavezan podatak";
                 FirmaTab.IsSelected = true;
-                await txtAdresa.Dispatcher.BeginInvoke(new Action(() => txtAdresa.Focus()), System.Windows.Threading.DispatcherPriority.Background);
+                await txtAdresa.Dispatcher.BeginInvoke (new Action (() => txtAdresa.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
 
             }
             else
             {
-                txtAdresa.BorderBrush = (Brush)bc.ConvertFrom("#FFABADB3");
+                txtAdresa.BorderBrush = (Brush)bc.ConvertFrom ("#FFABADB3");
             }
-            if (string.IsNullOrWhiteSpace(txtMjesto.Text))
+            if(string.IsNullOrWhiteSpace (txtMjesto.Text))
             {
                 txtMjesto.BorderBrush = Brushes.Red;
-             //   txtMjesto.Watermark = "Naziv mjesta firme je obavezan podatak";
+                //   txtMjesto.Watermark = "Naziv mjesta firme je obavezan podatak";
                 FirmaTab.IsSelected = true;
-                await txtMjesto.Dispatcher.BeginInvoke(new Action(() => txtMjesto.Focus()), System.Windows.Threading.DispatcherPriority.Background);
+                await txtMjesto.Dispatcher.BeginInvoke (new Action (() => txtMjesto.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
             }
             else
             {
-                txtMjesto.BorderBrush = (Brush)bc.ConvertFrom("#FFABADB3");
+                txtMjesto.BorderBrush = (Brush)bc.ConvertFrom ("#FFABADB3");
             }
-            if (string.IsNullOrWhiteSpace(txtJIB.Text))
+            if(string.IsNullOrWhiteSpace (txtJIB.Text))
             {
                 txtJIB.BorderBrush = Brushes.Red;
-             //   txtJIB.Watermark = "JIB firme je obavezan podatak";
+                //   txtJIB.Watermark = "JIB firme je obavezan podatak";
                 FirmaTab.IsSelected = true;
-                await txtJIB.Dispatcher.BeginInvoke(new Action(() => txtJIB.Focus()), System.Windows.Threading.DispatcherPriority.Background);
+                await txtJIB.Dispatcher.BeginInvoke (new Action (() => txtJIB.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
 
             }
             else
             {
-                txtJIB.BorderBrush = (Brush)bc.ConvertFrom("#FFABADB3");
+                txtJIB.BorderBrush = (Brush)bc.ConvertFrom ("#FFABADB3");
             }
 
             if(string.IsNullOrWhiteSpace (txtEmail.Text))
@@ -512,77 +505,77 @@ namespace Caupo.Views
 
 
             // Provera za ComboBox
-            if (cmbPDV.SelectedItem == null)
+            if(cmbPDV.SelectedItem == null)
             {
-                MessageBox.Show("Podatak da li je firma PDV obaveznik je obavezan." + Environment.NewLine + "Izaberite opciju.", "UPOYORENJE", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show ("Podatak da li je firma PDV obaveznik je obavezan." + Environment.NewLine + "Izaberite opciju.", "UPOYORENJE", MessageBoxButton.OK, MessageBoxImage.Error);
                 FirmaTab.IsSelected = true;
-                await cmbPDV.Dispatcher.BeginInvoke(new Action(() => cmbPDV.Focus()), System.Windows.Threading.DispatcherPriority.Background);
+                await cmbPDV.Dispatcher.BeginInvoke (new Action (() => cmbPDV.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
             }
             else
             {
-                txtFrima.BorderBrush = (Brush)bc.ConvertFrom("#FFABADB3");
+                txtFrima.BorderBrush = (Brush)bc.ConvertFrom ("#FFABADB3");
             }
             return true;
         }
 
         private async Task<bool> CheckFiskalizacija()
         {
-            await Task.Delay(5);
+            await Task.Delay (5);
 
 
-            if (string.IsNullOrWhiteSpace(txtLPFRIP.Text))
+            if(string.IsNullOrWhiteSpace (txtLPFRIP.Text))
             {
                 txtLPFRIP.BorderBrush = Brushes.Red;
-            //    txtLPFRIP.Watermark = "IP adresa LPFR-a je obavezan podatak";
+                //    txtLPFRIP.Watermark = "IP adresa LPFR-a je obavezan podatak";
                 FiskalizacijaTab.IsSelected = true;
-                await txtLPFRIP.Dispatcher.BeginInvoke(new Action(() => txtLPFRIP.Focus()), System.Windows.Threading.DispatcherPriority.Background);
+                await txtLPFRIP.Dispatcher.BeginInvoke (new Action (() => txtLPFRIP.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
             }
             else
             {
-                txtLPFRIP.BorderBrush = (Brush)bc.ConvertFrom("#FFABADB3");
+                txtLPFRIP.BorderBrush = (Brush)bc.ConvertFrom ("#FFABADB3");
             }
 
-            if (string.IsNullOrWhiteSpace(txtLPFRAPI.Text))
+            if(string.IsNullOrWhiteSpace (txtLPFRAPI.Text))
             {
                 txtLPFRAPI.BorderBrush = Brushes.Red;
-              //  txtLPFRAPI.Watermark = "API ključ LPFR-a je obavezan podatak";
+                //  txtLPFRAPI.Watermark = "API ključ LPFR-a je obavezan podatak";
                 FiskalizacijaTab.IsSelected = true;
-                await txtLPFRAPI.Dispatcher.BeginInvoke(new Action(() => txtLPFRAPI.Focus()), System.Windows.Threading.DispatcherPriority.Background);
+                await txtLPFRAPI.Dispatcher.BeginInvoke (new Action (() => txtLPFRAPI.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
             }
             else
             {
-                txtLPFRAPI.BorderBrush = (Brush)bc.ConvertFrom("#FFABADB3");
+                txtLPFRAPI.BorderBrush = (Brush)bc.ConvertFrom ("#FFABADB3");
             }
 
-            if (string.IsNullOrWhiteSpace(txtLPFRPIN.Text))
+            if(string.IsNullOrWhiteSpace (txtLPFRPIN.Text))
             {
                 txtLPFRPIN.BorderBrush = Brushes.Red;
-             //   txtLPFRPIN.Watermark = "PIN LPFR-a je obavezan podatak";
+                //   txtLPFRPIN.Watermark = "PIN LPFR-a je obavezan podatak";
                 FiskalizacijaTab.IsSelected = true;
-                await txtLPFRPIN.Dispatcher.BeginInvoke(new Action(() => txtLPFRPIN.Focus()), System.Windows.Threading.DispatcherPriority.Background);
+                await txtLPFRPIN.Dispatcher.BeginInvoke (new Action (() => txtLPFRPIN.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
             }
             else
             {
-                txtLPFRPIN.BorderBrush = (Brush)bc.ConvertFrom("#FFABADB3");
+                txtLPFRPIN.BorderBrush = (Brush)bc.ConvertFrom ("#FFABADB3");
             }
 
-            if (cmbExterniPrinter.SelectedItem == null)
+            if(cmbExterniPrinter.SelectedItem == null)
             {
-                MessageBox.Show("Podatak da li se koristi eksterni printer je obavezan.\nIzaberite opciju.", "UPOZORENJE", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show ("Podatak da li se koristi eksterni printer je obavezan.\nIzaberite opciju.", "UPOZORENJE", MessageBoxButton.OK, MessageBoxImage.Error);
                 FiskalizacijaTab.IsSelected = true;
-                await cmbExterniPrinter.Dispatcher.BeginInvoke(new Action(() => cmbExterniPrinter.Focus()), System.Windows.Threading.DispatcherPriority.Background);
+                await cmbExterniPrinter.Dispatcher.BeginInvoke (new Action (() => cmbExterniPrinter.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
             }
 
-            if (cmbSirinaTrake.SelectedItem == null)
+            if(cmbSirinaTrake.SelectedItem == null)
             {
-                MessageBox.Show("Podatak o širini trake printera je obavezan.\nIzaberite opciju.", "UPOZORENJE", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show ("Podatak o širini trake printera je obavezan.\nIzaberite opciju.", "UPOZORENJE", MessageBoxButton.OK, MessageBoxImage.Error);
                 FiskalizacijaTab.IsSelected = true;
-                await cmbSirinaTrake.Dispatcher.BeginInvoke(new Action(() => cmbSirinaTrake.Focus()), System.Windows.Threading.DispatcherPriority.Background);
+                await cmbSirinaTrake.Dispatcher.BeginInvoke (new Action (() => cmbSirinaTrake.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
             }
             return true;
@@ -590,80 +583,80 @@ namespace Caupo.Views
 
         private async Task<bool> CheckAplikacija()
         {
-            if (string.IsNullOrWhiteSpace(txtPrinterRacuni.Text))
+            if(string.IsNullOrWhiteSpace (txtPrinterRacuni.Text))
             {
                 txtPrinterRacuni.BorderBrush = Brushes.Red;
-             //   txtPrinterRacuni.Watermark = "Printer koji koristite za izdavanje računa je obavezan podatak";
+                //   txtPrinterRacuni.Watermark = "Printer koji koristite za izdavanje računa je obavezan podatak";
                 AplikacijaTab.IsSelected = true;
-                await txtPrinterRacuni.Dispatcher.BeginInvoke(new Action(() => txtPrinterRacuni.Focus()), System.Windows.Threading.DispatcherPriority.Background);
+                await txtPrinterRacuni.Dispatcher.BeginInvoke (new Action (() => txtPrinterRacuni.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
             }
             else
             {
-                txtPrinterRacuni.BorderBrush = (Brush)bc.ConvertFrom("#FFABADB3");
+                txtPrinterRacuni.BorderBrush = (Brush)bc.ConvertFrom ("#FFABADB3");
             }
 
-            if (string.IsNullOrWhiteSpace(txtBackup.Text))
+            if(string.IsNullOrWhiteSpace (txtBackup.Text))
             {
                 txtBackup.BorderBrush = Brushes.Red;
-              //  txtBackup.Watermark = "Lokacija rezerne kopije baze podataka je obavezan podatak";
+                //  txtBackup.Watermark = "Lokacija rezerne kopije baze podataka je obavezan podatak";
                 AplikacijaTab.IsSelected = true;
-                await txtBackup.Dispatcher.BeginInvoke(new Action(() => txtBackup.Focus()), System.Windows.Threading.DispatcherPriority.Background);
+                await txtBackup.Dispatcher.BeginInvoke (new Action (() => txtBackup.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
             }
             else
             {
-                txtBackup.BorderBrush = (Brush)bc.ConvertFrom("#FFABADB3");
+                txtBackup.BorderBrush = (Brush)bc.ConvertFrom ("#FFABADB3");
             }
 
-            if (string.IsNullOrWhiteSpace(txtDBPath.Text) && txtDBPath.Visibility == Visibility.Visible)
+            if(string.IsNullOrWhiteSpace (txtDBPath.Text) && txtDBPath.Visibility == Visibility.Visible)
             {
                 txtDBPath.BorderBrush = Brushes.Red;
-             //   txtDBPath.Watermark = "Lokacija baze podataka je obavezan podatak ako želite koristiti serverski mod";
+                //   txtDBPath.Watermark = "Lokacija baze podataka je obavezan podatak ako želite koristiti serverski mod";
                 AplikacijaTab.IsSelected = true;
-                await txtDBPath.Dispatcher.BeginInvoke(new Action(() => txtDBPath.Focus()), System.Windows.Threading.DispatcherPriority.Background);
+                await txtDBPath.Dispatcher.BeginInvoke (new Action (() => txtDBPath.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
             }
             else
             {
-                txtDBPath.BorderBrush = (Brush)bc.ConvertFrom("#FFABADB3");
+                txtDBPath.BorderBrush = (Brush)bc.ConvertFrom ("#FFABADB3");
             }
 
-            if (cmbBrojKopijaBloka.SelectedItem == null)
+            if(cmbBrojKopijaBloka.SelectedItem == null)
             {
-                MessageBox.Show("Broj kopija blokova koje printate je obavezan podatak.\nIzaberite opciju.", "UPOZORENJE", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show ("Broj kopija blokova koje printate je obavezan podatak.\nIzaberite opciju.", "UPOZORENJE", MessageBoxButton.OK, MessageBoxImage.Error);
                 AplikacijaTab.IsSelected = true;
-                await cmbBrojKopijaBloka.Dispatcher.BeginInvoke(new Action(() => cmbBrojKopijaBloka.Focus()), System.Windows.Threading.DispatcherPriority.Background);
+                await cmbBrojKopijaBloka.Dispatcher.BeginInvoke (new Action (() => cmbBrojKopijaBloka.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
             }
 
-            if (cmbProdajaMinus.SelectedItem == null)
+            if(cmbProdajaMinus.SelectedItem == null)
             {
-                MessageBox.Show("Podešavanje dozvole prodaje u minus je obavezno.\nIzaberite opciju.", "UPOZORENJE", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show ("Podešavanje dozvole prodaje u minus je obavezno.\nIzaberite opciju.", "UPOZORENJE", MessageBoxButton.OK, MessageBoxImage.Error);
                 AplikacijaTab.IsSelected = true;
-                await cmbProdajaMinus.Dispatcher.BeginInvoke(new Action(() => cmbProdajaMinus.Focus()), System.Windows.Threading.DispatcherPriority.Background);
+                await cmbProdajaMinus.Dispatcher.BeginInvoke (new Action (() => cmbProdajaMinus.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
             }
 
-            if (cmbMultiUser.SelectedItem == null)
+            if(cmbMultiUser.SelectedItem == null)
             {
-                MessageBox.Show("Podešavanje višekorisničkog okruženja je obavezno.\nIzaberite opciju.", "UPOZORENJE", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show ("Podešavanje višekorisničkog okruženja je obavezno.\nIzaberite opciju.", "UPOZORENJE", MessageBoxButton.OK, MessageBoxImage.Error);
                 AplikacijaTab.IsSelected = true;
-                await cmbMultiUser.Dispatcher.BeginInvoke(new Action(() => cmbMultiUser.Focus()), System.Windows.Threading.DispatcherPriority.Background);
+                await cmbMultiUser.Dispatcher.BeginInvoke (new Action (() => cmbMultiUser.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(txtIPServer.Text))
+            if(string.IsNullOrWhiteSpace (txtIPServer.Text))
             {
                 txtIPServer.BorderBrush = Brushes.Red;
-             //   txtIPServer.Watermark = "IP adresa internog servera je obavezan podatak";
+                //   txtIPServer.Watermark = "IP adresa internog servera je obavezan podatak";
                 AplikacijaTab.IsSelected = true;
-                await txtIPServer.Dispatcher.BeginInvoke(new Action(() => txtIPServer.Focus()), System.Windows.Threading.DispatcherPriority.Background);
+                await txtIPServer.Dispatcher.BeginInvoke (new Action (() => txtIPServer.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
             }
             else
             {
-                txtIPServer.BorderBrush = (Brush)bc.ConvertFrom("#FFABADB3");
+                txtIPServer.BorderBrush = (Brush)bc.ConvertFrom ("#FFABADB3");
             }
 
             return true;
@@ -672,17 +665,17 @@ namespace Caupo.Views
 
         private async void SaveSettingsButton_Click(object sender, RoutedEventArgs e)
         {
-            bool firmaChecked = await CheckFirma();
-            if (!firmaChecked)
+            bool firmaChecked = await CheckFirma ();
+            if(!firmaChecked)
                 return;
-            bool fiskalizacijaChecked = await CheckFiskalizacija();
-            if (!fiskalizacijaChecked)
+            bool fiskalizacijaChecked = await CheckFiskalizacija ();
+            if(!fiskalizacijaChecked)
                 return;
-            bool aplikacijaChecked = await CheckAplikacija();
-            if (!aplikacijaChecked)
+            bool aplikacijaChecked = await CheckAplikacija ();
+            if(!aplikacijaChecked)
                 return;
 
-            await SaveSettings();
+            await SaveSettings ();
 
         }
 
@@ -691,13 +684,13 @@ namespace Caupo.Views
         private void LogoButton_Click(object sender, RoutedEventArgs e)
         {
             // Kreiraj instancu OpenFileDialog-a
-            OpenFileDialog openFileDialog = new OpenFileDialog();
+            OpenFileDialog openFileDialog = new OpenFileDialog ();
 
             // Postavi filtere za tipove slika
             openFileDialog.Filter = "Image Files (*.jpg;*.jpeg;*.png;*.bmp)|*.jpg;*.jpeg;*.png;*.bmp";
 
             // Prikazivanje dijaloga i proveravanje da li je fajl odabran
-            if (openFileDialog.ShowDialog() == true)
+            if(openFileDialog.ShowDialog () == true)
             {
                 // Dodela odabrane slike u TextBox
                 txtLogo.Text = openFileDialog.FileName;
@@ -706,8 +699,8 @@ namespace Caupo.Views
 
         private void SankButton_Click(object sender, RoutedEventArgs e)
         {
-            PrinterDialog printerDialog = new PrinterDialog();
-            if (printerDialog.ShowDialog() == true)
+            PrinterDialog printerDialog = new PrinterDialog ();
+            if(printerDialog.ShowDialog () == true)
             {
                 txtPrinterSank.Text = printerDialog.SelectedPrinter;
             }
@@ -715,10 +708,10 @@ namespace Caupo.Views
 
         private void KuhinjaButton_Click(object sender, RoutedEventArgs e)
         {
-            PrinterDialog printDialog = new PrinterDialog();
+            PrinterDialog printDialog = new PrinterDialog ();
 
             // Prikazivanje dijaloga za odabir štampača
-            if (printDialog.ShowDialog() == true)
+            if(printDialog.ShowDialog () == true)
             {
                 // Dodela imena odabranog štampača u TextBox
                 txtPrinterKuhinja.Text = printDialog.SelectedPrinter;
@@ -727,10 +720,10 @@ namespace Caupo.Views
 
         private void RacuniButton_Click(object sender, RoutedEventArgs e)
         {
-            PrinterDialog printDialog = new PrinterDialog();
+            PrinterDialog printDialog = new PrinterDialog ();
 
             // Prikazivanje dijaloga za odabir štampača
-            if (printDialog.ShowDialog() == true)
+            if(printDialog.ShowDialog () == true)
             {
                 // Dodela imena odabranog štampača u TextBox
                 txtPrinterRacuni.Text = printDialog.SelectedPrinter;
@@ -739,10 +732,10 @@ namespace Caupo.Views
 
         private void A4Button_Click(object sender, RoutedEventArgs e)
         {
-            PrinterDialog printDialog = new PrinterDialog();
+            PrinterDialog printDialog = new PrinterDialog ();
 
             // Prikazivanje dijaloga za odabir štampača
-            if (printDialog.ShowDialog() == true)
+            if(printDialog.ShowDialog () == true)
             {
                 // Dodela imena odabranog štampača u TextBox
                 txtPrinterA4.Text = printDialog.SelectedPrinter;
@@ -755,10 +748,10 @@ namespace Caupo.Views
             var folderDialog = new OpenFolderDialog
             {
                 Title = "Izaberite folder za rezervnu kopiju.",
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+                InitialDirectory = Environment.GetFolderPath (Environment.SpecialFolder.Desktop)
             };
 
-            if (folderDialog.ShowDialog() == true)
+            if(folderDialog.ShowDialog () == true)
             {
                 txtBackup.Text = folderDialog.FolderName;
 
@@ -768,12 +761,12 @@ namespace Caupo.Views
 
         private void cmbInterfaces_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            if (cmbInterfaces.SelectedItem is NetworkInterface selectedInterface)
+            if(cmbInterfaces.SelectedItem is NetworkInterface selectedInterface)
             {
-                var ipAddress = selectedInterface.GetIPProperties().UnicastAddresses
-                    .Where(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
-                    .Select(ip => ip.Address.ToString())
-                    .FirstOrDefault();
+                var ipAddress = selectedInterface.GetIPProperties ().UnicastAddresses
+                    .Where (ip => ip.Address.AddressFamily == AddressFamily.InterNetwork)
+                    .Select (ip => ip.Address.ToString ())
+                    .FirstOrDefault ();
 
                 txtIPServer.Text = ipAddress ?? "Nema IP adrese";
             }
@@ -782,9 +775,9 @@ namespace Caupo.Views
 
         private void LoadNetworkInterfaces()
         {
-            var interfaces = NetworkInterface.GetAllNetworkInterfaces()
-                .Where(ni => ni.OperationalStatus == OperationalStatus.Up)
-                .ToList();
+            var interfaces = NetworkInterface.GetAllNetworkInterfaces ()
+                .Where (ni => ni.OperationalStatus == OperationalStatus.Up)
+                .ToList ();
 
             cmbInterfaces.ItemsSource = interfaces;
             cmbInterfaces.DisplayMemberPath = "Name";
@@ -792,40 +785,40 @@ namespace Caupo.Views
 
         private async void cmbTema_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Debug.WriteLine("------------------ cmbTema_SelectionChanged --------------------");
-            if (cmbTema.SelectedItem is ComboBoxItem selectedItem)
+            Debug.WriteLine ("------------------ cmbTema_SelectionChanged --------------------");
+            if(cmbTema.SelectedItem is ComboBoxItem selectedItem)
             {
-                string tema = selectedItem.Content.ToString();
+                string tema = selectedItem.Content.ToString ();
 
                 // Ažuriraj temu u aplikaciji
                 App.CurrentTheme = tema;
-                App.ApplyTheme(tema);
+                App.ApplyTheme (tema);
 
                 // Spremi odabranu temu u postavke
                 Settings.Default.Tema = tema;
-                Settings.Default.Save();
+                Settings.Default.Save ();
 
 
-            if(tema == "Tamna")
-            {
-                Application.Current.Resources["GlobalFontColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
-                Application.Current.Resources["GlobalBackgroundColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
-            }
-            else
-            {
-                Application.Current.Resources["GlobalFontColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
-                Application.Current.Resources["GlobalBackgroundColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
-              
-            }
-        // Ažuriraj slike u ViewModel-u
-                if (DataContext is SettingsViewModel viewModel)
+                if(tema == "Tamna")
                 {
-                    viewModel.SetImage();
+                    Application.Current.Resources["GlobalFontColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (244, 244, 244));
+                    Application.Current.Resources["GlobalBackgroundColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (46, 46, 49));
+                }
+                else
+                {
+                    Application.Current.Resources["GlobalFontColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (46, 46, 49));
+                    Application.Current.Resources["GlobalBackgroundColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (244, 244, 244));
+
+                }
+                // Ažuriraj slike u ViewModel-u
+                if(DataContext is SettingsViewModel viewModel)
+                {
+                    viewModel.SetImage ();
                 }
             }
             else
             {
-                Debug.WriteLine("------------------ Nije cmbTema.SelectedItem is ComboBoxItem selectedItem --------------------");
+                Debug.WriteLine ("------------------ Nije cmbTema.SelectedItem is ComboBoxItem selectedItem --------------------");
             }
         }
 
@@ -839,22 +832,22 @@ namespace Caupo.Views
 
         private void cmbServerskiMod_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (_loading)
+            if(_loading)
                 return;
 
-            if (cmbServerskiMod.SelectedItem is ComboBoxItem selectedItem)
+            if(cmbServerskiMod.SelectedItem is ComboBoxItem selectedItem)
             {
-                string servermode = selectedItem.Content.ToString();
+                string servermode = selectedItem.Content.ToString ();
 
-                if (servermode == "DA")
+                if(servermode == "DA")
                 {
-                    MyMessageBox myMessageBox = new MyMessageBox();
-                 // //myMessageBox.Owner = this;
+                    MyMessageBox myMessageBox = new MyMessageBox ();
+                    // //myMessageBox.Owner = this;
                     myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
                     myMessageBox.MessageTitle.Text = "Obavještenje";
                     myMessageBox.MessageText.Text = "Izaberite folder u kome će se nalaziti baza podataka";
-                    myMessageBox.ShowDialog();
+                    myMessageBox.ShowDialog ();
 
                     txtDBPath.Visibility = Visibility.Visible;
                     DbPathButton.Visibility = Visibility.Visible;
@@ -872,10 +865,10 @@ namespace Caupo.Views
             var folderDialog = new OpenFolderDialog
             {
                 Title = "Izaberite folder za bazu podataka.",
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+                InitialDirectory = Environment.GetFolderPath (Environment.SpecialFolder.Desktop)
             };
 
-            if (folderDialog.ShowDialog() == true)
+            if(folderDialog.ShowDialog () == true)
             {
                 txtDBPath.Text = folderDialog.FolderName;
 
@@ -886,9 +879,9 @@ namespace Caupo.Views
         {
             // Pronađi parent ListViewItem
             var button = (Button)sender;
-            var listViewItem = FindAncestor<ListViewItem>(button);
+            var listViewItem = FindAncestor<ListViewItem> (button);
 
-            if (listViewItem != null && !listViewItem.IsSelected)
+            if(listViewItem != null && !listViewItem.IsSelected)
             {
                 listViewItem.IsSelected = true; // selektuje red
             }
@@ -900,11 +893,11 @@ namespace Caupo.Views
         // Helper metoda za pronalaženje roditelja
         private T FindAncestor<T>(DependencyObject current) where T : DependencyObject
         {
-            while (current != null)
+            while(current != null)
             {
-                if (current is T)
+                if(current is T)
                     return (T)current;
-                current = VisualTreeHelper.GetParent(current);
+                current = VisualTreeHelper.GetParent (current);
             }
             return null;
         }
@@ -913,9 +906,9 @@ namespace Caupo.Views
         {
             // Pronađi parent ListViewItem
             var button = (Button)sender;
-            var listViewItem = FindAncestor<ListViewItem>(button);
+            var listViewItem = FindAncestor<ListViewItem> (button);
 
-            if (listViewItem != null && !listViewItem.IsSelected)
+            if(listViewItem != null && !listViewItem.IsSelected)
             {
                 listViewItem.IsSelected = true; // selektuje red
             }

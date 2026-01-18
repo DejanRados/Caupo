@@ -1,19 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Caupo.Properties;
 using System.Diagnostics;
-using System.Linq;
 using System.Printing;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using Caupo.Properties;
 
 namespace Caupo.Views
 {
@@ -27,16 +15,16 @@ namespace Caupo.Views
 
         public PrinterDialog()
         {
-            InitializeComponent();
+            InitializeComponent ();
             this.DataContext = this;
-            var printQueueCollection = new LocalPrintServer().GetPrintQueues();
-            foreach (var printQueue in printQueueCollection)
+            var printQueueCollection = new LocalPrintServer ().GetPrintQueues ();
+            foreach(var printQueue in printQueueCollection)
             {
-                cmbPrinters.Items.Add(printQueue.FullName);
+                cmbPrinters.Items.Add (printQueue.FullName);
             }
             string tema = Settings.Default.Tema;
-            Debug.WriteLine("Aktivna tema je : " + tema);
-            if (tema == "Tamna")
+            Debug.WriteLine ("Aktivna tema je : " + tema);
+            if(tema == "Tamna")
             {
                 ImagePath = "pack://application:,,,/Images/Dark/printer.png";
 
@@ -44,28 +32,28 @@ namespace Caupo.Views
             else
             {
                 ImagePath = "pack://application:,,,/Images/Light/printer.png";
-    
+
             }
-            Debug.WriteLine("Putanja slike: " + ImagePath);
+            Debug.WriteLine ("Putanja slike: " + ImagePath);
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;
-            Close();
+            Close ();
         }
 
         private void OKButton_Click(object sender, RoutedEventArgs e)
         {
-            if (cmbPrinters.SelectedItem != null)
+            if(cmbPrinters.SelectedItem != null)
             {
-                SelectedPrinter = cmbPrinters.SelectedItem.ToString();
+                SelectedPrinter = cmbPrinters.SelectedItem.ToString ();
                 DialogResult = true;
-                Close();
+                Close ();
             }
             else
             {
-                MessageBox.Show("Molimo odaberite štampač.", "Greška", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show ("Molimo odaberite štampač.", "Greška", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

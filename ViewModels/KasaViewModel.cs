@@ -1,21 +1,11 @@
 ﻿using Caupo.Data;
 using Caupo.Fiscal;
 using Caupo.Properties;
-using Caupo.Views;
-using CommunityToolkit.Mvvm.Input;
-using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
-using System.Globalization;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Input;
 using System.Windows.Media;
 using static Caupo.Data.DatabaseTables;
 using Brush = System.Windows.Media.Brush;
@@ -32,10 +22,10 @@ namespace Caupo.ViewModels
             get { return _fontColor; }
             set
             {
-                if (_fontColor != value)
+                if(_fontColor != value)
                 {
                     _fontColor = value;
-                    OnPropertyChanged(nameof(FontColor)); 
+                    OnPropertyChanged (nameof (FontColor));
                 }
             }
         }
@@ -46,10 +36,10 @@ namespace Caupo.ViewModels
             get { return _backColor; }
             set
             {
-                if (_backColor != value)
+                if(_backColor != value)
                 {
                     _backColor = value;
-                    OnPropertyChanged(nameof(BackColor));
+                    OnPropertyChanged (nameof (BackColor));
                 }
             }
         }
@@ -61,11 +51,11 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathPiceButton = value;
-                OnPropertyChanged(nameof(ImagePathPiceButton));
+                OnPropertyChanged (nameof (ImagePathPiceButton));
             }
         }
 
-      
+
 
         private string? _imagePathHranaButton;
         public string? ImagePathHranaButton
@@ -74,7 +64,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathHranaButton = value;
-                OnPropertyChanged(nameof(ImagePathHranaButton));
+                OnPropertyChanged (nameof (ImagePathHranaButton));
             }
         }
 
@@ -135,7 +125,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathCategoryButton = value;
-                OnPropertyChanged(nameof(ImagePathCategoryButton));
+                OnPropertyChanged (nameof (ImagePathCategoryButton));
             }
         }
 
@@ -147,10 +137,10 @@ namespace Caupo.ViewModels
             get => _totalSum;
             set
             {
-                if (_totalSum != value)
+                if(_totalSum != value)
                 {
                     _totalSum = value;
-                    OnPropertyChanged(nameof(TotalSum));
+                    OnPropertyChanged (nameof (TotalSum));
                 }
             }
         }
@@ -162,8 +152,8 @@ namespace Caupo.ViewModels
             set
             {
                 _stavkeRacuna = value;
-                OnPropertyChanged(nameof(StavkeRacuna));
-                
+                OnPropertyChanged (nameof (StavkeRacuna));
+
             }
         }
 
@@ -174,7 +164,7 @@ namespace Caupo.ViewModels
             set
             {
                 _artikliPice = value;
-                OnPropertyChanged(nameof(ArtikliPice));
+                OnPropertyChanged (nameof (ArtikliPice));
             }
         }
 
@@ -185,7 +175,7 @@ namespace Caupo.ViewModels
             set
             {
                 _artikliHrana = value;
-                OnPropertyChanged(nameof(ArtikliHrana));
+                OnPropertyChanged (nameof (ArtikliHrana));
             }
         }
 
@@ -196,7 +186,7 @@ namespace Caupo.ViewModels
             set
             {
                 _artikliOstalo = value;
-                OnPropertyChanged(nameof(ArtikliOstalo));
+                OnPropertyChanged (nameof (ArtikliOstalo));
             }
         }
 
@@ -207,7 +197,7 @@ namespace Caupo.ViewModels
             set
             {
                 _artikliPiceFilter = value;
-                OnPropertyChanged(nameof(ArtikliPiceFilter));
+                OnPropertyChanged (nameof (ArtikliPiceFilter));
             }
         }
 
@@ -218,7 +208,7 @@ namespace Caupo.ViewModels
             set
             {
                 _artikliHranaFilter = value;
-                OnPropertyChanged(nameof(ArtikliHranaFilter));
+                OnPropertyChanged (nameof (ArtikliHranaFilter));
             }
         }
 
@@ -229,7 +219,7 @@ namespace Caupo.ViewModels
             set
             {
                 _artikliOstaloFilter = value;
-                OnPropertyChanged(nameof(ArtikliOstaloFilter));
+                OnPropertyChanged (nameof (ArtikliOstaloFilter));
             }
         }
 
@@ -240,7 +230,7 @@ namespace Caupo.ViewModels
             set
             {
                 _kategorijePice = value;
-                OnPropertyChanged(nameof(KategorijePice));
+                OnPropertyChanged (nameof (KategorijePice));
             }
         }
 
@@ -251,7 +241,7 @@ namespace Caupo.ViewModels
             set
             {
                 _kategorijeHrana = value;
-                OnPropertyChanged(nameof(KategorijeHrana));
+                OnPropertyChanged (nameof (KategorijeHrana));
             }
         }
 
@@ -262,7 +252,7 @@ namespace Caupo.ViewModels
             set
             {
                 _kategorijeOstalo = value;
-                OnPropertyChanged(nameof(KategorijeOstalo));
+                OnPropertyChanged (nameof (KategorijeOstalo));
             }
         }
 
@@ -273,12 +263,12 @@ namespace Caupo.ViewModels
             set
             {
                 _kupci = value;
-                OnPropertyChanged(nameof(Kupci));
-               
-               // if (_kupci != null && _kupci.Count > 0)
-               // {
-               //     SelectedKupac = _kupci[0];  
-               // }
+                OnPropertyChanged (nameof (Kupci));
+
+                // if (_kupci != null && _kupci.Count > 0)
+                // {
+                //     SelectedKupac = _kupci[0];  
+                // }
             }
         }
 
@@ -289,10 +279,10 @@ namespace Caupo.ViewModels
             set
             {
                 _selectedStavka = value;
-                OnPropertyChanged(nameof(SelectedStavka));
+                OnPropertyChanged (nameof (SelectedStavka));
             }
         }
-        
+
         private TblKupci? _selectedKupac;
         public TblKupci? SelectedKupac
         {
@@ -300,9 +290,9 @@ namespace Caupo.ViewModels
             set
             {
                 _selectedKupac = value;
-                OnPropertyChanged(nameof(SelectedKupac));
-                if (_selectedKupac != null)
-                    Debug.WriteLine("SelectedKupac promijenjen: " + _selectedKupac.Kupac);
+                OnPropertyChanged (nameof (SelectedKupac));
+                if(_selectedKupac != null)
+                    Debug.WriteLine ("SelectedKupac promijenjen: " + _selectedKupac.Kupac);
             }
         }
 
@@ -312,7 +302,7 @@ namespace Caupo.ViewModels
             get => _isMultiUser;
             set
             {
-                if (_isMultiUser != value)
+                if(_isMultiUser != value)
                 {
                     _isMultiUser = value;
 
@@ -329,7 +319,7 @@ namespace Caupo.ViewModels
             get => _isLoggedIn;
             set
             {
-                if (_isLoggedIn != value)
+                if(_isLoggedIn != value)
                 {
                     _isLoggedIn = value;
                     OnPropertyChanged (nameof (IsLoggedIn));
@@ -346,7 +336,7 @@ namespace Caupo.ViewModels
 
         private void UpdateMultiUserState()
         {
-            if (IsMultiUserVisible)
+            if(IsMultiUserVisible)
             {
                 pokusaj = 3;
                 Debug.WriteLine ("IsMultiUserVisible = TRUE → pokusaj postavljen na 3");
@@ -369,86 +359,86 @@ namespace Caupo.ViewModels
 
         public KasaViewModel()
         {
-            ArtikliPice = new ObservableCollection<TblArtikli>();
-            ArtikliHrana = new ObservableCollection<TblArtikli>();
-            ArtikliOstalo = new ObservableCollection<TblArtikli>();
-            ArtikliPiceFilter = new ObservableCollection<TblArtikli>();
-            ArtikliHranaFilter = new ObservableCollection<TblArtikli>();
-            ArtikliOstaloFilter = new ObservableCollection<TblArtikli>();
-            KategorijePice = new ObservableCollection<TblKategorije>();
-            KategorijeHrana = new ObservableCollection<TblKategorije>();
-            KategorijeOstalo = new ObservableCollection<TblKategorije>();
-            Kupci = new ObservableCollection<TblKupci>();
-            StavkeRacuna = new ObservableCollection<FiskalniRacun.Item>();
+            ArtikliPice = new ObservableCollection<TblArtikli> ();
+            ArtikliHrana = new ObservableCollection<TblArtikli> ();
+            ArtikliOstalo = new ObservableCollection<TblArtikli> ();
+            ArtikliPiceFilter = new ObservableCollection<TblArtikli> ();
+            ArtikliHranaFilter = new ObservableCollection<TblArtikli> ();
+            ArtikliOstaloFilter = new ObservableCollection<TblArtikli> ();
+            KategorijePice = new ObservableCollection<TblKategorije> ();
+            KategorijeHrana = new ObservableCollection<TblKategorije> ();
+            KategorijeOstalo = new ObservableCollection<TblKategorije> ();
+            Kupci = new ObservableCollection<TblKupci> ();
+            StavkeRacuna = new ObservableCollection<FiskalniRacun.Item> ();
 
-           
-            _=Start();
-          
-       /*     foreach (var item in StavkeRacuna)
-            {
-                item.PropertyChanged += (sender, e) =>
-                {
-                    if (e.PropertyName == nameof(item.Quantity) || e.PropertyName == nameof(item.UnitPrice))
-                    {
-                        UpdateTotalSum();
-                    }
-                };
-            }
-            UpdateTotalSum();*/
-           
+
+            _ = Start ();
+
+            /*     foreach (var item in StavkeRacuna)
+                 {
+                     item.PropertyChanged += (sender, e) =>
+                     {
+                         if (e.PropertyName == nameof(item.Quantity) || e.PropertyName == nameof(item.UnitPrice))
+                         {
+                             UpdateTotalSum();
+                         }
+                     };
+                 }
+                 UpdateTotalSum();*/
+
         }
 
         public async Task Start()
         {
-           
-            await SetImage();
-            await  CheckMultiUser();
-            await  LoadArtikliAsync();
-            await  LoadCategoriesAsync();
-            await LoadKupciAsync();
-            Debug.WriteLine("SelectedKupac u startu poslije load = " + SelectedKupac.Kupac);
+
+            await SetImage ();
+            await CheckMultiUser ();
+            await LoadArtikliAsync ();
+            await LoadCategoriesAsync ();
+            await LoadKupciAsync ();
+            Debug.WriteLine ("SelectedKupac u startu poslije load = " + SelectedKupac.Kupac);
 
 
         }
 
-      
+
 
         public async Task CheckMultiUser()
         {
-           
+
             try
-            { 
-            string multiuser  = Settings.Default.MultiUser;
-                Debug.WriteLine("multiuser: " + multiuser);
-                if (!string.IsNullOrEmpty(multiuser))
+            {
+                string multiuser = Settings.Default.MultiUser;
+                Debug.WriteLine ("multiuser: " + multiuser);
+                if(!string.IsNullOrEmpty (multiuser))
                 {
-                    if (multiuser == "DA")
+                    if(multiuser == "DA")
                     {
-                        Debug.WriteLine("multiuser == DA" );
+                        Debug.WriteLine ("multiuser == DA");
                         IsMultiUser = true;
-                     
+
                     }
                     else
                     {
-                        Debug.WriteLine("multiuser == NE");
+                        Debug.WriteLine ("multiuser == NE");
                         IsMultiUser = false;
                     }
                 }
 
 
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 IsMultiUser = false;
-                Debug.WriteLine(ex.ToString());
+                Debug.WriteLine (ex.ToString ());
             }
         }
         public async Task SetImage()
         {
-            await Task.Delay(5);
+            await Task.Delay (5);
             string tema = Settings.Default.Tema;
-            Debug.WriteLine("Aktivna tema koju vidi viewmodel je : " + tema);
-            if (tema == "Tamna")
+            Debug.WriteLine ("Aktivna tema koju vidi viewmodel je : " + tema);
+            if(tema == "Tamna")
             {
                 ImagePathPiceButton = "pack://application:,,,/Images/Dark/drink.svg";
                 ImagePathHranaButton = "pack://application:,,,/Images/Dark/food.svg";
@@ -457,9 +447,9 @@ namespace Caupo.ViewModels
                 ImagePathHranaSelectedButton = "pack://application:,,,/Images/Light/food.svg";
                 ImagePathOstaloSelectedButton = "pack://application:,,,/Images/Light/another.svg";
                 ImagePathCategoryButton = "pack://application:,,,/Images/Dark/category.svg";
-                FontColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(212, 212, 212)); 
-                Application.Current.Resources["GlobalFontColor"] =    FontColor;
-                BackColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 50, 50));
+                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
+                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
 
 
             }
@@ -472,9 +462,9 @@ namespace Caupo.ViewModels
                 ImagePathHranaSelectedButton = "pack://application:,,,/Images/Dark/food.svg";
                 ImagePathOstaloSelectedButton = "pack://application:,,,/Images/Dark/another.svg";
                 ImagePathCategoryButton = "pack://application:,,,/Images/Light/category.svg";
-                FontColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 50, 50));
-                Application.Current.Resources["GlobalFontColor"] =    FontColor;
-                BackColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(212, 212, 212));
+                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
+                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
                 //FontColorAdv = new System.Windows.Media.Color();
                 //FontColorAdv = System.Windows.Media.Color.FromRgb(50, 50, 50);
             }
@@ -487,43 +477,43 @@ namespace Caupo.ViewModels
         {
             try
             {
-               
-                using (var db = new AppDbContext())
+
+                using(var db = new AppDbContext ())
                 {
-                    var artikli = await db.Artikli.ToListAsync();
-                    var pice = artikli.Where(a => a.VrstaArtikla == 0).OrderBy(a => a.Pozicija).ToList();
-                    var hrana = artikli.Where(a => a.VrstaArtikla == 1).OrderBy(a => a.Pozicija).ToList();
-                    var ostalo = artikli.Where(a => a.VrstaArtikla == 2).OrderBy(a => a.Pozicija).ToList();
-                    ArtikliPice?.Clear();
-                    ArtikliPiceFilter?.Clear();
-                    foreach (var artikl in pice)
+                    var artikli = await db.Artikli.ToListAsync ();
+                    var pice = artikli.Where (a => a.VrstaArtikla == 0).OrderBy (a => a.Pozicija).ToList ();
+                    var hrana = artikli.Where (a => a.VrstaArtikla == 1).OrderBy (a => a.Pozicija).ToList ();
+                    var ostalo = artikli.Where (a => a.VrstaArtikla == 2).OrderBy (a => a.Pozicija).ToList ();
+                    ArtikliPice?.Clear ();
+                    ArtikliPiceFilter?.Clear ();
+                    foreach(var artikl in pice)
                     {
-                        ArtikliPice?.Add(artikl);
-                        ArtikliPiceFilter?.Add(artikl);
+                        ArtikliPice?.Add (artikl);
+                        ArtikliPiceFilter?.Add (artikl);
                         // Debug.WriteLine(artikl.Artikl + ", Artikli Count = " + Artikli.Count);
                     }
-                    ArtikliHrana?.Clear();
-                    ArtikliHranaFilter?.Clear();
-                    foreach (var artikl in hrana)
+                    ArtikliHrana?.Clear ();
+                    ArtikliHranaFilter?.Clear ();
+                    foreach(var artikl in hrana)
                     {
-                        ArtikliHrana?.Add(artikl);
-                        ArtikliHranaFilter?.Add(artikl);
+                        ArtikliHrana?.Add (artikl);
+                        ArtikliHranaFilter?.Add (artikl);
                         // Debug.WriteLine(artikl.Artikl + ", Artikli Count = " + Artikli.Count);
                     }
-                    ArtikliOstalo?.Clear();
-                    ArtikliOstaloFilter?.Clear();
-                    foreach (var artikl in ostalo)
+                    ArtikliOstalo?.Clear ();
+                    ArtikliOstaloFilter?.Clear ();
+                    foreach(var artikl in ostalo)
                     {
-                        ArtikliOstalo?.Add(artikl);
-                        ArtikliOstaloFilter?.Add(artikl);
+                        ArtikliOstalo?.Add (artikl);
+                        ArtikliOstaloFilter?.Add (artikl);
                         // Debug.WriteLine(artikl.Artikl + ", Artikli Count = " + Artikli.Count);
                     }
 
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Debug.WriteLine(ex.ToString());
+                Debug.WriteLine (ex.ToString ());
             }
         }
 
@@ -531,121 +521,121 @@ namespace Caupo.ViewModels
         {
             try
             {
-               
-                using (var db = new AppDbContext())
+
+                using(var db = new AppDbContext ())
                 {
-                    var Categories = await db.Kategorije.ToListAsync();
-                    KategorijePice?.Clear();
-                    KategorijeHrana?.Clear();
-                    KategorijeOstalo?.Clear();
-                    Debug.WriteLine("Categories.Count: "+Categories.Count);
-                    foreach (var kategorija in Categories)
+                    var Categories = await db.Kategorije.ToListAsync ();
+                    KategorijePice?.Clear ();
+                    KategorijeHrana?.Clear ();
+                    KategorijeOstalo?.Clear ();
+                    Debug.WriteLine ("Categories.Count: " + Categories.Count);
+                    foreach(var kategorija in Categories)
                     {
                         if(kategorija.VrstaArtikla == 0)
                         {
-                            KategorijePice?.Add(kategorija);
+                            KategorijePice?.Add (kategorija);
                         }
-                       if(kategorija.VrstaArtikla == 1)
+                        if(kategorija.VrstaArtikla == 1)
                         {
-                            KategorijeHrana?.Add(kategorija);
+                            KategorijeHrana?.Add (kategorija);
                         }
                         if(kategorija.VrstaArtikla == 2)
                         {
-                            KategorijeOstalo?.Add(kategorija);
+                            KategorijeOstalo?.Add (kategorija);
                         }
-                      
+
 
                     }
-                    
+
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Debug.WriteLine(ex.ToString());
+                Debug.WriteLine (ex.ToString ());
             }
         }
         public async Task LoadKupciAsync()
         {
             try
             {
-                using (var db = new AppDbContext())
+                using(var db = new AppDbContext ())
                 {
                     // Dohvati samo one kupce koji nemaju NULL vrijednost za "Kupac"
                     var kupci = await db.Kupci
-                        .Where(k => !string.IsNullOrEmpty(k.Kupac)) // Provjera za NULL ili praznu vrijednost
-                        .ToListAsync();
+                        .Where (k => !string.IsNullOrEmpty (k.Kupac)) // Provjera za NULL ili praznu vrijednost
+                        .ToListAsync ();
 
-                    Kupci?.Clear();
+                    Kupci?.Clear ();
 
-                    foreach (var kupac in kupci)
+                    foreach(var kupac in kupci)
                     {
-                        Kupci?.Add(kupac);
-                    
+                        Kupci?.Add (kupac);
+
                     }
                 }
                 SelectedKupac = Kupci?[0];
-                Debug.WriteLine("SelectedKupac u Load = " + SelectedKupac.Kupac);
+                Debug.WriteLine ("SelectedKupac u Load = " + SelectedKupac.Kupac);
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Debug.WriteLine("Load Kupac = "+ex.ToString());
+                Debug.WriteLine ("Load Kupac = " + ex.ToString ());
             }
         }
 
         public async Task UpdateArticlePosition(TblArtikli artikl)
         {
-            using (var db = new AppDbContext())
+            using(var db = new AppDbContext ())
             {
-                var existingArticle = await db.Artikli.FindAsync(artikl.IdArtikla);
-                if (existingArticle != null)
+                var existingArticle = await db.Artikli.FindAsync (artikl.IdArtikla);
+                if(existingArticle != null)
                 {
                     existingArticle.Pozicija = artikl.Pozicija;
-                    db.Update(existingArticle);
-                    await db.SaveChangesAsync();
+                    db.Update (existingArticle);
+                    await db.SaveChangesAsync ();
                 }
             }
-            await LoadArtikliAsync(); 
+            await LoadArtikliAsync ();
         }
 
         public async void FilterDrinkByCategory(int CategoryId)
         {
-            await Task.Delay(5);
-            Debug.WriteLine("Radi  FilterDrinkByCategory");
+            await Task.Delay (5);
+            Debug.WriteLine ("Radi  FilterDrinkByCategory");
             var filtered = (ArtikliPice ?? [])
-             .Where(a => a.Kategorija == CategoryId)
-             .ToList();
+             .Where (a => a.Kategorija == CategoryId)
+             .ToList ();
 
 
-            ArtikliPiceFilter?.Clear();
-            foreach (var item in filtered)
-                ArtikliPiceFilter?.Add(item);
-            Debug.WriteLine("Radi  FilterDrinkByCategory  Atikli count: " + ArtikliPiceFilter?.Count);
+            ArtikliPiceFilter?.Clear ();
+            foreach(var item in filtered)
+                ArtikliPiceFilter?.Add (item);
+            Debug.WriteLine ("Radi  FilterDrinkByCategory  Atikli count: " + ArtikliPiceFilter?.Count);
         }
         public async void FilterFoodByCategory(int CategoryId)
         {
-            await Task.Delay(5);
-            Debug.WriteLine("Radi  FilterFoodByCategory " + CategoryId);
-            var filtered = (ArtikliHrana ?? []).Where(a => a.Kategorija == CategoryId ).ToList();
-            ArtikliHranaFilter?.Clear();
-            foreach (var article in filtered)
-                ArtikliHranaFilter?.Add(article);
-            Debug.WriteLine("FilterFoodByCategory  Atikli count: " + ArtikliHranaFilter?.Count);
+            await Task.Delay (5);
+            Debug.WriteLine ("Radi  FilterFoodByCategory " + CategoryId);
+            var filtered = (ArtikliHrana ?? []).Where (a => a.Kategorija == CategoryId).ToList ();
+            ArtikliHranaFilter?.Clear ();
+            foreach(var article in filtered)
+                ArtikliHranaFilter?.Add (article);
+            Debug.WriteLine ("FilterFoodByCategory  Atikli count: " + ArtikliHranaFilter?.Count);
         }
 
         public async void FilterRestByCategory(int CategoryId)
         {
-            await Task.Delay(5);
-            var filtered = (ArtikliOstalo ?? []).Where(a => a.Kategorija == CategoryId ).ToList();
-            ArtikliOstaloFilter?.Clear();
-            foreach (var article in filtered)
-                ArtikliOstaloFilter?.Add(article);
+            await Task.Delay (5);
+            var filtered = (ArtikliOstalo ?? []).Where (a => a.Kategorija == CategoryId).ToList ();
+            ArtikliOstaloFilter?.Clear ();
+            foreach(var article in filtered)
+                ArtikliOstaloFilter?.Add (article);
         }
 
         public void DodajStavkuRacuna(FiskalniRacun.Item stavka)
         {
-            
-            StavkeRacuna?.Add(stavka);
-            TotalSum = StavkeRacuna?.Sum(item => item.TotalAmount ?? 0);
+
+            StavkeRacuna?.Add (stavka);
+            TotalSum = StavkeRacuna?.Sum (item => item.TotalAmount ?? 0);
         }
 
         public FiskalniRacun.Item? NadjiStavkuZaPovecanje(string sifra)
@@ -661,8 +651,8 @@ namespace Caupo.ViewModels
 
         public bool StavkaPostoji(string sifra)
         {
-            bool existsBySifra = (StavkeRacuna ?? []).Any(item => item.Sifra == sifra);
-            Debug.WriteLine("existsBySifra " + existsBySifra);
+            bool existsBySifra = (StavkeRacuna ?? []).Any (item => item.Sifra == sifra);
+            Debug.WriteLine ("existsBySifra " + existsBySifra);
             return existsBySifra;
         }
 
@@ -680,7 +670,7 @@ namespace Caupo.ViewModels
                                string.IsNullOrWhiteSpace (item.Note))
                 .LastOrDefault ();
 
-          
+
 
             Debug.WriteLine ("--------------------------- Stavka za update: " + stavka.Name);
             decimal? trenutno = stavka.Quantity;
@@ -694,85 +684,85 @@ namespace Caupo.ViewModels
 
         public async Task UpdateStavkuRacunaMinus(FiskalniRacun.Item stavka, decimal kolicina)
         {
-            await Task.Delay(1);
-            Debug.WriteLine("--------------------------- Selektovana stavka : " + SelectedStavka?.Name);
-           // var stavka = StavkeRacuna?.FirstOrDefault(item => (item.Sifra ?? "").Equals(stavkaracuna.Sifra));
+            await Task.Delay (1);
+            Debug.WriteLine ("--------------------------- Selektovana stavka : " + SelectedStavka?.Name);
+            // var stavka = StavkeRacuna?.FirstOrDefault(item => (item.Sifra ?? "").Equals(stavkaracuna.Sifra));
             if(stavka == null)
                 return;
 
             decimal? trenutno = stavka?.Quantity;
-            if (stavka== null)
+            if(stavka == null)
                 return;
             stavka.Quantity = trenutno - kolicina;
-            if (stavka?.Quantity == 0)
+            if(stavka?.Quantity == 0)
             {
-               StavkeRacuna?.Remove(stavka);
-                UpdateTotalSum();
+                StavkeRacuna?.Remove (stavka);
+                UpdateTotalSum ();
             }
             else
             {
-                UpdateTotalSum();
+                UpdateTotalSum ();
             }
 
         }
 
         public void FilterDrinkByFirstLetter(string firstLetter)
         {
-            var filtered = (ArtikliPice ?? []).Where(a => (a.ArtiklNormativ ?? "").StartsWith(firstLetter, StringComparison.OrdinalIgnoreCase)).ToList();
-            ArtikliPiceFilter?.Clear();
-            foreach (var article in filtered)
-                ArtikliPiceFilter?.Add(article);
+            var filtered = (ArtikliPice ?? []).Where (a => (a.ArtiklNormativ ?? "").StartsWith (firstLetter, StringComparison.OrdinalIgnoreCase)).ToList ();
+            ArtikliPiceFilter?.Clear ();
+            foreach(var article in filtered)
+                ArtikliPiceFilter?.Add (article);
         }
 
         public void FilterFoodByFirstLetter(string firstLetter)
         {
-            var filtered = (ArtikliHrana ?? []).Where(a =>( a.ArtiklNormativ ?? "").StartsWith(firstLetter, StringComparison.OrdinalIgnoreCase)).ToList();
-            ArtikliHranaFilter?.Clear();
-            foreach (var article in filtered)
-                ArtikliHranaFilter?.Add(article);
+            var filtered = (ArtikliHrana ?? []).Where (a => (a.ArtiklNormativ ?? "").StartsWith (firstLetter, StringComparison.OrdinalIgnoreCase)).ToList ();
+            ArtikliHranaFilter?.Clear ();
+            foreach(var article in filtered)
+                ArtikliHranaFilter?.Add (article);
         }
 
         public void FilterRestByFirstLetter(string firstLetter)
         {
             var filtered = (ArtikliOstalo ?? [])
-              .Where(a => (a.ArtiklNormativ ?? "")
-                  .StartsWith(firstLetter, StringComparison.OrdinalIgnoreCase))
-              .ToList();
-            ArtikliOstaloFilter?.Clear();
-            foreach (var article in filtered)
-                ArtikliOstaloFilter?.Add(article);
+              .Where (a => (a.ArtiklNormativ ?? "")
+                  .StartsWith (firstLetter, StringComparison.OrdinalIgnoreCase))
+              .ToList ();
+            ArtikliOstaloFilter?.Clear ();
+            foreach(var article in filtered)
+                ArtikliOstaloFilter?.Add (article);
         }
 
         public void ArtikliFilterReset()
         {
-            ArtikliPiceFilter?.Clear();
-            ArtikliHranaFilter?.Clear();
-            ArtikliOstaloFilter?.Clear();
-            if (ArtikliPice == null)
+            ArtikliPiceFilter?.Clear ();
+            ArtikliHranaFilter?.Clear ();
+            ArtikliOstaloFilter?.Clear ();
+            if(ArtikliPice == null)
                 return;
-            foreach (var article in ArtikliPice)
+            foreach(var article in ArtikliPice)
             {
-                ArtikliPiceFilter?.Add(article);
+                ArtikliPiceFilter?.Add (article);
             }
-            if (ArtikliHrana == null)
+            if(ArtikliHrana == null)
                 return;
-            foreach (var article in ArtikliHrana)
+            foreach(var article in ArtikliHrana)
             {
-                ArtikliHranaFilter?.Add(article);
+                ArtikliHranaFilter?.Add (article);
             }
-            if (ArtikliOstalo == null)
+            if(ArtikliOstalo == null)
                 return;
-            foreach (var article in ArtikliOstalo)
+            foreach(var article in ArtikliOstalo)
             {
-                ArtikliOstaloFilter?.Add(article);
+                ArtikliOstaloFilter?.Add (article);
             }
 
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
-        protected  void OnPropertyChanged(string? propertyName)
+        protected void OnPropertyChanged(string? propertyName)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
         }
     }
 }

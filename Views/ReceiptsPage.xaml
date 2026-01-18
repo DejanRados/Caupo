@@ -40,16 +40,8 @@
                 <RowDefinition Height="0.5*"/>
             </Grid.RowDefinitions>
 
-            <!--This is the hidden helper Grid which does the resizing -->
-            <Grid Visibility="Hidden">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="0.60*"/>
-                    <ColumnDefinition Width="0.14*" />
-                    <ColumnDefinition Width="20"/>
-                </Grid.ColumnDefinitions>
-                <!--This is the hidden helper Field which is used to bind to, using the "Fill" column of the helper grid-->
-                <Grid Grid.Column="1" x:Name="helperField"/>
-            </Grid>
+
+           
             <Grid  Grid.Row="0" Grid.Column="5" Grid.ColumnSpan="2" Margin="10,60,60,0" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -76,26 +68,11 @@
    
             <!--  Search TextBox -->
             <StackPanel Orientation="Horizontal" Grid.Row="0"  Grid.Column="0" Margin="30,60,0,0"  >
-                <Border Padding="5" Width="300" Height="50" HorizontalAlignment="Left"  BorderThickness="1" Background="Transparent"  BorderBrush="{DynamicResource GlobalFontColor}" CornerRadius="15" >
+                <Border Padding="5" Width="300" Height="50" HorizontalAlignment="Left"  BorderThickness="2" Background="Transparent"  BorderBrush="#774A6FA5" CornerRadius="15" >
                     <DockPanel Grid.Row="1" Grid.Column="1" Margin="1" >
                         <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60013;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBox x:Name="SearchTextBox" CaretBrush="{DynamicResource GlobalFontColor}"  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Foreground="{DynamicResource GlobalFontColor}"  FontSize="16" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Background="Transparent" BorderBrush="Transparent" Padding="5" >
-                        <TextBox.Style>
-                            <Style TargetType="TextBox">
-                                <Style.Triggers>
-                                    <Trigger Property="IsFocused" Value="True">
-                                        <Setter Property="BorderBrush" Value="Transparent"/>
-                                        <Setter Property="BorderThickness" Value="0"/>
-                                        <Setter Property="Background" Value="Transparent"/>
-                                    </Trigger>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="BorderBrush" Value="Transparent"/>
-                                        <Setter Property="BorderThickness" Value="0"/>
-                                        <Setter Property="Background" Value="Transparent"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
+                        <TextBox x:Name="SearchTextBox" Style="{StaticResource TextBoxCustom}" CaretBrush="{DynamicResource GlobalFontColor}"  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Foreground="{DynamicResource GlobalFontColor}"  FontSize="16" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Background="Transparent" BorderBrush="Transparent" Padding="5" >
+
                     </TextBox>
                 </DockPanel>
                 </Border>
@@ -141,27 +118,27 @@
              
                 <!-- Row 0 -->
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Broj:"/>
-                    <TextBlock Grid.Row="0" Grid.Column="1"  Text="{Binding BrojRacuna}" FontSize="16" TextAlignment="Left"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1"  Text="{Binding BrojRacuna}" FontSize="16" TextAlignment="Left" Margin="10,0"/>
 
                 <!-- Row 1 -->
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Datum:"/>
-                    <TextBlock Grid.Row="1" Grid.Column="1"  Text="{Binding Datum, StringFormat=dd.MM.yyyy}" TextAlignment="Left"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1"  Text="{Binding Datum, StringFormat=dd.MM.yyyy}" TextAlignment="Left" Margin="10,0"/>
 
                 <!-- Row 2 -->
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="Kupac:"/>
-                    <TextBlock Grid.Row="2" Grid.Column="1"  Text="{Binding Kupac}" TextAlignment="Left"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1"  Text="{Binding Kupac}" TextAlignment="Left" Margin="10,0"/>
 
                 <!-- Row 3 -->
                     <TextBlock Grid.Row="3" Grid.Column="0" Text="Način plaćanja:" />
-                    <TextBlock Grid.Row="3" Grid.Column="1"     Text="{Binding NacinPlacanjaName, StringFormat=N2}" TextAlignment="Left"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1"     Text="{Binding NacinPlacanjaName, StringFormat=N2}" TextAlignment="Left" Margin="10,0"/>
 
                 <!-- Row 4 -->
                 <TextBlock Grid.Row="4" Grid.Column="0" Text="Izdao:"/>
-                    <TextBlock Grid.Row="4" Grid.Column="1"  Text="{Binding RadnikName}" TextAlignment="Left"/>
+                    <TextBlock Grid.Row="4" Grid.Column="1"  Text="{Binding RadnikName}" TextAlignment="Left" Margin="10,0"/>
 
                 <!-- Row 5 -->
                 <TextBlock Grid.Row="5" Grid.Column="0" Text="Broj fis. računa:"/>
-                    <TextBlock Grid.Row="5" Grid.Column="1"  Text="{Binding BrojFiskalnogRacuna}" TextAlignment="Left"/>
+                    <TextBlock Grid.Row="5" Grid.Column="1"  Text="{Binding BrojFiskalnogRacuna}" TextAlignment="Left" Margin="10,0"/>
 
               
             </Grid>

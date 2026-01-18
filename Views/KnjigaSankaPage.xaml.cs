@@ -1,22 +1,10 @@
 ﻿
 using Caupo.Data;
 using Caupo.Helpers;
-using Caupo.Models;
 using Caupo.Services;
 using Caupo.ViewModels;
-using Microsoft.EntityFrameworkCore;
-
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using static Caupo.Data.DatabaseTables;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Caupo.Views
 {
@@ -27,10 +15,10 @@ namespace Caupo.Views
     {
         public KnjigaSankaPage()
         {
-            InitializeComponent();
-            var db = new AppDbContext();
-            var service = new KnjigaSankaService(db);
-            DataContext = new KnjigaSankaViewModel(service);
+            InitializeComponent ();
+            var db = new AppDbContext ();
+            var service = new KnjigaSankaService (db);
+            DataContext = new KnjigaSankaViewModel (service);
 
         }
 
@@ -52,31 +40,31 @@ namespace Caupo.Views
             };
             myMessageBox.MessageTitle.Text = title;
             myMessageBox.MessageText.Text = message;
-            myMessageBox.ShowDialog();
+            myMessageBox.ShowDialog ();
         }
 
         private void BtnFirst_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is KnjigaSankaViewModel viewModel)
+            if(DataContext is KnjigaSankaViewModel viewModel)
             {
-                viewModel.OdabraniDatum = viewModel.OdabraniDatum.AddDays(-1);
+                viewModel.OdabraniDatum = viewModel.OdabraniDatum.AddDays (-1);
             }
         }
 
         private void BtnLast_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is KnjigaSankaViewModel viewModel)
+            if(DataContext is KnjigaSankaViewModel viewModel)
             {
-                viewModel.OdabraniDatum = viewModel.OdabraniDatum.AddDays(1);
+                viewModel.OdabraniDatum = viewModel.OdabraniDatum.AddDays (1);
             }
         }
 
 
         private void BtnPrint_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is KnjigaSankaViewModel viewModel)
+            if(DataContext is KnjigaSankaViewModel viewModel)
             {
-                viewModel.PrintReport(viewModel.Knjiga, viewModel.Firma.NazivFirme, viewModel.Firma.Adresa, viewModel.Firma.Grad, viewModel.Firma.JIB, viewModel.Firma.PDV, viewModel.OdabraniDatum, viewModel.Total);
+                viewModel.PrintReport (viewModel.Knjiga, viewModel.Firma.NazivFirme, viewModel.Firma.Adresa, viewModel.Firma.Grad, viewModel.Firma.JIB, viewModel.Firma.PDV, viewModel.OdabraniDatum, viewModel.Total);
             }
         }
 

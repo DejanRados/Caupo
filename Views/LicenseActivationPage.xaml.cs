@@ -1,10 +1,8 @@
 ﻿using Caupo.Helpers;
 using Caupo.Properties;
 using Caupo.ViewModels;
-using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Threading;
 
 namespace Caupo.Views
 {
@@ -67,7 +65,7 @@ namespace Caupo.Views
                 {
                     System.Diagnostics.Debug.WriteLine ("SUCCESS: License activated");
                     StatusText.Text = "✅ Licenca je uspešno aktivirana.!";
-                  
+
                     MyMessageBox myMessageBox = new MyMessageBox ();
                     myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
@@ -79,38 +77,38 @@ namespace Caupo.Views
 
                     System.Diagnostics.Debug.WriteLine ("Navigating to HomePage...");
                     var page = new LoginPage ();
-                    page.DataContext = new LoginPageViewModel();
+                    page.DataContext = new LoginPageViewModel ();
                     PageNavigator.NavigateWithFade (page);
-                }  
+                }
                 else
+                {
+                    _failedAttempts++;
+
+                    if(_failedAttempts >= 3)
                     {
-                        _failedAttempts++;
+                        // Blokiraj dugme i prikaži poruku
+                        StatusText.Text = "❌ Previše neuspešnih pokušaja. Molimo ponovo pokrenite aplikaciju.";
+                        ActivateButton.IsEnabled = false;
+                        LicenseKeyTextBox.IsEnabled = false;
 
-                        if(_failedAttempts >= 3)
+                        // Dodaj dugme za Exit
+                        var exitButton = new Button
                         {
-                            // Blokiraj dugme i prikaži poruku
-                            StatusText.Text = "❌ Previše neuspešnih pokušaja. Molimo ponovo pokrenite aplikaciju.";
-                            ActivateButton.IsEnabled = false;
-                            LicenseKeyTextBox.IsEnabled = false;
+                            Content = "Izlaz",
+                            Margin = new Thickness (0, 10, 0, 0)
+                        };
+                        exitButton.Click += (s, args) => Application.Current.Shutdown ();
 
-                            // Dodaj dugme za Exit
-                            var exitButton = new Button
-                            {
-                                Content = "Izlaz",
-                                Margin = new Thickness (0, 10, 0, 0)
-                            };
-                            exitButton.Click += (s, args) => Application.Current.Shutdown ();
-
-                            // Dodaj u layout (ako imaš StackPanel ili Grid)
-                            MainGrid.Children.Add (exitButton);
-                        }
-                        else
-                        {
-                            StatusText.Text = $"❌ Nevažeći licencni ključ. Pokušaji: {_failedAttempts}/3";
-                            ActivateButton.IsEnabled = true;
-                        }
+                        // Dodaj u layout (ako imaš StackPanel ili Grid)
+                        MainGrid.Children.Add (exitButton);
                     }
-                
+                    else
+                    {
+                        StatusText.Text = $"❌ Nevažeći licencni ključ. Pokušaji: {_failedAttempts}/3";
+                        ActivateButton.IsEnabled = true;
+                    }
+                }
+
             }
             catch(Exception ex)
             {

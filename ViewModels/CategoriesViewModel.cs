@@ -1,9 +1,7 @@
 ﻿using Caupo.Data;
-using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
-using System.Xml.Linq;
 using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.ViewModels
@@ -62,7 +60,7 @@ namespace Caupo.ViewModels
         public ICommand EditCommand => _editCommand;
         public ICommand DeleteCommand => _deleteCommand;
         public ICommand SaveCommand { get; }
-        
+
         public ICommand CancelCommand { get; }
 
         private SimpleCommand _editCommand;
@@ -163,7 +161,7 @@ namespace Caupo.ViewModels
             if(dbItem != null)
             {
                 db.Kategorije.Remove (dbItem);
-                db.SaveChanges ();         
+                db.SaveChanges ();
             }
 
             Kategorije.Remove (SelectedKategorija);

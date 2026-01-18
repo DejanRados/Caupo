@@ -1,17 +1,7 @@
 ﻿using Caupo.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Caupo.Views
 {
@@ -24,8 +14,8 @@ namespace Caupo.Views
         public TextBox? FocusedTextBox = null;
         public SizeInputDialog()
         {
-            InitializeComponent();
-            InputTextWidth.Focus();
+            InitializeComponent ();
+            InputTextWidth.Focus ();
             keyboard = new VirtualKeyboard ();
             KeyboardHost.Content = keyboard;
             keyboard.KeyPressed += Keyboard_KeyPressed;
@@ -35,15 +25,15 @@ namespace Caupo.Views
         public void ReceiveKey(string key)
         {
 
-            if (FocusedTextBox != null)
+            if(FocusedTextBox != null)
             {
-                switch (key)
+                switch(key)
                 {
                     case "\uE72B":
-                        if (FocusedTextBox.Text.Length > 0)
+                        if(FocusedTextBox.Text.Length > 0)
                         {
                             int pos = FocusedTextBox.SelectionStart;
-                            if (pos > 0)
+                            if(pos > 0)
                             {
                                 FocusedTextBox.Text =
                                     FocusedTextBox.Text.Remove (pos - 1, 1);
@@ -74,7 +64,8 @@ namespace Caupo.Views
         }
         private void InsertIntoFocused(string text)
         {
-            if (FocusedTextBox == null) return;
+            if(FocusedTextBox == null)
+                return;
             int pos = FocusedTextBox.SelectionStart;
             FocusedTextBox.Text = FocusedTextBox.Text.Insert (pos, text);
             FocusedTextBox.SelectionStart = pos + text.Length;
@@ -94,15 +85,15 @@ namespace Caupo.Views
         }
         private void Keyboard_KeyPressed(string key)
         {
-            if (Application.Current.Windows.OfType<SizeInputDialog> ().FirstOrDefault (w => w.IsActive) is SizeInputDialog inputBox)
+            if(Application.Current.Windows.OfType<SizeInputDialog> ().FirstOrDefault (w => w.IsActive) is SizeInputDialog inputBox)
             {
-                if (inputBox.FocusedTextBox != null)
+                if(inputBox.FocusedTextBox != null)
                 {
                     inputBox.ReceiveKey (key);
                     return;
                 }
             }
-            if (this.Content is IKeyboardInputReceiver receiver)
+            if(this.Content is IKeyboardInputReceiver receiver)
                 receiver.ReceiveKey (key);
         }
         private void InputText_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -118,39 +109,39 @@ namespace Caupo.Views
         {
             InputTextWidth.Text = string.Empty;
             InputTextHeight.Text = string.Empty;
-            this.Close();
+            this.Close ();
         }
         private void OKButton_Click(object sender, RoutedEventArgs e)
         {
             string inputTextWidth = InputTextWidth.Text;
             string inputTextHeight = InputTextHeight.Text;
-        
-            if (decimal.TryParse(inputTextWidth, out decimal resultWidth) && decimal.TryParse(inputTextHeight, out decimal resultHeight))
+
+            if(decimal.TryParse (inputTextWidth, out decimal resultWidth) && decimal.TryParse (inputTextHeight, out decimal resultHeight))
             {
-                if(Convert.ToDecimal(inputTextWidth) > 49 && Convert.ToDecimal(inputTextHeight) > 49)
+                if(Convert.ToDecimal (inputTextWidth) > 49 && Convert.ToDecimal (inputTextHeight) > 49)
                 {
                     this.DialogResult = true;
-                    this.Close();
+                    this.Close ();
                 }
                 else
                 {
-                    MessageBox.Show("Širina ili visina ne mogu biti manje od 50");
+                    MessageBox.Show ("Širina ili visina ne mogu biti manje od 50");
                     InputTextWidth.Text = string.Empty;
                     InputTextHeight.Text = string.Empty;
-                    InputTextWidth.Focus();
+                    InputTextWidth.Focus ();
                     return;
                 }
             }
             else
             {
-                MessageBox.Show("Unijeli ste vrijednost koja nije validna za širinu ili visinu");
+                MessageBox.Show ("Unijeli ste vrijednost koja nije validna za širinu ili visinu");
                 InputTextWidth.Text = string.Empty;
                 InputTextHeight.Text = string.Empty;
-                InputTextWidth.Focus();
+                InputTextWidth.Focus ();
                 return;
             }
 
-          
+
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -163,6 +154,6 @@ namespace Caupo.Views
 
             }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
 
-    }
+        }
     }
 }

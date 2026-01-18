@@ -53,7 +53,20 @@
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
-                <DatePicker Focusable="False" CalendarStyle="{StaticResource styleCalendar}"  x:Name="DpDate" SelectedDate="{Binding OdabraniDatum, StringFormat=dd.MM.yyyy}" SelectedDateChanged="DpDate_SelectedDateChanged"  Width="150"  BorderThickness="0"  Background="Transparent" Foreground="{DynamicResource GlobalFontColor}"   HorizontalContentAlignment="Center" VerticalAlignment="Center">
+                <DatePicker 
+
+                    Focusable="False" 
+                    CalendarStyle="{StaticResource styleCalendar}"  
+                    x:Name="DpDate" 
+                    SelectedDate="{Binding OdabraniDatum}" 
+                     DisplayDate="{Binding OdabraniDatum}"
+                    Language="bs-BA"
+                    Width="150"
+                    BorderThickness="0"  
+                    Background="Transparent" 
+                    Foreground="{DynamicResource GlobalFontColor}" 
+                    HorizontalContentAlignment="Center" 
+                    VerticalAlignment="Center">
                     <DatePicker.Resources>
                         <Style TargetType="DatePickerTextBox">
                             <Setter Property="Template">

@@ -1,16 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Caupo.Data;
+using Caupo.Views;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media;
-using Caupo.Data;
-using Caupo.Properties;
-using Caupo.Views;
 using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.ViewModels
@@ -18,12 +13,12 @@ namespace Caupo.ViewModels
     public class ArticlesViewModel : INotifyPropertyChanged
     {
 
- 
-        public ObservableCollection<DatabaseTables.TblNormativPica> Normativi { get; set; } = new ObservableCollection<DatabaseTables.TblNormativPica>();
-        public ObservableCollection<DatabaseTables.TblKategorije> Kategorije { get; set; } = new ObservableCollection<DatabaseTables.TblKategorije>();
-        public ObservableCollection<DatabaseTables.TblPoreskeStope> PoreskeStope { get; set; } = new ObservableCollection<DatabaseTables.TblPoreskeStope>();
-        public ObservableCollection<DatabaseTables.TblJediniceMjere> JediniceMjere { get; set; } = new ObservableCollection<DatabaseTables.TblJediniceMjere>();
-        public List<string> VrstaArtikla { get; set; } = new List<string>();
+
+        public ObservableCollection<DatabaseTables.TblNormativPica> Normativi { get; set; } = new ObservableCollection<DatabaseTables.TblNormativPica> ();
+        public ObservableCollection<DatabaseTables.TblKategorije> Kategorije { get; set; } = new ObservableCollection<DatabaseTables.TblKategorije> ();
+        public ObservableCollection<DatabaseTables.TblPoreskeStope> PoreskeStope { get; set; } = new ObservableCollection<DatabaseTables.TblPoreskeStope> ();
+        public ObservableCollection<DatabaseTables.TblJediniceMjere> JediniceMjere { get; set; } = new ObservableCollection<DatabaseTables.TblJediniceMjere> ();
+        public List<string> VrstaArtikla { get; set; } = new List<string> ();
 
         private DatabaseTables.TblJediniceMjere? _selectedJedinicaMjere;
         public DatabaseTables.TblJediniceMjere? SelectedJedinicaMjere
@@ -31,10 +26,10 @@ namespace Caupo.ViewModels
             get => _selectedJedinicaMjere;
             set
             {
-                if (_selectedJedinicaMjere != value)
+                if(_selectedJedinicaMjere != value)
                 {
                     _selectedJedinicaMjere = value;
-                    OnPropertyChanged(nameof(SelectedJedinicaMjere));
+                    OnPropertyChanged (nameof (SelectedJedinicaMjere));
                 }
             }
         }
@@ -45,10 +40,10 @@ namespace Caupo.ViewModels
             get => _selectedKategorija;
             set
             {
-                if (_selectedKategorija != value)
+                if(_selectedKategorija != value)
                 {
                     _selectedKategorija = value;
-                    OnPropertyChanged(nameof(SelectedKategorija));
+                    OnPropertyChanged (nameof (SelectedKategorija));
                 }
             }
         }
@@ -59,10 +54,10 @@ namespace Caupo.ViewModels
             get => _selectedPoreskaStopa;
             set
             {
-                if (_selectedPoreskaStopa != value)
+                if(_selectedPoreskaStopa != value)
                 {
                     _selectedPoreskaStopa = value;
-                    OnPropertyChanged(nameof(SelectedPoreskaStopa));
+                    OnPropertyChanged (nameof (SelectedPoreskaStopa));
                 }
             }
         }
@@ -73,10 +68,10 @@ namespace Caupo.ViewModels
             get => _selectedNormativ;
             set
             {
-                if (_selectedNormativ != value)
+                if(_selectedNormativ != value)
                 {
                     _selectedNormativ = value;
-                    OnPropertyChanged(nameof(SelectedNormativ));
+                    OnPropertyChanged (nameof (SelectedNormativ));
                 }
             }
         }
@@ -87,10 +82,10 @@ namespace Caupo.ViewModels
             get => _selectedVrstaArtikla;
             set
             {
-                if (_selectedVrstaArtikla != value)
+                if(_selectedVrstaArtikla != value)
                 {
                     _selectedVrstaArtikla = value;
-                    OnPropertyChanged(nameof(SelectedVrstaArtikla));
+                    OnPropertyChanged (nameof (SelectedVrstaArtikla));
                 }
             }
         }
@@ -102,8 +97,8 @@ namespace Caupo.ViewModels
             set
             {
                 _selectedArticle = value;
-                OnPropertyChanged(nameof(SelectedArticle));
-                UpdateComboBoxes();
+                OnPropertyChanged (nameof (SelectedArticle));
+                UpdateComboBoxes ();
             }
         }
 
@@ -114,7 +109,7 @@ namespace Caupo.ViewModels
             set
             {
                 _artikli = value;
-                OnPropertyChanged(nameof(Artikli));
+                OnPropertyChanged (nameof (Artikli));
             }
         }
 
@@ -125,22 +120,22 @@ namespace Caupo.ViewModels
             set
             {
                 _artikliFilter = value;
-                OnPropertyChanged(nameof(ArtikliFilter));
+                OnPropertyChanged (nameof (ArtikliFilter));
             }
         }
 
-        public string? _searchText= "";
+        public string? _searchText = "";
         public string? SearchText
         {
             get => _searchText;
             set
             {
-                if (_searchText != value)
+                if(_searchText != value)
                 {
                     _searchText = value;
-                    OnPropertyChanged(nameof(SearchText));
-                    Debug.WriteLine($"SearchText changed to: ");  // Dodaj log za testiranje
-                    FilterItems(_searchText);
+                    OnPropertyChanged (nameof (SearchText));
+                    Debug.WriteLine ($"SearchText changed to: ");  // Dodaj log za testiranje
+                    FilterItems (_searchText);
                 }
             }
         }
@@ -151,65 +146,65 @@ namespace Caupo.ViewModels
             get => _novaSifra;
             set
             {
-                if (_novaSifra != value)
+                if(_novaSifra != value)
                 {
                     _novaSifra = value;
-                    OnPropertyChanged(nameof(NovaSifra));
-              
+                    OnPropertyChanged (nameof (NovaSifra));
+
                 }
             }
         }
 
         public ArticlesViewModel()
         {
-            Artikli = new ObservableCollection<TblArtikli>();
-            ArtikliFilter = new ObservableCollection<TblArtikli>();
-            Start();
-           
-        
-            Debug.WriteLine("SearchText = " + SearchText);
+            Artikli = new ObservableCollection<TblArtikli> ();
+            ArtikliFilter = new ObservableCollection<TblArtikli> ();
+            Start ();
+
+
+            Debug.WriteLine ("SearchText = " + SearchText);
         }
 
 
 
         private async void Start()
         {
-         
-            await LoadJediniceMjere();
-            await LoadKategorije();
-            await LoadNormativi();
-            await LoadVrsteArtikla();
-            await LoadPoreskeStope();
-            await LoadArticlesAsync();
-            
+
+            await LoadJediniceMjere ();
+            await LoadKategorije ();
+            await LoadNormativi ();
+            await LoadVrsteArtikla ();
+            await LoadPoreskeStope ();
+            await LoadArticlesAsync ();
+
         }
 
         public async Task DeleteArticle(int articleId)
         {
-            using (var db = new AppDbContext())
+            using(var db = new AppDbContext ())
             {
-                var artikl = await db.Artikli.FindAsync(articleId);
+                var artikl = await db.Artikli.FindAsync (articleId);
 
-                if (artikl != null)
+                if(artikl != null)
                 {
-                    db.Artikli.Remove(artikl);
+                    db.Artikli.Remove (artikl);
 
-                    await db.SaveChangesAsync();
-                    await LoadArticlesAsync();
-                    SelectedArticle = Artikli?.FirstOrDefault();
-                    MyMessageBox myMessageBox = new MyMessageBox();
+                    await db.SaveChangesAsync ();
+                    await LoadArticlesAsync ();
+                    SelectedArticle = Artikli?.FirstOrDefault ();
+                    MyMessageBox myMessageBox = new MyMessageBox ();
                     myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                     myMessageBox.MessageTitle.Text = "POTVRDA";
                     myMessageBox.MessageText.Text = "Artikl " + artikl.Artikl + " je uspješno obrisan iz baze.";
-                    myMessageBox.ShowDialog();
+                    myMessageBox.ShowDialog ();
                 }
                 else
                 {
-                    MyMessageBox myMessageBox = new MyMessageBox();
+                    MyMessageBox myMessageBox = new MyMessageBox ();
                     myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                     myMessageBox.MessageTitle.Text = "Greška";
                     myMessageBox.MessageText.Text = "Artikl sa ID: " + artikl?.IdArtikla + " nije pronađen u bazi." + Environment.NewLine + "Neuspješno brisanje artikla";
-                    myMessageBox.ShowDialog();
+                    myMessageBox.ShowDialog ();
                 }
             }
         }
@@ -218,42 +213,42 @@ namespace Caupo.ViewModels
         public event EventHandler<string?>? ErrorOccurred;
         protected virtual void OnErrorOccurred(string? message)
         {
-            ErrorOccurred?.Invoke(this, message);
+            ErrorOccurred?.Invoke (this, message);
         }
         public async Task InsertArticle(TblArtikli artikl)
         {
             SelectedArticle = null;
-            using (var db = new AppDbContext())
+            using(var db = new AppDbContext ())
             {
                 var duplicateArticle = await db.Artikli
-                    .Where(a => a.Artikl == artikl.Artikl || a.Sifra == artikl.Sifra || a.InternaSifra == artikl.InternaSifra)
-                    .FirstOrDefaultAsync();
+                    .Where (a => a.Artikl == artikl.Artikl || a.Sifra == artikl.Sifra || a.InternaSifra == artikl.InternaSifra)
+                    .FirstOrDefaultAsync ();
 
-                if (duplicateArticle != null)
+                if(duplicateArticle != null)
                 {
                     string poruka = "";
-         
-                    if (duplicateArticle.Sifra == artikl.Sifra)
+
+                    if(duplicateArticle.Sifra == artikl.Sifra)
                         poruka += "Šifra " + artikl.Sifra + ",";
-                    if (duplicateArticle.InternaSifra == artikl.InternaSifra)
+                    if(duplicateArticle.InternaSifra == artikl.InternaSifra)
                         poruka += "Interna šifra " + artikl.InternaSifra + ",";
-                    poruka = poruka.TrimEnd(',', ' ');
+                    poruka = poruka.TrimEnd (',', ' ');
                     poruka = poruka + " se već koristi u bazi." + Environment.NewLine + "Ta vrsta podataka mora biti jedinstvena za svaki artikl";
-                    OnErrorOccurred(poruka);
+                    OnErrorOccurred (poruka);
                     return;
                 }
                 else
-                { 
-                    await db.Artikli.AddAsync(artikl);
-                    db.SaveChanges();
-                    Debug.WriteLine("Novi zapis je uspešno dodat!");
-                    await LoadArticlesAsync();
-                    SelectedArticle = Artikli?.Last();
-                    MyMessageBox myMessageBox = new MyMessageBox();
+                {
+                    await db.Artikli.AddAsync (artikl);
+                    db.SaveChanges ();
+                    Debug.WriteLine ("Novi zapis je uspešno dodat!");
+                    await LoadArticlesAsync ();
+                    SelectedArticle = Artikli?.Last ();
+                    MyMessageBox myMessageBox = new MyMessageBox ();
                     myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                     myMessageBox.MessageTitle.Text = "POTVRDA";
                     myMessageBox.MessageText.Text = "Artikl " + artikl.Artikl + " je uspješno dodan u bazu.";
-                    myMessageBox.ShowDialog();
+                    myMessageBox.ShowDialog ();
                 }
             }
         }
@@ -261,140 +256,140 @@ namespace Caupo.ViewModels
         public async Task UpdateArticle(TblArtikli artikl)
         {
             SelectedArticle = null;
-            using (var db = new AppDbContext())
+            using(var db = new AppDbContext ())
             {
 
                 var duplicateArticle = await db.Artikli
-                                                    .Where(a => (a.Sifra == artikl.Sifra || a.InternaSifra == artikl.InternaSifra) && a.IdArtikla != artikl.IdArtikla)
-                                                    .FirstOrDefaultAsync();
+                                                    .Where (a => (a.Sifra == artikl.Sifra || a.InternaSifra == artikl.InternaSifra) && a.IdArtikla != artikl.IdArtikla)
+                                                    .FirstOrDefaultAsync ();
 
-                if (duplicateArticle != null)
+                if(duplicateArticle != null)
                 {
                     string poruka = "";
-                    if (duplicateArticle.Sifra == artikl.Sifra)
-                        poruka += "Šifra " + artikl.Sifra  +",";
-                    if (duplicateArticle.InternaSifra == artikl.InternaSifra)
+                    if(duplicateArticle.Sifra == artikl.Sifra)
+                        poruka += "Šifra " + artikl.Sifra + ",";
+                    if(duplicateArticle.InternaSifra == artikl.InternaSifra)
                         poruka += "Interna šifra " + artikl.InternaSifra + ",";
-                        poruka = poruka.TrimEnd(',', ' ');
-                        poruka=poruka+" se već koristi u bazi." + Environment.NewLine + "Ta vrsta podataka mora biti jedinstvena za svaki artikl";
-                    OnErrorOccurred(poruka);
+                    poruka = poruka.TrimEnd (',', ' ');
+                    poruka = poruka + " se već koristi u bazi." + Environment.NewLine + "Ta vrsta podataka mora biti jedinstvena za svaki artikl";
+                    OnErrorOccurred (poruka);
                     return;
                 }
 
-                var existingArticle = await db.Artikli.FindAsync(artikl.IdArtikla);
+                var existingArticle = await db.Artikli.FindAsync (artikl.IdArtikla);
 
-                if (existingArticle != null)
+                if(existingArticle != null)
                 {
 
-                    db.Entry(existingArticle).CurrentValues.SetValues(artikl);
-                    await db.SaveChangesAsync();
-                    Debug.WriteLine("Artikl " + existingArticle.Artikl + " je uspešno ažuriran!");
-                    await LoadArticlesAsync();
+                    db.Entry (existingArticle).CurrentValues.SetValues (artikl);
+                    await db.SaveChangesAsync ();
+                    Debug.WriteLine ("Artikl " + existingArticle.Artikl + " je uspešno ažuriran!");
+                    await LoadArticlesAsync ();
                     SelectedArticle = existingArticle;
 
-                    MyMessageBox myMessageBox = new MyMessageBox();
+                    MyMessageBox myMessageBox = new MyMessageBox ();
                     myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                     myMessageBox.MessageTitle.Text = "POTVRDA";
                     myMessageBox.MessageText.Text = "Artikl " + existingArticle.Artikl + " je uspješno ažuriran.";
-                    myMessageBox.ShowDialog();
+                    myMessageBox.ShowDialog ();
 
                 }
                 else
                 {
-                    MyMessageBox myMessageBox = new MyMessageBox();
+                    MyMessageBox myMessageBox = new MyMessageBox ();
                     myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                     myMessageBox.MessageTitle.Text = "Greška";
                     myMessageBox.MessageText.Text = "Artikl sa ID: " + artikl.IdArtikla + " nije pronađen u bazi." + Environment.NewLine + "Neuspješno ažuriranje artikla";
-                    myMessageBox.ShowDialog();
+                    myMessageBox.ShowDialog ();
                 }
             }
         }
 
- 
-       public async Task LoadArticlesAsync()
+
+        public async Task LoadArticlesAsync()
         {
             try
             {
 
-                using (var db = new AppDbContext())
+                using(var db = new AppDbContext ())
                 {
-                    var artikli = await db.Artikli.ToListAsync();
-                    Artikli?.Clear();
-                    ArtikliFilter?.Clear();
-                    foreach (var artikl in artikli)
+                    var artikli = await db.Artikli.ToListAsync ();
+                    Artikli?.Clear ();
+                    ArtikliFilter?.Clear ();
+                    foreach(var artikl in artikli)
                     {
-                        Artikli?.Add(artikl);
-                        ArtikliFilter?.Add(artikl);
-                        Debug.WriteLine(artikl.Artikl + ", Artikli Count = " + Artikli?.Count);
-                    
-                    }
-                    Debug.WriteLine("ArtikliFilter Count = " + (ArtikliFilter?.Count ?? 0));
-                    SelectedArticle = ArtikliFilter?.FirstOrDefault();
+                        Artikli?.Add (artikl);
+                        ArtikliFilter?.Add (artikl);
+                        Debug.WriteLine (artikl.Artikl + ", Artikli Count = " + Artikli?.Count);
 
-                    if (SelectedArticle != null)
+                    }
+                    Debug.WriteLine ("ArtikliFilter Count = " + (ArtikliFilter?.Count ?? 0));
+                    SelectedArticle = ArtikliFilter?.FirstOrDefault ();
+
+                    if(SelectedArticle != null)
                     {
-                        Debug.WriteLine("SelectedArticle = " + SelectedArticle.ArtiklNormativ);
+                        Debug.WriteLine ("SelectedArticle = " + SelectedArticle.ArtiklNormativ);
                     }
                     else
                     {
-                        Debug.WriteLine("SelectedArticle je null!");
+                        Debug.WriteLine ("SelectedArticle je null!");
                     }
-                   
+
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Debug.WriteLine(ex.ToString());
+                Debug.WriteLine (ex.ToString ());
             }
         }
         public async Task GetNewSifra()
         {
-            using (var db = new AppDbContext())
+            using(var db = new AppDbContext ())
             {
-               
+
 
                 // Dobijanje poslednjeg artikla
                 var poslednjiArtikl = await db.Artikli
-                    .OrderByDescending(a => a.IdArtikla)
-                    .FirstOrDefaultAsync();
+                    .OrderByDescending (a => a.IdArtikla)
+                    .FirstOrDefaultAsync ();
 
-                if (poslednjiArtikl != null)
+                if(poslednjiArtikl != null)
                 {
                     string? sifraPoslednjeg = poslednjiArtikl.Sifra;
-                    Debug.WriteLine($"Poslednja šifra u bazi: {sifraPoslednjeg}");
+                    Debug.WriteLine ($"Poslednja šifra u bazi: {sifraPoslednjeg}");
 
 
-                    NovaSifra =Convert.ToString( Convert.ToInt32(sifraPoslednjeg) + 1) ;
+                    NovaSifra = Convert.ToString (Convert.ToInt32 (sifraPoslednjeg) + 1);
                 }
             }
         }
         public void UpdateComboBoxes()
         {
-            Debug.WriteLine("Okida UpdateComboBoxes() ");
-            if (SelectedArticle != null)
+            Debug.WriteLine ("Okida UpdateComboBoxes() ");
+            if(SelectedArticle != null)
             {
-                Debug.WriteLine("UpdateComboBoxes() -- SelectedArticle != null");
-                SelectedJedinicaMjere = JediniceMjere.FirstOrDefault(item => item.IdJedinice == SelectedArticle.JedinicaMjere);
-                SelectedKategorija= Kategorije.FirstOrDefault(item => item.IdKategorije == SelectedArticle.Kategorija);
-                SelectedNormativ= Normativi.FirstOrDefault(item => item.Normativ == SelectedArticle.Normativ.ToString());
+                Debug.WriteLine ("UpdateComboBoxes() -- SelectedArticle != null");
+                SelectedJedinicaMjere = JediniceMjere.FirstOrDefault (item => item.IdJedinice == SelectedArticle.JedinicaMjere);
+                SelectedKategorija = Kategorije.FirstOrDefault (item => item.IdKategorije == SelectedArticle.Kategorija);
+                SelectedNormativ = Normativi.FirstOrDefault (item => item.Normativ == SelectedArticle.Normativ.ToString ());
                 SelectedVrstaArtikla = VrstaArtikla[SelectedArticle.VrstaArtikla ?? 0];
-                SelectedPoreskaStopa = PoreskeStope.FirstOrDefault(item => item.IdStope == SelectedArticle.PoreskaStopa);
+                SelectedPoreskaStopa = PoreskeStope.FirstOrDefault (item => item.IdStope == SelectedArticle.PoreskaStopa);
             }
         }
-       public void FilterItems(string? searchtext)
+        public void FilterItems(string? searchtext)
         {
-            Debug.WriteLine("Okida search");
-            var filtered = Artikli?.Where(a =>
-                 (a.Artikl ?? "").ToLower().Contains(SearchText?.ToLower() ?? "") ||
-                 (a.Sifra ?? "").ToLower().Contains(SearchText?.ToLower() ?? ""))
-                .ToList();
+            Debug.WriteLine ("Okida search");
+            var filtered = Artikli?.Where (a =>
+                 (a.Artikl ?? "").ToLower ().Contains (SearchText?.ToLower () ?? "") ||
+                 (a.Sifra ?? "").ToLower ().Contains (SearchText?.ToLower () ?? ""))
+                .ToList ();
 
-            ArtikliFilter = new ObservableCollection<DatabaseTables.TblArtikli>();
-            if (filtered != null)
+            ArtikliFilter = new ObservableCollection<DatabaseTables.TblArtikli> ();
+            if(filtered != null)
             {
-                foreach (var item in filtered)
+                foreach(var item in filtered)
                 {
-                    ArtikliFilter.Add(item);
+                    ArtikliFilter.Add (item);
                 }
             }
         }
@@ -404,22 +399,22 @@ namespace Caupo.ViewModels
             try
             {
 
-                using (var db = new AppDbContext())
+                using(var db = new AppDbContext ())
                 {
-                    var PS = await db.PoreskeStope.ToListAsync();
+                    var PS = await db.PoreskeStope.ToListAsync ();
 
-                    PoreskeStope.Clear();
-                    foreach (var ps in PS)
+                    PoreskeStope.Clear ();
+                    foreach(var ps in PS)
                     {
-                        PoreskeStope.Add(ps);
-                        Debug.WriteLine(ps.Postotak + ", PSCount = " + PoreskeStope.Count);
+                        PoreskeStope.Add (ps);
+                        Debug.WriteLine (ps.Postotak + ", PSCount = " + PoreskeStope.Count);
                     }
 
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Debug.WriteLine(ex.ToString());
+                Debug.WriteLine (ex.ToString ());
             }
         }
 
@@ -428,22 +423,22 @@ namespace Caupo.ViewModels
             try
             {
 
-                using (var db = new AppDbContext())
+                using(var db = new AppDbContext ())
                 {
-                    var normativi = await db.NormativPica.ToListAsync();
+                    var normativi = await db.NormativPica.ToListAsync ();
 
-                    Normativi.Clear();
-                    foreach (var normativ in normativi)
+                    Normativi.Clear ();
+                    foreach(var normativ in normativi)
                     {
-                        Normativi.Add(normativ);
-                        Debug.WriteLine(normativ.Normativ + ", Normativi Count = " + Normativi.Count);
+                        Normativi.Add (normativ);
+                        Debug.WriteLine (normativ.Normativ + ", Normativi Count = " + Normativi.Count);
                     }
 
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Debug.WriteLine(ex.ToString());
+                Debug.WriteLine (ex.ToString ());
             }
         }
 
@@ -452,32 +447,32 @@ namespace Caupo.ViewModels
             try
             {
 
-                using (var db = new AppDbContext())
+                using(var db = new AppDbContext ())
                 {
-                    var kategorije= await db.Kategorije.ToListAsync();
+                    var kategorije = await db.Kategorije.ToListAsync ();
 
-                    Kategorije.Clear();
-                    foreach (var kategorija in kategorije)
+                    Kategorije.Clear ();
+                    foreach(var kategorija in kategorije)
                     {
-                        Kategorije.Add(kategorija);
-                        Debug.WriteLine(kategorija.Kategorija + ", Kategorije Count = " + Kategorije.Count);
+                        Kategorije.Add (kategorija);
+                        Debug.WriteLine (kategorija.Kategorija + ", Kategorije Count = " + Kategorije.Count);
                     }
 
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Debug.WriteLine(ex.ToString());
+                Debug.WriteLine (ex.ToString ());
             }
         }
 
         public async Task LoadVrsteArtikla()
         {
-            await Task.Delay(5);
-            VrstaArtikla.Clear();                 // VrstaArtikla je ObservableCollection<string>
-            VrstaArtikla.Add("Piće");
-            VrstaArtikla.Add("Hrana");
-            VrstaArtikla.Add("Ostalo");
+            await Task.Delay (5);
+            VrstaArtikla.Clear ();                 // VrstaArtikla je ObservableCollection<string>
+            VrstaArtikla.Add ("Piće");
+            VrstaArtikla.Add ("Hrana");
+            VrstaArtikla.Add ("Ostalo");
 
         }
 
@@ -486,22 +481,22 @@ namespace Caupo.ViewModels
             try
             {
 
-                using (var db = new AppDbContext())
+                using(var db = new AppDbContext ())
                 {
-                    var JM = await db.JediniceMjere.ToListAsync();
+                    var JM = await db.JediniceMjere.ToListAsync ();
 
-                    JediniceMjere.Clear();
-                    foreach (var jm in JM)
+                    JediniceMjere.Clear ();
+                    foreach(var jm in JM)
                     {
-                        JediniceMjere.Add(jm);
-                        Debug.WriteLine(jm.JedinicaMjere + ", JM Count = " + JediniceMjere.Count);
+                        JediniceMjere.Add (jm);
+                        Debug.WriteLine (jm.JedinicaMjere + ", JM Count = " + JediniceMjere.Count);
                     }
 
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Debug.WriteLine(ex.ToString());
+                Debug.WriteLine (ex.ToString ());
             }
         }
 
@@ -509,7 +504,7 @@ namespace Caupo.ViewModels
 
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
         }
     }
 }

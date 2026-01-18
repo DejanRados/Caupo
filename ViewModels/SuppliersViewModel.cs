@@ -1,26 +1,14 @@
-﻿using CommunityToolkit.Mvvm.Input;
-using Caupo.Data;
-using Caupo.Properties;
+﻿using Caupo.Data;
 using Caupo.Views;
-using DocumentFormat.OpenXml.Bibliography;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using static Caupo.Data.DatabaseTables;
 
 
@@ -39,22 +27,22 @@ namespace Caupo.ViewModels
             public string RadnikName { get; set; }
         }
 
-      
-        public ObservableCollection<DatabaseTables.TblDobavljaci> Suppliers { get; set; } = new ObservableCollection<DatabaseTables.TblDobavljaci>();
-        public ObservableCollection<StockInList> StockIn { get; set; } = new ObservableCollection<StockInList>();
 
-        
+        public ObservableCollection<DatabaseTables.TblDobavljaci> Suppliers { get; set; } = new ObservableCollection<DatabaseTables.TblDobavljaci> ();
+        public ObservableCollection<StockInList> StockIn { get; set; } = new ObservableCollection<StockInList> ();
+
+
         private StockInList? _selectedStockIn;
         public StockInList? SelectedStockIn
         {
             get => _selectedStockIn;
             set
             {
-                if (_selectedStockIn != value)
+                if(_selectedStockIn != value)
                 {
                     _selectedStockIn = value;
-                    OnPropertyChanged(nameof(SelectedStockIn));
-                    
+                    OnPropertyChanged (nameof (SelectedStockIn));
+
                 }
             }
         }
@@ -65,13 +53,13 @@ namespace Caupo.ViewModels
             get => _selectedSupplier;
             set
             {
-                if (_selectedSupplier != value)
+                if(_selectedSupplier != value)
                 {
                     _selectedSupplier = value;
-                    OnPropertyChanged(nameof(SelectedSupplier));
-                    _ = LoadStockInSupplier(value);
-                  //  (EditCommand as RelayCommand)?.NotifyCanExecuteChanged();
-                  //  (DeleteCommand as RelayCommand)?.NotifyCanExecuteChanged();
+                    OnPropertyChanged (nameof (SelectedSupplier));
+                    _ = LoadStockInSupplier (value);
+                    //  (EditCommand as RelayCommand)?.NotifyCanExecuteChanged();
+                    //  (DeleteCommand as RelayCommand)?.NotifyCanExecuteChanged();
 
                 }
             }
@@ -84,22 +72,22 @@ namespace Caupo.ViewModels
             set
             {
                 _firma = value;
-                OnPropertyChanged(nameof(Firma)); // ako implementiraš INotifyPropertyChanged
+                OnPropertyChanged (nameof (Firma)); // ako implementiraš INotifyPropertyChanged
             }
         }
 
 
 
-     /*   private ObservableCollection<TblDobavljaci>? suppliersFilter;
-        public ObservableCollection<TblDobavljaci>? SuppliersFilter
-        {
-            get => suppliersFilter;
-            set
-            {
-                suppliersFilter = value;
-                OnPropertyChanged(nameof(SuppliersFilter));
-            }
-        }*/
+        /*   private ObservableCollection<TblDobavljaci>? suppliersFilter;
+           public ObservableCollection<TblDobavljaci>? SuppliersFilter
+           {
+               get => suppliersFilter;
+               set
+               {
+                   suppliersFilter = value;
+                   OnPropertyChanged(nameof(SuppliersFilter));
+               }
+           }*/
 
         public string? _searchText;
         public string? SearchText
@@ -107,12 +95,12 @@ namespace Caupo.ViewModels
             get => _searchText;
             set
             {
-                if (_searchText != value)
+                if(_searchText != value)
                 {
                     _searchText = value;
-                    OnPropertyChanged(nameof(SearchText));
-                    Debug.WriteLine($"SearchText changed to: ");  // Dodaj log za testiranje
-                    FilterItems(_searchText);
+                    OnPropertyChanged (nameof (SearchText));
+                    Debug.WriteLine ($"SearchText changed to: ");  // Dodaj log za testiranje
+                    FilterItems (_searchText);
                 }
             }
         }
@@ -124,7 +112,7 @@ namespace Caupo.ViewModels
             set
             {
                 _newSupplier = value;
-                OnPropertyChanged();
+                OnPropertyChanged ();
             }
         }
 
@@ -135,35 +123,35 @@ namespace Caupo.ViewModels
         public ICollectionView SuppliersFilter { get; private set; }
         public SuppliersViewModel()
         {
-         
-           
-            Suppliers = new ObservableCollection<TblDobavljaci>();
-            //SuppliersFilter = new ObservableCollection<TblDobavljaci>();
-            SuppliersFilter = CollectionViewSource.GetDefaultView(Suppliers);
-            StockIn = new ObservableCollection<StockInList>();
 
-            AddCommand = new RelayCommand(AddDobavljac);
-            EditCommand = new RelayCommand(EditDobavljac, () => SelectedSupplier != null);
-            DeleteCommand = new RelayCommand(DeleteDobavljac, () => SelectedSupplier != null);
+
+            Suppliers = new ObservableCollection<TblDobavljaci> ();
+            //SuppliersFilter = new ObservableCollection<TblDobavljaci>();
+            SuppliersFilter = CollectionViewSource.GetDefaultView (Suppliers);
+            StockIn = new ObservableCollection<StockInList> ();
+
+            AddCommand = new RelayCommand (AddDobavljac);
+            EditCommand = new RelayCommand (EditDobavljac, () => SelectedSupplier != null);
+            DeleteCommand = new RelayCommand (DeleteDobavljac, () => SelectedSupplier != null);
             Start ();
-            Debug.WriteLine("SearchText = " + SearchText);
+            Debug.WriteLine ("SearchText = " + SearchText);
         }
 
         // ADD
         private async void AddDobavljac()
         {
-            var popup = new SupplierPopup();
-            var novi = popup.Open();
-         
-            if (novi != null)
+            var popup = new SupplierPopup ();
+            var novi = popup.Open ();
+
+            if(novi != null)
             {
                 Debug.WriteLine ("Popup vratio novog dobavljaca: " + novi.Dobavljac);
-                using var db = new AppDbContext();
-                await db.Dobavljaci.AddAsync(novi);
-                await db.SaveChangesAsync();
-                Debug.WriteLine("await db.Dobavljaci.AddAsync(novi); " + novi.Dobavljac);
-                Suppliers.Add(novi);
-                Debug.WriteLine(" Suppliers.Add(novi); " + novi.Dobavljac);
+                using var db = new AppDbContext ();
+                await db.Dobavljaci.AddAsync (novi);
+                await db.SaveChangesAsync ();
+                Debug.WriteLine ("await db.Dobavljaci.AddAsync(novi); " + novi.Dobavljac);
+                Suppliers.Add (novi);
+                Debug.WriteLine (" Suppliers.Add(novi); " + novi.Dobavljac);
                 SelectedSupplier = novi;
                 NewSupplier = novi;
             }
@@ -172,70 +160,72 @@ namespace Caupo.ViewModels
         // EDIT
         private async void EditDobavljac()
         {
-            if (SelectedSupplier == null) return;
+            if(SelectedSupplier == null )
+                return;
 
-            var popup = new SupplierPopup(SelectedSupplier);
-            var editovani = popup.Open();
+            var popup = new SupplierPopup (SelectedSupplier);
+            var editovani = popup.Open ();
             //Debug.WriteLine("Popup vratio editovanog dobavljaca: " + editovani.IdDobavljaca);
-            if (editovani != null)
+            if(editovani != null)
             {
-                using var db = new AppDbContext();
-                db.Dobavljaci.Update(editovani);
-                await db.SaveChangesAsync();
-                Debug.WriteLine("db.Dobavljaci.Update(editovani);: " + editovani.Dobavljac);
-                var item = Suppliers.First(x => x.IdDobavljaca == editovani.IdDobavljaca);
-                var index = Suppliers.IndexOf(item);
+                using var db = new AppDbContext ();
+                db.Dobavljaci.Update (editovani);
+                await db.SaveChangesAsync ();
+                Debug.WriteLine ("db.Dobavljaci.Update(editovani);: " + editovani.Dobavljac);
+                var item = Suppliers.First (x => x.IdDobavljaca == editovani.IdDobavljaca);
+                var index = Suppliers.IndexOf (item);
                 Suppliers[index] = editovani;
-                
+
             }
         }
 
         // DELETE
         private async void DeleteDobavljac()
         {
-            if (SelectedSupplier == null) return;
-            if (StockIn.Any())
+            if(SelectedSupplier == null)
+                return;
+            if(StockIn.Any ())
             {
-                MyMessageBox myMessage = new MyMessageBox();
+                MyMessageBox myMessage = new MyMessageBox ();
                 myMessage.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                 myMessage.MessageTitle.Text = "Brisanje nije dozvoljeno";
-                myMessage.MessageText.Text = "Dobavljač " + SelectedSupplier.Dobavljac+ Environment.NewLine + " se ne može obrisati jer postoje ulazi povezani s njim.";
-                myMessage.ShowDialog();
-             
+                myMessage.MessageText.Text = "Dobavljač " + SelectedSupplier.Dobavljac + Environment.NewLine + " se ne može obrisati jer postoje ulazi povezani s njim.";
+                myMessage.ShowDialog ();
+
                 return;
             }
-            var myMessageBox = new YesNoPopup();
+            var myMessageBox = new YesNoPopup ();
             myMessageBox.MessageTitle.Text = "POTVRDA BRISANJA";
             myMessageBox.MessageText.Text = "Da li ste sigurni da želite brisati dobavljača" + Environment.NewLine + SelectedSupplier.Dobavljac;
             myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
-            bool? result = myMessageBox.ShowDialog();
+            bool? result = myMessageBox.ShowDialog ();
 
-            if (myMessageBox.Kliknuo == "Da")
+            if(myMessageBox.Kliknuo == "Da")
             {
-                using var db = new AppDbContext();
+                using var db = new AppDbContext ();
                 // Load the entity fresh from the database
-                var entity = await db.Dobavljaci.FirstOrDefaultAsync(x => x.IdDobavljaca == SelectedSupplier.IdDobavljaca);
-                if (entity != null)
+                var entity = await db.Dobavljaci.FirstOrDefaultAsync (x => x.IdDobavljaca == SelectedSupplier.IdDobavljaca);
+                if(entity != null)
                 {
-                    db.Dobavljaci.Remove(entity);
-                    await db.SaveChangesAsync();
+                    db.Dobavljaci.Remove (entity);
+                    await db.SaveChangesAsync ();
 
-                    var toRemove = Suppliers.FirstOrDefault(x => x.IdDobavljaca == SelectedSupplier.IdDobavljaca);
-                    if (toRemove != null)
+                    var toRemove = Suppliers.FirstOrDefault (x => x.IdDobavljaca == SelectedSupplier.IdDobavljaca);
+                    if(toRemove != null)
                     {
-                        Suppliers.Remove(toRemove);
-                        SelectedSupplier = Suppliers.FirstOrDefault();
+                        Suppliers.Remove (toRemove);
+                        SelectedSupplier = Suppliers.FirstOrDefault ();
                     }
                 }
             }
-          
+
         }
         private async void Start()
         {
-          
-            await  LoadSuppliersAsync();
-            await LoadFirmaAsync();
+
+            await LoadSuppliersAsync ();
+            await LoadFirmaAsync ();
 
         }
 
@@ -303,35 +293,35 @@ namespace Caupo.ViewModels
 
         public async Task<decimal> IznosRacuna(int brojRacuna)
         {
-            using var db = new AppDbContext();
+            using var db = new AppDbContext ();
 
             return await db.RacunStavka
-                .Where(x => x.BrojRacuna == brojRacuna)
-                .SumAsync(x => (decimal?)(x.Kolicina * x.Cijena)) ?? 0;
+                .Where (x => x.BrojRacuna == brojRacuna)
+                .SumAsync (x => x.Kolicina * x.Cijena) ?? 0;
         }
 
-    
 
-    
+
+
 
         public event EventHandler<string?>? ErrorOccurred;
         protected virtual void OnErrorOccurred(string? message)
         {
-            ErrorOccurred?.Invoke(this, message);
+            ErrorOccurred?.Invoke (this, message);
         }
-     
+
 
         public async Task LoadFirmaAsync()
         {
             try
             {
-                using var db = new AppDbContext();
-                Firma = await db.Firma.FirstOrDefaultAsync();
-                Debug.WriteLine("Firma učitana: " + (Firma?.NazivFirme ?? "null"));
+                using var db = new AppDbContext ();
+                Firma = await db.Firma.FirstOrDefaultAsync ();
+                Debug.WriteLine ("Firma učitana: " + (Firma?.NazivFirme ?? "null"));
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine (ex);
             }
         }
         public async Task LoadSuppliersAsync()
@@ -339,46 +329,46 @@ namespace Caupo.ViewModels
             try
             {
 
-                using (var db = new AppDbContext())
+                using(var db = new AppDbContext ())
                 {
-                    var buyers = await db.Dobavljaci.ToListAsync();
-                    Suppliers.Clear();
+                    var buyers = await db.Dobavljaci.ToListAsync ();
+                    Suppliers.Clear ();
                     //SuppliersFilter?.Clear();
-                    foreach (var buyer in buyers)
+                    foreach(var buyer in buyers)
                     {
 
-                        Suppliers.Add(buyer);
+                        Suppliers.Add (buyer);
                         //SuppliersFilter?.Add(buyer);
-                      
+
                     }
-                    SelectedSupplier = Suppliers?.FirstOrDefault();
-                    await LoadStockInSupplier(SelectedSupplier);
+                    SelectedSupplier = Suppliers?.FirstOrDefault ();
+                    await LoadStockInSupplier (SelectedSupplier);
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Debug.WriteLine(ex.ToString());
+                Debug.WriteLine (ex.ToString ());
             }
         }
         public void FilterItems(string? searchtext)
         {
-            Debug.WriteLine("Okida search");
+            Debug.WriteLine ("Okida search");
 
-            var lowerSearch = (searchtext ?? string.Empty).ToLower();
+            var lowerSearch = (searchtext ?? string.Empty).ToLower ();
 
             SuppliersFilter.Filter = obj =>
             {
-                if (obj is TblDobavljaci d)
+                if(obj is TblDobavljaci d)
                 {
-                    return (d.JIB?.ToLower().Contains(lowerSearch) ?? false) ||
-                           (d.Dobavljac?.ToLower().Contains(lowerSearch) ?? false) ||
-                           (d.PDV?.ToLower().Contains(lowerSearch) ?? false) ||
-                           (d.Mjesto?.ToLower().Contains(lowerSearch) ?? false);
+                    return (d.JIB?.ToLower ().Contains (lowerSearch) ?? false) ||
+                           (d.Dobavljac?.ToLower ().Contains (lowerSearch) ?? false) ||
+                           (d.PDV?.ToLower ().Contains (lowerSearch) ?? false) ||
+                           (d.Mjesto?.ToLower ().Contains (lowerSearch) ?? false);
                 }
                 return false;
             };
 
-            SuppliersFilter.Refresh(); // osvježava view
+            SuppliersFilter.Refresh (); // osvježava view
         }
 
 
@@ -386,7 +376,7 @@ namespace Caupo.ViewModels
         public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
         }
     }
 }

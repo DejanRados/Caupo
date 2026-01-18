@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
 
-    <Border BorderThickness="1" BorderBrush="{DynamicResource GlobalFontColor}" CornerRadius="20" Margin="100,20,100,20"  HorizontalAlignment="Center" VerticalAlignment="Top" >
+    <Border BorderThickness="1" BorderBrush="{DynamicResource GlobalFontColor}" CornerRadius="7" Margin="20"  HorizontalAlignment="Left" VerticalAlignment="Top" >
         <Grid >
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -20,15 +20,15 @@
                         Margin="30"/>
             <Grid Margin="50,0,50,0" Grid.Row="1" HorizontalAlignment="Center">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="60"/>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="25"/>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="50"/>
-                    <RowDefinition Height="25"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="35"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="35"/>
                     <RowDefinition Height="50"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
@@ -44,14 +44,14 @@
                 <Label Content="{Binding PrometCek}" ContentStringFormat="{}{0:F2}" Grid.Row="3" Grid.Column="1" FontSize="16" Foreground="{DynamicResource GlobalFontColor}" HorizontalContentAlignment="Right"/>
                 <Label Content="Virman: " Foreground="{DynamicResource GlobalFontColor}" Grid.Row="4" Grid.Column="0" FontSize="16"/>
                 <Label Content="{Binding PrometVirman}" ContentStringFormat="{}{0:F2}" Grid.Row="4" Grid.Column="1" FontSize="16" Foreground="{DynamicResource GlobalFontColor}" HorizontalContentAlignment="Right"/>
-
+                <Separator Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Margin="5" Height="1"/>
                 <Label Content="Ostvareni promet: " Foreground="{DynamicResource GlobalFontColor}" Grid.Row="6" Grid.Column="0" FontSize="16"/>
                 <Label Content="{Binding UkupanPromet}" ContentStringFormat="{}{0:F2}" FontWeight="Normal" Grid.Row="6" Grid.Column="1" FontSize="16" Foreground="{DynamicResource GlobalFontColor}" HorizontalContentAlignment="Right"/>
 
 
                 <Label Content="Reklamirani promet: " Foreground="#aa2222" Grid.Row="7" Grid.Column="0" FontSize="16"/>
                 <Label Content="{Binding ReklamiraniPromet}" ContentStringFormat="{}{0:F2}"  Foreground="#aa2222" Grid.Row="7" Grid.Column="1" FontSize="16" HorizontalContentAlignment="Right" />
-
+                <Separator Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Margin="5" Height="1"/>
                 <Label Content="PAZAR: " Foreground="#22aa22" Grid.Row="10" Grid.Column="0" FontSize="20"/>
 
                 <Label Content="{Binding KonacanPazar}" ContentStringFormat="{}{0:F2}"  FontWeight="Bold"  FontSize="20"   Foreground="#22aa22" Grid.Row="10" Grid.Column="1" HorizontalContentAlignment="Right"/>

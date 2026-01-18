@@ -30,7 +30,7 @@
                 <ColumnDefinition Width="0.1*"/>
             </Grid.ColumnDefinitions>
 
-            <TabControl x:Name="tabControl"  SelectionChanged="tabControl_SelectionChanged" Background="#11000000" BorderBrush="Transparent" Foreground="{DynamicResource GlobalFontColor}" Margin="5" >
+            <TabControl x:Name="tabControl"  SelectionChanged="tabControl_SelectionChanged" Background="#11000000"  Foreground="{DynamicResource GlobalFontColor}" Margin="5" >
                     <!-- Prvi tab -->
                 <TabItem Header="Sala 1" SnapsToDevicePixels="False" UseLayoutRounding="True">
                     <Viewbox Stretch="Uniform" Grid.Column="0" >

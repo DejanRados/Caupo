@@ -1,15 +1,8 @@
-﻿using DocumentFormat.OpenXml.Drawing.Charts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Caupo.Models
+﻿namespace Caupo.Models
 {
     public class StavkaKnjigeKuhinje
     {
-       public int? RedniBroj { get; set; }
+        public int? RedniBroj { get; set; }
         public string? Namirnica { get; set; }
         public string? JedinicaMjere { get; set; }
         public decimal? OstatakOdJuce { get; set; }
@@ -39,10 +32,10 @@ namespace Caupo.Models
             UtrosenoDanas = 0;
             UtrosenoDoDanas = 0;
             OstatakZaSutra = 0;
-           
+
             IsPromet = false;
         }
-        public  StavkaKnjigeKuhinje(int? redniBroj, string? namirnica, string? jedinicaMjere, decimal? ostatakOdJuce, decimal? nabavljenoDanas, string? dobavljac, string? dokument, decimal? naStanju, decimal? utrosenoDanas, decimal? ostatakZaSutra, decimal? nabavljenoDoDanas, decimal? reklamiranoDoDanas, decimal? utrosenoDoDanas, DateTime? datum, bool ispromet)
+        public StavkaKnjigeKuhinje(int? redniBroj, string? namirnica, string? jedinicaMjere, decimal? ostatakOdJuce, decimal? nabavljenoDanas, string? dobavljac, string? dokument, decimal? naStanju, decimal? utrosenoDanas, decimal? ostatakZaSutra, decimal? nabavljenoDoDanas, decimal? reklamiranoDoDanas, decimal? utrosenoDoDanas, DateTime? datum, bool ispromet)
         {
             RedniBroj = redniBroj;
             Namirnica = namirnica;

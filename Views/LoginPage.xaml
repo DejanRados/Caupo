@@ -23,7 +23,7 @@
         </Grid.RowDefinitions>
    
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.Row="0"   Grid.ColumnSpan="3">
-            <Button x:Name="CloseButton" Style="{StaticResource CloseButtonStyle}"
+            <Button x:Name="CloseButton" Style="{StaticResource CloseAppButtonStyle}"
               VerticalAlignment="Top"
                 HorizontalAlignment="Right"
                 Padding="0"

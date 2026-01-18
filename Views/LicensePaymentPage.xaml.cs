@@ -1,15 +1,12 @@
-﻿using Caupo.Properties;
+﻿using Caupo.Helpers;
+using Caupo.Properties;
 using Caupo.ViewModels;
-using Caupo.Views;
 using Microsoft.Web.WebView2.Core;
-using System;
-using System.Windows;
-using System.Windows.Controls;
-using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
-using Caupo.Helpers;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace Caupo.Views
 {
@@ -786,7 +783,7 @@ namespace Caupo.Views
 
                         Settings.Default.Email = contactEmail;
                         Settings.Default.Firma = companyName;
-                        Settings.Default.Save();
+                        Settings.Default.Save ();
                         Debug.WriteLine ($"[WPF] User chose to replace existing data");
                     }
 
@@ -919,7 +916,7 @@ namespace Caupo.Views
         private void CloseButton_Click_1(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine ("[WPF] Close button clicked");
-            var page = new LicenseActivationPage();
+            var page = new LicenseActivationPage ();
 
             PageNavigator.NavigateWithFade (page);
         }

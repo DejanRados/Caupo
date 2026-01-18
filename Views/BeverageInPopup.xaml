@@ -13,7 +13,7 @@
         Loaded="Window_Loaded"
         Title="BeverageInPopup" >
     <Border      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#44000000">
-        <Border Background="#3A3A40" CornerRadius="20" Height="400" Width="600">
+        <Border Background="{DynamicResource GlobalBackgroundColor}" CornerRadius="20" Height="400" Width="600">
             <Grid >
                 <Grid.RowDefinitions>
                     <RowDefinition Height="0.3*"/>

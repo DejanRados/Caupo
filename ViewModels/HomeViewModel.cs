@@ -1,11 +1,6 @@
 ﻿using Caupo.Properties;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 
@@ -19,10 +14,10 @@ namespace Caupo.ViewModels
             get { return _fontColor; }
             set
             {
-                if (_fontColor != value)
+                if(_fontColor != value)
                 {
                     _fontColor = value;
-                    OnPropertyChanged(nameof(FontColor));
+                    OnPropertyChanged (nameof (FontColor));
                 }
             }
         }
@@ -33,10 +28,10 @@ namespace Caupo.ViewModels
             get { return _backColor; }
             set
             {
-                if (_backColor != value)
+                if(_backColor != value)
                 {
                     _backColor = value;
-                    OnPropertyChanged(nameof(BackColor));
+                    OnPropertyChanged (nameof (BackColor));
                 }
             }
         }
@@ -48,7 +43,7 @@ namespace Caupo.ViewModels
             set
             {
                 imagePathCashRegisterButton = value;
-                OnPropertyChanged(nameof(ImagePathCashRegisterButton));
+                OnPropertyChanged (nameof (ImagePathCashRegisterButton));
             }
         }
 
@@ -59,7 +54,7 @@ namespace Caupo.ViewModels
             set
             {
                 imagePathSuppliersButton = value;
-                OnPropertyChanged(nameof(ImagePathSuppliersButton));
+                OnPropertyChanged (nameof (ImagePathSuppliersButton));
             }
         }
 
@@ -70,7 +65,7 @@ namespace Caupo.ViewModels
             set
             {
                 imagePathOrdersButton = value;
-                OnPropertyChanged(nameof(ImagePathOrdersButton));
+                OnPropertyChanged (nameof (ImagePathOrdersButton));
             }
         }
         private string? imagePathReceiptsButton;
@@ -80,10 +75,10 @@ namespace Caupo.ViewModels
             set
             {
                 imagePathReceiptsButton = value;
-                OnPropertyChanged(nameof(ImagePathReceiptsButton));
+                OnPropertyChanged (nameof (ImagePathReceiptsButton));
             }
         }
-       
+
         private string? imagePathSetupButton;
         public string? ImagePathSetupButton
         {
@@ -91,7 +86,7 @@ namespace Caupo.ViewModels
             set
             {
                 imagePathSetupButton = value;
-                OnPropertyChanged(nameof(ImagePathSetupButton));
+                OnPropertyChanged (nameof (ImagePathSetupButton));
             }
         }
         private string? imagePathIngredientsButton;
@@ -101,60 +96,61 @@ namespace Caupo.ViewModels
             set
             {
                 imagePathIngredientsButton = value;
-                OnPropertyChanged(nameof(ImagePathIngredientsButton));
+                OnPropertyChanged (nameof (ImagePathIngredientsButton));
             }
         }
 
         public HomeViewModel()
         {
-            _ = InitializeAsync();
+            _ = InitializeAsync ();
         }
 
         private async Task InitializeAsync()
         {
-            await SetImage();
+            await SetImage ();
         }
         public async Task SetImage()
         {
-            await Task.Delay(5);
+            await Task.Delay (5);
             string tema = Settings.Default.Tema;
-            Debug.WriteLine("Aktivna tema koju vidi viewmodel je : " + tema);
-            if (tema == "Tamna")
+            Debug.WriteLine ("Aktivna tema koju vidi viewmodel je : " + tema);
+            if(tema == "Tamna")
             {
-                Debug.WriteLine(" tema == Tamna ");
+                Debug.WriteLine (" tema == Tamna ");
                 ImagePathSuppliersButton = "pack://application:,,,/Images/Dark/supplier.svg";
                 ImagePathCashRegisterButton = "pack://application:,,,/Images/Dark/cashregister.svg";
                 ImagePathOrdersButton = "pack://application:,,,/Images/Dark/orders.svg";
                 ImagePathReceiptsButton = "pack://application:,,,/Images/Dark/receipt.svg";
                 ImagePathSetupButton = "pack://application:,,,/Images/Dark/setup.svg";
                 ImagePathIngredientsButton = "pack://application:,,,/Images/Dark/ingredients.svg";
-                FontColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(212, 212, 212)); 
-                Application.Current.Resources["GlobalFontColor"] =    FontColor;
-                BackColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 50, 50));
+                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
+                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
 
 
             }
             else
             {
-                Debug.WriteLine(" tema == Svijetla ");
+                Debug.WriteLine (" tema == Svijetla ");
                 ImagePathSuppliersButton = "pack://application:,,,/Images/Light/supplier.svg";
                 ImagePathCashRegisterButton = "pack://application:,,,/Images/Light/cashregister.svg";
                 ImagePathOrdersButton = "pack://application:,,,/Images/Light/orders.svg";
                 ImagePathReceiptsButton = "pack://application:,,,/Images/Light/receipt.svg";
                 ImagePathSetupButton = "pack://application:,,,/Images/Light/setup.svg";
                 ImagePathIngredientsButton = "pack://application:,,,/Images/Light/ingredients.svg";
-                FontColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 50, 50));  Application.Current.Resources["GlobalFontColor"] =    FontColor;
-                BackColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(212, 212, 212));
-              
+                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
+                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
+
             }
             var brush = (SolidColorBrush)BackColor;
-            Debug.WriteLine($"BackColor: R={brush.Color.R}, G={brush.Color.G}, B={brush.Color.B}");
-            Debug.WriteLine(" ImagePathIngredientsButton je : " + ImagePathIngredientsButton);
+            Debug.WriteLine ($"BackColor: R={brush.Color.R}, G={brush.Color.G}, B={brush.Color.B}");
+            Debug.WriteLine (" ImagePathIngredientsButton je : " + ImagePathIngredientsButton);
         }
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string? propertyName)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
         }
 
     }

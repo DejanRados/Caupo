@@ -26,10 +26,10 @@ namespace Caupo.ViewModels
 
         public MainViewModel()
         {
-           
+
             PageNavigator.Navigate = page => CurrentPage = page;
             Application.Current.Dispatcher.BeginInvoke (new Action (StartApplication));
-            
+
         }
 
         public async Task SetIColors()
@@ -37,12 +37,12 @@ namespace Caupo.ViewModels
             Debug.WriteLine ("MAINVIEWMODEL ");
             await Task.Delay (5);
             string tema = Settings.Default.Tema;
-           
-            if (tema == "Tamna")
+
+            if(tema == "Tamna")
             {
-               
-                Application.Current.Resources["GlobalFontColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
-                Application.Current.Resources["GlobalBackgroundColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
+
+                Application.Current.Resources["GlobalFontColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (244, 244, 244));
+                Application.Current.Resources["GlobalBackgroundColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (46, 46, 49));
                 var brushFont = Application.Current.Resources["GlobalFontColor"] as SolidColorBrush;
                 var brushBack = Application.Current.Resources["GlobalBackgroundColor"] as SolidColorBrush;
                 Debug.WriteLine ("Aktivna tema koju vidi viewmodel je : " + tema + " i postavio je GlobalFontColor " + $"#{brushFont.Color.R:X2}{brushFont.Color.G:X2}{brushFont.Color.B:X2}");
@@ -50,8 +50,8 @@ namespace Caupo.ViewModels
             }
             else
             {
-                Application.Current.Resources["GlobalFontColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
-                Application.Current.Resources["GlobalBackgroundColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
+                Application.Current.Resources["GlobalFontColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (46, 46, 49));
+                Application.Current.Resources["GlobalBackgroundColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (244, 244, 244));
                 var brush = Application.Current.Resources["GlobalFontColor"] as SolidColorBrush;
                 var brushBack = Application.Current.Resources["GlobalBackgroundColor"] as SolidColorBrush;
                 Debug.WriteLine ("Aktivna tema koju vidi viewmodel je : " + tema + " i postavio je GlobalFontColor " + $"#{brush.Color.R:X2}{brush.Color.G:X2}{brush.Color.B:X2}");
@@ -65,13 +65,13 @@ namespace Caupo.ViewModels
         {
             //Properties.Settings.Default.DbPath = "";
             //Globals.CurrentDbPath = "";
-             //Settings.Default.Key = "";
-             //Settings.Default.Email = "";
+            //Settings.Default.Key = "";
+            //Settings.Default.Email = "";
             //Settings.Default.HardwareFingerprint = "";
-               //Settings.Default.LicenseType = "";
-              //Settings.Default.CompanyName = "";
-             //Settings.Default.ExpirationDate = "";
-             // Settings.Default.LastActivation = "";
+            //Settings.Default.LicenseType = "";
+            //Settings.Default.CompanyName = "";
+            //Settings.Default.ExpirationDate = "";
+            // Settings.Default.LastActivation = "";
             //Settings.Default.Save ();
 
             try
@@ -119,13 +119,13 @@ namespace Caupo.ViewModels
             if(result != null && result.Success)
             {
 
-                 if(string.IsNullOrEmpty (Properties.Settings.Default.Firma) ||
-                     string.IsNullOrEmpty (Properties.Settings.Default.Adresa) ||
-                     string.IsNullOrEmpty (Properties.Settings.Default.Mjesto) ||
-                     string.IsNullOrEmpty (Properties.Settings.Default.JIB) ||
-                     string.IsNullOrEmpty (Properties.Settings.Default.PDV) ||
-                     string.IsNullOrEmpty (Properties.Settings.Default.ZR) ||
-                     string.IsNullOrEmpty (Properties.Settings.Default.Email))
+                if(string.IsNullOrEmpty (Properties.Settings.Default.Firma) ||
+                    string.IsNullOrEmpty (Properties.Settings.Default.Adresa) ||
+                    string.IsNullOrEmpty (Properties.Settings.Default.Mjesto) ||
+                    string.IsNullOrEmpty (Properties.Settings.Default.JIB) ||
+                    string.IsNullOrEmpty (Properties.Settings.Default.PDV) ||
+                    string.IsNullOrEmpty (Properties.Settings.Default.ZR) ||
+                    string.IsNullOrEmpty (Properties.Settings.Default.Email))
                 {
                     // Otvori SettingsPage prvo
                     Globals.ulogovaniKorisnik = new TblRadnici
@@ -138,7 +138,7 @@ namespace Caupo.ViewModels
                     return;
                 }
 
-              
+
                 CurrentPage = new Caupo.Views.LoginPage () { DataContext = new LoginPageViewModel () };
             }
             else
@@ -146,7 +146,7 @@ namespace Caupo.ViewModels
 
                 var owner = Application.Current.Windows.OfType<Window> ().FirstOrDefault (w => w.IsActive);
 
-             
+
 
                 switch(result?.Code)
                 {
@@ -188,7 +188,7 @@ namespace Caupo.ViewModels
 
 
 
-       
+
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null)
@@ -196,6 +196,6 @@ namespace Caupo.ViewModels
             PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (name));
         }
 
-       
+
     }
 }

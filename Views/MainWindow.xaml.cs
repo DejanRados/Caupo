@@ -1,24 +1,12 @@
-﻿
-using Caupo.Data;
-using Caupo.Helpers;
-using Caupo.Properties;
+﻿using Caupo.Helpers;
 using Caupo.Server;
 using Caupo.ViewModels;
 using Caupo.Views;
-using QRCoder;
-using Syncfusion.SfSkinManager;
-using System;
 using System.Diagnostics;
-using System.Drawing;
-using System.Net;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
 
 
 namespace Caupo
@@ -37,24 +25,24 @@ namespace Caupo
             // SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1NMaF5cXmBCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWX5dcHVWQ2JdU0NyWEo=");
             //  Settings.Default.Tema = "Office2019Black";
             //  Settings.Default.Save();
-           
-           InitializeComponent();
-           
-            this.DataContext = new MainViewModel();
-            this.WindowStartupLocation = WindowStartupLocation.CenterScreen ;
+
+            InitializeComponent ();
+
+            this.DataContext = new MainViewModel ();
+            this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             PageNavigator.Navigate = page =>
             {
-                FadeTransition (page); 
+                FadeTransition (page);
             };
             Instance = this;
             keyboard = new VirtualKeyboard ();
             keyboard.KeyPressed += Keyboard_KeyPressed;
 
             SetKeyboardControl (keyboard);
-           
+
         }
 
- 
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine ("Treba da pokrene server.");
@@ -80,12 +68,12 @@ namespace Caupo
 
             }
         }
-        
+
 
 
         public void ToggleKeyboard()
         {
-            if (KeyboardHost.Visibility == Visibility.Visible)
+            if(KeyboardHost.Visibility == Visibility.Visible)
                 KeyboardHost.Visibility = Visibility.Collapsed;
             else
                 KeyboardHost.Visibility = Visibility.Visible;
@@ -93,15 +81,15 @@ namespace Caupo
 
         private void Keyboard_KeyPressed(string key)
         {
-            if (Application.Current.Windows.OfType<MyInputBox> ().FirstOrDefault (w => w.IsActive) is MyInputBox inputBox)
+            if(Application.Current.Windows.OfType<MyInputBox> ().FirstOrDefault (w => w.IsActive) is MyInputBox inputBox)
             {
-                if (inputBox.FocusedTextBox != null)
+                if(inputBox.FocusedTextBox != null)
                 {
                     inputBox.ReceiveKey (key);
                     return;
                 }
             }
-            if (MainContent.Content is IKeyboardInputReceiver receiver)
+            if(MainContent.Content is IKeyboardInputReceiver receiver)
                 receiver.ReceiveKey (key);
         }
         public void ShowKeyboard()
@@ -138,29 +126,29 @@ namespace Caupo
 
 
         public void SlideInContent()
-    {
-        if (MainContent.Content is UIElement content)
         {
-            // Postavi transformaciju
-            TranslateTransform trans = new TranslateTransform ();
-            content.RenderTransform = trans;
-
-            // Postavi početnu poziciju (sa desne strane)
-            trans.X = this.ActualWidth;
-
-            // Animacija: X od širine prozora do 0
-            DoubleAnimation slide = new DoubleAnimation
+            if(MainContent.Content is UIElement content)
             {
-                From = this.ActualWidth,
-                To = 0,
-                Duration = TimeSpan.FromMilliseconds (800),
-                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
-            };
+                // Postavi transformaciju
+                TranslateTransform trans = new TranslateTransform ();
+                content.RenderTransform = trans;
 
-            trans.BeginAnimation (TranslateTransform.XProperty, slide);
+                // Postavi početnu poziciju (sa desne strane)
+                trans.X = this.ActualWidth;
+
+                // Animacija: X od širine prozora do 0
+                DoubleAnimation slide = new DoubleAnimation
+                {
+                    From = this.ActualWidth,
+                    To = 0,
+                    Duration = TimeSpan.FromMilliseconds (800),
+                    EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
+                };
+
+                trans.BeginAnimation (TranslateTransform.XProperty, slide);
+            }
         }
-    }
 
-     
+
     }
 }

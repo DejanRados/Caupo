@@ -101,8 +101,29 @@
                                     </DatePicker.Resources>
                                 </DatePicker>
                       
-                        <Label Content="Do datuma: " Foreground="{DynamicResource GlobalFontColor}" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" Visibility="{Binding DrugiDatePickerVisibility}" />
-                        <DatePicker Focusable="False" CalendarStyle="{StaticResource styleCalendar}" Language="bs-BA" SelectedDateChanged="DpOdDate_SelectedDateChanged"   x:Name="DpDoDate" FontSize="16" SelectedDate="{Binding DoDatuma, StringFormat=dd.MM.yyyy}" Visibility="{Binding DrugiDatePickerVisibility}"  Grid.Row="1" Grid.Column="1"    BorderThickness="0"  Background="Transparent" Foreground="{DynamicResource GlobalFontColor}"   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,0">
+                        <Label  Content="Do datuma: " 
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               Grid.Row="0" Grid.Column="1" 
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center" 
+                               FontSize="16" Visibility="{Binding DrugiDatePickerVisibility}" />
+                        <DatePicker  x:Name="DpDoDate" 
+                                      SelectedDate="{Binding DoDatuma}"
+                                      DisplayDate="{Binding DoDatuma}"
+                                     SelectedDateFormat="Short"
+                                     Focusable="False" 
+                                    CalendarStyle="{StaticResource styleCalendar}" 
+                                    Language="bs-BA" 
+                                    SelectedDateChanged="DpOdDate_SelectedDateChanged"   
+                                    FontSize="16"
+                                    Visibility="{Binding DrugiDatePickerVisibility}"
+                                    Grid.Row="1" Grid.Column="1"
+                                    BorderThickness="0"
+                                    Background="Transparent"
+                                    Foreground="{DynamicResource GlobalFontColor}" 
+                                    HorizontalAlignment="Center" 
+                                    VerticalAlignment="Center"
+                                    Margin="10,0">
                             <DatePicker.Resources>
                                 <Style TargetType="DatePickerTextBox">
                                     <Setter Property="Template">

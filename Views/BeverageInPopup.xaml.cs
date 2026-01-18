@@ -1,19 +1,9 @@
 ﻿using Caupo.Properties;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.Views
@@ -34,8 +24,8 @@ namespace Caupo.Views
 
         public BeverageInPopup(TblArtikli selectedArticle)
         {
-            InitializeComponent();
-            InitializeTheme();
+            InitializeComponent ();
+            InitializeTheme ();
             DataContext = this;
             ArticleName = selectedArticle.Artikl;
             IsUpdate = false;
@@ -43,8 +33,8 @@ namespace Caupo.Views
 
         public BeverageInPopup(TblUlazStavke stavka)
         {
-            InitializeComponent();
-            InitializeTheme();
+            InitializeComponent ();
+            InitializeTheme ();
             DataContext = this;
 
             // Popuni UI za EDIT
@@ -58,23 +48,25 @@ namespace Caupo.Views
         private void InitializeTheme()
         {
             string tema = Settings.Default.Tema;
-            if (tema == "Tamna")
+            if(tema == "Tamna")
             {
-                FontColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(212, 212, 212));   Application.Current.Resources["GlobalFontColor"] =    FontColor;
+                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
+                Application.Current.Resources["GlobalFontColor"] = FontColor;
             }
             else
             {
-                FontColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 50, 50));  Application.Current.Resources["GlobalFontColor"] =    FontColor;
+                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
+                Application.Current.Resources["GlobalFontColor"] = FontColor;
             }
         }
 
         private void NumberValidationHandler(object sender, TextCompositionEventArgs e)
         {
             var textBox = sender as TextBox;
-            string fullText = textBox.Text.Insert(textBox.SelectionStart, e.Text);
+            string fullText = textBox.Text.Insert (textBox.SelectionStart, e.Text);
 
             // Dozvoli brojeve sa decimalnom točkom ili zarezom
-            e.Handled = !System.Text.RegularExpressions.Regex.IsMatch(
+            e.Handled = !System.Text.RegularExpressions.Regex.IsMatch (
                 fullText,
                 @"^-?\d*([.,]\d*)?$"
             );
@@ -82,31 +74,31 @@ namespace Caupo.Views
 
         private void OKButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!ValidateInputs())
+            if(!ValidateInputs ())
             {
-                MessageBox.Show("Molimo unesite ispravne vrijednosti.", "Greška",
+                MessageBox.Show ("Molimo unesite ispravne vrijednosti.", "Greška",
                               MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            ParseInputs();
+            ParseInputs ();
             this.DialogResult = true;
-            this.Close();
+            this.Close ();
         }
 
         private bool ValidateInputs()
         {
             // Provjeri je li količina unesena
-            if (string.IsNullOrWhiteSpace(Kolicina.Text))
+            if(string.IsNullOrWhiteSpace (Kolicina.Text))
             {
-                Kolicina.Focus();
+                Kolicina.Focus ();
                 return false;
             }
 
             // Provjeri je li cijena unesena
-            if (string.IsNullOrWhiteSpace(Cijena.Text))
+            if(string.IsNullOrWhiteSpace (Cijena.Text))
             {
-                Cijena.Focus();
+                Cijena.Focus ();
                 return false;
             }
 
@@ -115,41 +107,41 @@ namespace Caupo.Views
 
         private void ParseInputs()
         {
-            string cijenaText = Cijena.Text.Replace(',', '.');
-            string kolicinaText = Kolicina.Text.Replace(',', '.');
-            string popustText = Popust.Text.Replace(',', '.');
+            string cijenaText = Cijena.Text.Replace (',', '.');
+            string kolicinaText = Kolicina.Text.Replace (',', '.');
+            string popustText = Popust.Text.Replace (',', '.');
 
-            EnteredPrice = decimal.TryParse(cijenaText, NumberStyles.Any,
-                CultureInfo.InvariantCulture, out var p) ? Math.Max(p, 0) : 0;
+            EnteredPrice = decimal.TryParse (cijenaText, NumberStyles.Any,
+                CultureInfo.InvariantCulture, out var p) ? Math.Max (p, 0) : 0;
 
-            EnteredQuantity = decimal.TryParse(kolicinaText, NumberStyles.Any,
-                CultureInfo.InvariantCulture, out var q) ? Math.Max(q, 0) : 0;
+            EnteredQuantity = decimal.TryParse (kolicinaText, NumberStyles.Any,
+                CultureInfo.InvariantCulture, out var q) ? Math.Max (q, 0) : 0;
 
-            EnteredDiscount = decimal.TryParse(popustText, NumberStyles.Any,
-                CultureInfo.InvariantCulture, out var d) ? Math.Max(d, 0) : 0;
+            EnteredDiscount = decimal.TryParse (popustText, NumberStyles.Any,
+                CultureInfo.InvariantCulture, out var d) ? Math.Max (d, 0) : 0;
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             this.DialogResult = false;
-            this.Close();
+            this.Close ();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            InitializeFields();
-            SetFocus();
+            InitializeFields ();
+            SetFocus ();
         }
 
         private void InitializeFields()
         {
             Article.Text = ArticleName;
 
-            if (IsUpdate)
+            if(IsUpdate)
             {
-                Cijena.Text = ArticlePrice.HasValue ? ArticlePrice.Value.ToString("0.00") : "0.00";
-                Kolicina.Text = ArticleQty.ToString("0.00");
-                Popust.Text = ArticleDiscount.ToString("0.00");
+                Cijena.Text = ArticlePrice.HasValue ? ArticlePrice.Value.ToString ("0.00") : "0.00";
+                Kolicina.Text = ArticleQty.ToString ("0.00");
+                Popust.Text = ArticleDiscount.ToString ("0.00");
             }
             else
             {
@@ -161,31 +153,31 @@ namespace Caupo.Views
 
         private void SetFocus()
         {
-            Dispatcher.BeginInvoke(new Action(() =>
+            Dispatcher.BeginInvoke (new Action (() =>
             {
-                Cijena.Focus();
-                Cijena.SelectAll();
+                Cijena.Focus ();
+                Cijena.SelectAll ();
             }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         }
 
         // Dodatna poboljšanja za bolje korisničko iskustvo
         private void TextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter)
+            if(e.Key == Key.Enter)
             {
-                OKButton_Click(sender, e);
+                OKButton_Click (sender, e);
             }
-            else if (e.Key == Key.Escape)
+            else if(e.Key == Key.Escape)
             {
-                CancelButton_Click(sender, e);
+                CancelButton_Click (sender, e);
             }
         }
 
         private void TextBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (sender is TextBox textBox)
+            if(sender is TextBox textBox)
             {
-                textBox.SelectAll();
+                textBox.SelectAll ();
             }
         }
 

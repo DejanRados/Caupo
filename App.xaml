@@ -419,17 +419,14 @@
      
             <Style TargetType="ComboBox">
                 <Setter Property="Background" Value="Transparent"/>
+              
                 <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
-                <Setter Property="Padding" Value="5,2"/>
+                <Setter Property="Padding" Value="5,10"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="ComboBox">
                             <Grid x:Name="MainGrid">
-                                <Border x:Name="Border"
-                            Background="Transparent"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="0,0,0,1"
-                            Padding="{TemplateBinding Padding}">
+                                <Border x:Name="Border"  Background="Transparent"  BorderBrush="{TemplateBinding BorderBrush}"  BorderThickness="0,0,0,1"  Padding="{TemplateBinding Padding}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -741,19 +738,19 @@
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type ListViewItem}">
                             <Border x:Name="Border" Padding="2"
-                                    SnapsToDevicePixels="true"
-                                    BorderBrush="Gray"
-                                    BorderThickness="0,0,0,1"
-                                    Background="Transparent"
-                                    HorizontalAlignment="Stretch">
+                               SnapsToDevicePixels="true"
+                               BorderBrush="Gray"
+                               BorderThickness="0,0,0,1"
+                               Background="Transparent"
+                               HorizontalAlignment="Stretch">
                                 <VisualStateManager.VisualStateGroups>
                                     <VisualStateGroup x:Name="CommonStates">
                                         <VisualState x:Name="Normal" />
                                         <VisualState x:Name="MouseOver">
                                             <Storyboard>
                                                 <ColorAnimation Storyboard.TargetName="Border"
-                                                                Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                                From="Transparent" To="Gray" Duration="0:0:0.05"/>
+                                                           Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                           From="Transparent" To="Gray" Duration="0:0:0.05"/>
                                             </Storyboard>
                                         </VisualState>
                                         <VisualState x:Name="Disabled" />
@@ -763,14 +760,14 @@
                                         <VisualState x:Name="Selected">
                                             <Storyboard>
                                                 <ColorAnimation Storyboard.TargetName="Border"
-                                                                Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                                From="Transparent" To="#FF5FB7B7" Duration="0:0:0.05"/>
+                                                           Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                           From="Transparent" To="#FF5FB7B7" Duration="0:0:0.05"/>
                                             </Storyboard>
                                         </VisualState>
                                         <VisualState x:Name="SelectedUnfocused">
                                             <Storyboard>
                                                 <ColorAnimationUsingKeyFrames Storyboard.TargetName="Border"
-                                                                              Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)">
+                                                                         Storyboard.TargetProperty="(Panel.Background).(SolidColorBrush.Color)">
                                                     <EasingColorKeyFrame KeyTime="0" Value="#FF5FB7B7" />
                                                 </ColorAnimationUsingKeyFrames>
                                             </Storyboard>
@@ -783,7 +780,7 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-     
+
             <Style TargetType="DataGridColumnHeader">
                 <Setter Property="Background" Value="#BB323232"/>
                 <Setter Property="Foreground" Value="#F5F5F5" />
@@ -803,9 +800,11 @@
                         BorderThickness="{TemplateBinding BorderThickness}"
                         Padding="5"
                         SnapsToDevicePixels="True">
-                                <ContentPresenter Content="{TemplateBinding Content}"
-                                      HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                <TextBlock Text="{TemplateBinding Content}" 
+                               TextWrapping="Wrap"
+                               TextAlignment="Center"
+                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
                             </Border>
                         </ControlTemplate>
                     </Setter.Value>
@@ -910,8 +909,9 @@
             </Style>
 
             <Style TargetType="TabItem">
-                <Setter Property="Background" Value="#FF2FA4A9"/>
-                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="BorderBrush" Value="#FF2FA4A9"/>
                 <Setter Property="SnapsToDevicePixels" Value="False"/>
                 <Setter Property="UseLayoutRounding" Value="True"/>
                 <Setter Property="Padding" Value="15"/>
@@ -935,17 +935,17 @@
                                   VerticalAlignment="Center">
                                     </ContentPresenter>
                                 </Border>
-                                <Border x:Name="HoverOverlay"     CornerRadius="11"   Padding="{TemplateBinding Padding}"  Background="#33000000"    IsHitTestVisible="False" SnapsToDevicePixels="False" UseLayoutRounding="True"/>
+                                <Border x:Name="HoverOverlay"     CornerRadius="11"   Padding="{TemplateBinding Padding}"  Background="#11000000"   BorderBrush="{TemplateBinding BorderBrush}"   BorderThickness="{TemplateBinding BorderThickness}"   IsHitTestVisible="False" SnapsToDevicePixels="False" UseLayoutRounding="True"/>
                             </Grid>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter TargetName="HoverOverlay"  Property="Opacity"  Value="0.1"/>
-                                    <Setter TargetName="BackgroundBorder" Property="BorderThickness" Value="0"/>
-                                    <Setter TargetName="BackgroundBorder" Property="Background" Value="#FF27A0A4"/>
+                                    <Setter TargetName="BackgroundBorder" Property="BorderThickness" Value="2"/>
+                                    <Setter TargetName="BackgroundBorder" Property="Background" Value="Transparent"/>
                                 </Trigger>
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter TargetName="HoverOverlay"  Property="Opacity"  Value="0"/>
-                                    <Setter TargetName="BackgroundBorder" Property="Background" Value="#FF1F8C90"/>
+                                    <Setter TargetName="BackgroundBorder" Property="Background" Value="#FF2FA4A9"/>
                                 </Trigger>
                                 <Trigger Property="IsFocused" Value="True">
                                     <Setter TargetName="HoverOverlay"  Property="Opacity"  Value="0"/>

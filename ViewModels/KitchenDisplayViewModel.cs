@@ -1,18 +1,13 @@
 ﻿using Caupo.Data;
 using Caupo.Server;
-using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Media;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -49,16 +44,16 @@ namespace Caupo.ViewModels
             {
                 get
                 {
-                    if (Elapsed.TotalMinutes >= 20)
+                    if(Elapsed.TotalMinutes >= 20)
                         return (SolidColorBrush)(new BrushConverter ().ConvertFrom (ColorRedBackgroundHex));
-                    else if (Elapsed.TotalMinutes >= 10)
+                    else if(Elapsed.TotalMinutes >= 10)
                         return (SolidColorBrush)(new BrushConverter ().ConvertFrom (ColorYellowBackgroundHex));
                     else
                         return (SolidColorBrush)(new BrushConverter ().ConvertFrom (ColorGreenBackgroundHex));
                 }
-               }
+            }
 
-            private Brush _border= Brushes.LightGreen;
+            private Brush _border = Brushes.LightGreen;
             public Brush Border
             {
                 get
@@ -76,7 +71,9 @@ namespace Caupo.ViewModels
             public TimeSpan Elapsed
             {
                 get => _elapsed;
-                set { _elapsed = value;
+                set
+                {
+                    _elapsed = value;
                     OnPropertyChanged ();
                     OnPropertyChanged (nameof (Background));
                     OnPropertyChanged (nameof (Border));
@@ -115,7 +112,7 @@ namespace Caupo.ViewModels
             timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds (1) };
             timer.Tick += (s, e) =>
             {
-                foreach (var order in Orders)
+                foreach(var order in Orders)
                     order.Elapsed = DateTime.Now - order.OrderTime;
             };
             timer.Start ();
@@ -127,14 +124,14 @@ namespace Caupo.ViewModels
         {
             Orders.Clear (); // očisti stare
 
-            using (var db = new AppDbContext ())
+            using(var db = new AppDbContext ())
             {
                 // Učitaj sve narudžbe koje nisu završene
                 var kuhinjaOrders = await db.Kuhinja
                     .Where (k => db.KuhinjaStavke.Any (s => s.IdKuhinje == k.IdKuhinje && s.Zavrseno == "NE"))
                     .ToListAsync ();
 
-                foreach (var order in kuhinjaOrders)
+                foreach(var order in kuhinjaOrders)
                 {
                     var stavke = await db.KuhinjaStavke
                         .Where (s => s.IdKuhinje == order.IdKuhinje && s.Zavrseno == "NE")
@@ -145,7 +142,7 @@ namespace Caupo.ViewModels
                         Number = order.IdKuhinje,
                         Waiter = order.Radnik,
                         TableName = order.NazivStola,
-                        OrderTime = order.Datum, 
+                        OrderTime = order.Datum,
                         Items = new ObservableCollection<OrderItem> (
                             stavke.Select (s => new OrderItem
                             {
@@ -170,23 +167,23 @@ namespace Caupo.ViewModels
 
         public async void RemoveOrder(DisplayOrder order)
         {
-       
+
 
             try
             {
-                using (var db = new AppDbContext ())
+                using(var db = new AppDbContext ())
                 {
                     var stavke = await db.KuhinjaStavke
-                        .Where (s => s.IdKuhinje == order.Number)                             
+                        .Where (s => s.IdKuhinje == order.Number)
                         .ToListAsync ();
                     Debug.WriteLine ("Traži Idkuhinje:" + order.Number);
-                    foreach (var s in stavke)
+                    foreach(var s in stavke)
                     {
                         s.Zavrseno = "DA";
                     }
 
                     await db.SaveChangesAsync ();
-                    
+
                     var stavkeList = order.Items.Select (i => $"{i.Quantity}x  {i.Name}").ToList ();
 
                     try
@@ -204,7 +201,7 @@ namespace Caupo.ViewModels
                         };
 
                     }
-                    catch (Exception ex)
+                    catch(Exception ex)
                     {
                         Debug.WriteLine ($"Error playing sound: {ex.Message}");
                         // Fallback na SystemSounds
@@ -230,7 +227,7 @@ namespace Caupo.ViewModels
                         type = "KUHINJA",
                         orderNumber = order.Number,
                         tableName = order.TableName,
-                        message = $"Narudžba broj {order.Number} za {order.TableName }   je spremna "
+                        message = $"Narudžba broj {order.Number} za {order.TableName}   je spremna "
                     };
 
                     // Wrapamo u objekt sa Status/Data, isto kao u handlerima
@@ -280,7 +277,7 @@ namespace Caupo.ViewModels
                     Orders.Remove (order);
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Debug.WriteLine ($"Greška pri ažuriranju baze: {ex.Message}");
             }

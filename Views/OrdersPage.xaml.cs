@@ -20,7 +20,7 @@ namespace Caupo.Views
     public partial class OrdersPage : UserControl
     {
 
-        private List<ButtonInfo> buttons = new List<ButtonInfo>();
+        private List<ButtonInfo> buttons = new List<ButtonInfo> ();
 
         private Button draggedButton = null;
         private Point clickPosition;
@@ -30,38 +30,38 @@ namespace Caupo.Views
         public OrdersPage(KasaViewModel _kasaViewModel)
         {
             kasaViewModel = _kasaViewModel;
-            ordersViewModel = new OrdersViewModel(kasaViewModel);
+            ordersViewModel = new OrdersViewModel (kasaViewModel);
             this.DataContext = ordersViewModel;
 
 
-            InitializeComponent();
+            InitializeComponent ();
             lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
             //LoadButtons();
 
         }
 
-    
+
 
 
         private void tabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (!isInitialized)
+            if(!isInitialized)
                 return;
-            TabItem tab = new TabItem();
-            if (sender is TabControl tabCon)
+            TabItem tab = new TabItem ();
+            if(sender is TabControl tabCon)
             {
                 // Selektovani tab je u SelectedItem property
-                if (tabControl.SelectedItem is TabItem selectedTab)
+                if(tabControl.SelectedItem is TabItem selectedTab)
                 {
-                    string header = (selectedTab.Header as TextBlock)?.Text ?? selectedTab.Header.ToString();
+                    string header = (selectedTab.Header as TextBlock)?.Text ?? selectedTab.Header.ToString ();
                     tab.Name = selectedTab.Name;
-                    Debug.WriteLine("Selektovan tab: " + header + ", Name: " + tab.Name);
+                    Debug.WriteLine ("Selektovan tab: " + header + ", Name: " + tab.Name);
                 }
             }
 
-            if (tabControl.SelectedIndex == tabControl.Items.Count - 1)
+            if(tabControl.SelectedIndex == tabControl.Items.Count - 1)
             {
-                if (DataContext is OrdersViewModel viewModel)
+                if(DataContext is OrdersViewModel viewModel)
                 {
                     int totalTabs = tabControl.Items.Count;
 
@@ -78,12 +78,12 @@ namespace Caupo.Views
                     CanvasPanel.MouseDown += CanvasPanel_MouseDoubleClick;
 
 
-                    string header = GenerateNextTabName();
+                    string header = GenerateNextTabName ();
                     string name = "sala_" + Guid.NewGuid ().ToString ("N");
 
-                    tabControl.Items.Insert(tabControl.Items.Count - 1, CreateTab(CanvasPanel, name, header));
+                    tabControl.Items.Insert (tabControl.Items.Count - 1, CreateTab (CanvasPanel, name, header));
                     // Postavi fokus na novokreirani tab
-                    tabControl.Dispatcher.BeginInvoke(new Action(() =>
+                    tabControl.Dispatcher.BeginInvoke (new Action (() =>
                     {
 
                         tabControl.SelectedIndex = tabControl.Items.Count - 2;
@@ -99,23 +99,24 @@ namespace Caupo.Views
         private void CanvasPanel_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
 
-            if (e.ClickCount == 2) // Proveravamo da li je dvokliknut
+            if(e.ClickCount == 2) // Proveravamo da li je dvokliknut
             {
                 draggedButton = null;
-                if (sender is Canvas current)
+                if(sender is Canvas current)
                 {
                     int buttonCount = current.Children.Count;
-                    var position = e.GetPosition(current);
-                    Debug.WriteLine("Dvoklik na: " + position.X + ", " + position.Y);
+                    var position = e.GetPosition (current);
+                    Debug.WriteLine ("Dvoklik na: " + position.X + ", " + position.Y);
                     // Kreiranje dugmeta
-                    var button = new TableButton();
+                    var button = new TableButton ();
                     //button.Name = "STO" + (buttonCount + 1);
                     button.TableName = "STO" + (buttonCount + 1);
                     button.Waiter = null;
                     button.WaiterId = null;
                     button.Total = null;
-                    button.Height = current.ActualHeight*0.14;
-                    button.Width = current.ActualHeight * 0.14;
+
+                    button.Height = 120;
+                    button.Width = 120;
                     button.Tag = Environment.TickCount;
                     button.IsHitTestVisible = true;
                     button.PreviewMouseLeftButtonDown += Button_MouseLeftButtonDown;
@@ -123,20 +124,23 @@ namespace Caupo.Views
                     button.MouseUp += Button_MouseUp;
                     button.MouseRightButtonDown += Button_MouseRightButtonDown;
                     button.Click += Button_Click;
-                    var style = Application.Current.FindResource("TableButtonStyle") as Style;
-                    if (style != null)
+                    var style = Application.Current.FindResource ("TableButtonStyle") as Style;
+                    if(style != null)
                     {
                         button.Style = style;
                     }
                     var stackPanel = new StackPanel
                     {
+
                         Orientation = Orientation.Vertical,
                         VerticalAlignment = VerticalAlignment.Center
+
                     };
 
                     var textBlock = new TextBlock
                     {
-                        Name = "TableName", 
+                        Name = "TableName",
+                        Margin = new Thickness (1),
                         TextWrapping = TextWrapping.Wrap,
                         TextAlignment = TextAlignment.Center,
                         FontSize = 12,
@@ -153,6 +157,7 @@ namespace Caupo.Views
                     var textBlock2 = new TextBlock
                     {
                         Name = "WaiterName",
+                        Margin = new Thickness (1),
                         TextWrapping = TextWrapping.Wrap,
                         TextAlignment = TextAlignment.Center,
                         FontSize = 10,
@@ -163,6 +168,7 @@ namespace Caupo.Views
                     var textBlock3 = new TextBlock
                     {
                         Name = "TotalAmount",
+                        Margin = new Thickness (0, 0, 0, 5),
                         TextWrapping = TextWrapping.Wrap,
                         TextAlignment = TextAlignment.Center,
                         FontSize = 10,
@@ -177,13 +183,13 @@ namespace Caupo.Views
                     button.Content = stackPanel;
 
 
-                    Canvas.SetLeft(button, position.X);
-                    Canvas.SetTop(button, position.Y);
-                    current.Children.Add(button);
+                    Canvas.SetLeft (button, position.X);
+                    Canvas.SetTop (button, position.Y);
+                    current.Children.Add (button);
 
-                    buttons.Add(new ButtonInfo
+                    buttons.Add (new ButtonInfo
                     {
-                        ID = Convert.ToInt32(button.Tag),
+                        ID = Convert.ToInt32 (button.Tag),
                         X = position.X,
                         Y = position.Y,
                         Text = button.TableName,
@@ -203,9 +209,9 @@ namespace Caupo.Views
         {
 
             var button = sender as TableButton;
-            if (button != null)
+            if(button != null)
             {
-                var menuSto = new ContextMenu();
+                var menuSto = new ContextMenu ();
 
                 var separatorSto1 = new Separator
                 {
@@ -242,7 +248,7 @@ namespace Caupo.Views
                 stackPanelRenameSto.Children.Add (textSto1);
                 renameItemSto.Header = stackPanelRenameSto;
                 renameItemSto.Click += (s, args) => EditText (button);
-             
+
                 var resizeItem = new MenuItem ();
                 var stackPanelResize = new StackPanel
                 {
@@ -250,7 +256,7 @@ namespace Caupo.Views
                 };
                 var iconResize = new TextBlock
                 {
-                    Text = "\uE744", 
+                    Text = "\uE744",
                     FontFamily = new FontFamily ("Segoe MDL2 Assets"),
                     FontSize = 16,
                     Margin = new Thickness (0, 0, 8, 0),
@@ -265,7 +271,7 @@ namespace Caupo.Views
                 stackPanelResize.Children.Add (textResize);
                 resizeItem.Header = stackPanelResize;
                 resizeItem.Click += (s, args) => EditSize (button);
-    
+
                 var deleteItemSto = new MenuItem ();
                 var stackPanelDeleteSto = new StackPanel
                 {
@@ -293,15 +299,15 @@ namespace Caupo.Views
                 menuSto.Items.Add (separatorSto1);
                 menuSto.Items.Add (resizeItem);
                 menuSto.Items.Add (separatorSto2);
-              
-                if (button.BorderBrush is SolidColorBrush solidBrush && solidBrush.Color != Colors.Red)
+
+                if(button.BorderBrush is SolidColorBrush solidBrush && solidBrush.Color != Colors.Red)
                 {
-                    menuSto.Items.Add(deleteItemSto);
+                    menuSto.Items.Add (deleteItemSto);
                 }
                 menuSto.IsOpen = true;
             }
         }
-     
+
         private Point dragStartPoint;
         private bool isDragging;
         private void Button_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -309,45 +315,45 @@ namespace Caupo.Views
             // Počinjemo praćenje drag operacije
             draggedButton = sender as TableButton;
 
-            var current = VisualTreeHelper.GetParent(draggedButton);
-            while (current != null && current is not Canvas)
+            var current = VisualTreeHelper.GetParent (draggedButton);
+            while(current != null && current is not Canvas)
             {
-                current = VisualTreeHelper.GetParent(current);
+                current = VisualTreeHelper.GetParent (current);
             }
-            if (current is Canvas canvas)
+            if(current is Canvas canvas)
             {
-                dragStartPoint = e.GetPosition(canvas);
+                dragStartPoint = e.GetPosition (canvas);
                 isDragging = false;
 
                 // Počinjemo hvatanje miša
-                draggedButton.CaptureMouse();
+                draggedButton.CaptureMouse ();
                 e.Handled = true;
             }
         }
 
         private void Button_MouseMove(object sender, MouseEventArgs e)
         {
-            if (draggedButton != null && e.LeftButton == MouseButtonState.Pressed)
+            if(draggedButton != null && e.LeftButton == MouseButtonState.Pressed)
             {
                 var current = VisualTreeHelper.GetParent (draggedButton);
-                while (current != null && current is not Canvas)
+                while(current != null && current is not Canvas)
                 {
                     current = VisualTreeHelper.GetParent (current);
                 }
 
-                if (current is Canvas canvas)
+                if(current is Canvas canvas)
                 {
                     Point currentPosition = e.GetPosition (canvas);
 
                     // Proveravam da li je miš dovoljno pomjeren da smatram da je drag operacija
-                    if (!isDragging &&
+                    if(!isDragging &&
                         (Math.Abs (currentPosition.X - dragStartPoint.X) > SystemParameters.MinimumHorizontalDragDistance ||
                          Math.Abs (currentPosition.Y - dragStartPoint.Y) > SystemParameters.MinimumVerticalDragDistance))
                     {
                         isDragging = true;
                     }
 
-                    if (isDragging)
+                    if(isDragging)
                     {
                         // Ograničenje unutar granica canvasa
                         double newLeft = currentPosition.X - draggedButton.ActualWidth / 2;
@@ -371,16 +377,16 @@ namespace Caupo.Views
 
         private void Button_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            if (draggedButton != null)
+            if(draggedButton != null)
             {
-                if (!isDragging)
+                if(!isDragging)
                 {
                     // Ako nije bilo drag operacije, ostavljamo dugme da obradi Click event
                     return;
                 }
 
                 // Oslobađamo miš
-                draggedButton.ReleaseMouseCapture();
+                draggedButton.ReleaseMouseCapture ();
                 draggedButton = null;
                 isDragging = false;
             }
@@ -390,12 +396,12 @@ namespace Caupo.Views
         {
             DependencyObject parent = child;
 
-            while (parent != null)
+            while(parent != null)
             {
-                if (parent is TabItem tabItem)
+                if(parent is TabItem tabItem)
                     return tabItem;
 
-                parent = LogicalTreeHelper.GetParent(parent);
+                parent = LogicalTreeHelper.GetParent (parent);
             }
 
             return null;
@@ -405,40 +411,41 @@ namespace Caupo.Views
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             string sala = string.Empty;
-            if (isDragging) return;
+            if(isDragging)
+                return;
 
             TableButton? button = sender as TableButton;
             Debug.WriteLine ($"Dugme kliknuto Tag: {button.Tag} ");
-            TabItem tab = FindParentTab(button);
+            TabItem tab = FindParentTab (button);
             string tabName;
             Debug.WriteLine ($"Dugme kliknuto IF button.waiter: {button.Waiter} =  {Globals.ulogovaniKorisnik.IdRadnika.ToString ()}) ili button.waiter jednako prazno");
-            if (button.WaiterId == Globals.ulogovaniKorisnik.IdRadnika.ToString() ||  button.Waiter == null)
+            if(button.WaiterId == Globals.ulogovaniKorisnik.IdRadnika.ToString () || button.Waiter == null)
             {
-               
-                if (DataContext is OrdersViewModel viewModel)
+
+                if(DataContext is OrdersViewModel viewModel)
                 {
 
-                    int ID = Convert.ToInt32(button.Tag);
-                    if (tab != null)
+                    int ID = Convert.ToInt32 (button.Tag);
+                    if(tab != null)
                     {
                         tabName = tab.Name;
-                        string header = (tab.Header as TextBlock)?.Text ?? tab.Header.ToString();
+                        string header = (tab.Header as TextBlock)?.Text ?? tab.Header.ToString ();
                         sala = tabName;
 
-                        Debug.WriteLine($"Dugme kliknuto u tabu: {header} (ID: {tabName})");
+                        Debug.WriteLine ($"Dugme kliknuto u tabu: {header} (ID: {tabName})");
                     }
 
                     viewModel.IdStola = ID;
                     viewModel.Sala = sala;
-                    Debug.WriteLine("Kliknuto je nad dugme koje se nalazi u " + sala + " a viewModel.Sala je " + viewModel.Sala);
-                 
+                    Debug.WriteLine ("Kliknuto je nad dugme koje se nalazi u " + sala + " a viewModel.Sala je " + viewModel.Sala);
+
 
                     viewModel.ImeStola = button.TableName;
 
                     var page = new OrderPage (viewModel);
                     //page.DataContext = new SettingsViewModel ();
                     PageNavigator.NavigateWithFade (page);
-                  
+
 
                 }
             }
@@ -446,16 +453,16 @@ namespace Caupo.Views
             {
 
 
-                    sto = button.TableName;
-        
+                sto = button.TableName;
+
                 string naslov = "GREŠKA";
                 string tekst = $"Niste kreirali ovu narudžbu. " + Environment.NewLine + sto + " ne pripada Vama.";
-                MyMessageBox myMessageBox = new MyMessageBox();
+                MyMessageBox myMessageBox = new MyMessageBox ();
                 ////myMessageBox.Owner = this;
                 myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                 myMessageBox.MessageTitle.Text = naslov;
                 myMessageBox.MessageText.Text = tekst;
-                myMessageBox.ShowDialog();
+                myMessageBox.ShowDialog ();
                 return;
             }
 
@@ -469,19 +476,19 @@ namespace Caupo.Views
             public override SolidColorBrush Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
 
-                using (JsonDocument doc = JsonDocument.ParseValue(ref reader))
+                using(JsonDocument doc = JsonDocument.ParseValue (ref reader))
                 {
-                    var colorString = doc.RootElement.GetProperty("Color").GetString();
-                    var color = (System.Windows.Media.Color)ColorConverter.ConvertFromString(colorString);
-                    return new SolidColorBrush(color);
+                    var colorString = doc.RootElement.GetProperty ("Color").GetString ();
+                    var color = (System.Windows.Media.Color)ColorConverter.ConvertFromString (colorString);
+                    return new SolidColorBrush (color);
                 }
             }
 
             public override void Write(Utf8JsonWriter writer, SolidColorBrush value, JsonSerializerOptions options)
             {
-                writer.WriteStartObject();
-                writer.WriteString("Color", value.Color.ToString());
-                writer.WriteEndObject();
+                writer.WriteStartObject ();
+                writer.WriteString ("Color", value.Color.ToString ());
+                writer.WriteEndObject ();
             }
         }
 
@@ -490,19 +497,19 @@ namespace Caupo.Views
             public override BitmapImage Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             {
                 // Čitanje URI-a slike kao string iz JSON-a
-                using (JsonDocument doc = JsonDocument.ParseValue(ref reader))
+                using(JsonDocument doc = JsonDocument.ParseValue (ref reader))
                 {
-                    var imageUri = doc.RootElement.GetProperty("ImageUri").GetString();
-                    var image = new BitmapImage(new Uri(imageUri));
+                    var imageUri = doc.RootElement.GetProperty ("ImageUri").GetString ();
+                    var image = new BitmapImage (new Uri (imageUri));
                     return image;
                 }
             }
 
             public override void Write(Utf8JsonWriter writer, BitmapImage value, JsonSerializerOptions options)
             {
-                writer.WriteStartObject();
-                writer.WriteString("ImageUri", value.ToString());
-                writer.WriteEndObject();
+                writer.WriteStartObject ();
+                writer.WriteString ("ImageUri", value.ToString ());
+                writer.WriteEndObject ();
             }
         }
 
@@ -587,9 +594,25 @@ namespace Caupo.Views
                 File.WriteAllText ("buttons.json", json);
                 Debug.WriteLine ("🔹 Saved buttons.json successfully!");
                 Debug.WriteLine (json);
+                string naslov = "OBAVJEŠTENJE";
+                string tekst = $"Uspješno ste spremili raspored stolova. ";
+                MyMessageBox myMessageBox = new MyMessageBox ();
+                ////myMessageBox.Owner = this;
+                myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                myMessageBox.MessageTitle.Text = naslov;
+                myMessageBox.MessageText.Text = tekst;
+                myMessageBox.ShowDialog ();
             }
             catch(Exception ex)
             {
+                string naslov = "GREŠKA";
+                string tekst = $"Raspored stolova nije spremljen: " + Environment.NewLine +  ex.Message;
+                MyMessageBox myMessageBox = new MyMessageBox ();
+                ////myMessageBox.Owner = this;
+                myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                myMessageBox.MessageTitle.Text = naslov;
+                myMessageBox.MessageText.Text = tekst;
+                myMessageBox.ShowDialog ();
                 Debug.WriteLine ($"❌ Error saving JSON: {ex.Message}");
             }
         }
@@ -597,39 +620,39 @@ namespace Caupo.Views
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            if (zauzeteNarudzbe.Count > 0)
+            if(zauzeteNarudzbe.Count > 0)
             {
                 string naslov = "GREŠKA";
                 string tekst = $"Imate otvorene narudžbe. " + Environment.NewLine + "Ne možete obrisati sve stolove dok imate otvorenih narudžbi.";
-                MyMessageBox myMessageBox1 = new MyMessageBox();
+                MyMessageBox myMessageBox1 = new MyMessageBox ();
                 //myMessageBox1.Owner = this;
                 myMessageBox1.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                 myMessageBox1.MessageTitle.Text = naslov;
                 myMessageBox1.MessageText.Text = tekst;
-                myMessageBox1.ShowDialog();
+                myMessageBox1.ShowDialog ();
                 return;
 
 
             }
-            YesNoPopup myMessageBox = new YesNoPopup();
+            YesNoPopup myMessageBox = new YesNoPopup ();
             myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             myMessageBox.MessageTitle.Text = "POTVRDA BRISANJA";
             myMessageBox.MessageText.Text = "Da li ste sigurni da želite obrisati sve stolove ?";
-            myMessageBox.ShowDialog();
-            if (myMessageBox.Kliknuo == "Da")
+            myMessageBox.ShowDialog ();
+            if(myMessageBox.Kliknuo == "Da")
             {
-                if (File.Exists("buttons.json"))
+                if(File.Exists ("buttons.json"))
                 {
-                    File.Delete("buttons.json");
-                    if (tabControl.SelectedItem is TabItem selectedTab)
+                    File.Delete ("buttons.json");
+                    if(tabControl.SelectedItem is TabItem selectedTab)
                     {
-                        if (selectedTab.Content is Canvas current)
+                        if(selectedTab.Content is Canvas current)
                         {
 
-                            if (current is Canvas canvas)
+                            if(current is Canvas canvas)
                             {
-                                canvas.Children.Clear();
-                                buttons.Clear();
+                                canvas.Children.Clear ();
+                                buttons.Clear ();
                             }
                         }
 
@@ -674,18 +697,18 @@ namespace Caupo.Views
 
         private void EditSize(Button button)
         {
-            var inputDialog = new SizeInputDialog();
-            if (inputDialog.ShowDialog() == true)
+            var inputDialog = new SizeInputDialog ();
+            if(inputDialog.ShowDialog () == true)
             {
-                button.Width = Convert.ToDouble(inputDialog.InputTextWidth.Text);
-                button.Height = Convert.ToDouble(inputDialog.InputTextHeight.Text);
+                button.Width = Convert.ToDouble (inputDialog.InputTextWidth.Text);
+                button.Height = Convert.ToDouble (inputDialog.InputTextHeight.Text);
 
 
-                var buttonInfo = buttons.Find(b => b.ID == (int)button.Tag);
-                if (buttonInfo != null)
+                var buttonInfo = buttons.Find (b => b.ID == (int)button.Tag);
+                if(buttonInfo != null)
                 {
-                    buttonInfo.Width = Convert.ToDouble(inputDialog.InputTextWidth.Text);
-                    buttonInfo.Height = Convert.ToDouble(inputDialog.InputTextHeight.Text);
+                    buttonInfo.Width = Convert.ToDouble (inputDialog.InputTextWidth.Text);
+                    buttonInfo.Height = Convert.ToDouble (inputDialog.InputTextHeight.Text);
 
                 }
             }
@@ -693,25 +716,25 @@ namespace Caupo.Views
 
         private void DeleteButton(TableButton button)
         {
-            YesNoPopup myMessageBox = new YesNoPopup();
+            YesNoPopup myMessageBox = new YesNoPopup ();
             myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-           myMessageBox.MessageText.Text = "Da li ste sigurni da želite obrisati " + button.TableName + "?";
-            myMessageBox.ShowDialog();
-            if (myMessageBox.Kliknuo == "Da")
+            myMessageBox.MessageText.Text = "Da li ste sigurni da želite obrisati " + button.TableName + "?";
+            myMessageBox.ShowDialog ();
+            if(myMessageBox.Kliknuo == "Da")
             {
-                var buttonInfo = buttons.Find(b => b.ID == (int)button.Tag);
-                if (buttonInfo != null)
+                var buttonInfo = buttons.Find (b => b.ID == (int)button.Tag);
+                if(buttonInfo != null)
                 {
-                    buttons.Remove(buttonInfo);
-                    var current = VisualTreeHelper.GetParent(button);
-                    while (current != null && current is not Canvas)
+                    buttons.Remove (buttonInfo);
+                    var current = VisualTreeHelper.GetParent (button);
+                    while(current != null && current is not Canvas)
                     {
-                        current = VisualTreeHelper.GetParent(current);
+                        current = VisualTreeHelper.GetParent (current);
                     }
-                    if (current is Canvas canvas)
+                    if(current is Canvas canvas)
                     {
-                        canvas.Children.Remove(button);
-                        SaveButton_Click(null, null);
+                        canvas.Children.Remove (button);
+                        SaveButton_Click (null, null);
                     }
                 }
 
@@ -723,7 +746,7 @@ namespace Caupo.Views
             public string TabHeader { get; set; } = string.Empty;
             public string Name { get; set; } = string.Empty;
             public SolidColorBrush BackgroundColor { get; set; }
-            public List<ButtonInfo> Buttons { get; set; } = new();
+            public List<ButtonInfo> Buttons { get; set; } = new ();
         }
         public class ButtonInfo
         {
@@ -749,9 +772,9 @@ namespace Caupo.Views
 
 
 
-        private List<int> zauzeteNarudzbe = new();
+        private List<int> zauzeteNarudzbe = new ();
         public List<CanvasTabInfo> LoadedSalaConfig { get; set; }
-        public HashSet<int> zauzeteNarudzbe2 = new();
+        public HashSet<int> zauzeteNarudzbe2 = new ();
 
 
 
@@ -910,6 +933,8 @@ namespace Caupo.Views
                 TableName = buttonInfo.Text,
                 Waiter = buttonInfo.Waiter,
                 WaiterId = buttonInfo.WaiterId,
+                Width = buttonInfo.Width,
+                Height = buttonInfo.Height,
                 BorderBrush = buttonInfo.ButtonBorderBrush,
                 HorizontalAlignment = HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Top,
@@ -917,12 +942,12 @@ namespace Caupo.Views
             };
 
             // Dynamically scale width/height based on Canvas size
-            canvas.SizeChanged += (s, e) =>
-            {
-                double scale = 0.14; // 14% of canvas height
-                button.Width = canvas.ActualHeight * scale;
-                button.Height = canvas.ActualHeight * scale;
-            };
+           // canvas.SizeChanged += (s, e) =>
+           // {
+           //     double scale = 0.14; // 14% of canvas height
+            //    button.Width = canvas.ActualHeight * scale;
+            //    button.Height = canvas.ActualHeight * scale;
+           // };
 
             button.PreviewMouseLeftButtonDown += Button_MouseLeftButtonDown;
             button.PreviewMouseMove += Button_MouseMove;
@@ -943,6 +968,7 @@ namespace Caupo.Views
             var tableTextBlock = new TextBlock
             {
                 Name = "TableName",
+                Margin = new Thickness (1),
                 TextWrapping = TextWrapping.Wrap,
                 TextAlignment = TextAlignment.Center,
                 FontSize = 12
@@ -958,6 +984,7 @@ namespace Caupo.Views
             var waiterTextBlock = new TextBlock
             {
                 Name = "WaiterName",
+                Margin = new Thickness (1),
                 TextWrapping = TextWrapping.Wrap,
                 TextAlignment = TextAlignment.Center,
                 FontSize = 10,
@@ -967,6 +994,7 @@ namespace Caupo.Views
             var totalTextBlock = new TextBlock
             {
                 Name = "TotalAmount",
+                Margin = new Thickness (0, 0, 0, 5),
                 TextWrapping = TextWrapping.Wrap,
                 TextAlignment = TextAlignment.Center,
                 FontSize = 10,
@@ -988,23 +1016,23 @@ namespace Caupo.Views
 
         private void CreateTablesFromJson()
         {
-            foreach (var sala in LoadedSalaConfig)
+            foreach(var sala in LoadedSalaConfig)
             {
-                Debug.WriteLine("  foreach (var sala in LoadedSalaConfig) ------ " + sala.TabHeader);
+                Debug.WriteLine ("  foreach (var sala in LoadedSalaConfig) ------ " + sala.TabHeader);
                 var tab = tabControl.Items
-                    .OfType<TabItem>()
-                    .FirstOrDefault(t => t.Header.ToString() == sala.TabHeader);
+                    .OfType<TabItem> ()
+                    .FirstOrDefault (t => t.Header.ToString () == sala.TabHeader);
 
-                if (tab?.Content is Canvas canvas)
+                if(tab?.Content is Canvas canvas)
                 {
-                    foreach (var cfg in sala.Buttons)
+                    foreach(var cfg in sala.Buttons)
                     {
-                        Debug.WriteLine(" foreach (var cfg in sala.Buttons) ------ " + cfg.ID);
-                        var tableBtn = CreateTableButton(cfg, canvas);
-                        canvas.Children.Add(tableBtn);
+                        Debug.WriteLine (" foreach (var cfg in sala.Buttons) ------ " + cfg.ID);
+                        var tableBtn = CreateTableButton (cfg, canvas);
+                        canvas.Children.Add (tableBtn);
 
-                        Canvas.SetLeft(tableBtn, cfg.X);
-                        Canvas.SetTop(tableBtn, cfg.Y);
+                        Canvas.SetLeft (tableBtn, cfg.X);
+                        Canvas.SetTop (tableBtn, cfg.Y);
                     }
                 }
             }
@@ -1109,57 +1137,57 @@ namespace Caupo.Views
 
         private void RenameTab_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is MenuItem menuItem &&
+            if(sender is MenuItem menuItem &&
                 menuItem.Parent is ContextMenu ctx &&
                 ctx.PlacementTarget is TabItem tab &&
-                tab.Header.ToString() != "+")
+                tab.Header.ToString () != "+")
             {
-                string oldName = tab.Header.ToString();
+                string oldName = tab.Header.ToString ();
 
-             
+
 
                 var inputDialog = new MyInputBox ();
-                
+
                 inputDialog.Owner = MainWindow.Instance;
                 inputDialog.Topmost = false;
                 inputDialog.ShowActivated = true;
                 inputDialog.InputTitle.Text = "NOVI NAZIV SALE";
                 inputDialog.Closed += (s, e) =>
                 {
-                    if (inputDialog.DialogResult == true)
+                    if(inputDialog.DialogResult == true)
                     {
-                        if (!string.IsNullOrWhiteSpace (inputDialog.InputText.Text))
+                        if(!string.IsNullOrWhiteSpace (inputDialog.InputText.Text))
                             tab.Header = inputDialog.InputText.Text;
                     }
                 };
                 inputDialog.ShowDialog ();
-              
+
             }
 
 
         }
-         private void DeleteTab_Click(object sender, RoutedEventArgs e)
+        private void DeleteTab_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is MenuItem menuItem &&
+            if(sender is MenuItem menuItem &&
                 menuItem.Parent is ContextMenu ctx &&
                 ctx.PlacementTarget is TabItem tab &&
-                tab.Header.ToString() != "+")
+                tab.Header.ToString () != "+")
             {
                 YesNoPopup myMessageBox = new YesNoPopup ();
                 myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                 myMessageBox.MessageTitle.Text = "POTVRDA BRISANJA";
                 myMessageBox.MessageText.Text = $"Da li ste sigurni da želite obrisati salu \"{tab.Header}\"?";
                 myMessageBox.ShowDialog ();
-                if (myMessageBox.Kliknuo == "Da")
+                if(myMessageBox.Kliknuo == "Da")
                 {
-                      tabControl.Items.Remove(tab);
+                    tabControl.Items.Remove (tab);
                 }
             }
         }
 
         private TabItem CreateTab(Canvas canvas, string name, string header)
         {
-            if (DataContext is OrdersViewModel viewModel)
+            if(DataContext is OrdersViewModel viewModel)
             {
 
                 var tab = new TabItem
@@ -1168,38 +1196,38 @@ namespace Caupo.Views
                     Name = name,
                     Width = 150,
                     FontSize = 14,
-                    BorderThickness = new Thickness(0),
+                    BorderThickness = new Thickness (1),
                     FontWeight = FontWeights.ExtraLight,
-                    Padding = new Thickness(5),
+                    Padding = new Thickness (5),
                     Content = canvas
                 };
 
-                var menuSala = new ContextMenu();
-               
+                var menuSala = new ContextMenu ();
+
                 var separatorSala1 = new Separator
                 {
                     Height = 1,
-                    Margin = new Thickness (5, 2,0,0),
+                    Margin = new Thickness (5, 2, 0, 0),
                     Background = Brushes.LightGray
                 };
                 var renameItemSala = new MenuItem ();
                 var stackPanelRenameSala = new StackPanel
-                        {
-                            Orientation = Orientation.Horizontal
-                        };
+                {
+                    Orientation = Orientation.Horizontal
+                };
                 var iconSalaRename = new TextBlock
-                        {
-                            Text = "\uE895", // Edit ikona (hex kod)
-                            FontFamily = new FontFamily ("Segoe MDL2 Assets"),
-                            FontSize = 16,
-                            Margin = new Thickness (0, 0, 8, 0),
-                            VerticalAlignment = VerticalAlignment.Center
-                        };
-                 var textSalaRename = new TextBlock
-                        {
-                            Text = "Preimenuj salu",
-                            VerticalAlignment = VerticalAlignment.Center
-                        };
+                {
+                    Text = "\uE895", // Edit ikona (hex kod)
+                    FontFamily = new FontFamily ("Segoe MDL2 Assets"),
+                    FontSize = 16,
+                    Margin = new Thickness (0, 0, 8, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                var textSalaRename = new TextBlock
+                {
+                    Text = "Preimenuj salu",
+                    VerticalAlignment = VerticalAlignment.Center
+                };
                 stackPanelRenameSala.Children.Add (iconSalaRename);
                 stackPanelRenameSala.Children.Add (textSalaRename);
                 renameItemSala.Header = stackPanelRenameSala;
@@ -1228,9 +1256,9 @@ namespace Caupo.Views
                 deleteItemSala.Header = stackPanelDeleteSala;
                 deleteItemSala.Click += DeleteTab_Click;
 
-                menuSala.Items.Add(renameItemSala);
+                menuSala.Items.Add (renameItemSala);
                 menuSala.Items.Add (separatorSala1);
-                menuSala.Items.Add(deleteItemSala);
+                menuSala.Items.Add (deleteItemSala);
                 tab.ContextMenu = menuSala;
 
                 return tab;
@@ -1243,37 +1271,37 @@ namespace Caupo.Views
 
         private string GenerateNextTabName()
         {
-            var existingNames = tabControl.Items.Cast<TabItem>()
-                .Select(t => t.Header.ToString())
-                .ToList();
+            var existingNames = tabControl.Items.Cast<TabItem> ()
+                .Select (t => t.Header.ToString ())
+                .ToList ();
 
             // Pronađi sve postojeće brojeve sala
-            var existingNumbers = new List<int>();
+            var existingNumbers = new List<int> ();
 
-            foreach (var name in existingNames)
+            foreach(var name in existingNames)
             {
-                if (name.StartsWith("Sala "))
+                if(name.StartsWith ("Sala "))
                 {
                     // Pokušaj izvući broj
-                    if (int.TryParse(name.Substring(5), out int number))
+                    if(int.TryParse (name.Substring (5), out int number))
                     {
-                        existingNumbers.Add(number);
+                        existingNumbers.Add (number);
                     }
                 }
             }
 
             // Ako nema postojećih tabova, kreni od 1
-            if (!existingNumbers.Any())
+            if(!existingNumbers.Any ())
                 return "Sala 1";
 
             // Pronađi sljedeći broj (najveći postojeći + 1)
-            int nextNumber = existingNumbers.Max() + 1;
+            int nextNumber = existingNumbers.Max () + 1;
             return $"Sala {nextNumber}";
         }
 
         private string GetRandomColor(List<Color> usedColors)
         {
-            var random = new Random();
+            var random = new Random ();
             var allColors = new List<string>
                     {
                         "#c95c02", "#701634", "#164570", "#167040", "#8A84E2",
@@ -1281,23 +1309,23 @@ namespace Caupo.Views
                         "#E71D36", "#2EC4B6", "#FF9F1C", "#011627", "#8B5FBF"
                     };
 
-            var availableColors = allColors.Where(c =>
-                !usedColors.Any(used => used == (Color)ColorConverter.ConvertFromString(c))
-            ).ToList();
+            var availableColors = allColors.Where (c =>
+                !usedColors.Any (used => used == (Color)ColorConverter.ConvertFromString (c))
+            ).ToList ();
 
-            if (availableColors.Any())
-                return availableColors[random.Next(availableColors.Count)];
+            if(availableColors.Any ())
+                return availableColors[random.Next (availableColors.Count)];
 
-            return allColors[random.Next(allColors.Count)];
+            return allColors[random.Next (allColors.Count)];
         }
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             //File.Delete("buttons.json");
-            LoadLayoutJson();        // 1) učitaj JSON
-            CreateTabsFromJson();    // 2) stvori tabove
-            CreateTablesFromJson();  // 3) stvori stolove
-            await UpdateOccupiedTables(); // 4) oboji zauzete
+            LoadLayoutJson ();        // 1) učitaj JSON
+            CreateTabsFromJson ();    // 2) stvori tabove
+            CreateTablesFromJson ();  // 3) stvori stolove
+            await UpdateOccupiedTables (); // 4) oboji zauzete
 
             isInitialized = true;
         }

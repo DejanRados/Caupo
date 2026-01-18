@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Threading.Tasks;
+using System.Printing;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -20,7 +20,7 @@ namespace Caupo.ViewModels
     {
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string? propertyName) =>
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
 
         private readonly KnjigaSankaService _service;
 
@@ -31,11 +31,11 @@ namespace Caupo.ViewModels
             set
             {
                 _firma = value;
-                OnPropertyChanged(nameof(Firma)); // ako implementiraš INotifyPropertyChanged
+                OnPropertyChanged (nameof (Firma)); // ako implementiraš INotifyPropertyChanged
             }
         }
         public ObservableCollection<StavkaKnjigeSanka> Knjiga { get; }
-            = new ObservableCollection<StavkaKnjigeSanka>();
+            = new ObservableCollection<StavkaKnjigeSanka> ();
 
         private DateTime _odabraniDatum = DateTime.Today;
         public DateTime OdabraniDatum
@@ -44,8 +44,8 @@ namespace Caupo.ViewModels
             set
             {
                 _odabraniDatum = value;
-                OnPropertyChanged(nameof(OdabraniDatum));
-                _ = LoadDataAsync(); // automatski refresh
+                OnPropertyChanged (nameof (OdabraniDatum));
+                _ = LoadDataAsync (); // automatski refresh
             }
         }
         private string? _imagePathPrintButton;
@@ -55,7 +55,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathPrintButton = value;
-                OnPropertyChanged(nameof(ImagePathPrintButton));
+                OnPropertyChanged (nameof (ImagePathPrintButton));
             }
         }
 
@@ -66,7 +66,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathFirstButton = value;
-                OnPropertyChanged(nameof(ImagePathFirstButton));
+                OnPropertyChanged (nameof (ImagePathFirstButton));
             }
         }
 
@@ -77,7 +77,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathLastButton = value;
-                OnPropertyChanged(nameof(ImagePathLastButton));
+                OnPropertyChanged (nameof (ImagePathLastButton));
             }
         }
 
@@ -87,10 +87,10 @@ namespace Caupo.ViewModels
             get { return _Total; }
             set
             {
-                if (_Total != value)
+                if(_Total != value)
                 {
                     _Total = value;
-                    OnPropertyChanged(nameof(Total));
+                    OnPropertyChanged (nameof (Total));
                 }
             }
         }
@@ -102,10 +102,10 @@ namespace Caupo.ViewModels
             get { return _fontColor; }
             set
             {
-                if (_fontColor != value)
+                if(_fontColor != value)
                 {
                     _fontColor = value;
-                    OnPropertyChanged(nameof(FontColor));
+                    OnPropertyChanged (nameof (FontColor));
                 }
             }
         }
@@ -116,10 +116,10 @@ namespace Caupo.ViewModels
             get { return _backColor; }
             set
             {
-                if (_backColor != value)
+                if(_backColor != value)
                 {
                     _backColor = value;
-                    OnPropertyChanged(nameof(BackColor));
+                    OnPropertyChanged (nameof (BackColor));
                 }
             }
         }
@@ -127,58 +127,59 @@ namespace Caupo.ViewModels
         public KnjigaSankaViewModel(KnjigaSankaService service)
         {
             _service = service;
-            _ = Start();
+            _ = Start ();
         }
 
-         public async Task Start()
+        public async Task Start()
         {
-            await SetImage();
-            await LoadDataAsync();
-           
-            await LoadFirmaAsync();
+            await SetImage ();
+            await LoadDataAsync ();
+
+            await LoadFirmaAsync ();
         }
         private async Task LoadDataAsync()
         {
-            Debug.WriteLine("Trigerovan  private async Task LoadDataAsync() u  KnjigaSankaViewModel");
-            Knjiga.Clear();
-            var data = await _service.GetKnjigaZaDanAsync(OdabraniDatum);
-            foreach (var item in data)
+            Debug.WriteLine ("Trigerovan  private async Task LoadDataAsync() u  KnjigaSankaViewModel");
+            Knjiga.Clear ();
+            var data = await _service.GetKnjigaZaDanAsync (OdabraniDatum);
+            foreach(var item in data)
             {
-                Debug.WriteLine(item.Naziv + " -- "+ item.IsPromet);
+                Debug.WriteLine (item.Naziv + " -- " + item.IsPromet);
                 Total += item.Promet;
-                Knjiga.Add(item);
+                Knjiga.Add (item);
             }
-               
+
         }
 
         public async Task LoadFirmaAsync()
         {
             try
             {
-                using var db = new AppDbContext();
-                Firma = await db.Firma.FirstOrDefaultAsync();
-                Debug.WriteLine("Firma učitana: " + (Firma?.NazivFirme ?? "null"));
+                using var db = new AppDbContext ();
+                Firma = await db.Firma.FirstOrDefaultAsync ();
+                Debug.WriteLine ("Firma učitana: " + (Firma?.NazivFirme ?? "null"));
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Debug.WriteLine(ex);
+                Debug.WriteLine (ex);
             }
         }
 
 
         public async Task SetImage()
         {
-            await Task.Delay(1);
+            await Task.Delay (1);
             string tema = Settings.Default.Tema;
-          
-            if (tema == "Tamna")
+
+            if(tema == "Tamna")
             {
-                Debug.WriteLine("Aktivna tema koju vidi viewmodel je : " + tema);
+                Debug.WriteLine ("Aktivna tema koju vidi viewmodel je : " + tema);
 
                 ImagePathPrintButton = "pack://application:,,,/Images/Dark/printer.svg";
 
-                FontColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(212, 212, 212));   Application.Current.Resources["GlobalFontColor"] =    FontColor;
-                BackColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 50, 50));
+                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
+                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
 
 
             }
@@ -186,9 +187,10 @@ namespace Caupo.ViewModels
             {
 
                 ImagePathPrintButton = "pack://application:,,,/Images/Light/printer.svg";
-                Debug.WriteLine("Aktivna tema koju vidi viewmodel je : " + tema);
-                FontColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 50, 50));  Application.Current.Resources["GlobalFontColor"] =    FontColor;
-                BackColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(212, 212, 212));
+                Debug.WriteLine ("Aktivna tema koju vidi viewmodel je : " + tema);
+                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
+                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
 
             }
         }
@@ -200,22 +202,22 @@ namespace Caupo.ViewModels
                 PageWidth = 700,   // A4 širina u device independent units (1/96 inča)
                 PageHeight = 1122, // A4 visina
                 ColumnWidth = double.PositiveInfinity,
-                FontFamily = new FontFamily("Segoe UI"),
+                FontFamily = new FontFamily ("Segoe UI"),
                 FontSize = 10,
-                PagePadding = new Thickness(50) // margine
+                PagePadding = new Thickness (50) // margine
             };
 
-     
-// === ZAGLAVLJE ===
-Table headerTable = new Table();
-            headerTable.Columns.Add(new TableColumn { Width = new GridLength(200) }); // lijeva kolona
-            headerTable.Columns.Add(new TableColumn { Width = new GridLength(200) }); // srednja kolona
-            headerTable.Columns.Add(new TableColumn { Width = new GridLength(150) }); // desna kolona
 
-            TableRowGroup trg = new TableRowGroup();
-            headerTable.RowGroups.Add(trg);
-            TableRow row = new TableRow();
-            trg.Rows.Add(row);
+            // === ZAGLAVLJE ===
+            Table headerTable = new Table ();
+            headerTable.Columns.Add (new TableColumn { Width = new GridLength (200) }); // lijeva kolona
+            headerTable.Columns.Add (new TableColumn { Width = new GridLength (200) }); // srednja kolona
+            headerTable.Columns.Add (new TableColumn { Width = new GridLength (150) }); // desna kolona
+
+            TableRowGroup trg = new TableRowGroup ();
+            headerTable.RowGroups.Add (trg);
+            TableRow row = new TableRow ();
+            trg.Rows.Add (row);
 
             // --- Lijevo: podaci o firmi ---
             Paragraph firmaPar = new Paragraph
@@ -223,13 +225,13 @@ Table headerTable = new Table();
                 TextAlignment = TextAlignment.Left,
                 FontSize = 12
             };
-            firmaPar.Inlines.Add(nazivFirme + Environment.NewLine);
-            firmaPar.Inlines.Add(adresa + Environment.NewLine);
-            firmaPar.Inlines.Add(grad + Environment.NewLine);
-            firmaPar.Inlines.Add("JIB: " + jib + Environment.NewLine);
-            firmaPar.Inlines.Add("PDV: " + pdv);
+            firmaPar.Inlines.Add (nazivFirme + Environment.NewLine);
+            firmaPar.Inlines.Add (adresa + Environment.NewLine);
+            firmaPar.Inlines.Add (grad + Environment.NewLine);
+            firmaPar.Inlines.Add ("JIB: " + jib + Environment.NewLine);
+            firmaPar.Inlines.Add ("PDV: " + pdv);
 
-            row.Cells.Add(new TableCell(firmaPar) { BorderThickness = new Thickness(0) });
+            row.Cells.Add (new TableCell (firmaPar) { BorderThickness = new Thickness (0) });
 
             // --- Centar: naslov ---
             Paragraph naslovPar = new Paragraph
@@ -238,7 +240,7 @@ Table headerTable = new Table();
                 FontSize = 20,
                 FontWeight = FontWeights.Bold
             };
-            naslovPar.Inlines.Add("DNEVNI LIST ŠANKA");
+            naslovPar.Inlines.Add ("DNEVNI LIST ŠANKA");
 
             Paragraph datumPar = new Paragraph
             {
@@ -246,19 +248,19 @@ Table headerTable = new Table();
                 FontSize = 12,
                 FontWeight = FontWeights.Medium
             };
-            datumPar.Inlines.Add($"Za dan: {odabraniDatum:dd.MM.yyyy}");
+            datumPar.Inlines.Add ($"Za dan: {odabraniDatum:dd.MM.yyyy}");
 
             // Napravi TableCell, podesi svojstva i dodaj blokove
             var centerCell = new TableCell
             {
-                BorderThickness = new Thickness(0),
+                BorderThickness = new Thickness (0),
                 TextAlignment = TextAlignment.Center
             };
-            centerCell.Blocks.Add(naslovPar);
-            centerCell.Blocks.Add(datumPar);
+            centerCell.Blocks.Add (naslovPar);
+            centerCell.Blocks.Add (datumPar);
 
             // Dodaj u red
-            row.Cells.Add(centerCell);
+            row.Cells.Add (centerCell);
 
 
             // --- Desno: obrazac ---
@@ -267,73 +269,73 @@ Table headerTable = new Table();
                 TextAlignment = TextAlignment.Right,
                 FontSize = 10
             };
-            obrazacPar.Inlines.Add("Obrazac DLŠ");
-            row.Cells.Add(new TableCell(obrazacPar) { BorderThickness = new Thickness(0) });
+            obrazacPar.Inlines.Add ("Obrazac DLŠ");
+            row.Cells.Add (new TableCell (obrazacPar) { BorderThickness = new Thickness (0) });
 
             // Dodaj tabelu u dokument
-            doc.Blocks.Add(headerTable);
+            doc.Blocks.Add (headerTable);
 
-            doc.Blocks.Add(new Paragraph(new Run(" ")) { FontSize = 6 }); // mali razmak ispod
+            doc.Blocks.Add (new Paragraph (new Run (" ")) { FontSize = 6 }); // mali razmak ispod
 
 
 
             // === TABELA ===
-            Table table = new Table();
-            table.CellSpacing = 0;     
-            doc.Blocks.Add(table);
+            Table table = new Table ();
+            table.CellSpacing = 0;
+            doc.Blocks.Add (table);
 
             // Definicija kolona
-            table.Columns.Add(new TableColumn { Width = new GridLength(25) });
-            table.Columns.Add(new TableColumn { Width = new GridLength(150) });
-            table.Columns.Add(new TableColumn { Width = new GridLength(30) });
-            table.Columns.Add(new TableColumn { Width = new GridLength(56) });
-            table.Columns.Add(new TableColumn { Width = new GridLength(56) });
-            table.Columns.Add(new TableColumn { Width = new GridLength(56) });
-            table.Columns.Add(new TableColumn { Width = new GridLength(56) });
-            table.Columns.Add(new TableColumn { Width = new GridLength(56) });
-            table.Columns.Add(new TableColumn { Width = new GridLength(56) });
-            table.Columns.Add(new TableColumn { Width = new GridLength(56) });
+            table.Columns.Add (new TableColumn { Width = new GridLength (25) });
+            table.Columns.Add (new TableColumn { Width = new GridLength (150) });
+            table.Columns.Add (new TableColumn { Width = new GridLength (30) });
+            table.Columns.Add (new TableColumn { Width = new GridLength (56) });
+            table.Columns.Add (new TableColumn { Width = new GridLength (56) });
+            table.Columns.Add (new TableColumn { Width = new GridLength (56) });
+            table.Columns.Add (new TableColumn { Width = new GridLength (56) });
+            table.Columns.Add (new TableColumn { Width = new GridLength (56) });
+            table.Columns.Add (new TableColumn { Width = new GridLength (56) });
+            table.Columns.Add (new TableColumn { Width = new GridLength (56) });
 
             // Header red
-            TableRowGroup headerGroup = new TableRowGroup();
-            table.RowGroups.Add(headerGroup);
-            TableRow headerRow = new TableRow();
-            headerGroup.Rows.Add(headerRow);
+            TableRowGroup headerGroup = new TableRowGroup ();
+            table.RowGroups.Add (headerGroup);
+            TableRow headerRow = new TableRow ();
+            headerGroup.Rows.Add (headerRow);
 
             string[] kolone = { "#", "Naziv robe", "JM", "Prenesene zalihe iz prethodnog dana", "Nabavke u toku dana", "Ukupno zaduženje", "Utrošak u toku dana", "Cijena", "Iznos", "Ostatak robe-Prenos za naredni dan" };
-            foreach (var col in kolone)
+            foreach(var col in kolone)
             {
-                TableCell cell = new TableCell(new Paragraph(new Run(col)))
+                TableCell cell = new TableCell (new Paragraph (new Run (col)))
                 {
                     FontWeight = FontWeights.Medium,
                     TextAlignment = TextAlignment.Center,
-                    Padding = new Thickness(4),
+                    Padding = new Thickness (4),
                     FontSize = 10,
                     BorderBrush = Brushes.Gray,
-                    BorderThickness = new Thickness(0.5)
+                    BorderThickness = new Thickness (0.5)
                 };
-                headerRow.Cells.Add(cell);
+                headerRow.Cells.Add (cell);
             }
 
             // Podaci
-            TableRowGroup bodyGroup = new TableRowGroup();
-            table.RowGroups.Add(bodyGroup);
+            TableRowGroup bodyGroup = new TableRowGroup ();
+            table.RowGroups.Add (bodyGroup);
 
-            foreach (var item in knjiga)
+            foreach(var item in knjiga)
             {
-                TableRow row2 = new TableRow();
-                bodyGroup.Rows.Add(row2);
+                TableRow row2 = new TableRow ();
+                bodyGroup.Rows.Add (row2);
 
-                row2.Cells.Add(CreateCell(item.RedniBroj.GetValueOrDefault().ToString(), TextAlignment.Center));
-                row2.Cells.Add(CreateCell(item.Naziv, TextAlignment.Left));
-                row2.Cells.Add(CreateCell(item.JedinicaMjere, TextAlignment.Center));
-                row2.Cells.Add(CreateCell(item.OstatakOdJuce.ToString("F2"), TextAlignment.Right));
-                row2.Cells.Add(CreateCell(item.NabavljenoDanas.ToString("F2"), TextAlignment.Right));
-                row2.Cells.Add(CreateCell(item.NaStanju.ToString("F2"), TextAlignment.Right));
-                row2.Cells.Add(CreateCell(item.UtrosenoDanas.ToString("F2"), TextAlignment.Right));
-                row2.Cells.Add(CreateCell(item.Cijena.ToString("F2"), TextAlignment.Right));
-                row2.Cells.Add(CreateCell(item.Promet.ToString("F2"), TextAlignment.Right));
-                row2.Cells.Add(CreateCell(item.OstatakZaSutra.ToString("F2"), TextAlignment.Right));
+                row2.Cells.Add (CreateCell (item.RedniBroj.GetValueOrDefault ().ToString (), TextAlignment.Center));
+                row2.Cells.Add (CreateCell (item.Naziv, TextAlignment.Left));
+                row2.Cells.Add (CreateCell (item.JedinicaMjere, TextAlignment.Center));
+                row2.Cells.Add (CreateCell (item.OstatakOdJuce.ToString ("F2"), TextAlignment.Right));
+                row2.Cells.Add (CreateCell (item.NabavljenoDanas.ToString ("F2"), TextAlignment.Right));
+                row2.Cells.Add (CreateCell (item.NaStanju.ToString ("F2"), TextAlignment.Right));
+                row2.Cells.Add (CreateCell (item.UtrosenoDanas.ToString ("F2"), TextAlignment.Right));
+                row2.Cells.Add (CreateCell (item.Cijena.ToString ("F2"), TextAlignment.Right));
+                row2.Cells.Add (CreateCell (item.Promet.ToString ("F2"), TextAlignment.Right));
+                row2.Cells.Add (CreateCell (item.OstatakZaSutra.ToString ("F2"), TextAlignment.Right));
             }
 
             // === UKUPNO ===
@@ -343,37 +345,38 @@ Table headerTable = new Table();
                 FontSize = 12,
                 FontWeight = FontWeights.Medium
             };
-            totalPar.Inlines.Add("UKUPNO: " + total.GetValueOrDefault().ToString("F2"));
-            doc.Blocks.Add(totalPar);
+            totalPar.Inlines.Add ("UKUPNO: " + total.GetValueOrDefault ().ToString ("F2"));
+            doc.Blocks.Add (totalPar);
 
             // === POTPIS ===
             Paragraph footer = new Paragraph
             {
                 TextAlignment = TextAlignment.Left,
                 FontSize = 12,
-                Margin = new Thickness(0, 5, 0, 0)
+                Margin = new Thickness (0, 5, 0, 0)
             };
-            footer.Inlines.Add("POTPIS: __________________________");
-           
-            doc.Blocks.Add(footer);
+            footer.Inlines.Add ("POTPIS: __________________________");
+
+            doc.Blocks.Add (footer);
 
             // === ŠTAMPA ===
-            PrintDialog printDlg = new PrintDialog();
-            if (printDlg.ShowDialog() == true)
+            PrintDialog printDlg = new PrintDialog ();
+            printDlg.PrintQueue = LocalPrintServer.GetDefaultPrintQueue ();
+            if(printDlg.ShowDialog () == true)
             {
                 IDocumentPaginatorSource idpSource = doc;
-                printDlg.PrintDocument(idpSource.DocumentPaginator, "Dnevni list šanka");
+                printDlg.PrintDocument (idpSource.DocumentPaginator, "Dnevni list šanka");
             }
         }
 
         private TableCell CreateCell(string text, TextAlignment alignment)
         {
-            return new TableCell(new Paragraph(new Run(text)))
+            return new TableCell (new Paragraph (new Run (text)))
             {
                 TextAlignment = alignment,
-                Padding = new Thickness(3),
+                Padding = new Thickness (3),
                 BorderBrush = Brushes.Gray,
-                BorderThickness = new Thickness(0.5)
+                BorderThickness = new Thickness (0.5)
             };
         }
     }

@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              IsHitTestVisible="True"
              d:DesignHeight="100" d:DesignWidth="800">
-    <Border CornerRadius="20" Padding="3" Background="{DynamicResource GlobalBackgroundColor}" HorizontalAlignment="Center" >
+    <Border CornerRadius="20" Padding="3" Background="{DynamicResource GlobalBackgroundColor}" HorizontalAlignment="Center" BorderThickness="2" BorderBrush="{DynamicResource GlobalFontColor}" Margin="5">
     <WrapPanel Orientation="Vertical" x:Name="KeyboardPanel" Margin="3"   Background="{DynamicResource GlobalBackgroundColor}" HorizontalAlignment="Center"  >
         
         <!-- RED 1 -->

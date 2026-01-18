@@ -1,25 +1,14 @@
-﻿using ClosedXML.Excel;
+﻿using Caupo.Data;
+using Caupo.Helpers;
+using Caupo.Properties;
+using Caupo.ViewModels;
+using ClosedXML.Excel;
 using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using Caupo.Data;
-using Caupo.ViewModels;
 using static Caupo.Data.DatabaseTables;
-using Caupo.Properties;
-using Caupo.Helpers;
 
 namespace Caupo.Views
 {
@@ -29,8 +18,8 @@ namespace Caupo.Views
         public BuyersPage()
         {
             InitializeComponent ();
-            this.DataContext = new BuyersViewModel();
-        
+            this.DataContext = new BuyersViewModel ();
+
             lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
         }
 
@@ -44,7 +33,7 @@ namespace Caupo.Views
 
         private void ListaKupaca_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (ListaKupaca.SelectedItem is TblKupci selectedBuyer &&
+            if(ListaKupaca.SelectedItem is TblKupci selectedBuyer &&
                 DataContext is BuyersViewModel vm)
             {
                 vm.SelectedBuyer = selectedBuyer;
@@ -60,53 +49,53 @@ namespace Caupo.Views
         private void BtnExport_Click(object sender, RoutedEventArgs e)
         {
 
-            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            SaveFileDialog saveFileDialog = new SaveFileDialog ();
             saveFileDialog.InitialDirectory = "C:\\";
             saveFileDialog.Filter = "Excel Files (*.xlsx)|*.xlsx|All Files (*.*)|*.*";
-            saveFileDialog.DefaultExt = ".xlsx"; 
+            saveFileDialog.DefaultExt = ".xlsx";
 
-            bool? result = saveFileDialog.ShowDialog();
+            bool? result = saveFileDialog.ShowDialog ();
 
-            if (result == true)
+            if(result == true)
             {
                 string filePath = saveFileDialog.FileName;
-                SaveExcelFile(filePath);
+                SaveExcelFile (filePath);
             }
         }
-     
+
 
         private void SaveExcelFile(string filePath)
         {
 
-            using (var workbook = new XLWorkbook())
+            using(var workbook = new XLWorkbook ())
             {
-                var worksheet = workbook.Worksheets.Add("Namirnice");
+                var worksheet = workbook.Worksheets.Add ("Namirnice");
 
-                worksheet.Cell(1, 1).Value = "ID";
-                worksheet.Cell(1, 2).Value = "Namirnica";
-                worksheet.Cell(1, 3).Value = "Jedinica mjere";
-                worksheet.Cell(1, 4).Value = "Planska cijena";
-                worksheet.Cell(1, 5).Value = "Nabavna cijena";
+                worksheet.Cell (1, 1).Value = "ID";
+                worksheet.Cell (1, 2).Value = "Namirnica";
+                worksheet.Cell (1, 3).Value = "Jedinica mjere";
+                worksheet.Cell (1, 4).Value = "Planska cijena";
+                worksheet.Cell (1, 5).Value = "Nabavna cijena";
 
-                
-                if (DataContext is IngredientsViewModel viewModel)
+
+                if(DataContext is IngredientsViewModel viewModel)
                 {
                     int row = 2;
 
-                    foreach (var ing in viewModel.Ingredients)
+                    foreach(var ing in viewModel.Ingredients)
                     {
-                        worksheet.Cell(row, 1).Value = ing.IdRepromaterijala;
-                        worksheet.Cell(row, 2).Value = ing.Repromaterijal;
-                        worksheet.Cell(row, 3).Value = ing.JedinicaMjere;
-                        worksheet.Cell(row, 4).Value = ing.JedinicaMjere;
-                        worksheet.Cell(row, 5).Value = ing.PlanskaCijena;
-                        worksheet.Cell(row, 6).Value = ing.NabavnaCijena;
-                       
-                        
+                        worksheet.Cell (row, 1).Value = ing.IdRepromaterijala;
+                        worksheet.Cell (row, 2).Value = ing.Repromaterijal;
+                        worksheet.Cell (row, 3).Value = ing.JedinicaMjere;
+                        worksheet.Cell (row, 4).Value = ing.JedinicaMjere;
+                        worksheet.Cell (row, 5).Value = ing.PlanskaCijena;
+                        worksheet.Cell (row, 6).Value = ing.NabavnaCijena;
+
+
                         row++;
                     }
                 }
-                workbook.SaveAs(filePath);
+                workbook.SaveAs (filePath);
             }
 
             MyMessageBox myMessageBox = new MyMessageBox
@@ -115,49 +104,49 @@ namespace Caupo.Views
             };
             myMessageBox.MessageTitle.Text = "IZVOZ U EXCEL";
             myMessageBox.MessageText.Text = "Izvoz tabele sa namirnicama je uspješno završen.";
-            myMessageBox.ShowDialog();
+            myMessageBox.ShowDialog ();
         }
         private async void BtnImport_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
+            OpenFileDialog openFileDialog = new OpenFileDialog ();
             openFileDialog.Filter = "Excel Files (*.xlsx;*.xls)|*.xlsx;*.xls|All Files (*.*)|*.*";
-            if (openFileDialog.ShowDialog() == true)
+            if(openFileDialog.ShowDialog () == true)
             {
-              await  ImportExcelToSQLiteAsync(openFileDialog.FileName);
+                await ImportExcelToSQLiteAsync (openFileDialog.FileName);
             }
             else
             {
                 return;
             }
 
-      
+
         }
 
         public async Task ImportExcelToSQLiteAsync(string excelFilePath)
         {
-            using (var workbook = new XLWorkbook(excelFilePath))
+            using(var workbook = new XLWorkbook (excelFilePath))
             {
-                var worksheet = workbook.Worksheets.First(); 
-                using (var db= new AppDbContext())
+                var worksheet = workbook.Worksheets.First ();
+                using(var db = new AppDbContext ())
                 {
 
-                    var ingList = worksheet.RowsUsed()
-                        .Skip(1) 
-                        .Select(row => new TblRepromaterijal
+                    var ingList = worksheet.RowsUsed ()
+                        .Skip (1)
+                        .Select (row => new TblRepromaterijal
                         {
-                            Repromaterijal = row.Cell(2).GetValue<string>(),
-                            JedinicaMjere= row.Cell(3).GetValue<int>(), 
-                           PlanskaCijena = row.Cell(4).GetValue<decimal?>(),
-                            NabavnaCijena = row.Cell(5).GetValue<decimal?>(), 
+                            Repromaterijal = row.Cell (2).GetValue<string> (),
+                            JedinicaMjere = row.Cell (3).GetValue<int> (),
+                            PlanskaCijena = row.Cell (4).GetValue<decimal?> (),
+                            NabavnaCijena = row.Cell (5).GetValue<decimal?> (),
                             Zaliha = 0,
-                           
+
 
                         })
-                        .ToList();
+                        .ToList ();
 
 
-                    await db.Repromaterijal.AddRangeAsync(ingList);
-                    await db.SaveChangesAsync();
+                    await db.Repromaterijal.AddRangeAsync (ingList);
+                    await db.SaveChangesAsync ();
                 }
             }
             MyMessageBox myMessageBox = new MyMessageBox
@@ -166,15 +155,15 @@ namespace Caupo.Views
             };
             myMessageBox.MessageTitle.Text = "UVOZ EXCEL";
             myMessageBox.MessageText.Text = "Uvoz namirnica iz Excel fajla je završen!";
-            myMessageBox.ShowDialog();
-           
+            myMessageBox.ShowDialog ();
+
         }
         private void BtnFirst_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is BuyersViewModel vm)
+            if(DataContext is BuyersViewModel vm)
             {
                 int index = vm.Buyers.IndexOf (vm.SelectedBuyer);
-                if (index > 0)
+                if(index > 0)
                 {
                     vm.SelectedBuyer = vm.Buyers[index - 1];
                 }
@@ -183,10 +172,10 @@ namespace Caupo.Views
 
         private void BtnLast_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is BuyersViewModel vm)
+            if(DataContext is BuyersViewModel vm)
             {
                 int index = vm.Buyers.IndexOf (vm.SelectedBuyer);
-                if (index < vm.Buyers.Count - 1)
+                if(index < vm.Buyers.Count - 1)
                 {
                     vm.SelectedBuyer = vm.Buyers[index + 1];
                 }
@@ -201,7 +190,7 @@ namespace Caupo.Views
 
         private void ListaRacuna_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (ListaRacuna.SelectedItem is TblRacuni selectedReceipt &&
+            if(ListaRacuna.SelectedItem is TblRacuni selectedReceipt &&
                 DataContext is BuyersViewModel vm)
             {
                 vm.SelectedReceipt = selectedReceipt;
@@ -215,10 +204,10 @@ namespace Caupo.Views
 
             try
             {
-                BitmapImage logo = new BitmapImage();
-                logo.BeginInit();
-                logo.UriSource = new Uri(Settings.Default.LogoUrl);
-                logo.EndInit();
+                BitmapImage logo = new BitmapImage ();
+                logo.BeginInit ();
+                logo.UriSource = new Uri (Settings.Default.LogoUrl);
+                logo.EndInit ();
                 return logo;
             }
             catch
@@ -229,7 +218,7 @@ namespace Caupo.Views
 
         private void BtnFaktura_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is BuyersViewModel vm &&
+            if(DataContext is BuyersViewModel vm &&
                 vm.SelectedReceipt != null &&
                 vm.SelectedBuyer != null &&
                 vm.Firma != null)
@@ -256,10 +245,10 @@ namespace Caupo.Views
 
 
         private async void UserControl_Loaded(object sender, RoutedEventArgs e)
-            {
-                if (DataContext is BuyersViewModel vm)
-                    await vm.InitializeAsync ();
-            }
-    
+        {
+            if(DataContext is BuyersViewModel vm)
+                await vm.InitializeAsync ();
+        }
+
     }
 }

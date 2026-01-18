@@ -11,7 +11,7 @@
         xmlns:syncfusionskin ="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
         xmlns:svg="http://sharpvectors.codeplex.com/svgc/"
         xmlns:vm="clr-namespace:Caupo.ViewModels"
-        Title="MainWindow" Height="768" Width="1366">
+        Title="MainWindow" Height="760" Width="1360">
     <Window.DataContext>
         <vm:MainViewModel />
     </Window.DataContext>

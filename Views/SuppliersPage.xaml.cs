@@ -1,28 +1,11 @@
-﻿using ClosedXML.Excel;
-using Caupo.Data;
-using Caupo.Properties;
+﻿using Caupo.Helpers;
 using Caupo.ViewModels;
-using DocumentFormat.OpenXml.Spreadsheet;
-using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using static Caupo.Data.DatabaseTables;
 using static Caupo.ViewModels.SuppliersViewModel;
-using Caupo.Helpers;
 
 namespace Caupo.Views
 {
@@ -32,10 +15,10 @@ namespace Caupo.Views
         private SuppliersViewModel viewModel;
         public SuppliersPage()
         {
-          
-         
-            InitializeComponent();
-            viewModel = new SuppliersViewModel();
+
+
+            InitializeComponent ();
+            viewModel = new SuppliersViewModel ();
             DataContext = viewModel;
 
             // --- OVDJE DODAŠ LISTENER ---
@@ -45,19 +28,19 @@ namespace Caupo.Views
 
         private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            Debug.WriteLine("Trigerovan  private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)");
-            if (e.PropertyName == "NewSupplier")
+            Debug.WriteLine ("Trigerovan  private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)");
+            if(e.PropertyName == "NewSupplier")
             {
-                Debug.WriteLine("(e.PropertyName == NewSupplier");
-                if (viewModel.NewSupplier != null)
+                Debug.WriteLine ("(e.PropertyName == NewSupplier");
+                if(viewModel.NewSupplier != null)
                 {
-                   
-                    Application.Current.Dispatcher.InvokeAsync(() =>
+
+                    Application.Current.Dispatcher.InvokeAsync (() =>
                     {
                         ListaDobavljaca.SelectedItem = viewModel.NewSupplier;
-                        ListaDobavljaca.ScrollIntoView(viewModel.NewSupplier);
+                        ListaDobavljaca.ScrollIntoView (viewModel.NewSupplier);
                     }, System.Windows.Threading.DispatcherPriority.Background);
-                    viewModel.FilterItems("");
+                    viewModel.FilterItems ("");
                 }
             }
         }
@@ -72,44 +55,44 @@ namespace Caupo.Views
 
         private async void BtnFirst_Click(object sender, RoutedEventArgs e)
         {
-                if (DataContext is SuppliersViewModel viewModel)
+            if(DataContext is SuppliersViewModel viewModel)
+            {
+                int index = viewModel.Suppliers.IndexOf (viewModel.SelectedSupplier);
+                if(index > 0)
                 {
-                    int index = viewModel.Suppliers.IndexOf(viewModel.SelectedSupplier);
-                    if (index >0)
-                    {
-                        viewModel.SelectedSupplier = viewModel.Suppliers[index -1];
-                        await viewModel.LoadStockInSupplier(viewModel.SelectedSupplier);
-                    }
+                    viewModel.SelectedSupplier = viewModel.Suppliers[index - 1];
+                    await viewModel.LoadStockInSupplier (viewModel.SelectedSupplier);
                 }
+            }
         }
 
         private async void BtnLast_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is SuppliersViewModel viewModel)
+            if(DataContext is SuppliersViewModel viewModel)
             {
-                int index = viewModel.Suppliers.IndexOf(viewModel.SelectedSupplier);
-                if (index < viewModel.Suppliers.Count - 1)
+                int index = viewModel.Suppliers.IndexOf (viewModel.SelectedSupplier);
+                if(index < viewModel.Suppliers.Count - 1)
                 {
-                    viewModel.SelectedSupplier = viewModel.Suppliers[index +1];
-                    await viewModel.LoadStockInSupplier(viewModel.SelectedSupplier);
+                    viewModel.SelectedSupplier = viewModel.Suppliers[index + 1];
+                    await viewModel.LoadStockInSupplier (viewModel.SelectedSupplier);
                 }
 
             }
         }
 
-     
-    
+
+
         private async void ListaDobavljaca_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var selectedItem = ListaDobavljaca.SelectedItem as TblDobavljaci;
-            if (selectedItem != null)
+            if(selectedItem != null)
             {
-                if (DataContext is SuppliersViewModel viewModel)
+                if(DataContext is SuppliersViewModel viewModel)
                 {
                     viewModel.SelectedSupplier = selectedItem;
-                    await viewModel.LoadStockInSupplier(selectedItem);
+                    await viewModel.LoadStockInSupplier (selectedItem);
                     SearchTextBox.Text = "";
-                    ListaDobavljaca.ScrollIntoView(ListaDobavljaca.SelectedItem);
+                    ListaDobavljaca.ScrollIntoView (ListaDobavljaca.SelectedItem);
                 }
             }
         }
@@ -123,27 +106,28 @@ namespace Caupo.Views
         }
 
 
-      
+
 
         private async void OpenStockInPage(StockInList ulaz)
         {
             //Window pageToOpen;
-            if (DataContext is SuppliersViewModel viewModel)
+            if(DataContext is SuppliersViewModel viewModel)
             {
-                if (ulaz.Tip == "Piće")
+                if(ulaz.Tip == "Piće")
                 {
-                    if (viewModel.SelectedStockIn == null) return;
+                    if(viewModel.SelectedStockIn == null)
+                        return;
 
-                    var beveragepage = new BeverageInPage(viewModel.SelectedStockIn.BrojUlaza);
-                    Debug.WriteLine("Otvara stranicu sa selektovanim ulazom broj: " + viewModel.SelectedStockIn.BrojUlaza);
+                    var beveragepage = new BeverageInPage (viewModel.SelectedStockIn.BrojUlaza);
+                    Debug.WriteLine ("Otvara stranicu sa selektovanim ulazom broj: " + viewModel.SelectedStockIn.BrojUlaza);
                     beveragepage.OpenedFromSupplier = true;
                     beveragepage.PreviousPage = this;
                     PageNavigator.Navigate?.Invoke (beveragepage);
                 }
-                else if (ulaz.Tip == "Namirnice")
+                else if(ulaz.Tip == "Namirnice")
                 {
-                    var foodpage = new FoodInPage(viewModel.SelectedStockIn.BrojUlaza);
-                      foodpage.OpenedFromSupplier = true;
+                    var foodpage = new FoodInPage (viewModel.SelectedStockIn.BrojUlaza);
+                    foodpage.OpenedFromSupplier = true;
                     foodpage.PreviousPage = this;
                     PageNavigator.Navigate?.Invoke (foodpage);
                 }

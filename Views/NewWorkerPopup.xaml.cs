@@ -16,28 +16,28 @@ namespace Caupo.Views
         private readonly SettingsViewModel _viewModel;
         public NewWorkerPopup(SettingsViewModel viewModel)
         {
-            InitializeComponent();
+            InitializeComponent ();
             _viewModel = viewModel;
             this.DataContext = _viewModel;
         }
 
         private async void OKButton_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(txtRadnik.Text))
+            if(string.IsNullOrEmpty (txtRadnik.Text))
             {
                 txtRadnik.BorderBrush = Brushes.Red;
-               
-              
 
 
-                MyMessageBox myMessageBox = new MyMessageBox();
+
+
+                MyMessageBox myMessageBox = new MyMessageBox ();
                 //myMessageBox.Owner = this;
                 myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            
+
                 myMessageBox.MessageTitle.Text = "UPOZORENJE";
                 myMessageBox.MessageText.Text = "Ime i prezime radnika je obavezan podatak." + Environment.NewLine + "Unesite ime i prezime radnika.";
-                myMessageBox.ShowDialog();
-                txtRadnik.Focus();
+                myMessageBox.ShowDialog ();
+                txtRadnik.Focus ();
                 return;
             }
             else
@@ -45,21 +45,21 @@ namespace Caupo.Views
                 txtRadnik.BorderBrush = Brushes.LightGray;
             }
 
-            if (string.IsNullOrEmpty(txtLozinka.Text))
+            if(string.IsNullOrEmpty (txtLozinka.Text))
             {
                 txtLozinka.BorderBrush = Brushes.Red;
 
-        
 
 
-                MyMessageBox myMessageBox = new MyMessageBox();
+
+                MyMessageBox myMessageBox = new MyMessageBox ();
                 //myMessageBox.Owner = this;
                 myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-              
+
                 myMessageBox.MessageTitle.Text = "UPOZORENJE";
                 myMessageBox.MessageText.Text = "Lozinka za radnika je obavezan podatak." + Environment.NewLine + "Unesite lozinku za radnika.";
-                myMessageBox.ShowDialog();
-                txtLozinka.Focus();
+                myMessageBox.ShowDialog ();
+                txtLozinka.Focus ();
                 return;
             }
             else
@@ -67,21 +67,21 @@ namespace Caupo.Views
                 txtLozinka.BorderBrush = Brushes.LightGray;
             }
 
-            if (cmbDozvole.SelectedIndex == -1)
+            if(cmbDozvole.SelectedIndex == -1)
             {
                 cmbDozvole.BorderBrush = Brushes.Red;
 
-       
 
 
-                MyMessageBox myMessageBox = new MyMessageBox();
+
+                MyMessageBox myMessageBox = new MyMessageBox ();
                 //myMessageBox.Owner = this;
                 myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-      
+
                 myMessageBox.MessageTitle.Text = "UPOZORENJE";
                 myMessageBox.MessageText.Text = "Morate izabrati dopuštenja za radnika.";
-                myMessageBox.ShowDialog();
-                cmbDozvole.Focus();
+                myMessageBox.ShowDialog ();
+                cmbDozvole.Focus ();
                 return;
             }
             else
@@ -89,26 +89,27 @@ namespace Caupo.Views
                 cmbDozvole.BorderBrush = Brushes.LightGray;
             }
 
-            DatabaseTables.TblRadnici radnik = new DatabaseTables.TblRadnici();
-           
+            DatabaseTables.TblRadnici radnik = new DatabaseTables.TblRadnici ();
+
             radnik.Radnik = txtRadnik.Text;
             radnik.Lozinka = txtLozinka.Text;
             radnik.Dozvole = cmbDozvole.Text;
-       
-                if (isUpdate) {
-                    radnik.IdRadnika = (int)lblid.Content;
-                    Debug.WriteLine("Radi update");
-                    await _viewModel.UpdateRadnik(radnik);
-                    await _viewModel.LoadRadniciAsync();
-                }
-                else
-                {
-                    Debug.WriteLine("Radi novog");
-                    await _viewModel.NewRadnik(radnik);
-                }
-             
-            
-            this.Close();
+
+            if(isUpdate)
+            {
+                radnik.IdRadnika = (int)lblid.Content;
+                Debug.WriteLine ("Radi update");
+                await _viewModel.UpdateRadnik (radnik);
+                await _viewModel.LoadRadniciAsync ();
+            }
+            else
+            {
+                Debug.WriteLine ("Radi novog");
+                await _viewModel.NewRadnik (radnik);
+            }
+
+
+            this.Close ();
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
@@ -118,37 +119,37 @@ namespace Caupo.Views
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-          
-            if (isUpdate)
+
+            if(isUpdate)
             {
 
 
-                if (DataContext is SettingsViewModel viewModel)
+                if(DataContext is SettingsViewModel viewModel)
                 {
-                    if (viewModel.SelectedRadnik != null)
+                    if(viewModel.SelectedRadnik != null)
                     {
-                        Debug.WriteLine(viewModel.SelectedRadnik.Radnik);
+                        Debug.WriteLine (viewModel.SelectedRadnik.Radnik);
                         txtRadnik.Text = viewModel.SelectedRadnik.Radnik;
-                        Debug.WriteLine(viewModel.SelectedRadnik.Lozinka);
+                        Debug.WriteLine (viewModel.SelectedRadnik.Lozinka);
                         txtLozinka.Text = viewModel.SelectedRadnik.Lozinka;
-                        Debug.WriteLine(viewModel.SelectedRadnik.Dozvole);
+                        Debug.WriteLine (viewModel.SelectedRadnik.Dozvole);
                         cmbDozvole.Text = viewModel.SelectedRadnik.Dozvole;
 
 
                     }
                     else
                     {
-                        Debug.WriteLine("SelectedRadnik is null");
+                        Debug.WriteLine ("SelectedRadnik is null");
                     }
 
                 }
-            
+
             }
 
-            Dispatcher.BeginInvoke(new Action(() =>
+            Dispatcher.BeginInvoke (new Action (() =>
             {
-                txtRadnik.Focus();
-                Keyboard.Focus(txtRadnik);
+                txtRadnik.Focus ();
+                Keyboard.Focus (txtRadnik);
             }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
         }
     }

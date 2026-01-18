@@ -67,23 +67,8 @@
                 <Border Padding="5" Width="250" Height="50" Grid.Column="0" HorizontalAlignment="Left"  BorderThickness="2" Background="Transparent"  BorderBrush="#774A6FA5" CornerRadius="15" >
                     <DockPanel   Margin="1" >
                         <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60013;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBox x:Name="SearchTextBox" CaretBrush="{DynamicResource GlobalFontColor}"  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Foreground="{DynamicResource GlobalFontColor}"  FontSize="16" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Background="Transparent" BorderBrush="Transparent" Padding="5" >
-                            <TextBox.Style>
-                                <Style TargetType="TextBox">
-                                    <Style.Triggers>
-                                        <Trigger Property="IsFocused" Value="True">
-                                            <Setter Property="BorderBrush" Value="Transparent"/>
-                                            <Setter Property="BorderThickness" Value="0"/>
-                                            <Setter Property="Background" Value="Transparent"/>
-                                        </Trigger>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="BorderBrush" Value="Transparent"/>
-                                            <Setter Property="BorderThickness" Value="0"/>
-                                            <Setter Property="Background" Value="Transparent"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBox.Style>
+                        <TextBox x:Name="SearchTextBox" Style="{StaticResource TextBoxCustom}"  CaretBrush="{DynamicResource GlobalFontColor}"  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Foreground="{DynamicResource GlobalFontColor}"  FontSize="16" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Background="Transparent" BorderBrush="Transparent" Padding="5" >
+                        
                         </TextBox>
                     </DockPanel>
                 </Border>

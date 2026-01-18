@@ -13,20 +13,20 @@ namespace Caupo.Server
         public IPEndPoint ListenerEndpoint => _listener.LocalEndpoint as IPEndPoint;
         public TcpIpServer(int port, string connectionString)
         {
-            _listener = new TcpListener(IPAddress.Any, port);
-            _dispatcher = new CommandDispatcher(connectionString);
+            _listener = new TcpListener (IPAddress.Any, port);
+            _dispatcher = new CommandDispatcher (connectionString);
         }
 
         public async Task StartAsync()
         {
-            _listener.Start();
+            _listener.Start ();
             ClientRegistry.ListAll ();
-            Debug.WriteLine($"Server sluša na portu {((IPEndPoint)_listener.LocalEndpoint).Port}");
+            Debug.WriteLine ($"Server sluša na portu {((IPEndPoint)_listener.LocalEndpoint).Port}");
 
-            while (true)
+            while(true)
             {
-                var client = await _listener.AcceptTcpClientAsync();
-                _ = HandleClientAsync(client); // ne blokira
+                var client = await _listener.AcceptTcpClientAsync ();
+                _ = HandleClientAsync (client); // ne blokira
             }
         }
 

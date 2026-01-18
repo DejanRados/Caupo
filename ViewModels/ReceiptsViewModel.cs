@@ -1,30 +1,19 @@
 ﻿using Caupo.Data;
 using Caupo.Fiscal;
-using Caupo.Properties;
-using Caupo.Views;
-using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Media;
 using static Caupo.Data.DatabaseTables;
-using static Caupo.ViewModels.KnjigaKuhinjeViewModel;
 
 namespace Caupo.ViewModels
 {
     public class ReceiptsViewModel : INotifyPropertyChanged
     {
 
-        public ObservableCollection<DatabaseTables.TblRacuni> Receipts { get; set; } = new ObservableCollection<DatabaseTables.TblRacuni>();
-        public ObservableCollection<DatabaseTables.TblRacunStavka> ReceiptItems { get; set; } = new ObservableCollection<DatabaseTables.TblRacunStavka>();
+        public ObservableCollection<DatabaseTables.TblRacuni> Receipts { get; set; } = new ObservableCollection<DatabaseTables.TblRacuni> ();
+        public ObservableCollection<DatabaseTables.TblRacunStavka> ReceiptItems { get; set; } = new ObservableCollection<DatabaseTables.TblRacunStavka> ();
 
         public ObservableCollection<FiskalniRacun.Item>? _stavkeRacuna;
         public ObservableCollection<FiskalniRacun.Item>? StavkeRacuna
@@ -44,11 +33,11 @@ namespace Caupo.ViewModels
             get => _selectedReceipt;
             set
             {
-                if (_selectedReceipt != value)
+                if(_selectedReceipt != value)
                 {
                     _selectedReceipt = value;
-                    OnPropertyChanged(nameof(SelectedReceipt));
-                    
+                    OnPropertyChanged (nameof (SelectedReceipt));
+
                 }
             }
         }
@@ -60,7 +49,7 @@ namespace Caupo.ViewModels
             set
             {
                 receiptsFilter = value;
-                OnPropertyChanged(nameof(ReceiptsFilter));
+                OnPropertyChanged (nameof (ReceiptsFilter));
             }
         }
 
@@ -70,12 +59,12 @@ namespace Caupo.ViewModels
             get => _searchText;
             set
             {
-                if (_searchText != value)
+                if(_searchText != value)
                 {
                     _searchText = value;
-                    OnPropertyChanged(nameof(SearchText));
-                    Debug.WriteLine($"SearchText changed to: ");  // Dodaj log za testiranje
-                    FilterItems(_searchText);
+                    OnPropertyChanged (nameof (SearchText));
+                    Debug.WriteLine ($"SearchText changed to: ");  // Dodaj log za testiranje
+                    FilterItems (_searchText);
                 }
             }
         }
@@ -87,7 +76,7 @@ namespace Caupo.ViewModels
             set
             {
                 iznosRacuna = value;
-                OnPropertyChanged(nameof(IznosRacuna));
+                OnPropertyChanged (nameof (IznosRacuna));
             }
         }
 
@@ -95,28 +84,28 @@ namespace Caupo.ViewModels
 
         public ReceiptsViewModel()
         {
-            
-            Receipts = new ObservableCollection<TblRacuni>();
-            ReceiptsFilter = new ObservableCollection<TblRacuni>();
-            ReceiptItems = new ObservableCollection<TblRacunStavka>();
+
+            Receipts = new ObservableCollection<TblRacuni> ();
+            ReceiptsFilter = new ObservableCollection<TblRacuni> ();
+            ReceiptItems = new ObservableCollection<TblRacunStavka> ();
             StavkeRacuna = new ObservableCollection<FiskalniRacun.Item> ();
-            Debug.WriteLine("SearchText = " + SearchText);
-            _ = Start();
+            Debug.WriteLine ("SearchText = " + SearchText);
+            _ = Start ();
         }
 
 
 
         private async Task Start()
         {
-            await  LoadReceiptsAsync(null);
-          
+            await LoadReceiptsAsync (null);
+
         }
 
         string? TaxLabel(string ps)
         {
 
             string taxeslabel;
-            switch (ps)
+            switch(ps)
             {
 
                 case "2":
@@ -157,7 +146,7 @@ namespace Caupo.ViewModels
                 var tempReceiptItems = new List<TblRacunStavka> ();
                 var tempStavkeRacuna = new List<FiskalniRacun.Item> ();
 
-                foreach (var ri in receiptItemsFromDb)
+                foreach(var ri in receiptItemsFromDb)
                 {
                     tempReceiptItems.Add (ri);
                     IznosRacuna += ri.Iznos;
@@ -168,7 +157,7 @@ namespace Caupo.ViewModels
                         Sifra = ri.Sifra,
                         BrojRacuna = 222, // ili odakle treba
                         Naziv = ri.Artikl,
-                        UnitPrice = (decimal?)ri.Cijena,
+                        UnitPrice = ri.Cijena,
                         Proizvod = ri.VrstaArtikla,
                         JedinicaMjere = ri.JedinicaMjere,
                         Quantity = ri.Kolicina
@@ -180,14 +169,14 @@ namespace Caupo.ViewModels
 
                 // Batch update ObservableCollection
                 ReceiptItems.Clear ();
-                foreach (var item in tempReceiptItems)
+                foreach(var item in tempReceiptItems)
                     ReceiptItems.Add (item);
 
                 StavkeRacuna.Clear ();
-                foreach (var item in tempStavkeRacuna)
+                foreach(var item in tempStavkeRacuna)
                     StavkeRacuna.Add (item);
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Debug.WriteLine (ex);
             }
@@ -198,7 +187,7 @@ namespace Caupo.ViewModels
         public event EventHandler<string?>? ErrorOccurred;
         protected virtual void OnErrorOccurred(string? message)
         {
-            ErrorOccurred?.Invoke(this, message);
+            ErrorOccurred?.Invoke (this, message);
         }
 
 
@@ -219,22 +208,22 @@ namespace Caupo.ViewModels
                 ReceiptsFilter?.Clear ();
                 Debug.WriteLine ("Receipts i ReceiptsFilter očišćene");
 
-                foreach (var receipt in receipts)
+                foreach(var receipt in receipts)
                 {
                     Receipts.Add (receipt);
                     ReceiptsFilter?.Add (receipt);
 
-                    if (int.TryParse (receipt.Radnik, out int id))
+                    if(int.TryParse (receipt.Radnik, out int id))
                     {
                         var radnik = await db.Radnici.FirstOrDefaultAsync (x => x.IdRadnika == id);
                         receipt.RadnikName = radnik?.Radnik ?? string.Empty;
                     }
                 }
 
-              
-            
 
-                if (selected != null)
+
+
+                if(selected != null)
                 {
                     SelectedReceipt = selected;
                     Debug.WriteLine ("Poziv LoadReceiptItems");
@@ -247,7 +236,7 @@ namespace Caupo.ViewModels
                     await LoadReceiptItems (SelectedReceipt);
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 Debug.WriteLine ("EXCEPTION u LoadReceiptsAsync:");
                 Debug.WriteLine (ex);
@@ -262,20 +251,20 @@ namespace Caupo.ViewModels
 
         public void FilterItems(string? searchtext)
         {
-            Debug.WriteLine("Okida search");
+            Debug.WriteLine ("Okida search");
 
-            var lowerSearch = (searchtext ?? string.Empty).ToLower();
+            var lowerSearch = (searchtext ?? string.Empty).ToLower ();
 
             var filtered = Receipts
-                .Where(a =>
-                    (a.BrojRacuna.ToString() ?? string.Empty).ToLower().Contains(lowerSearch) ||
-                    (a.Datum.ToString("dd.MM.yyyy") ?? string.Empty).ToLower().Contains(lowerSearch) ||
-                    (a.BrojFiskalnogRacuna ?? string.Empty).ToLower().Contains(lowerSearch) ||
-                    (a.Kupac ?? string.Empty).ToLower().Contains(lowerSearch)
+                .Where (a =>
+                    (a.BrojRacuna.ToString () ?? string.Empty).ToLower ().Contains (lowerSearch) ||
+                    (a.Datum.ToString ("dd.MM.yyyy") ?? string.Empty).ToLower ().Contains (lowerSearch) ||
+                    (a.BrojFiskalnogRacuna ?? string.Empty).ToLower ().Contains (lowerSearch) ||
+                    (a.Kupac ?? string.Empty).ToLower ().Contains (lowerSearch)
                 )
-                .ToList();
+                .ToList ();
 
-            ReceiptsFilter = new ObservableCollection<DatabaseTables.TblRacuni>(filtered);
+            ReceiptsFilter = new ObservableCollection<DatabaseTables.TblRacuni> (filtered);
         }
 
 
@@ -284,7 +273,7 @@ namespace Caupo.ViewModels
 
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
         }
     }
 }

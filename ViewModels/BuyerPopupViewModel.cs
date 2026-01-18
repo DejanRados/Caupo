@@ -76,7 +76,7 @@ namespace Caupo.ViewModels
 
         public BuyerPopupViewModel(TblKupci? kupac = null)
         {
-            if (kupac != null)
+            if(kupac != null)
             {
                 Model = kupac;
                 Kupac = kupac.Kupac;
@@ -92,7 +92,8 @@ namespace Caupo.ViewModels
 
         private void Save()
         {
-            if (Model == null) Model = new TblKupci ();
+            if(Model == null)
+                Model = new TblKupci ();
             Model.Kupac = Kupac;
             Model.Adresa = Adresa;
             Model.Mjesto = Mjesto;

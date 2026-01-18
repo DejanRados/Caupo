@@ -1,20 +1,6 @@
-﻿using Caupo.Properties;
-using Caupo.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Caupo.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.Views
@@ -25,21 +11,21 @@ namespace Caupo.Views
 
         public SupplierPopup()
         {
-            InitializeComponent();
-            VM = new SupplierPopupViewModel();
+            InitializeComponent ();
+            VM = new SupplierPopupViewModel ();
             DataContext = VM;
         }
 
         public SupplierPopup(TblDobavljaci d)
         {
-            InitializeComponent();
-            VM = new SupplierPopupViewModel(d);
+            InitializeComponent ();
+            VM = new SupplierPopupViewModel (d);
             DataContext = VM;
         }
 
         public TblDobavljaci? Open()
         {
-            return ShowDialog() == true ? VM.Dobavljac : null;
+            return ShowDialog () == true ? VM.Dobavljac : null;
         }
 
         private void Ok_Click(object sender, RoutedEventArgs e)
@@ -56,9 +42,9 @@ namespace Caupo.Views
 
         private void TextBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (sender is TextBox textBox)
+            if(sender is TextBox textBox)
             {
-                textBox.SelectAll();
+                textBox.SelectAll ();
             }
         }
     }

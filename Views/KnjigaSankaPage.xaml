@@ -52,15 +52,27 @@
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
-                <DatePicker Focusable="False" FontFamily="Arial" CalendarStyle="{StaticResource styleCalendar}"  x:Name="DpDate" SelectedDate="{Binding OdabraniDatum, StringFormat=dd.MM.yyyy}"  Width="150"  BorderThickness="0"  Background="Transparent" Foreground="{DynamicResource GlobalFontColor}"   HorizontalContentAlignment="Center" VerticalAlignment="Center">
+
+                <DatePicker   x:Name="DpDate"
+                        CalendarStyle="{StaticResource styleCalendar}"
+                        Language="bs-BA"
+                        DisplayDate="{Binding OdabraniDatum}"
+                        SelectedDate="{Binding OdabraniDatum}"
+                        SelectedDateFormat="Short"
+                        Focusable="False"
+                        FontFamily="Arial"
+                        Width="150"
+                        BorderThickness="0" 
+                        Background="Transparent" 
+                        Foreground="{DynamicResource GlobalFontColor}"
+                        HorizontalContentAlignment="Center"
+                        VerticalAlignment="Center">
                     <DatePicker.Resources>
                         <Style TargetType="DatePickerTextBox">
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="DatePickerTextBox">
-                                        <ScrollViewer x:Name="PART_ContentHost"
-                            Background="Transparent"
-                            Focusable="False"/>
+                                        <ScrollViewer x:Name="PART_ContentHost"   Background="Transparent"   Focusable="False"/>
                                     </ControlTemplate>
                                 </Setter.Value>
                             </Setter>
@@ -69,14 +81,10 @@
                             <Setter Property="Padding" Value="0"/>
                             <Setter Property="Text">
                                 <Setter.Value>
-                                    <Binding Path="SelectedDate" 
-                             RelativeSource="{RelativeSource AncestorType=DatePicker}"
-                             StringFormat="dd.MM.yyyy"/>
+                                    <Binding Path="SelectedDate"     RelativeSource="{RelativeSource AncestorType=DatePicker}"  StringFormat="dd.MM.yyyy"/>
                                 </Setter.Value>
                             </Setter>
                         </Style>
-
-                    
                     </DatePicker.Resources>
                 </DatePicker>
             

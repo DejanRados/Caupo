@@ -1,11 +1,8 @@
 ﻿using Caupo.Properties;
-using System;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using System.Windows;
 
 namespace Caupo.Helpers
 {
@@ -93,7 +90,7 @@ namespace Caupo.Helpers
             }
         }
 
-    
+
         public static async Task<ActivationResponse?> ValidateOnStartup()
         {
             try

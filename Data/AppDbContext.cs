@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.IO;
-using System.Net.NetworkInformation;
 using System.Windows;
 using static Caupo.Data.DatabaseTables;
 
@@ -43,7 +42,7 @@ namespace Caupo.Data
             // EF Core pravi konekciju iz connection stringa
             options.UseSqlite ($"Data Source={DbPath}");
 
-           
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
