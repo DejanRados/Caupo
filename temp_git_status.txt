@@ -1,3 +1,0 @@
- M .gitignore
- M App.xaml.cs
- M temp_git_status.txt
