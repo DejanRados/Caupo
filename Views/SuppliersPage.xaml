@@ -7,7 +7,6 @@
         xmlns:local="clr-namespace:Caupo.ViewModels"
         xmlns:loc="clr-namespace:Caupo"
          xmlns:syncfusionskin ="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF" 
-
          xmlns:svg="http://sharpvectors.codeplex.com/svgc/" xmlns:Caupo="clr-namespace:Caupo"
         mc:Ignorable="d"
         UseLayoutRounding="True"
@@ -36,125 +35,139 @@
 
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="0.25*"/>
-                <RowDefinition Height="*"/>
                 <RowDefinition Height="0.2*"/>
+                <RowDefinition Height="0.25*"/>
+                <RowDefinition Height="0.5*"/>
             </Grid.RowDefinitions>
 
-            <!--This is the hidden helper Grid which does the resizing -->
-            <Grid Visibility="Hidden">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="0.60*"/>
-                    <ColumnDefinition Width="0.14*" />
-                    <ColumnDefinition Width="20"/>
-                </Grid.ColumnDefinitions>
-                <!--This is the hidden helper Field which is used to bind to, using the "Fill" column of the helper grid-->
-                <Grid Grid.Column="1" x:Name="helperField"/>
-            </Grid>
-            <!-- Dugmici za dodavanje , edit .....-->
-            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Margin="60,60,0,0" VerticalAlignment="Center" HorizontalAlignment="Right">
-                <!-- <Button Style="{StaticResource MyButtonStyle}"  BorderBrush="#484899" Margin="5"     x:Name="BtnDuplicate"  Click="BtnDuplicate_Click"   Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"    >
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" >
-                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="0,0,10,0" FontSize="32"  FontWeight="ExtraLight" Text="&#xEA95;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                                               <TextBlock Text="Duplikat "  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
-                                           </StackPanel>
-                </Button>-->
-
-                <!-- <Button Style="{StaticResource MyButtonStyle}" BorderBrush="#484899" Margin="5"  x:Name="BtnFaktura"    Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"   >
-                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="0,0,10,0" FontSize="28"  FontWeight="ExtraLight" Text="&#xEA94;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                        <TextBlock Text="Faktura"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
-                    </StackPanel>
-                </Button>-->
-               
-            
-              
-            </StackPanel>
-
-
-
             <!--  Search TextBox -->
-            <StackPanel Orientation="Horizontal" Grid.Row="0"  Grid.Column="0" Margin="30,60,0,0"  >
-                <Border Padding="5" Width="300" Height="50" HorizontalAlignment="Left"  BorderThickness="1" Background="Transparent"  BorderBrush="{DynamicResource GlobalFontColor}" CornerRadius="15" >
-                    <DockPanel Grid.Row="1" Grid.Column="1" Margin="1" >
+            <Grid  Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="20,60,60,0" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Padding="5" Width="250" Height="50" Grid.Column="0" HorizontalAlignment="Left"  BorderThickness="2" Background="Transparent"  BorderBrush="#774A6FA5" CornerRadius="15" >
+                    <DockPanel   Margin="1" >
                         <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60013;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         <TextBox x:Name="SearchTextBox" CaretBrush="{DynamicResource GlobalFontColor}"  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Foreground="{DynamicResource GlobalFontColor}"  FontSize="16" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Background="Transparent" BorderBrush="Transparent" Padding="5" >
-                        <TextBox.Style>
-                            <Style TargetType="TextBox">
-                                <Style.Triggers>
-                                    <Trigger Property="IsFocused" Value="True">
-                                        <Setter Property="BorderBrush" Value="Transparent"/>
-                                        <Setter Property="BorderThickness" Value="0"/>
-                                        <Setter Property="Background" Value="Transparent"/>
-                                    </Trigger>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="BorderBrush" Value="Transparent"/>
-                                        <Setter Property="BorderThickness" Value="0"/>
-                                        <Setter Property="Background" Value="Transparent"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
-                </DockPanel>
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsFocused" Value="True">
+                                            <Setter Property="BorderBrush" Value="Transparent"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="Background" Value="Transparent"/>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="BorderBrush" Value="Transparent"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="Background" Value="Transparent"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+                    </DockPanel>
                 </Border>
 
-                <Button Style="{StaticResource MyButtonStyle}" x:Name="BtnFirst" Click="BtnFirst_Click"  BorderBrush="#484899" Width="50" Height="50" VerticalAlignment="Center"  BorderThickness="1" Grid.Column="0" HorizontalAlignment="Center" ToolTip="Prvi artikl" Margin="10,0,0,0">
-                    <TextBlock 
-                       FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
-                       FontSize="24"
-                       FontWeight="ExtraLight"
-                       Text="&#60271;" 
-                       Foreground="{DynamicResource GlobalFontColor}"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"/>
-                </Button>
-                <Button Style="{StaticResource MyButtonStyle}" BorderBrush="#484899" x:Name="BtnLast" Click="BtnLast_Click" Width="50" Height="50" Padding="0"  VerticalAlignment="Center"  Grid.Column="2" ToolTip="Naredni artikl" Margin="10,0,0,0" >
-                    <TextBlock 
-                      FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
-                      FontSize="24"
-                      FontWeight="ExtraLight"
-                      Text="&#60272;" 
-                      Foreground="{DynamicResource GlobalFontColor}"
-                      HorizontalAlignment="Center"
-                      VerticalAlignment="Center"/>
-                </Button>
-                <Button Style="{StaticResource MyButtonStyle}" BorderBrush="#484899" x:Name="BtnEdit" Command="{Binding EditCommand}" Width="50" Height="50" Padding="0"  VerticalAlignment="Center"  Grid.Column="2" ToolTip="Izmjeni dobavljača" Margin="10,0,0,0" >
-                    <TextBlock 
-                     FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
-                     FontSize="24"
-                     FontWeight="ExtraLight"
-                     Text="&#60019;" 
-                     Foreground="{DynamicResource GlobalFontColor}"
-                     HorizontalAlignment="Center"
-                     VerticalAlignment="Center"/>
-                </Button>
-                <Button Style="{StaticResource MyButtonStyle}" BorderBrush="#484899" x:Name="BtnAdd"  Command="{Binding AddCommand}"  Width="50" Height="50" Padding="0"  VerticalAlignment="Center"  Grid.Column="2" ToolTip="Novi dobavljač" Margin="10,0,0,0" >
-                    <TextBlock 
-                   FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
-                   FontSize="24"
-                   FontWeight="ExtraLight"
-                   Text="&#60000;"
-                   Foreground="{DynamicResource GlobalFontColor}"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"/>
-                </Button>
-                <Button Style="{StaticResource MyButtonStyle}" BorderBrush="#484899" x:Name="BtnDelete"  Command="{Binding DeleteCommand}"  Width="50" Height="50" Padding="0"  VerticalAlignment="Center"  Grid.Column="2" ToolTip="Obriši dobavljača" Margin="10,0,0,0" >
+                <Button Grid.Column="1" Style="{StaticResource SecondaryButtonStyle}" x:Name="BtnFirst" Click="BtnFirst_Click"   Width="50" Height="50" VerticalAlignment="Center"    HorizontalAlignment="Center" ToolTip="Prvi artikl" Margin="10,0,0,0">
                     <TextBlock 
                     FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
                     FontSize="24"
                     FontWeight="ExtraLight"
-                    Text="&#60033;" 
+                    Text="&#60271;" 
                     Foreground="{DynamicResource GlobalFontColor}"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"/>
                 </Button>
 
 
-            </StackPanel>
+                <Button Grid.Column="2" Style="{StaticResource SecondaryButtonStyle}"  x:Name="BtnLast" Click="BtnLast_Click" Width="50" Height="50" Padding="0"  VerticalAlignment="Center"   ToolTip="Naredni artikl" Margin="10,0,0,0" >
+                    <TextBlock 
+                       FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                       FontSize="24"
+                       FontWeight="ExtraLight"
+                       Text="&#60272;" 
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+                </Button>
 
-            <DataGrid x:Name="ListaDobavljaca" VerticalAlignment="Top" Margin="20,0"
-                    Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" 
+                <Viewbox Stretch="Uniform" MinWidth="100"  MaxWidth="160"  Margin="2" Grid.Column="3">
+                    <Button Style="{StaticResource PrimaryButtonStyle}"  Margin="5"     x:Name="BtnEdit"   Width="120"    Height="50"  Command="{Binding EditCommand}" >
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" >
+                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60019;" Foreground="#F5F5F5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Izmjeni"  VerticalAlignment="Center"  />
+                        </StackPanel>
+                    </Button>
+                </Viewbox>
+                <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160"  Margin="2" Grid.Column="4">
+                    <Button Style="{StaticResource PrimaryButtonStyle}"  Margin="6"  x:Name="BtnAdd"     Width="120"    Height="50"  Command="{Binding AddCommand}" >
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60000;" Foreground="#f5f5f5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Dodaj"  VerticalAlignment="Center"   />
+                        </StackPanel>
+                    </Button>
+                </Viewbox>
+                <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160"  Margin="2" Grid.Column="5">
+                    <Button Style="{StaticResource PrimaryButtonStyle}" Margin="5"  x:Name="BtnDelete"    Command="{Binding DeleteCommand}"   Width="120"    Height="50"     >
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60033;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Obriši"  VerticalAlignment="Center"   />
+                        </StackPanel>
+                    </Button>
+                </Viewbox>
+            </Grid>
+         
+
+            <Border Grid.Row="1"  Grid.Column="0" BorderThickness="1" BorderBrush="{DynamicResource GlobalFontColor}" Margin="20,0" MaxWidth="500" MinWidth="400" CornerRadius="10" HorizontalAlignment="Left">
+                <Grid DataContext="{Binding SelectedSupplier}" Margin="30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Row 0 -->
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Naziv:"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1"  Text="{Binding Dobavljac}" FontSize="14" TextAlignment="Left"/>
+
+                    <!-- Row 1 -->
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Adresa:"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1"  Text="{Binding Adresa}" TextAlignment="Left"/>
+
+                    <!-- Row 2 -->
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Mjesto:"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1"  Text="{Binding Mjesto}" TextAlignment="Left"/>
+
+                    <!-- Row 3 -->
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="JIB:"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1"    Text="{Binding JIB}" TextAlignment="Left"/>
+
+                    <!-- Row 4 -->
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="PDV:"/>
+                    <TextBlock Grid.Row="4" Grid.Column="1"    Text="{Binding PDV}" TextAlignment="Left"/>
+
+
+
+
+                </Grid>
+            </Border>
+
+
+            <DataGrid x:Name="ListaDobavljaca" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="20,10,0,20" 
+                    Grid.Row="2" Grid.Column="0" 
                     MaxWidth="950" MaxHeight="800"
                     SelectionChanged="ListaDobavljaca_SelectionChanged" 
                     GridLinesVisibility="None"
@@ -225,26 +238,27 @@
 
             <Grid Grid.Row="1" Grid.Column="1"  Margin="50,15,0,0"  >
                 <DataGrid x:Name="ListaUlaza" VerticalAlignment="Top" Margin="20,0"
-         Grid.Row="1"  Grid.Column="0"
-         MaxWidth="950" MaxHeight="800"
-         SelectionChanged="ListaUlaza_SelectionChanged" 
-         GridLinesVisibility="None"
-         ItemsSource="{Binding StockIn}"
-         SelectedItem="{Binding SelectedStockIn, Mode=TwoWay}"
-         MouseDoubleClick="ListaUlaza_MouseDoubleClick"
-         AutoGenerateColumns="False"
-         HeadersVisibility="Column"
-         CanUserAddRows="False"
-         CanUserResizeRows="False"
-         CanUserSortColumns="False"
-         RowHeight="35"
-         HorizontalScrollBarVisibility="Disabled"
-         Background="Transparent"
-         BorderThickness="0"
-         ClipToBounds="True"
-         BorderBrush="{DynamicResource GlobalFontColor}"
-         ScrollViewer.VerticalScrollBarVisibility="Auto"
-         SelectionMode="Single">
+                         Grid.Row="1"  Grid.Column="0"
+                         MaxWidth="950" MaxHeight="800"
+                         SelectionChanged="ListaUlaza_SelectionChanged" 
+                         GridLinesVisibility="None"
+                         ItemsSource="{Binding StockIn}"
+                         SelectedItem="{Binding SelectedStockIn, Mode=TwoWay}"
+                         
+         
+                         AutoGenerateColumns="False"
+                         HeadersVisibility="Column"
+                         CanUserAddRows="False"
+                         CanUserResizeRows="False"
+                         CanUserSortColumns="False"
+                         RowHeight="35"
+                         HorizontalScrollBarVisibility="Disabled"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         ClipToBounds="True"
+                         BorderBrush="{DynamicResource GlobalFontColor}"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         SelectionMode="Single">
 
                     <DataGrid.Resources>
                         <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>

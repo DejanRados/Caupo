@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -13,22 +13,206 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="node_modules\**" />
-    <EmbeddedResource Remove="node_modules\**" />
-    <None Remove="node_modules\**" />
-    <Page Remove="node_modules\**" />
+    <Compile Remove="Views\LicencePage.xaml.cs" />
   </ItemGroup>
-
 
   <ItemGroup>
-    <Compile Remove="DecimalTextBoxBehavior.cs" />
-    <Compile Remove="RawPrinterHelper.cs" />
-    <Compile Remove="RectFromSizeConverter.cs" />
+    <None Remove="Assets\Fonts\codicon.ttf" />
+    <None Remove="Assets\Fonts\password.ttf" />
+    <None Remove="Data\sysFormWPF.db" />
+    <None Remove="Images\caupodark.svg" />
+    <None Remove="Images\caupolight.svg" />
+    <None Remove="Images\Dark\analiza.png" />
+    <None Remove="Images\Dark\another.svg" />
+    <None Remove="Images\Dark\aplikacija.png" />
+    <None Remove="Images\Dark\application.svg" />
+    <None Remove="Images\Dark\article.svg" />
+    <None Remove="Images\Dark\artikli.png" />
+    <None Remove="Images\Dark\buyer.svg" />
+    <None Remove="Images\Dark\cancel.png" />
+    <None Remove="Images\Dark\cancel.svg" />
+    <None Remove="Images\Dark\cash.svg" />
+    <None Remove="Images\Dark\cashregister.svg" />
+    <None Remove="Images\Dark\cash_register.svg" />
+    <None Remove="Images\Dark\category.svg" />
+    <None Remove="Images\Dark\change.svg" />
+    <None Remove="Images\Dark\company.svg" />
+    <None Remove="Images\Dark\delete.png" />
+    <None Remove="Images\Dark\delete.svg" />
+    <None Remove="Images\Dark\depzit.png" />
+    <None Remove="Images\Dark\dnevnipromet.png" />
+    <None Remove="Images\Dark\dobavljac.png" />
+    <None Remove="Images\Dark\drink.png" />
+    <None Remove="Images\Dark\drink.svg" />
+    <None Remove="Images\Dark\edit.png" />
+    <None Remove="Images\Dark\edit.svg" />
+    <None Remove="Images\Dark\error.svg" />
+    <None Remove="Images\Dark\excel.png" />
+    <None Remove="Images\Dark\excel.svg" />
+    <None Remove="Images\Dark\excelwhite.png" />
+    <None Remove="Images\Dark\exclamation.png" />
+    <None Remove="Images\Dark\exclamation.svg" />
+    <None Remove="Images\Dark\export.png" />
+    <None Remove="Images\Dark\export.svg" />
+    <None Remove="Images\Dark\exportwhite.png" />
+    <None Remove="Images\Dark\firma.png" />
+    <None Remove="Images\Dark\first.png" />
+    <None Remove="Images\Dark\first.svg" />
+    <None Remove="Images\Dark\folder.png" />
+    <None Remove="Images\Dark\folder.svg" />
+    <None Remove="Images\Dark\food.png" />
+    <None Remove="Images\Dark\food.svg" />
+    <None Remove="Images\Dark\food64.png" />
+    <None Remove="Images\Dark\gear.png" />
+    <None Remove="Images\Dark\image.png" />
+    <None Remove="Images\Dark\image.svg" />
+    <None Remove="Images\Dark\import.png" />
+    <None Remove="Images\Dark\import.svg" />
+    <None Remove="Images\Dark\importwhite.png" />
+    <None Remove="Images\Dark\info.png" />
+    <None Remove="Images\Dark\info.svg" />
+    <None Remove="Images\Dark\ingredients.svg" />
+    <None Remove="Images\Dark\izvjestaji64.png" />
+    <None Remove="Images\Dark\kasa.png" />
+    <None Remove="Images\Dark\kupac.png" />
+    <None Remove="Images\Dark\last.png" />
+    <None Remove="Images\Dark\last.svg" />
+    <None Remove="Images\Dark\list.png" />
+    <None Remove="Images\Dark\list.svg" />
+    <None Remove="Images\Dark\login.svg" />
+    <None Remove="Images\Dark\minus.svg" />
+    <None Remove="Images\Dark\namirnice.png" />
+    <None Remove="Images\Dark\namirnice64.png" />
+    <None Remove="Images\Dark\narudzbe.png" />
+    <None Remove="Images\Dark\nivelacija.png" />
+    <None Remove="Images\Dark\nivelacija64.png" />
+    <None Remove="Images\Dark\normativi.png" />
+    <None Remove="Images\Dark\order48.png" />
+    <None Remove="Images\Dark\orders.svg" />
+    <None Remove="Images\Dark\otpis64.png" />
+    <None Remove="Images\Dark\plus.png" />
+    <None Remove="Images\Dark\plus.svg" />
+    <None Remove="Images\Dark\presjek64.png" />
+    <None Remove="Images\Dark\print.svg" />
+    <None Remove="Images\Dark\printer.png" />
+    <None Remove="Images\Dark\printer.svg" />
+    <None Remove="Images\Dark\racuni.png" />
+    <None Remove="Images\Dark\racuni64bijeli.png" />
+    <None Remove="Images\Dark\radnici.png" />
+    <None Remove="Images\Dark\receipt.svg" />
+    <None Remove="Images\Dark\receipts.svg" />
+    <None Remove="Images\Dark\rekapitulacija.png" />
+    <None Remove="Images\Dark\save.png" />
+    <None Remove="Images\Dark\save.svg" />
+    <None Remove="Images\Dark\savewhite.png" />
+    <None Remove="Images\Dark\search.png" />
+    <None Remove="Images\Dark\search.svg" />
+    <None Remove="Images\Dark\settings.png" />
+    <None Remove="Images\Dark\settings.svg" />
+    <None Remove="Images\Dark\setup.svg" />
+    <None Remove="Images\Dark\supplier.svg" />
+    <None Remove="Images\Dark\ulaz.png" />
+    <None Remove="Images\Dark\unitswhite.png" />
+    <None Remove="Images\Dark\vaga64.png" />
+    <None Remove="Images\Dark\virman64.png" />
+    <None Remove="Images\Dark\worker.svg" />
+    <None Remove="Images\dsoftlogosmall.png" />
+    <None Remove="Images\error.png" />
+    <None Remove="Images\green.png" />
+    <None Remove="Images\Light\analiza.png" />
+    <None Remove="Images\Light\another.svg" />
+    <None Remove="Images\Light\aplikacija.png" />
+    <None Remove="Images\Light\application.svg" />
+    <None Remove="Images\Light\article.svg" />
+    <None Remove="Images\Light\artikli.png" />
+    <None Remove="Images\Light\buyer.svg" />
+    <None Remove="Images\Light\cancel.png" />
+    <None Remove="Images\Light\cancel.svg" />
+    <None Remove="Images\Light\cash.svg" />
+    <None Remove="Images\Light\cashregister.svg" />
+    <None Remove="Images\Light\cash_register.svg" />
+    <None Remove="Images\Light\category.svg" />
+    <None Remove="Images\Light\change.svg" />
+    <None Remove="Images\Light\company.svg" />
+    <None Remove="Images\Light\delete.png" />
+    <None Remove="Images\Light\delete.svg" />
+    <None Remove="Images\Light\depzit.png" />
+    <None Remove="Images\Light\dnevnipromet.png" />
+    <None Remove="Images\Light\dobavljac.png" />
+    <None Remove="Images\Light\drink.png" />
+    <None Remove="Images\Light\drink.svg" />
+    <None Remove="Images\Light\edit.png" />
+    <None Remove="Images\Light\edit.svg" />
+    <None Remove="Images\Light\error.png" />
+    <None Remove="Images\Light\error.svg" />
+    <None Remove="Images\Light\excel.png" />
+    <None Remove="Images\Light\excel.svg" />
+    <None Remove="Images\Light\exclamation.png" />
+    <None Remove="Images\Light\exclamation.svg" />
+    <None Remove="Images\Light\export.png" />
+    <None Remove="Images\Light\export.svg" />
+    <None Remove="Images\Light\firma.png" />
+    <None Remove="Images\Light\first.png" />
+    <None Remove="Images\Light\first.svg" />
+    <None Remove="Images\Light\folder.png" />
+    <None Remove="Images\Light\folder.svg" />
+    <None Remove="Images\Light\food.png" />
+    <None Remove="Images\Light\food.svg" />
+    <None Remove="Images\Light\image.png" />
+    <None Remove="Images\Light\image.svg" />
+    <None Remove="Images\Light\import.png" />
+    <None Remove="Images\Light\import.svg" />
+    <None Remove="Images\Light\info.png" />
+    <None Remove="Images\Light\info.svg" />
+    <None Remove="Images\Light\ingredients.svg" />
+    <None Remove="Images\Light\kasa.png" />
+    <None Remove="Images\Light\kupac.png" />
+    <None Remove="Images\Light\last.png" />
+    <None Remove="Images\Light\last.svg" />
+    <None Remove="Images\Light\list.png" />
+    <None Remove="Images\Light\list.svg" />
+    <None Remove="Images\Light\login.svg" />
+    <None Remove="Images\Light\minus.svg" />
+    <None Remove="Images\Light\namirnice.png" />
+    <None Remove="Images\Light\narudzbe.png" />
+    <None Remove="Images\Light\nivelacija.png" />
+    <None Remove="Images\Light\normativi.png" />
+    <None Remove="Images\Light\orders.svg" />
+    <None Remove="Images\Light\plus.png" />
+    <None Remove="Images\Light\plus.svg" />
+    <None Remove="Images\Light\print.svg" />
+    <None Remove="Images\Light\printer.png" />
+    <None Remove="Images\Light\printer.svg" />
+    <None Remove="Images\Light\racuni.png" />
+    <None Remove="Images\Light\radnici.png" />
+    <None Remove="Images\Light\receipt.svg" />
+    <None Remove="Images\Light\receipts.svg" />
+    <None Remove="Images\Light\save.png" />
+    <None Remove="Images\Light\save.svg" />
+    <None Remove="Images\Light\search.png" />
+    <None Remove="Images\Light\search.svg" />
+    <None Remove="Images\Light\settings.png" />
+    <None Remove="Images\Light\settings.svg" />
+    <None Remove="Images\Light\setup.svg" />
+    <None Remove="Images\Light\supplier.svg" />
+    <None Remove="Images\Light\ulaz.png" />
+    <None Remove="Images\Light\worker.svg" />
+    <None Remove="Images\logodark.svg" />
+    <None Remove="Images\logowhite.svg" />
+    <None Remove="Images\main.png" />
+    <None Remove="Images\ok.png" />
+    <None Remove="Images\red.png" />
+    <None Remove="Images\tablegreen.svg" />
+    <None Remove="Images\tablered.svg" />
+    <None Remove="Sounds\notificationbell.mp3" />
+    <None Remove="sysFormWPF.db" />
+    <None Remove="sysFormWPF.db-shm" />
+    <None Remove="sysFormWPF.db-wal" />
   </ItemGroup>
 
-
-
-
+  <ItemGroup>
+    <Page Remove="Views\LicencePage.xaml" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="caupoicon.ico" />
@@ -47,7 +231,6 @@
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="MahApps.Metro" Version="2.4.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.10">
@@ -58,11 +241,10 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="QRCoder" Version="1.7.0" />
     <PackageReference Include="SharpVectors" Version="1.8.5" />
-    <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="31.2.2">
-      <TreatAsUsed>true</TreatAsUsed>
-    </PackageReference>
-    <PackageReference Include="Syncfusion.Themes.Office2019Black.WPF" Version="31.2.2" />
-    <PackageReference Include="Syncfusion.Themes.Office2019Colorful.WPF" Version="31.2.2" />
+    <PackageReference Include="Syncfusion.Licensing" Version="32.1.23" />
+    <PackageReference Include="Syncfusion.Shared.WPF" Version="32.1.23" />
+    <PackageReference Include="Syncfusion.Themes.Office2019Black.WPF" Version="32.1.23" />
+    <PackageReference Include="Syncfusion.Themes.Office2019Colorful.WPF" Version="32.1.23" />
     <PackageReference Include="System.Data.SQLite.EF6" Version="2.0.2" />
     <PackageReference Include="System.Drawing.Common" Version="9.0.10" />
     <PackageReference Include="System.Management" Version="9.0.10" />

@@ -255,43 +255,56 @@
                 </DockPanel>
             </Border>
                 <Label Content="Namirnice" HorizontalContentAlignment="Left" HorizontalAlignment="Right" FontSize="24" Width="300" VerticalContentAlignment="Bottom"/>
-                <ListView  x:Name="ListaArikala" ItemsSource="{Binding ArtikliFilter}" SelectedItem="{Binding SelectedArticle, Mode=TwoWay}" MouseUp="ListaArikala_MouseDoubleClick"   Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" HorizontalAlignment="Stretch"    VerticalAlignment="Top" BorderThickness="0"  SelectionMode="Single"  BorderBrush="#AA949494" Margin="20,5" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Grid.Row="1">
-                    <ListView.Resources>
+              
+                <DataGrid  x:Name="ListaArikala" Margin="20,0"
+                           ItemsSource="{Binding ArtikliFilter}"
+                           SelectedItem="{Binding SelectedArticle, Mode=TwoWay}"
+                           MouseUp="ListaArikala_MouseDoubleClick"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                            Padding="2" 
+                            GridLinesVisibility="None"
+                             AutoGenerateColumns="False"
+                           Background="Transparent"
+                         HeadersVisibility="Column"
+                         CanUserAddRows="False"
+                         CanUserResizeRows="False"
+                         CanUserSortColumns="False"
+                         HorizontalScrollBarVisibility="Disabled"
+                         BorderThickness="0"
+                         ClipToBounds="True"
+                         BorderBrush="{DynamicResource GlobalFontColor}"
+                         SelectionMode="Single"
+                           ScrollViewer.VerticalScrollBarVisibility="Auto"  
+                           Grid.Row="1">
+                    <DataGrid.Resources>
                         <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
-                    </ListView.Resources>
-                    <ListView.View>
-                    <GridView    >
-
-                        <GridViewColumn x:Name="col1"  Header="Naziv"   Width="290" >
-                            <GridViewColumn.CellTemplate>
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="Namirnica" Width="2*" >
+                            <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text ="{Binding Repromaterijal}" TextWrapping="Wrap" HorizontalAlignment="Left" />
+                                    <TextBlock Text="{Binding Repromaterijal}" Height="60" TextAlignment="Left" TextWrapping="Wrap" Padding="10"/>
                                 </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
-                        <GridViewColumn Header="Pl.Cijena" Width="{Binding ElementName=helperField, Path=ActualWidth}"   >
-                            <GridViewColumn.CellTemplate>
+                        <DataGridTemplateColumn Header="Planska cijena" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                        <TextBlock Text ="{Binding PlanskaCijena, StringFormat={}{0:0.00}}" HorizontalAlignment="Center"  TextAlignment="Right" />
+                                    <TextBlock Text ="{Binding PlanskaCijena, StringFormat={}{0:F2}}"      TextWrapping="Wrap"       TextAlignment="Center"/>
                                 </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
-     
-                        <GridViewColumn Header="Jed. mjere" Width="120" >
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate  >
-                                    <TextBlock Text ="{Binding JedinicaMjereName}" HorizontalAlignment="Stretch" TextWrapping="Wrap" TextAlignment="Center"  />
+                        <DataGridTemplateColumn Header="Nabavna cijena" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text ="{Binding JedinicaMjereName}"         TextAlignment="Center"/>
                                 </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-
-                       
-
-                        </GridView>
-                </ListView.View>
-            </ListView>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
             </Grid>
 
 
@@ -362,7 +375,7 @@
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                        
-                                    <Button Style="{StaticResource MyButtonStyle}"
+                                    <Button Style="{StaticResource CancelButtonStyle}"
                                             BorderBrush="Transparent"
                                             x:Name="BtnDelete" 
                                             Command="{Binding DataContext.DeleteArticleCommand,   RelativeSource={RelativeSource AncestorType=ListView}}"

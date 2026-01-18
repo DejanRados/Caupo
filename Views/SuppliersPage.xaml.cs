@@ -7,7 +7,7 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data.Entity;
+
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -116,17 +116,14 @@ namespace Caupo.Views
 
         private void ListaUlaza_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
-        }
-
-
-        private void ListaUlaza_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if (ListaUlaza.SelectedItem is StockInList ulaz)
+            if(ListaUlaza.SelectedItem is StockInList ulaz)
             {
-                OpenStockInPage(ulaz);
+                OpenStockInPage (ulaz);
             }
         }
+
+
+      
 
         private async void OpenStockInPage(StockInList ulaz)
         {

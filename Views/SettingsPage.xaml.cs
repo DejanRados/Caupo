@@ -85,9 +85,9 @@ namespace Caupo.Views
             string pdvKorisnik = Properties.Settings.Default.PDVKorisnik;
             cmbPDV.SelectedItem = cmbPDV.Items.Cast<ComboBoxItem>().FirstOrDefault(item => item.Content.ToString() == pdvKorisnik);
 
-            string displayKuhinja = Properties.Settings.Default.DisplayKuhinja ?? "0";
-            cmbDisplejKuhinja.SelectedItem = cmbDisplejKuhinja.Items.Cast<SettingsViewModel.MonitorInfo> ().FirstOrDefault (m => m.Index == Convert.ToInt32(displayKuhinja));
-
+            //string displayKuhinja = Properties.Settings.Default.DisplayKuhinja ?? "0";
+           // cmbDisplejKuhinja.SelectedItem = cmbDisplejKuhinja.Items.Cast<SettingsViewModel.MonitorInfo> ().FirstOrDefault (m => m.Index == Convert.ToInt32(displayKuhinja));
+            //Debug.WriteLine ("[Settings] load cmbDisplejKuhinja.SelectedItem = " + cmbDisplejKuhinja.Items.Cast<SettingsViewModel.MonitorInfo> ().FirstOrDefault (m => m.Index == Convert.ToInt32 (displayKuhinja)));
             // Printers
             txtPrinterRacuni.Text = Properties.Settings.Default.POSPrinter;
             txtPrinterA4.Text = Properties.Settings.Default.A4Printer;

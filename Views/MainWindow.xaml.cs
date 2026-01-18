@@ -2,14 +2,23 @@
 using Caupo.Data;
 using Caupo.Helpers;
 using Caupo.Properties;
+using Caupo.Server;
 using Caupo.ViewModels;
 using Caupo.Views;
-
+using QRCoder;
+using Syncfusion.SfSkinManager;
+using System;
+using System.Diagnostics;
+using System.Drawing;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 
 
 namespace Caupo
@@ -45,9 +54,34 @@ namespace Caupo
            
         }
 
-      
+ 
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            Debug.WriteLine ("Treba da pokrene server.");
+            var dbPath = Properties.Settings.Default.DbPath;
+            var connectionString = $"Data Source={dbPath};Version=3;";
 
-   
+            try
+            {
+                var server = new TcpIpServer (5000, connectionString);
+                _ = Task.Run (async () => await server.StartAsync ());
+                ClientRegistry.LoadFromFile ();
+
+                Debug.WriteLine ("Server je uspješno pokrenut.");
+
+
+
+            }
+            catch(Exception ex)
+            {
+                // Ako je došlo do greške prilikom pokretanja servera
+                Debug.WriteLine ("Greška prilikom pokretanja servera: " + ex.Message);
+
+
+            }
+        }
+        
+
 
         public void ToggleKeyboard()
         {
@@ -127,7 +161,6 @@ namespace Caupo
         }
     }
 
-
-
-}
+     
+    }
 }

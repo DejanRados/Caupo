@@ -36,13 +36,13 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Button Style="{StaticResource MyButtonStyle}"  BorderBrush="#484899" x:Name="BtnFirst" Click="BtnFirst_Click" Width="50" Height="50" VerticalAlignment="Center"  BorderThickness="1" Grid.Column="0" HorizontalAlignment="Center" ToolTip="Prvi artikl" Margin="10,0,0,0">
+            <Button Style="{StaticResource SecondaryButtonStyle}"   x:Name="BtnFirst" Click="BtnFirst_Click" Width="50" Height="50" VerticalAlignment="Center"  Grid.Column="0" HorizontalAlignment="Center" ToolTip="Prvi artikl" Margin="10,0,0,0">
                 <TextBlock  FontFamily="pack://application:,,,/Assets/Fonts/#codicon" FontSize="24" FontWeight="ExtraLight" Text="&#xEB6F;"  Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Button>
-            <Border Grid.Column="1"  BorderThickness="1" CornerRadius="10" Height="50" VerticalAlignment="Center"  HorizontalAlignment="Stretch" Padding="0" Margin="20" >
+            <Border Grid.Column="1"  BorderThickness="2" CornerRadius="10" Height="50" VerticalAlignment="Center"  HorizontalAlignment="Stretch" Padding="0" Margin="20" >
                 <Border.Style>
                     <Style TargetType="{x:Type Border}">
-                        <Setter Property="BorderBrush" Value="#484899"/>
+                        <Setter Property="BorderBrush" Value="#774A6FA5"/>
                         <Setter Property="Background" Value="Transparent"/>
                         <Style.Triggers>
                             <!-- Trigger za MouseOver -->
@@ -82,10 +82,10 @@
                 </DatePicker>
 
             </Border>
-            <Button Style="{StaticResource MyButtonStyle}"    BorderBrush="#484899"  x:Name="BtnLast" Click="BtnLast_Click" Width="50" Height="50" Padding="0"  VerticalAlignment="Center"  Grid.Column="2" ToolTip="Naredni artikl" Margin="10,0,0,0" >
+            <Button Style="{StaticResource SecondaryButtonStyle}"     x:Name="BtnLast" Click="BtnLast_Click" Width="50" Height="50" Padding="0"  VerticalAlignment="Center"  Grid.Column="2" ToolTip="Naredni artikl" Margin="10,0,0,0" >
                 <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" FontSize="24" FontWeight="ExtraLight" Text="&#xEB70;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Button>
-            <Button  Grid.Column="4" Style="{StaticResource MyButtonStyle}"  BorderBrush="#32ff32"  x:Name="BtnPrint"    Width="120"    Height="50"     Click="BtnPrint_Click" HorizontalAlignment="Left">
+            <Button  Grid.Column="4" Style="{StaticResource PrimaryButtonStyle}"   x:Name="BtnPrint"    Width="120"    Height="50"     Click="BtnPrint_Click" HorizontalAlignment="Left">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <svg:SvgViewbox Width="24"  Height="24"  Source="{Binding ImagePathPrintButton, TargetNullValue={x:Null}}"  Stretch="Uniform"  Margin="0,0,5,0"/>
                     <TextBlock Text="Štampaj"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
@@ -120,19 +120,14 @@
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <DataGrid ItemsSource="{Binding Knjiga}"
+                <DataGrid ItemsSource="{Binding Knjiga}" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Top"
                           FontFamily="Arial" FontSize="10" 
                           GridLinesVisibility="None"   Background="Transparent" BorderThickness="0.1" BorderBrush="{DynamicResource GlobalFontColor}"
                           AutoGenerateColumns="False"  ColumnHeaderHeight="65"  Grid.Column="0" 
                           CanUserAddRows="False" IsReadOnly="True" Margin="0,10,0,0" MaxHeight="700"
                           RowHeaderWidth="0" Padding="1" SelectionUnit="FullRow" SelectionMode="Single">
                     <DataGrid.Resources>
-                        <!-- Tvoja glavna boja selekcije -->
-                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#3366FF66"/>
-                        <!-- Boja selekcije kada grid izgubi fokus -->
-                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#3366FF66"/>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#252525"/>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#424242"/>
+   
 
                         <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
 
@@ -176,8 +171,6 @@
                             </Style.Triggers>
                         </Style>
                     </DataGrid.Resources>
-
-
                     <DataGrid.ColumnHeaderStyle>
                         <Style TargetType="DataGridColumnHeader">
                             <Setter Property="Background" Value="#323232"/>
@@ -207,10 +200,10 @@
                                 <Style TargetType="DataGridCell">
                                     <Setter Property="Background" Value="Transparent"/>
                                     <Setter Property="BorderThickness" Value="0.05"/>
-                                    <Setter Property="BorderBrush" Value="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource GlobalFontColor}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsPromet}" Value="True">
-                                            <Setter Property="Background" Value="#4464da64"/>
+                                            <Setter Property="Background" Value="#776c757d"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -229,10 +222,10 @@
                                 <Style TargetType="DataGridCell">
                                     <Setter Property="Background" Value="Transparent"/>
                                     <Setter Property="BorderThickness" Value="0.05"/>
-                                    <Setter Property="BorderBrush" Value="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource GlobalFontColor}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsPromet}" Value="True">
-                                            <Setter Property="Background" Value="#4464da64"/>
+                                            <Setter Property="Background" Value="#776c757d"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -250,10 +243,10 @@
                                 <Style TargetType="DataGridCell">
                                     <Setter Property="Background" Value="Transparent"/>
                                     <Setter Property="BorderThickness" Value="0.05"/>
-                                    <Setter Property="BorderBrush" Value="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource GlobalFontColor}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsPromet}" Value="True">
-                                            <Setter Property="Background" Value="#4464da64"/>
+                                            <Setter Property="Background" Value="#776c757d"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -274,10 +267,10 @@
                                 <Style TargetType="DataGridCell">
                                     <Setter Property="Background" Value="Transparent"/>
                                     <Setter Property="BorderThickness" Value="0.05"/>
-                                    <Setter Property="BorderBrush" Value="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource GlobalFontColor}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsPromet}" Value="True">
-                                            <Setter Property="Background" Value="#4464da64"/>
+                                            <Setter Property="Background" Value="#776c757d"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -339,12 +332,12 @@
                                             <ColumnDefinition Width="50"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <Label Grid.Column="0"  BorderBrush="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" BorderThickness="0,0,0.1,0"
+                                        <Label Grid.Column="0"  BorderBrush="{DynamicResource GlobalFontColor}"  BorderThickness="0,0,0.1,0"
                                            Content="{Binding NabavljenoDanas}" 
                                                ContentStringFormat="{}{0:F2}"
                                                VerticalContentAlignment="Center"
                                                HorizontalContentAlignment="Right"
-                                              Foreground="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
+                                              Foreground="{DynamicResource GlobalFontColor}" 
                                            HorizontalAlignment="Stretch" 
                                            Padding="3">
                                             <Label.Style>
@@ -354,16 +347,16 @@
                                                         <!-- Ako je red selektovan -->
 
                                                         <DataTrigger Binding="{Binding IsPromet}" Value="True">
-                                                            <Setter Property="Background" Value="#4464da64"/>
+                                                            <Setter Property="Background" Value="#776c757d"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
                                             </Label.Style>
                                         </Label>
-                                        <Label Grid.Column="1" BorderBrush="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" BorderThickness="0,0,0.1,0" Margin="0"
+                                        <Label Grid.Column="1" BorderBrush="{DynamicResource GlobalFontColor}"  BorderThickness="0,0,0.1,0" Margin="0"
                                          Content="{Binding Dobavljac}" 
                                              ContentStringFormat="{}{0:F2}"
-                                                Foreground="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
+                                                Foreground="{DynamicResource GlobalFontColor}" 
                                              HorizontalContentAlignment="Center"
                                            VerticalContentAlignment="Center"
                                          HorizontalAlignment="Stretch" 
@@ -378,16 +371,16 @@
 
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsPromet}" Value="True">
-                                                            <Setter Property="Background" Value="#4464da64"/>
+                                                            <Setter Property="Background" Value="#776c757d"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
                                             </Label.Style>
                                         </Label>
-                                        <Label Grid.Column="2" BorderBrush="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" BorderThickness="0" Margin="0"
+                                        <Label Grid.Column="2" BorderBrush="{DynamicResource GlobalFontColor}"  BorderThickness="0" Margin="0"
                                          Content="{Binding Dokument}" 
                                              ContentStringFormat="{}{0:F2}"
-                                                Foreground="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
+                                                Foreground="{DynamicResource GlobalFontColor}" 
                                              HorizontalContentAlignment="Right"
                                                VerticalContentAlignment="Center"
                                          HorizontalAlignment="Stretch" 
@@ -398,7 +391,7 @@
                                                     <Style.Triggers>
 
                                                         <DataTrigger Binding="{Binding IsPromet}" Value="True">
-                                                            <Setter Property="Background" Value="#4464da64"/>
+                                                            <Setter Property="Background" Value="#776c757d"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -422,10 +415,10 @@
                                 <Style TargetType="DataGridCell">
                                     <Setter Property="Background" Value="Transparent"/>
                                     <Setter Property="BorderThickness" Value="0.05"/>
-                                    <Setter Property="BorderBrush" Value="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource GlobalFontColor}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsPromet}" Value="True">
-                                            <Setter Property="Background" Value="#4464da64"/>
+                                            <Setter Property="Background" Value="#776c757d"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -444,10 +437,10 @@
                                 <Style TargetType="DataGridCell">
                                     <Setter Property="Background" Value="Transparent"/>
                                     <Setter Property="BorderThickness" Value="0.05"/>
-                                    <Setter Property="BorderBrush" Value="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource GlobalFontColor}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsPromet}" Value="True">
-                                            <Setter Property="Background" Value="#4464da64"/>
+                                            <Setter Property="Background" Value="#776c757d"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -465,10 +458,10 @@
                                 <Style TargetType="DataGridCell">
                                     <Setter Property="Background" Value="Transparent"/>
                                     <Setter Property="BorderThickness" Value="0.05"/>
-                                    <Setter Property="BorderBrush" Value="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource GlobalFontColor}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsPromet}" Value="True">
-                                            <Setter Property="Background" Value="#4464da64"/>
+                                            <Setter Property="Background" Value="#776c757d"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -478,21 +471,31 @@
                 </DataGrid>
 
 
-                <DataGrid ItemsSource="{Binding ListaHrane}" FontFamily="Arial" FontSize="10"  GridLinesVisibility="None"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" BorderThickness="0.1" BorderBrush="{DynamicResource GlobalFontColor}"  AutoGenerateColumns="False"   Height="Auto" ColumnHeaderHeight="65"  Grid.Column="1" 
-                    CanUserAddRows="False" IsReadOnly="True" Margin="0,10,0,0" RowHeaderWidth="0" Padding="1"  >
+                <DataGrid ItemsSource="{Binding ListaHrane}" VerticalAlignment="Top"
+                          FontFamily="Arial"
+                          FontSize="10"
+                          GridLinesVisibility="None"
+                          Foreground="{DynamicResource GlobalFontColor}"
+                          Background="Transparent" BorderThickness="0.1"
+                          BorderBrush="{DynamicResource GlobalFontColor}"
+                          AutoGenerateColumns="False" 
+                          Height="Auto"
+                          ColumnHeaderHeight="65"
+                          Grid.Column="1" 
+                          CanUserAddRows="False"
+                          IsReadOnly="True"
+                          Margin="0,10,0,0"
+                          RowHeaderWidth="0"
+                          Padding="1"  >
                     <DataGrid.Resources>
                         <!-- Tvoja glavna boja selekcije -->
-                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#3344FF44"/>
-                        <!-- Boja selekcije kada grid izgubi fokus -->
-                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#3344FF44"/>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#323232"/>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#323232"/>
+  
                         <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
                         <!-- Svi DataGridCell koriste istu boju selekcije -->
                         <Style TargetType="DataGridCell">
                             <Setter Property="Background" Value="Transparent"/>
                             <Setter Property="BorderThickness" Value="0.05"/>
-                            <Setter Property="BorderBrush" Value="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource GlobalFontColor}" />
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=IsSelected}" Value="True">
                                     <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
@@ -614,13 +617,13 @@
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Column="0" Text="{Binding Naziv}"  Foreground="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
+                                        <TextBlock Grid.Column="0" Text="{Binding Naziv}"  Foreground="{DynamicResource GlobalFontColor}" 
                                                     HorizontalAlignment="Left" Padding="3"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding Kolicina,StringFormat={}{0:F2}}"  Foreground="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
+                                        <TextBlock Grid.Column="1" Text="{Binding Kolicina,StringFormat={}{0:F2}}"  Foreground="{DynamicResource GlobalFontColor}" 
                                                      HorizontalAlignment="Right" Padding="3"/>
-                                        <TextBlock Grid.Column="2" Text="{Binding Cijena,StringFormat={}{0:F2}}"  Foreground="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
+                                        <TextBlock Grid.Column="2" Text="{Binding Cijena,StringFormat={}{0:F2}}"  Foreground="{DynamicResource GlobalFontColor}" 
                                                      HorizontalAlignment="Right" Padding="3"/>
-                                        <TextBlock Grid.Column="3" Text="{Binding Vrijednost,StringFormat={}{0:F2}}"  Foreground="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
+                                        <TextBlock Grid.Column="3" Text="{Binding Vrijednost,StringFormat={}{0:F2}}"  Foreground="{DynamicResource GlobalFontColor}" 
                                                         HorizontalAlignment="Right" Padding="3"/>
                                     </Grid>
                                 </DataTemplate>

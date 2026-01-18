@@ -18,7 +18,7 @@
              <RowDefinition Height="100"/>
         </Grid.RowDefinitions>
         <Border x:Name="RacunIdikator" Background="#66323232" HorizontalAlignment="Stretch" Panel.ZIndex="999" Grid.RowSpan="4" CornerRadius="25" Visibility="Collapsed" VerticalAlignment="Stretch">
-            <mah:ProgressRing IsActive="True" Width="100" Height="100" Foreground="{DynamicResource GlobalFontColor}" />
+           
 
         </Border>
         <Grid VerticalAlignment="Center" Height="55" Background="#323232">
@@ -72,7 +72,7 @@
                 </Grid>
             </Viewbox>
             <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="180"  Margin="30" Grid.Column="1" HorizontalAlignment="Right">
-                <Button Style="{StaticResource MyButtonStyle}"  BorderBrush="LightGreen" Margin="5"  x:Name="BtnRacun"     Click="BtnRacun_Click"   Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"   >
+                <Button Style="{StaticResource PrimaryButtonStyle}"   Margin="5"  x:Name="BtnRacun"     Click="BtnRacun_Click"   Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"   >
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <svg:SvgViewbox   Width="30" Height="32" Source="{Binding ImagePathReceiptButton, TargetNullValue={x:Null}}"  Stretch="Uniform" Margin="0,0,10,0"/>
                         <TextBlock Text="Račun"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />

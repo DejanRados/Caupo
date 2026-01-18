@@ -20,7 +20,7 @@
     <Grid >
       
         <Border x:Name="RacunIdikator" Background="#66323232" HorizontalAlignment="Stretch" Panel.ZIndex="999" CornerRadius="25" Visibility="Collapsed" VerticalAlignment="Stretch">
-            <mah:ProgressRing IsActive="True" Width="100" Height="100" Foreground="{DynamicResource GlobalFontColor}" />
+ 
            
         </Border>
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="55" Background="#323232" >
@@ -56,7 +56,7 @@
                              HorizontalAlignment="Center">
                       
                     </TextBox>
-                    <Button Style="{StaticResource MyButtonStyle}"  BorderBrush="Transparent" Margin="5" Background="#419141"    x:Name="BtnPassword"     Width="120"    Height="50"   Foreground="#f8f8f8"   Click="BtnPassword_Click">
+                    <Button Style="{StaticResource CancelButtonStyle}"  BorderBrush="Transparent" Margin="5" Background="#419141"    x:Name="BtnPassword"     Width="120"    Height="50"   Foreground="#f8f8f8"   Click="BtnPassword_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="20" Margin="5" FontWeight="ExtraLight" Text="&#xE73E;" Foreground="#f8f8f8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             <TextBlock Text="U redu"  VerticalAlignment="Center" Margin="5" Foreground="#f8f8f8" />
@@ -195,13 +195,13 @@
 
             <ScrollViewer x:Name="KategorijeScroll" VerticalScrollBarVisibility="Hidden" Grid.Row="1"  Grid.Column="0"  Margin="10,10" HorizontalAlignment="Stretch" >
                 <Grid HorizontalAlignment="Stretch">
-                    <ItemsControl x:Name="KategorijaPicePanel"   ItemsSource="{Binding KategorijePice}"  Visibility="Visible" HorizontalAlignment="Stretch" Margin="10">
+                    <ItemsControl x:Name="KategorijaPicePanel"   ItemsSource="{Binding KategorijePice}"  Visibility="Visible" HorizontalAlignment="Stretch" Margin="5" >
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Button Style="{StaticResource SecondaryButtonStyle}"  Margin="2" Tag="{Binding IdKategorije}"       Click="ButtonCategoryDrink_Clicked"   MinHeight="50" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"     >
+                                <Button Style="{StaticResource SecondaryButtonStyle}"   Tag="{Binding IdKategorije}"    Margin="2"   Click="ButtonCategoryDrink_Clicked"   Height="60" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"     >
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <svg:SvgViewbox   Width="20" Height="20" Source="{Binding DataContext.ImagePathCategoryButton, RelativeSource={RelativeSource AncestorType=ItemsControl}}"  Stretch="Uniform" Margin="10,0,10,0"/>
-                                        <TextBlock Text="{Binding Kategorija}" Width="80" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center"  Foreground="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType=ItemsControl}}" />
+                                        <TextBlock FontFamily="Segoe MDL2 Assets" Margin="4,0,0,0" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#xE71D;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Kategorija}" Width="80" TextWrapping="WrapWithOverflow" TextAlignment="Left" VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Margin="0,0,10,2"/>
                                     </StackPanel>
                                 </Button>
 
@@ -209,19 +209,19 @@
                         </ItemsControl.ItemTemplate>
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <UniformGrid Columns="1"/>
+                                <StackPanel Orientation="Vertical"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                       
                     </ItemsControl>
 
-                    <ItemsControl x:Name="KategorijaHranaPanel" ItemsSource="{Binding KategorijeHrana}"  Visibility="Collapsed" Margin=" 10" >
+                    <ItemsControl x:Name="KategorijaHranaPanel" ItemsSource="{Binding KategorijeHrana}"  Visibility="Collapsed"  HorizontalAlignment="Stretch" Margin="5">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Button Style="{StaticResource SecondaryButtonStyle}"  Margin="2" Tag="{Binding IdKategorije}"     Click="ButtonCategoryFood_Clicked"    MinHeight="50" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"       >
+                                <Button Style="{StaticResource SecondaryButtonStyle}"  Margin="2" Tag="{Binding IdKategorije}"     Click="ButtonCategoryFood_Clicked"    Height="60" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"       >
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <svg:SvgViewbox   Width="20" Height="20" Source="{Binding DataContext.ImagePathCategoryButton, RelativeSource={RelativeSource AncestorType=ItemsControl}}"  Stretch="Uniform" Margin="10,0,10,0"/>
-                                        <TextBlock Text="{Binding Kategorija}" Width="80" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center"  Foreground="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType=ItemsControl}}" />
+                                        <TextBlock FontFamily="Segoe MDL2 Assets" Margin="6" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#xE71D;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Kategorija}" Width="80" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
                                     </StackPanel>
                                 </Button>
 
@@ -229,18 +229,18 @@
                         </ItemsControl.ItemTemplate>
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <UniformGrid Columns="1"/>
+                                <StackPanel Orientation="Vertical"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
 
-                    <ItemsControl x:Name="KategorijaOstaloPanel" ItemsSource="{Binding KategorijeOstalo}" Visibility="Collapsed" Margin="10">
+                    <ItemsControl x:Name="KategorijaOstaloPanel" ItemsSource="{Binding KategorijeOstalo}" Visibility="Collapsed" HorizontalAlignment="Stretch" Margin="5">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Button Style="{StaticResource SecondaryButtonStyle}"  Margin="2" Tag="{Binding IdKategorije}"     Click="ButtonCategoryRest_Clicked"    MinHeight="50" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"     >
+                                <Button Style="{StaticResource SecondaryButtonStyle}"  Margin="2" Tag="{Binding IdKategorije}"     Click="ButtonCategoryRest_Clicked"    Height="60" VerticalAlignment="Top"   >
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <svg:SvgViewbox   Width="20" Height="20" Source="{Binding DataContext.ImagePathCategoryButton, RelativeSource={RelativeSource AncestorType=ItemsControl}}"  Stretch="Uniform" Margin="10,0,10,0"/>
-                                        <TextBlock Text="{Binding Kategorija}" Width="80" TextWrapping="Wrap" TextAlignment="Center"  VerticalAlignment="Center"  Foreground="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType=ItemsControl}}"/>
+                                        <TextBlock FontFamily="Segoe MDL2 Assets" Margin="6" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#xE71D;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Kategorija}" Width="80" TextWrapping="Wrap" TextAlignment="Center"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
                                     </StackPanel>
                                 </Button>
 
@@ -248,7 +248,7 @@
                         </ItemsControl.ItemTemplate>
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <UniformGrid Columns="1"/>
+                                <StackPanel Orientation="Vertical"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
@@ -338,7 +338,7 @@
                 <Grid Grid.Column="0" x:Name="helperField"/>
             </Grid>
             <Border Grid.Row="1" Grid.Column="5" CornerRadius="10" BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0" Margin="10,20,10,0">
-            <ListView  x:Name="ListStavkeRacuna" HorizontalAlignment="Stretch" BorderThickness="0" PreviewMouseLeftButtonUp="ListStavkeRacuna_PreviewMouseLeftButtonUp" ItemsSource="{Binding StavkeRacuna}" SelectedItem="{Binding SelectedStavka}"   VerticalAlignment="Top"   SelectionMode="Single" Background="Transparent" Foreground="{DynamicResource GlobalFontColor}"   Margin="5" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" >
+            <ListView  x:Name="ListStavkeRacuna" TouchDown="ListStavkeRacuna_TouchDown" TouchUp="ListStavkeRacuna_TouchUp" HorizontalAlignment="Stretch" BorderThickness="0" PreviewMouseLeftButtonDown="ListStavkeRacuna_PreviewMouseLeftButtonDown" PreviewMouseLeftButtonUp="ListStavkeRacuna_PreviewMouseLeftButtonUp" ItemsSource="{Binding StavkeRacuna}" SelectedItem="{Binding SelectedStavka}"   VerticalAlignment="Top"   SelectionMode="Single" Background="Transparent" Foreground="{DynamicResource GlobalFontColor}"   Margin="5" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" >
                     <ListView.Resources>
                         <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
                     </ListView.Resources>
@@ -347,15 +347,31 @@
 
 
                         <!-- Kolona za Artikl -->
-                        <GridViewColumn Header="Artikl"   Width="150" >
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Name}" TextWrapping="Wrap" HorizontalAlignment="Stretch" />
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
+                            <GridViewColumn Header="Artikl" Width="150">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Vertical">
 
-                        <!-- Kolona za Količinu -->
+                                            <!-- Naziv artikla -->
+                                            <TextBlock Text="{Binding Name}"
+                           FontWeight="SemiBold"
+                           TextWrapping="Wrap" />
+
+                                            <!-- Note (ako postoji) -->
+                                            <TextBlock Text="{Binding Note}"
+                           FontSize="11"
+                           FontStyle="Italic"
+                           Opacity="0.75"
+                           Margin="8,0,0,0"
+                           TextWrapping="Wrap"
+                        />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+
+
+                            <!-- Kolona za Količinu -->
                         <GridViewColumn Header="Kol" Width="{Binding ElementName=helperField, Path=ActualWidth}"   >
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>

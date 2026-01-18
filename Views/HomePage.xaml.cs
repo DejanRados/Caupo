@@ -4,9 +4,11 @@ using Caupo.Server;
 using Caupo.Services;
 using Caupo.ViewModels;
 using Caupo.Views;
+using QRCoder;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -239,17 +241,13 @@ namespace Caupo.Views
             Application.Current.Shutdown ();
         }
 
-
+        private Bitmap _qrBitmap;
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine ("Treba da pokrene server.");
-            var dbPath = Properties.Settings.Default.DbPath;
-            var connectionString = $"Data Source={dbPath};Version=3;";
-
+          
             try
             {
-                var server = new TcpIpServer (5000, connectionString);
-                _ = Task.Run (async () => await server.StartAsync ());
+               
 
                 Debug.WriteLine ("Server je uspješno pokrenut.");
                 imgServer.Source = new BitmapImage (new Uri ("pack://application:,,,/Images/green.png"));
@@ -264,10 +262,51 @@ namespace Caupo.Views
                         .Select (addr => $"{ni.Name} ({ni.NetworkInterfaceType}): {addr.Address}"))
                     .ToList ();
 
+                var ipAddress = NetworkInterface.GetAllNetworkInterfaces ()
+                 .Where (ni => ni.OperationalStatus == OperationalStatus.Up)
+                 .SelectMany (ni => ni.GetIPProperties ().UnicastAddresses
+                     .Where (addr => addr.Address.AddressFamily == AddressFamily.InterNetwork &&
+                                    !IPAddress.IsLoopback (addr.Address))
+                     .Select (addr => $"{addr.Address}"))
+                 .ToList ();
+
                 // Spoji ih u jedan string za labelu
                 var ipListString = string.Join (Environment.NewLine, ipAddresses);
                 lblServer.Content = $"Server je pokrenut na:\n{ipListString}";
 
+                if(ipAddress.Any ())
+                {
+                    var firstIp = ipAddress.First ();
+                    int port = 5000;
+
+                    // Format koji je lako parsirati na Androidu
+                    // Koristite jednostavan separator kao što je "|"
+                    string qrText = $"{firstIp}|{port}";
+
+                    using(QRCodeGenerator qrGenerator = new QRCodeGenerator ())
+                    {
+                        QRCodeData qrCodeData = qrGenerator.CreateQrCode (qrText, QRCodeGenerator.ECCLevel.Q);
+                        using(QRCode qrCode = new QRCode (qrCodeData))
+                        {
+                            // GetGraphic vraća System.Drawing.Bitmap
+                            System.Drawing.Bitmap qrBitmap = qrCode.GetGraphic (
+                                pixelsPerModule: 20,
+                                darkColor: System.Drawing.Color.Black,
+                                lightColor: System.Drawing.Color.White,
+                                drawQuietZones: true
+                            );
+
+                            // Konvertuj System.Drawing.Bitmap u WPF BitmapSource
+                            qrCodeImage.Source = BitmapToImageSource (qrBitmap);
+
+                            // Očisti bitmap ako više ne treba
+                            qrBitmap.Dispose ();
+                        }
+                    }
+
+                    Debug.WriteLine ($"QR kod generisan: {qrText}");
+
+                }
             }
             catch(Exception ex)
             {
@@ -276,6 +315,22 @@ namespace Caupo.Views
                 imgServer.Source = new BitmapImage (new Uri ("pack://application:,,,/Images/red.png"));
                 lblServer.Content = $"Greška prilikom pokretanja servera: " + ex.Message;
 
+            }
+        }
+
+        private BitmapSource BitmapToImageSource(System.Drawing.Bitmap bitmap)
+        {
+            using(var memory = new System.IO.MemoryStream ())
+            {
+                bitmap.Save (memory, System.Drawing.Imaging.ImageFormat.Png);
+                memory.Position = 0;
+                var bitmapImage = new BitmapImage ();
+                bitmapImage.BeginInit ();
+                bitmapImage.StreamSource = memory;
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.EndInit ();
+                bitmapImage.Freeze ();
+                return bitmapImage;
             }
         }
 

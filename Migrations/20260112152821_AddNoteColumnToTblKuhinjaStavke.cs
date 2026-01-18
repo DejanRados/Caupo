@@ -1,0 +1,31 @@
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace Caupo.Migrations
+{
+    /// <inheritdoc />
+    public partial class AddNoteColumnToTblKuhinjaStavke : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.AddColumn<string> (
+                name: "Note",
+                table: "tblKuhinjaStavke",
+                type: "TEXT",
+                nullable: true);
+        }
+
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropColumn (
+                name: "Note",
+                table: "tblKuhinjaStavke");
+        }
+
+    }
+}

@@ -1,4 +1,5 @@
 ﻿using Caupo.Data;
+using Caupo.Server;
 using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,6 +11,7 @@ using System.Linq;
 using System.Media;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -22,6 +24,8 @@ namespace Caupo.ViewModels
         public class OrderItem
         {
             public string Name { get; set; }
+            public string Note { get; set; }
+            public bool Visible => !string.IsNullOrWhiteSpace (Note);
             public decimal? Quantity { get; set; }
         }
 
@@ -33,9 +37,12 @@ namespace Caupo.ViewModels
             public DateTime OrderTime { get; set; }
             public ObservableCollection<OrderItem> Items { get; set; }
 
-            public string ColorGreenHex { get; set; } = "#419141";
-            public string ColorYellowHex { get; set; } = "#cfbb23";
-            public string ColorRedHex { get; set; } = "#ad1818";
+            public string ColorGreenBackgroundHex { get; set; } = "#1E3A2B";
+            public string ColorGreenBorderHex { get; set; } = "#2F9E44";
+            public string ColorYellowBackgroundHex { get; set; } = " #3A2F1A";
+            public string ColorYellowBorderHex { get; set; } = "#F59F00";
+            public string ColorRedBackgroundHex { get; set; } = "#3A1E1E";
+            public string ColorRedBorderHex { get; set; } = "#E03131";
 
             private Brush _background = Brushes.LightGreen;
             public Brush Background
@@ -43,14 +50,28 @@ namespace Caupo.ViewModels
                 get
                 {
                     if (Elapsed.TotalMinutes >= 20)
-                        return (SolidColorBrush)(new BrushConverter ().ConvertFrom (ColorRedHex));
+                        return (SolidColorBrush)(new BrushConverter ().ConvertFrom (ColorRedBackgroundHex));
                     else if (Elapsed.TotalMinutes >= 10)
-                        return (SolidColorBrush)(new BrushConverter ().ConvertFrom (ColorYellowHex));
+                        return (SolidColorBrush)(new BrushConverter ().ConvertFrom (ColorYellowBackgroundHex));
                     else
-                        return (SolidColorBrush)(new BrushConverter ().ConvertFrom (ColorGreenHex));
+                        return (SolidColorBrush)(new BrushConverter ().ConvertFrom (ColorGreenBackgroundHex));
                 }
                }
-            
+
+            private Brush _border= Brushes.LightGreen;
+            public Brush Border
+            {
+                get
+                {
+                    if(Elapsed.TotalMinutes >= 20)
+                        return (SolidColorBrush)(new BrushConverter ().ConvertFrom (ColorRedBorderHex));
+                    else if(Elapsed.TotalMinutes >= 10)
+                        return (SolidColorBrush)(new BrushConverter ().ConvertFrom (ColorYellowBorderHex));
+                    else
+                        return (SolidColorBrush)(new BrushConverter ().ConvertFrom (ColorGreenBorderHex));
+                }
+            }
+
             private TimeSpan _elapsed;
             public TimeSpan Elapsed
             {
@@ -58,6 +79,22 @@ namespace Caupo.ViewModels
                 set { _elapsed = value;
                     OnPropertyChanged ();
                     OnPropertyChanged (nameof (Background));
+                    OnPropertyChanged (nameof (Border));
+                }
+            }
+
+            private bool _isNote = false;
+            public bool IsNote
+            {
+                get => _isNote;
+                set
+                {
+                    if(_isNote != value)
+                    {
+                        _isNote = value;
+
+                        OnPropertyChanged (nameof (IsNote));
+                    }
                 }
             }
 
@@ -69,6 +106,8 @@ namespace Caupo.ViewModels
         public ObservableCollection<DisplayOrder> Orders { get; set; } = new ObservableCollection<DisplayOrder> ();
 
         private DispatcherTimer timer;
+
+
 
         public KitchenDisplayViewModel()
         {
@@ -111,6 +150,7 @@ namespace Caupo.ViewModels
                             stavke.Select (s => new OrderItem
                             {
                                 Name = s.Artikl,
+                                Note = s.Note,
                                 Quantity = s.Kolicina
                             }))
                     };
@@ -170,15 +210,73 @@ namespace Caupo.ViewModels
                         // Fallback na SystemSounds
                         SystemSounds.Beep.Play ();
                     }
-                  
 
-                    // Prikaži popup
+
+                    // Prikaži popup na WPF-u
                     Application.Current.Dispatcher.Invoke (() =>
                     {
-                        Debug.WriteLine (" Application.Current.Dispatcher.Invoke (() =>   Otvara popup");
-                        var popup = new Caupo.Views.OrderCompletedPopup (order.Waiter, order.TableName, order.Number.ToString(), stavkeList);
+                        Debug.WriteLine ("Application.Current.Dispatcher.Invoke (() => Otvara popup");
+                        var popup = new Caupo.Views.OrderCompletedPopup (
+                            order.Waiter,
+                            order.TableName,
+                            order.Number.ToString (),
+                            stavkeList);
                         popup.Show ();
                     });
+
+                    // 2️⃣ Pripremi uniformni JSON za Android notifikaciju
+                    var notifData = new
+                    {
+                        type = "KUHINJA",
+                        orderNumber = order.Number,
+                        tableName = order.TableName,
+                        message = $"Narudžba broj {order.Number} za {order.TableName }   je spremna "
+                    };
+
+                    // Wrapamo u objekt sa Status/Data, isto kao u handlerima
+                    var notifWrapper = new
+                    {
+                        Status = "OK",
+                        Data = notifData
+                    };
+
+                    // Serijaliziramo i dodajemo \n kao delimiter
+                    var notifJson = JsonSerializer.Serialize (notifWrapper) + "\n";
+
+                    // 3️⃣ Pošalji notifikaciju Android uređaju
+                    // 3️⃣ Pošalji notifikaciju Android uređaju
+                    Debug.WriteLine ($"[Notification] Tražim Android sesiju za waiter: '{order.Waiter}'");
+
+                    // Prikaži sve registrovanje klijente prije traženja
+                    ClientRegistry.ListAll ();
+
+                    var androidSession = ClientRegistry.Get (order.Waiter); // order.Waiter = userId
+
+                    if(androidSession != null)
+                    {
+                        Debug.WriteLine ($"[Notification] Sesija pronađena za '{order.Waiter}'");
+                        Debug.WriteLine ($"[Notification] Client.Connected: {androidSession.Client?.Connected}");
+
+                        if(androidSession.Client?.Connected == true)
+                        {
+                            var bytes = Encoding.UTF8.GetBytes (notifJson);
+                            await androidSession.Stream.WriteAsync (bytes, 0, bytes.Length);
+                            Debug.WriteLine ("[Notification] Poslana ORDER_READY notifikacija Androidu: " + notifJson);
+                        }
+                        else
+                        {
+                            Debug.WriteLine ($"[Notification] Klijent '{order.Waiter}' nije povezan, uklanjam iz registry");
+                            ClientRegistry.Remove (order.Waiter);
+                        }
+                    }
+                    else
+                    {
+                        Debug.WriteLine ($"[Notification] Android session nije pronađen za userId: '{order.Waiter}'");
+                        Debug.WriteLine ($"[Notification] Dostupni klijenti: {string.Join (", ", GetRegisteredClients ())}");
+                    }
+
+
+
                     Orders.Remove (order);
                 }
             }
@@ -188,6 +286,13 @@ namespace Caupo.ViewModels
             }
         }
 
+
+        private List<string> GetRegisteredClients()
+        {
+            return ClientRegistry.GetAll ()
+                .Select (s => $"'{s.DeviceId}' (Connected: {s.Client?.Connected})")
+                .ToList ();
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string name = null) =>

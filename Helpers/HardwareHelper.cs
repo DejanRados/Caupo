@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Management; // Dodajte referencu na System.Management
 using System.Security.Cryptography;
 using System.Text;
@@ -39,7 +40,7 @@ namespace Caupo.Helpers
             catch(Exception ex)
             {
                 // Fallback ako Management ne radi
-                Console.WriteLine ($"Hardware fingerprint error: {ex.Message}");
+                Debug.WriteLine ($"Hardware fingerprint error: {ex.Message}");
                 return ComputeHash (Environment.MachineName + Environment.UserName);
             }
         }

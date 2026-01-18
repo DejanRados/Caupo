@@ -48,7 +48,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <!-- Border + TextBox -->
-                <Border Grid.Column="0" Padding="5" MinWidth="300" Height="50" HorizontalAlignment="Left"    BorderThickness="1" Background="Transparent" BorderBrush="{DynamicResource GlobalFontColor}" CornerRadius="15">
+                <Border Grid.Column="0" Padding="5" MinWidth="300" Height="50" HorizontalAlignment="Left"    BorderThickness="2" Background="Transparent" BorderBrush="#774A6FA5" CornerRadius="15">
                      <DockPanel>
                             <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"    Margin="5" FontSize="24" Width="30"
                                         FontWeight="ExtraLight" Text="&#60013;"        Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -63,7 +63,7 @@
                 <Popup IsOpen="{Binding IsSuggestionsOpen}" PlacementTarget="{Binding ElementName=SearchTextBox}" StaysOpen="False"   AllowsTransparency="True" Placement="Bottom" Width="350">
                     <ListBox ItemsSource="{Binding Suggestions}" MaxHeight="350"  Foreground="{DynamicResource GlobalFontColor}" Background="{Binding BackColor}" BorderBrush="{DynamicResource GlobalFontColor}"   SelectionChanged="lstSuggestions_SelectionChanged"/>
                 </Popup>
-                <Button Grid.Column="1"  Style="{StaticResource MyButtonStyle}" x:Name="BtnFirst" Click="BtnFirst_Click"  BorderBrush="#484899" Width="50" Height="50" VerticalAlignment="Center"  BorderThickness="1"  HorizontalAlignment="Center" ToolTip="Prvi artikl" Margin="10,0,0,0">
+                <Button Grid.Column="1"  Style="{StaticResource SecondaryButtonStyle}" x:Name="BtnFirst" Click="BtnFirst_Click"   Width="50" Height="50" VerticalAlignment="Center"    HorizontalAlignment="Center" ToolTip="Prvi artikl" Margin="10,0,0,0">
                     <TextBlock 
                       FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
                       FontSize="24"
@@ -73,7 +73,7 @@
                       HorizontalAlignment="Center"
                       VerticalAlignment="Center"/>
             </Button>
-             <Button Grid.Column="2" Style="{StaticResource MyButtonStyle}" BorderBrush="#484899" x:Name="BtnLast" Click="BtnLast_Click" Width="50" Height="50" Padding="0"  VerticalAlignment="Center"   ToolTip="Naredni artikl" Margin="10,0,0,0" >
+             <Button Grid.Column="2" Style="{StaticResource SecondaryButtonStyle}"  x:Name="BtnLast" Click="BtnLast_Click" Width="50" Height="50" Padding="0"  VerticalAlignment="Center"   ToolTip="Naredni artikl" Margin="10,0,0,0" >
                     <TextBlock 
                  FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
                  FontSize="24"
@@ -93,7 +93,7 @@
                 </Grid.ColumnDefinitions>
 
 
-                <Border Grid.Column="0" Padding="5" Width="300" Height="50" HorizontalAlignment="Left" BorderThickness="1" Background="Transparent" BorderBrush="{DynamicResource GlobalFontColor}" CornerRadius="15">
+                <Border Grid.Column="0" Padding="5" Width="300" Height="50" HorizontalAlignment="Left" BorderThickness="2" Background="Transparent" BorderBrush="#774A6FA5" CornerRadius="15">
                     <DockPanel>
                         <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60013;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         <TextBox x:Name="SearchIngredientTextBox" Style= "{StaticResource TextBoxCustom}" CaretBrush="{DynamicResource GlobalFontColor}"
@@ -128,9 +128,13 @@
                 </Border>
 
             <Grid Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Margin="20" >
-                
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Label Content="Normativ " Grid.Row="0" HorizontalAlignment="Center" FontSize="20"/>
                 <DataGrid x:Name="ListaNormativ"  VerticalAlignment="Top" 
-                Grid.Row="1" Grid.RowSpan="2" Grid.Column="0"
+                Grid.Row="1"
                 MaxWidth="750" MaxHeight="800"
                 GridLinesVisibility="None"
                 ItemsSource="{Binding Norm}"
@@ -200,7 +204,7 @@ TextAlignment="Center"/>
                         <DataGridTemplateColumn Header="#"  Width="*" >
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button  Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}" PreviewMouseLeftButtonDown="Button_PreviewMouseLeftButtonDown"  Style="{StaticResource MyButtonStyle}"  BorderBrush="#ff3232"      Width="30"    Height="30"   Foreground="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type ListView}}}" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                                    <Button  Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" BorderThickness="1" CommandParameter="{Binding}" PreviewMouseLeftButtonDown="Button_PreviewMouseLeftButtonDown"  Style="{StaticResource SecondaryButtonStyle}"  BorderBrush="#ff3232"      MinWidth="35"    Height="32"   Foreground="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type ListView}}}" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center" >
                                         <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="1" Padding="1" FontSize="18" Width="35"  FontWeight="ExtraLight" Text="&#xEA81;" Foreground="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center"/>
                                     </Button>
                                 </DataTemplate>

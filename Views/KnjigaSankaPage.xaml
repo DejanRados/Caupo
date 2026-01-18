@@ -35,13 +35,13 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Button Style="{StaticResource MyButtonStyle}"  BorderBrush="#484899" x:Name="BtnFirst" Click="BtnFirst_Click" Width="50" Height="50" VerticalAlignment="Center"  BorderThickness="1" Grid.Column="0" HorizontalAlignment="Center" ToolTip="Prvi artikl" Margin="10,0,0,0">
+            <Button Style="{StaticResource SecondaryButtonStyle}" x:Name="BtnFirst" Click="BtnFirst_Click" Width="50" Height="50" VerticalAlignment="Center"   Grid.Column="0" HorizontalAlignment="Center" ToolTip="Prvi artikl" Margin="10,0,0,0">
                 <TextBlock  FontFamily="pack://application:,,,/Assets/Fonts/#codicon" FontSize="24" FontWeight="ExtraLight" Text="&#xEB6F;"  Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Button>
-            <Border Grid.Column="1"  BorderThickness="1" CornerRadius="10" Height="50" VerticalAlignment="Center"  HorizontalAlignment="Stretch" Padding="0" Margin="20" >
+            <Border Grid.Column="1"  BorderThickness="2" CornerRadius="10" Height="50" VerticalAlignment="Center"  HorizontalAlignment="Stretch" Padding="0" Margin="20" >
                 <Border.Style>
                     <Style TargetType="{x:Type Border}">
-                        <Setter Property="BorderBrush" Value="#484899"/>
+                        <Setter Property="BorderBrush" Value="#774A6FA5"/>
                         <Setter Property="Background" Value="Transparent"/>
                         <Style.Triggers>
                             <!-- Trigger za MouseOver -->
@@ -81,10 +81,10 @@
                 </DatePicker>
             
             </Border>
-            <Button Style="{StaticResource MyButtonStyle}"    BorderBrush="#484899"  x:Name="BtnLast" Click="BtnLast_Click" Width="50" Height="50" Padding="0"  VerticalAlignment="Center"  Grid.Column="2" ToolTip="Naredni artikl" Margin="10,0,0,0" >
+            <Button Style="{StaticResource SecondaryButtonStyle}"     x:Name="BtnLast" Click="BtnLast_Click" Width="50" Height="50" Padding="0"  VerticalAlignment="Center"  Grid.Column="2" ToolTip="Naredni artikl" Margin="10,0,0,0" >
                 <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" FontSize="24" FontWeight="ExtraLight" Text="&#xEB70;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Button>
-            <Button  Grid.Column="4" Style="{StaticResource MyButtonStyle}"  BorderBrush="#32ff32"  x:Name="BtnPrint"    Width="120"    Height="50"     Click="BtnPrint_Click" HorizontalAlignment="Left">
+            <Button  Grid.Column="4" Style="{StaticResource PrimaryButtonStyle}"   x:Name="BtnPrint"    Width="120"    Height="50"     Click="BtnPrint_Click" HorizontalAlignment="Left">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <svg:SvgViewbox Width="24"  Height="24"  Source="{Binding ImagePathPrintButton, TargetNullValue={x:Null}}"  Stretch="Uniform"  Margin="0,0,5,0"/>
                     <TextBlock Text="Štampaj"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
@@ -119,12 +119,6 @@
                       AutoGenerateColumns="False" Grid.Row="1"  MaxHeight="700" MaxWidth="1200" ColumnHeaderHeight="55"  
                   CanUserAddRows="False" IsReadOnly="True" Margin="0,10,0,0" RowHeaderWidth="0" Padding="1"  >
                 <DataGrid.Resources>
-                    <!-- Tvoja glavna boja selekcije -->
-                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#3366FF66"/>
-                    <!-- Boja selekcije kada grid izgubi fokus -->
-                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#3366FF66"/>
-                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="#252525"/>
-                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="#424242"/>
                     <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
                     <!-- Svi DataGridCell koriste istu boju selekcije -->
                     <Style TargetType="{x:Type DataGridCell}">
@@ -194,7 +188,7 @@
 
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsPromet}" Value="True">
-                                        <Setter Property="Background" Value="#4464da64"/>
+                                        <Setter Property="Background" Value="#776c757d"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -207,7 +201,7 @@
                                 <Setter Property="Padding" Value="3"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsPromet}" Value="True">
-                                        <Setter Property="Background" Value="#4464da64"/>
+                                        <Setter Property="Background" Value="#776c757d"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -220,7 +214,7 @@
                                 <Setter Property="Padding" Value="3"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsPromet}" Value="True">
-                                        <Setter Property="Background" Value="#4464da64"/>
+                                        <Setter Property="Background" Value="#776c757d"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -233,7 +227,7 @@
                                 <Setter Property="Padding" Value="3"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsPromet}" Value="True">
-                                        <Setter Property="Background" Value="#4464da64"/>
+                                        <Setter Property="Background" Value="#776c757d"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -246,7 +240,7 @@
                                 <Setter Property="Padding" Value="3"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsPromet}" Value="True">
-                                        <Setter Property="Background" Value="#4464da64"/>
+                                        <Setter Property="Background" Value="#776c757d"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -259,7 +253,7 @@
                                 <Setter Property="Padding" Value="3"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsPromet}" Value="True">
-                                        <Setter Property="Background" Value="#4464da64"/>
+                                        <Setter Property="Background" Value="#776c757d"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -272,7 +266,7 @@
                                 <Setter Property="Padding" Value="3"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsPromet}" Value="True">
-                                        <Setter Property="Background" Value="#4464da64"/>
+                                        <Setter Property="Background" Value="#776c757d"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -285,7 +279,7 @@
                                 <Setter Property="Padding" Value="3"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsPromet}" Value="True">
-                                        <Setter Property="Background" Value="#4464da64"/>
+                                        <Setter Property="Background" Value="#776c757d"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -298,7 +292,7 @@
                                 <Setter Property="Padding" Value="3"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsPromet}" Value="True">
-                                        <Setter Property="Background" Value="#4464da64"/>
+                                        <Setter Property="Background" Value="#776c757d"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -311,7 +305,7 @@
                                 <Setter Property="Padding" Value="3"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsPromet}" Value="True">
-                                        <Setter Property="Background" Value="#4464da64"/>
+                                        <Setter Property="Background" Value="#776c757d"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>

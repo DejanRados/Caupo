@@ -34,151 +34,11 @@ namespace Caupo.Views
             // SyncfusionLicenseProvider.RegisterLicense("Ngo9BigBOggjHTQxAR8/V1NMaF5cXmBCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWX5dcHVWQ2JdU0NyWEo=");
             //  Settings.Default.Tema = "Office2019Black";
             //  Settings.Default.Save();
-           
-            Debug.WriteLine("------------------------------------------------ key ---- " + key);
-          /*  if (!ValidateLicenseKey(key))
-            {
-                LicencePage licencePage = new LicencePage();
-                licencePage.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                licencePage.ShowDialog();
-               
-                return;
-            }*/
+
             InitializeComponent();
            
             this.DataContext = new LoginPageViewModel();
-          
-         
-            // this.WindowState = WindowState.Maximized;
-            // this.WindowStyle = WindowStyle.None;
-            // this.ResizeMode = ResizeMode.NoResize;
-            // this.Topmost = true;
-        }
-      
 
-
-        string key = Settings.Default.Key;
-        private static readonly byte[] Key = Encoding.UTF8.GetBytes("12345678901234567890123456789000"); // 32 bytes for AES-256
-        private static readonly byte[] IV = Encoding.UTF8.GetBytes("1234567890123456"); // 16 bytes for AES
-
-        string Decrypt(string cipherText)
-        {
-            Debug.WriteLine("------------------------------------------------ Decrypt(string cipherText)---- " + cipherText);
-            using (Aes aes = Aes.Create())
-            {
-                    aes.Key = Key;
-                    aes.IV = IV;
-                    using var decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
-                    using var ms = new MemoryStream(Convert.FromBase64String(cipherText));
-                    using var cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read);
-                    using var reader = new StreamReader(cs);
-                    {
-                        string result = reader.ReadToEnd(); // Ensure this reads the data
-                        Debug.WriteLine($"Decrypted Data: {result}");
-                        return result;
-                    }
-            }
-        }
-
-        bool isHardwareCorrect;
-        bool isYearLicence;
-        bool isTrialLicence;
-        DateTime installationDate;
-        TimeSpan installPeriod;
-        private bool ValidateLicenseKey(string licenseKey)
-        {
-            string licenseType;
-            string hardwareFingerprint;
-            string date;
-            try
-            {
-                string decryptedData = Decrypt(licenseKey);
-                string[] parts = decryptedData.Split('-');
-                if (parts.Length != 3)
-                {
-                    return false;
-                }
-                licenseType = parts[0];
-                hardwareFingerprint = parts[1];
-                date = parts[2];
-                // - Verifying the hardware fingerprint matches the current device
-                Debug.WriteLine("------------------------------------------------ hardwareFingerprint ---- " + hardwareFingerprint);
-                string fingerprint = GetHardwareInfo("Win32_Processor", "ProcessorId");
-
-                string localHardwareFingerprint = fingerprint.ToString();
-                if (localHardwareFingerprint != hardwareFingerprint)
-                {
-
-                    MyMessageBox myMessageBox = new MyMessageBox();
-                    //myMessageBox.Owner = this;
-                    myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                    myMessageBox.MessageTitle.Text = "LICENCNI KLJUČ";
-                    myMessageBox.MessageText.Text = "Vaša licencni ključ ne odgovara za ovaj kompjuter" + Environment.NewLine + "Naručite novi licencni ključ ukoliko želite dalje koristiti aplikaciju.";
-                  myMessageBox.ShowDialog();
-                    return false;
-                }
-                // - Checking if the date is within the valid range
-                Debug.WriteLine("------------------------------------------------ date---- " + date);
-                // - Ensuring the license type is valid
-                installationDate = DateTime.ParseExact(date, "dd.MM.yy", CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces);
-                DateTime currentDate = DateTime.Now;
-                installPeriod = currentDate - installationDate;
-                switch (licenseType)
-                {
-                    case "Permanentna":
-                        return true;
-                    case "Godišnja":
-                        if (installPeriod.TotalDays < 365)
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            MyMessageBox myMessageBox = new MyMessageBox();
-                            //myMessageBox.Owner = this;
-                            myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                            myMessageBox.MessageTitle.Text = "GODIŠNJA LICENCA";
-                            myMessageBox.MessageText.Text = "Vaša licenca je istekla " + Environment.NewLine + "Vrijedila je 365 dana od dana  " + installationDate + Environment.NewLine + "Naručite novi licencni ključ ukoliko želite dalje koristiti aplikaciju.";
-                            myMessageBox.ShowDialog();
-                            return false;
-                        }
-                    case "Probna":
-                        if (installPeriod.TotalDays < 30)
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            MyMessageBox myMessageBox = new MyMessageBox();
-                            //myMessageBox.Owner = this;
-                            myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                            myMessageBox.MessageTitle.Text = "PROBNA LICENCA";
-                            myMessageBox.MessageText.Text = "Vaša licenca je istekla " + Environment.NewLine + "Vrijedila je 30 dana od dana  " + installationDate + Environment.NewLine + "Naručite novi licencni ključ ukoliko želite dalje koristiti aplikaciju.";
-                            myMessageBox.ShowDialog();
-                            return false;
-                        }
-                    default:
-                        throw new InvalidOperationException("Unknown license type.");
-                }
-            }
-            catch
-            {
-                return false; // Decryption or validation failed
-            }
-        }
-        private static string GetHardwareInfo(string wmiClass, string property)
-        {
-            using (ManagementObjectSearcher searcher = new ManagementObjectSearcher($"SELECT {property} FROM {wmiClass}"))
-            {
-                foreach (ManagementObject obj in searcher.Get())
-                {
-                    if (obj[property] != null)
-                    {
-                        return obj[property].ToString();
-                    }
-                }
-            }
-            return string.Empty;
         }
 
         private async void FadeInOut(object sender)
@@ -266,6 +126,32 @@ namespace Caupo.Views
                     Debug.WriteLine ("Navigator set? " + (PageNavigator.Navigate != null));
 
                     Globals.ulogovaniKorisnik = radnik;
+
+                    string savedIndexStr = Settings.Default.DisplayKuhinja;
+                    Debug.WriteLine ("[KitchenDisplay] Postavljam na savedIndexStr iz Settings.Default.DisplayKuhinja" + savedIndexStr);
+                    int monitorIndex = 2; // default vrednost
+                    Debug.WriteLine ("[KitchenDisplay]  int monitorIndex = 2; // default vrednost");
+                    if(!string.IsNullOrEmpty (savedIndexStr))
+                    {
+                        int.TryParse (savedIndexStr, out monitorIndex);
+                        Debug.WriteLine ("[KitchenDisplay]  int monitorIndex  u    if(!string.IsNullOrEmpty (savedIndexStr)) =" + monitorIndex);
+                    }
+                    var monitors = MonitorHelper.GetMonitors ();
+                    var window = new KitchenDisplay
+                    {
+                        WindowStyle = WindowStyle.None,
+                        ResizeMode = ResizeMode.NoResize,
+                        WindowStartupLocation = WindowStartupLocation.Manual
+                    };
+                    var m = monitors[monitorIndex];
+                    window.WindowStartupLocation = WindowStartupLocation.Manual;
+                    window.Left = m.Bounds.Left;
+                    window.Top = m.Bounds.Top;
+                    window.Width = m.Bounds.Width;
+                    window.Height = m.Bounds.Height;
+                    window.Show ();
+                    window.WindowState = WindowState.Normal;
+
                     var page = new HomePage ();
                     page.DataContext = new HomeViewModel ();
                     PageNavigator.NavigateWithFade (page);

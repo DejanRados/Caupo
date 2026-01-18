@@ -4,14 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:system="clr-namespace:System;assembly=mscorlib"
-        
         xmlns:local="clr-namespace:Caupo.ViewModels"
         xmlns:loc="clr-namespace:Caupo"
          xmlns:syncfusionskin ="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF" xmlns:svg="http://sharpvectors.codeplex.com/svgc/"
         Loaded="Window_Loaded"
-        
-        
-        
         mc:Ignorable="d"
         UseLayoutRounding="True"
          >
@@ -39,12 +35,12 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0" Background="#323232" Width="270" Padding="1">
+                    <Border Grid.Column="0" Background="{DynamicResource GlobalBackgroundColor}" Width="270" Padding="1">
                    
                         <StackPanel x:Name="SidebarPanel" Orientation="Vertical" >
                             <!-- Header -->
-                            <Border Height="60" Background="#323232" Padding="15">
-                                <TextBlock Text="" Foreground="#dbdbdb" 
+                    <Border Height="60" Background="{DynamicResource GlobalBackgroundColor}" Padding="15">
+                        <TextBlock Text="" Foreground="{DynamicResource GlobalBackgroundColor}" 
                                   FontSize="18" FontWeight="Normal"
                                   VerticalAlignment="Center"/>
                             </Border>
@@ -137,10 +133,10 @@
                         <Label Content="Radnik: " Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="0" Grid.Column="2" FontSize="16" Visibility="{Binding ComboRadnikVisibility}"/>
                         <ComboBox ItemsSource="{Binding SviRadnici}"   Margin="0" HorizontalAlignment="Center" VerticalAlignment="Center"    SelectedItem="{Binding OdabraniRadnik}"    SelectionChanged="ComboBox_SelectionChanged" Visibility="{Binding ComboRadnikVisibility}"   DisplayMemberPath="Radnik" Width="250" FontSize="20" FontWeight="Light" Foreground="{DynamicResource GlobalFontColor}" Grid.Row="1" Grid.Column="2"/>
 
-                        <Button  Grid.Column="3" Grid.RowSpan="2" Style="{StaticResource MyButtonStyle}"  BorderBrush="#32ff32"  x:Name="BtnPrint"    Width="120"    Height="50"  Margin="0,0,20,0"   Click="BtnPrint_Click" HorizontalAlignment="Right">
+                        <Button  Grid.Column="3" Grid.RowSpan="2" Style="{StaticResource PrimaryButtonStyle}"    x:Name="BtnPrint"    Width="120"    Height="50"  Margin="0,0,20,0"   Click="BtnPrint_Click" HorizontalAlignment="Right">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE749;" Foreground="{DynamicResource GlobalFontColor}" Margin="5" FontSize="20"/>
-                                <TextBlock Text="Štampaj"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Margin="5" />
+                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE749;" Foreground="#F5F5F5" Margin="5" FontSize="20"/>
+                                <TextBlock Text="Štampaj"  VerticalAlignment="Center"  Margin="5" />
                             </StackPanel>
                         </Button>
                     </Grid>

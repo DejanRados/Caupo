@@ -5,7 +5,7 @@ using ClosedXML.Excel;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
+
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -213,6 +213,8 @@ namespace Caupo.Views
             PrikazGrid.Visibility = Visibility.Collapsed;
             EditGrid.Visibility = Visibility.Collapsed;
             AddGrid.Visibility = Visibility.Collapsed;
+            lblArtikl.Visibility = Visibility.Collapsed;
+            lblCijena.Visibility = Visibility.Collapsed;
             if (DataContext is ArticlesViewModel viewModel)
             {
 
@@ -360,7 +362,8 @@ namespace Caupo.Views
             PrikazGrid.Visibility = Visibility.Collapsed;
             EditGrid.Visibility = Visibility.Collapsed;
             AddGrid.Visibility = Visibility.Collapsed;
-
+            lblArtikl.Visibility = Visibility.Collapsed;
+            lblCijena.Visibility = Visibility.Collapsed;
 
             if (DataContext is ArticlesViewModel viewModel)
             {
@@ -543,7 +546,9 @@ namespace Caupo.Views
                 PozicijaTextBox.Text = viewModel.NovaSifra;
                 ArtiklNormativTextBox.Text = string.Empty;
                 PrikazatiNaDisplejuPicker.SelectedIndex = 0;
+                _BorderBrush = Application.Current.Resources["GlobalFontColor"] as Brush;
                 ArtiklTextBox.Focus();
+                
             }
 
 
@@ -579,11 +584,13 @@ namespace Caupo.Views
             if (string.IsNullOrWhiteSpace(ArtiklTextBox.Text))
             {
                 ArtiklTextBox.BorderBrush = Brushes.Red;
+                lblArtikl.Visibility = Visibility.Visible;
                 isValid = false;
             }
             else
             {
                 ArtiklTextBox.BorderBrush = _BorderBrush;
+                lblArtikl.Visibility= Visibility.Collapsed;
             }
 
             if (string.IsNullOrWhiteSpace(SifraTextBox.Text))
@@ -599,14 +606,16 @@ namespace Caupo.Views
             if (string.IsNullOrWhiteSpace(CijenaTextBox.Text))
             {
                 CijenaTextBox.BorderBrush = Brushes.Red;
+                lblCijena.Visibility = Visibility.Visible;
                 isValid = false;
             }
             else
             {
                 CijenaTextBox.BorderBrush = _BorderBrush;
+                lblCijena.Visibility= Visibility.Collapsed;
             }
 
-            if (string.IsNullOrWhiteSpace(ArtiklNormativTextBox.Text))
+          /*  if (string.IsNullOrWhiteSpace(ArtiklNormativTextBox.Text))
             {
                 ArtiklNormativTextBox.BorderBrush = Brushes.Red;
                 isValid = false;
@@ -614,7 +623,7 @@ namespace Caupo.Views
             else
             {
                 ArtiklNormativTextBox.BorderBrush = _BorderBrush;
-            }
+            }*/
 
             if (string.IsNullOrWhiteSpace(InternaSifraTextBox.Text))
             {
@@ -864,6 +873,36 @@ namespace Caupo.Views
             {
                 viewModel.SelectedArticle = viewModel.Artikli?.Last();
             }
+        }
+
+        private void btnKategorija_Click(object sender, RoutedEventArgs e)
+        {
+            var page = new CategoriesPage();
+            page.DataContext = new CategoriesViewModel();
+            PageNavigator.NavigateWithFade (page);
+        }
+
+        private void CijenaTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            lblCijena.Visibility = Visibility.Collapsed;
+            CijenaTextBox.BorderBrush = (SolidColorBrush)(new BrushConverter ().ConvertFrom ("#FF2FA4A9"));
+
+        }
+
+        private void ArtiklTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            ArtiklTextBox.BorderBrush = (SolidColorBrush)(new BrushConverter ().ConvertFrom ("#FF2FA4A9"));
+            lblArtikl.Visibility = Visibility.Collapsed;
+        }
+
+        private void ArtiklTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            ArtiklTextBox.BorderBrush = Application.Current.Resources["GlobalFontColor"] as Brush;
+        }
+
+        private void CijenaTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            CijenaTextBox.BorderBrush = Application.Current.Resources["GlobalFontColor"] as Brush;
         }
     }
 }

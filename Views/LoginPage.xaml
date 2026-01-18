@@ -122,12 +122,12 @@
                                 <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}"/>
                             </Button.Width>
                         </Button>
-                        <Button Click="OnClearButtonClicked" Content="C"   Style="{StaticResource CButton}"  Grid.Column="0" Grid.Row="3" Foreground="#F5F5F5" >
+                        <Button Click="OnClearButtonClicked" Content="C"   Style="{StaticResource CButtonStyle}" Grid.Column="0" Grid.Row="3" Foreground="#F5F5F5" >
                             <Button.Width>
                                 <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}"/>
                             </Button.Width>
                         </Button>
-                        <Button  Click="OnOkButtonClicked" Content="OK"   Style="{StaticResource OkButton}"    Grid.Column="2" Grid.Row="3"  Foreground="#F5F5F5" >
+                        <Button  Click="OnOkButtonClicked" Content="OK"   Style="{StaticResource OKButtonStyle}"  Grid.Column="2" Grid.Row="3"  Foreground="#F5F5F5" >
                             <Button.Width>
                                 <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}"/>
                             </Button.Width>

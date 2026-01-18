@@ -1,26 +1,16 @@
 ﻿using Caupo.Data;
 using Caupo.Properties;
 using Caupo.Views;
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using ControlzEx.Standard;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Management;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.ViewModels
@@ -162,8 +152,9 @@ namespace Caupo.ViewModels
                             Name = $"{monitorName}" + (isPrimary ? " (Primarni)" : ""),
                             DeviceName = deviceName,
                             IsPrimary = isPrimary
+                            
                         });
-
+                        Debug.WriteLine ("[Monitors] " + monitorName + ", " + monitorIndex + ", " + deviceName + ", " + isPrimary);
                         monitorIndex++;
                     }
                 }
@@ -340,12 +331,7 @@ namespace Caupo.ViewModels
         public ICommand DeleteCommand { get; }
         public SettingsViewModel()
         {
-              // Konstruktor
-  
-      
-    
-        Radnici= new ObservableCollection<TblRadnici>();
-            //AddCommand = new AsyncRelayCommand(async () => await NewRadnik(new DatabaseTables.TblRadnici()));
+            Radnici= new ObservableCollection<TblRadnici>();
             DeleteCommand = new AsyncRelayCommand(async () => await DeleteRadnik(SelectedRadnik));
             UpdateCommand = new AsyncRelayCommand(async () => await OpenUpdateRadnik(SelectedRadnik));
             Start();
@@ -561,7 +547,9 @@ namespace Caupo.ViewModels
                 PDVKorisnik = Properties.Settings.Default.PDVKorisnik;
                 DisplayKuhinja = int.TryParse (Properties.Settings.Default.DisplayKuhinja, out int d) ? d : 0;
                 SirinaTrake = Properties.Settings.Default.SirinaTrake;
-            }
+
+               SelectedMonitor = Monitors.FirstOrDefault (m => m.Index == DisplayKuhinja);
+        }
 
             public async Task SaveSettingsAsync()
             {

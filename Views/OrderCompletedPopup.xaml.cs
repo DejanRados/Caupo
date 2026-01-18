@@ -24,6 +24,11 @@ namespace Caupo.Views
           
             this.Close ();
         }
+
+        private void Border_PreviewMouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            this.Close ();
+        }
     }
 }
 

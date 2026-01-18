@@ -93,65 +93,35 @@ namespace Caupo.Helpers
             }
         }
 
-        public static async Task<bool> ValidateLicense()
+    
+        public static async Task<ActivationResponse?> ValidateOnStartup()
         {
             try
             {
                 string licenseKey = Settings.Default.Key;
-                string hardwareFingerprint = Settings.Default.HardwareFingerprint;
-
-                if(string.IsNullOrEmpty (licenseKey) || string.IsNullOrEmpty (hardwareFingerprint))
-                {
-                    return false; // Nema aktivne licence
-                }
-
-                // TODO: Dodajte validaciju (periodično proveravati sa serverom)
-                // Za sada samo proveri da li postoje podaci
-                return !string.IsNullOrEmpty (licenseKey);
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public static async Task<bool> ValidateOnStartup()
-        {
-            try
-            {
-                // 1. Provjeri da li postoji licencni ključ u Settings
-                string licenseKey = Settings.Default.Key;
-
                 if(string.IsNullOrEmpty (licenseKey))
-                {
-                    return false; // Nema licence
-                }
+                    return new ActivationResponse { Success = false, Message = "Nije pronađen licencni ključ." };
 
-                // 2. Provjeri hardware fingerprint
                 string currentFingerprint = HardwareHelper.GetHardwareFingerprint ();
                 string savedFingerprint = Settings.Default.HardwareFingerprint;
 
                 if(currentFingerprint != savedFingerprint)
-                {
-                    return false; // Hardware se promijenio
-                }
+                    return new ActivationResponse { Success = false, Message = "Hardware se rezlikuje." };
 
-                // 3. Vrati true - licenca postoji i hardware se podudara
-                return true;
+                // Poziva online validaciju
+                return await ValidateOnline (licenseKey, currentFingerprint);
             }
             catch(Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine ($"[LicenseManager] ValidateOnStartup error: {ex.Message}");
-                return false;
+                return new ActivationResponse { Success = false, Message = ex.Message };
             }
         }
 
-        public static async Task<bool> ValidateOnline(string licenseKey, string hardwareFingerprint)
+
+        public static async Task<ActivationResponse?> ValidateOnline(string licenseKey, string hardwareFingerprint)
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine ("[LicenseManager] Starting online validation...");
-
                 using var client = new HttpClient ();
                 client.Timeout = TimeSpan.FromSeconds (10);
 
@@ -166,39 +136,40 @@ namespace Caupo.Helpers
                 var content = new StringContent (json, Encoding.UTF8, "application/json");
 
                 var response = await client.PostAsync (
-                    "https://caupo.app/caupo-licensing/api/endpoints/activate.php", 
+                    "https://caupo.app/caupo-licensing/api/endpoints/activate.php",
                     content
                 );
 
                 if(!response.IsSuccessStatusCode)
                 {
-                    System.Diagnostics.Debug.WriteLine ($"[LicenseManager] Online validation HTTP error: {response.StatusCode}");
-                    return false;
+                    return new ActivationResponse
+                    {
+                        Success = false,
+                        Message = $"HTTP error: {response.StatusCode}"
+                    };
                 }
-
                 string responseBody = await response.Content.ReadAsStringAsync ();
-                System.Diagnostics.Debug.WriteLine ($"[LicenseManager] Online response: {responseBody}");
+                var activationResponse = JsonSerializer.Deserialize<ActivationResponse> (responseBody);
 
-                using JsonDocument doc = JsonDocument.Parse (responseBody);
-                var root = doc.RootElement;
-
-                if(root.TryGetProperty ("success", out JsonElement successElement))
-                {
-                    return successElement.GetBoolean ();
-                }
-
-                return false;
+                return activationResponse;
             }
             catch(Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine ($"[LicenseManager] Online validation exception: {ex.Message}");
-                throw; // Propusti grešku da zna gornja metoda da je online validacija pala
+                return new ActivationResponse
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
             }
         }
 
 
-        private class ActivationResponse
+
+        public class ActivationResponse
         {
+            [JsonPropertyName ("code")]
+            public string Code { get; set; }
+
             [JsonPropertyName ("success")]
             public bool Success { get; set; }
 
@@ -212,7 +183,7 @@ namespace Caupo.Helpers
             public ActivationInfo Activation { get; set; }
         }
 
-        private class LicenseInfo
+        public class LicenseInfo
         {
             [JsonPropertyName ("id")]
             public string Id { get; set; }
@@ -230,7 +201,7 @@ namespace Caupo.Helpers
             public string CompanyName { get; set; }
         }
 
-        private class ActivationInfo
+        public class ActivationInfo
         {
             [JsonPropertyName ("id")]
             public string Id { get; set; }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Presentation;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -11,30 +12,55 @@ namespace Caupo.Server
 {
     public class ImageGetHandler : ICommandHandler
     {
-        public async Task<string> HandleAsync(Dictionary<string, string> parameters)
+        public async Task<string> HandleAsync(Dictionary<string, string> parameters, ClientSession session)
         {
-            if (!parameters.TryGetValue("filename", out var filename))
-                return JsonSerializer.Serialize(new { success = false, message = "filename missing" });
-
-            var fullPath = Path.Combine( filename);
-            if (!File.Exists(fullPath))
-                return JsonSerializer.Serialize(new { success = false, message = "file not found" });
-
-            var bytes = await File.ReadAllBytesAsync(fullPath);
-            var b64 = Convert.ToBase64String(bytes);
-            var normalized = filename.Replace('\\', '/');
-            var fileName = normalized.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries).Last();
-            foreach (var c in Path.GetInvalidFileNameChars())
-                fileName = fileName.Replace(c, '_');
-            Debug.WriteLine("Extracted filename: " + fileName);
-            Debug.WriteLine("-+------------------ Šalje sliku: " + fileName + " --------------------");
-            return JsonSerializer.Serialize(new
+            if(!parameters.TryGetValue ("filename", out var filePath) || string.IsNullOrWhiteSpace (filePath))
             {
-                success = true,
-                filename = fileName,
-                data = b64
-            });
+                return JsonSerializer.Serialize (new
+                {
+                    Status = "ERROR",
+                    Data = new { message = "filename missing" }
+                });
+            }
+
+            // Uzmi ime datoteke (samo ime, bez direktorija)
+            string fileNameOnly = Path.GetFileName (filePath);
+
+            // Provjeri postoji li datoteka
+            if(File.Exists (filePath))
+            {
+                var bytes = await File.ReadAllBytesAsync (filePath);
+                var b64 = Convert.ToBase64String (bytes);
+
+                Debug.WriteLine ("[SERVER ImageGetHandler] Sending image: " + fileNameOnly);
+
+                return JsonSerializer.Serialize (new
+                {
+                    Status = "OK",
+                    Data = new
+                    {
+                        Filename = fileNameOnly,  // šalji SAMO ime
+                        Base64 = b64
+                    }
+                });
+            }
+            else
+            {
+                // fallback placeholder PNG
+                byte[] emptyPng = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
+                return JsonSerializer.Serialize (new
+                {
+                    Status = "OK",
+                    Data = new
+                    {
+                        Filename = "placeholder.png",
+                        Base64 = Convert.ToBase64String (emptyPng)
+                    }
+                });
+            }
         }
+
     }
+
 
 }

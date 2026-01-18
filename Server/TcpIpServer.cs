@@ -1,10 +1,6 @@
-﻿using CommunityToolkit.Mvvm.Messaging.Messages;
-using Microsoft.Data.Sqlite;
-using System.Data.Entity.Infrastructure.Interception;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
 
@@ -24,7 +20,8 @@ namespace Caupo.Server
         public async Task StartAsync()
         {
             _listener.Start();
-            Console.WriteLine($"Server sluša na portu {((IPEndPoint)_listener.LocalEndpoint).Port}");
+            ClientRegistry.ListAll ();
+            Debug.WriteLine($"Server sluša na portu {((IPEndPoint)_listener.LocalEndpoint).Port}");
 
             while (true)
             {
@@ -35,42 +32,105 @@ namespace Caupo.Server
 
         private async Task HandleClientAsync(TcpClient client)
         {
-            Console.WriteLine("➡ Klijent povezan");
-            using var stream = client.GetStream();
+            var session = new ClientSession
+            {
+                Client = client,
+                Stream = client.GetStream (),
+                PartialRequestBuilder = new StringBuilder () // buffer za delimične requeste
+            };
+
+            Debug.WriteLine ("[Server] Klijent povezan, čeka LOGIN/REGISTER komandu...");
+
             var buffer = new byte[8192];
 
             try
             {
-                int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-                if (bytesRead == 0) return;
+                while(client.Connected)
+                {
+                    Debug.WriteLine ("[Server] Čeka podatke od klijenta...");
 
-                var requestJson = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                var request = JsonSerializer.Deserialize<RequestMessage>(requestJson);
-                Debug.WriteLine("Primljeni JSON od klijenta:");
-                Debug.WriteLine(requestJson);
+                    // Čitaj podatke
+                    int bytesRead = await session.Stream.ReadAsync (buffer, 0, buffer.Length);
 
-                string result = await _dispatcher.DispatchAsync(request);
+                    if(bytesRead == 0)
+                    {
+                        Debug.WriteLine ("[Server] Klijent se diskonektovao (bytesRead = 0).");
+                        break; // klijent se diskonektovao
+                    }
 
-                var resultObj = JsonSerializer.Deserialize<object>(result);
-                var response = new ResponseMessage<object> { Status = "OK", Data = resultObj };
-                var responseJson = JsonSerializer.Serialize(response);
-                var responseBytes = Encoding.UTF8.GetBytes(responseJson);
+                    var chunk = Encoding.UTF8.GetString (buffer, 0, bytesRead);
+                    Debug.WriteLine ($"[Server] Primljen chunk ({bytesRead} bytes): {chunk}");
 
-                await stream.WriteAsync(responseBytes, 0, responseBytes.Length);
+                    // Akumuliraj podatke
+                    session.PartialRequestBuilder.Append (chunk);
+                    string accumulated = session.PartialRequestBuilder.ToString ();
+
+                    // Procesiraj sve kompletne JSON poruke
+                    int endIndex;
+                    while((endIndex = accumulated.IndexOf ("###END###")) >= 0)
+                    {
+                        string singleRequestJson = accumulated.Substring (0, endIndex);
+                        accumulated = accumulated.Substring (endIndex + "###END###".Length);
+
+                        try
+                        {
+                            var request = JsonSerializer.Deserialize<RequestMessage> (singleRequestJson);
+                            if(request == null)
+                            {
+                                Debug.WriteLine ("[Server] Deserializacija nije uspjela - request je null.");
+                                continue;
+                            }
+
+                            Debug.WriteLine ($"[Server] Dispatch komande: {request.Command}");
+                            string result = await _dispatcher.DispatchAsync (request, session);
+                            Debug.WriteLine ($"[Server] Dispatch završen za komandu {request.Command}");
+
+                            // Pošalji odgovor sa delimiteromDispatchAsync
+                            var responseBytes = Encoding.UTF8.GetBytes (result + "###END###");
+                            await session.Stream.WriteAsync (responseBytes, 0, responseBytes.Length);
+                        }
+                        catch(Exception ex)
+                        {
+                            Debug.WriteLine ("[Server] Greška pri deserializaciji requesta: " + ex);
+                        }
+                    }
+
+                    // Sačuvaj ostatak za sljedeće čitanje
+                    session.PartialRequestBuilder.Clear ();
+                    session.PartialRequestBuilder.Append (accumulated);
+                }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                var error = new ResponseMessage<object> { Status = "ERROR", Data = ex.Message };
-                var responseJson = JsonSerializer.Serialize(error);
-                var responseBytes = Encoding.UTF8.GetBytes(responseJson);
-                await stream.WriteAsync(responseBytes, 0, responseBytes.Length);
+                Debug.WriteLine ("[Server] Exception u HandleClientAsync: " + ex);
             }
             finally
             {
-                client.Close();
+                Debug.WriteLine ("[Server] Klijent diskonektovan, uklanjam iz ClientRegistry.");
+
+                if(!string.IsNullOrWhiteSpace (session.DeviceId))
+                {
+                    ClientRegistry.Remove (session.DeviceId);
+                    Debug.WriteLine ($"[Server] Klijent sa DeviceId='{session.DeviceId}' uklonjen.");
+                }
+
+                try
+                {
+                    session.Stream.Close ();
+                    Debug.WriteLine ("[Server] Stream zatvoren.");
+                }
+                catch { }
+
+                try
+                {
+                    session.Client.Close ();
+                    Debug.WriteLine ("[Server] TcpClient zatvoren.");
+                }
+                catch { }
             }
         }
+
     }
- 
+
 
 }

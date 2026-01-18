@@ -4,11 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Caupo.Views"
-         xmlns:vm="clr-namespace:Caupo.ViewModels"
+         xmlns:vm="clr-namespace:Caupo.ViewModels" xmlns:sys="clr-namespace:System;assembly=netstandard" xmlns:system="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         WindowState="Maximized"
         Title="KitchenDisplay" Height="760" Width="1300">
-
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </Window.Resources>
 
     <Grid>
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="55" Background="#323232" >
@@ -35,7 +37,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border BorderBrush="{DynamicResource GlobalFontColor}" Background="{Binding Background}" BorderThickness="1" CornerRadius="5" Padding="5" Margin="5" Width="250">
+                        <Border BorderBrush="{Binding Border}" Background="{Binding Background}" BorderThickness="1" CornerRadius="5" Padding="5" Margin="5" Width="250">
                             <StackPanel MouseLeftButtonUp="Order_Click" Background="Transparent">
                                 <TextBlock FontSize="18" Foreground="#f8f8f8">
                                    <Run Text="Broj bloka: "/>
@@ -59,14 +61,22 @@
                                 <ItemsControl ItemsSource="{Binding Items}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Foreground="#f8f8f8" Text="{Binding Quantity}" Margin="0,0,5,5"/>
-                                                <TextBlock Foreground="#f8f8f8" Text="x" Margin="0,0,5,5"/>
-                                                <TextBlock Foreground="#f8f8f8" Text="{Binding Name}" Margin="0,0,5,0"/>
+                                            <StackPanel Orientation="Vertical">
+                                                <StackPanel Orientation="Horizontal" Margin="0,5">
+                                                    <TextBlock FontSize="16" Foreground="#f8f8f8" Text="{Binding Quantity}" Margin="0,0,5,5"/>
+                                                    <TextBlock FontSize="16" Foreground="#f8f8f8" Text="x" Margin="0,0,5,5"/>
+                                                    <TextBlock FontSize="16" Foreground="#f8f8f8" Text="{Binding Name}" Margin="0,0,5,5"/>
+                                                </StackPanel>
+
+                                                <!-- TextBlock za Note -->
+                                                <TextBlock Foreground="#88f5f5f5" FontStyle="Italic" Text="{Binding Note}"  TextWrapping="Wrap"   Margin="30,0,0,10" Visibility="{Binding Visible, Converter={StaticResource BoolToVis}}"/>
+
+                                                <Separator Opacity="0.1"  Margin="5"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
+
                             </StackPanel>
                         </Border>
                     </DataTemplate>

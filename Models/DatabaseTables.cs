@@ -347,18 +347,39 @@ public class TblDobavljaci : INotifyPropertyChanged
             }
         }
          [Table("tblKategorije")] 
-        public class TblKategorije
+        public class TblKategorije : INotifyPropertyChanged
         {
-              [Key] 
+
+            public event PropertyChangedEventHandler? PropertyChanged;
+            private void OnPropertyChanged(string prop)
+                => PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (prop));
+
+            [Key] 
             [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
             public int IdKategorije { get; set; }
+          
+            private string? _kategorija;
             [NotNull]
-            public string? Kategorija { get; set; }
+            public string? Kategorija
+            {
+                get => _kategorija;
+                set { _kategorija = value; OnPropertyChanged (nameof (Kategorija)); }
+            }
             public override string ToString()
             {
                 return Kategorija ?? string.Empty;
             }
-            public int VrstaArtikla { get; set; }
+            private int _vrstaArtikla;
+            public int VrstaArtikla
+            {
+                get => _vrstaArtikla;
+                set
+                {
+                    _vrstaArtikla = value;
+                    OnPropertyChanged (nameof (VrstaArtikla));
+                    OnPropertyChanged (nameof (VrstaArtiklaName)); // 👈 BITNO
+                }
+            }
 
             [NotMapped]
             public string? VrstaArtiklaName
@@ -375,7 +396,9 @@ public class TblDobavljaci : INotifyPropertyChanged
                 }
             }
         }
-         [Table("tblKnjigaKuhinje")]
+     
+        
+        [Table("tblKnjigaKuhinje")]
         public class TblKnjigaKuhinje
         {
               [Key]
@@ -434,6 +457,7 @@ public class TblDobavljaci : INotifyPropertyChanged
             public decimal Cijena { get; set; }
             public string? Zavrseno { get; set; }
             public int IdKuhinje { get; set; }
+            public string? Note { get; set; }
         }
          [Table("tblKupci")] 
         public class TblKupci : INotifyPropertyChanged

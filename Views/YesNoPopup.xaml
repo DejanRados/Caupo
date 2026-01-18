@@ -4,25 +4,24 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Caupo.Views" xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
-         WindowStyle="None"
+           WindowStartupLocation="CenterScreen"
+          WindowStyle="None"
           WindowState="Maximized"
           AllowsTransparency="True"
-          
           Background="Transparent"
-  WindowStartupLocation="CenterScreen"
         mc:Ignorable="d">
-    <Grid>
-        <Border  Background="#cc000000" HorizontalAlignment="Center" VerticalAlignment="Center" Width="400" Height="300" CornerRadius="10">
+    <Border      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#44000000">
+        <Border Background="#3A3A40" CornerRadius="7" Height="260" Width="420">
             <Grid >
                 <Grid.RowDefinitions>
-            <RowDefinition Height="0.3*"/>
-            <RowDefinition Height="0.4*"/>
-            <RowDefinition Height="0.3*"/>
-        </Grid.RowDefinitions>
-        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Foreground="#F5F5F5" Margin="5" FontSize="48"  FontWeight="ExtraLight" Text="&#xEA6C;" Width="48" Height="48" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="0"/>
+                    <RowDefinition Height="60"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="60"/>
+                </Grid.RowDefinitions>
+                <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Foreground="#F5F5F5" Margin="5" FontSize="48"  FontWeight="ExtraLight" Text="&#xEA6C;" Width="48" Height="48" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="0"/>
                 <TextBlock x:Name="MessageTitle" Text="Message Title" HorizontalAlignment="Center" Foreground="#F5F5F5" FontSize="20" VerticalAlignment="Center" Grid.Row="0"/>
                 <TextBlock x:Name="MessageText" Text="This is a custom alert message." HorizontalAlignment="Center" TextAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Foreground="#F5F5F5"/>
-        <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center">
                     <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160" Margin="2" Grid.Column="0">
                         <Button Style="{StaticResource CancelButtonStyle}"    x:Name="CancelButton"  Click="CancelButton_Click"   Width="105"  Margin="5"  Height="40"   Foreground="{DynamicResource GlobalFontColor}"      Grid.Column="0">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5">
@@ -43,6 +42,5 @@
 
             </Grid>
         </Border>
-       
-    </Grid>
+    </Border>
 </Window>

@@ -123,10 +123,11 @@
 
 
             </StackPanel>
+          
             <Border Grid.Row="1"  Grid.Column="0" BorderThickness="1" BorderBrush="{DynamicResource GlobalFontColor}" Margin="30,10" MaxWidth="500" MinWidth="400" CornerRadius="10" HorizontalAlignment="Left">
                 <Grid DataContext="{Binding SelectedReceipt}" Margin="30">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="100"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
@@ -140,34 +141,32 @@
              
                 <!-- Row 0 -->
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Broj:"/>
-                <TextBlock Grid.Row="0" Grid.Column="1"  Text="{Binding BrojRacuna}" FontSize="16"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1"  Text="{Binding BrojRacuna}" FontSize="16" TextAlignment="Left"/>
 
                 <!-- Row 1 -->
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Datum:"/>
-                <TextBlock Grid.Row="1" Grid.Column="1"  Text="{Binding Datum, StringFormat=dd.MM.yyyy}"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1"  Text="{Binding Datum, StringFormat=dd.MM.yyyy}" TextAlignment="Left"/>
 
                 <!-- Row 2 -->
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="Kupac:"/>
-                <TextBlock Grid.Row="2" Grid.Column="1"  Text="{Binding Kupac}"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1"  Text="{Binding Kupac}" TextAlignment="Left"/>
 
                 <!-- Row 3 -->
-                <TextBlock Grid.Row="3" Grid.Column="0" Text="Način plaćanja:"/>
-                <TextBlock Grid.Row="3" Grid.Column="1"
-               Text="{Binding NacinPlacanjaName, StringFormat=N2}"/>
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Način plaćanja:" />
+                    <TextBlock Grid.Row="3" Grid.Column="1"     Text="{Binding NacinPlacanjaName, StringFormat=N2}" TextAlignment="Left"/>
 
                 <!-- Row 4 -->
                 <TextBlock Grid.Row="4" Grid.Column="0" Text="Izdao:"/>
-                <TextBlock Grid.Row="4" Grid.Column="1"
-               Text="{Binding RadnikName}"/>
+                    <TextBlock Grid.Row="4" Grid.Column="1"  Text="{Binding RadnikName}" TextAlignment="Left"/>
 
                 <!-- Row 5 -->
                 <TextBlock Grid.Row="5" Grid.Column="0" Text="Broj fis. računa:"/>
-                <TextBlock Grid.Row="5" Grid.Column="1"
-               Text="{Binding BrojFiskalnogRacuna}"/>
+                    <TextBlock Grid.Row="5" Grid.Column="1"  Text="{Binding BrojFiskalnogRacuna}" TextAlignment="Left"/>
 
               
             </Grid>
             </Border>
+          
             <DataGrid x:Name="ListaRacuna" VerticalAlignment="Top" 
                           Grid.Row="2"  Grid.Column="0" Margin="30,0,0,30"
                           MaxWidth="950" MaxHeight="800"

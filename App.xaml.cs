@@ -3,17 +3,14 @@ using Caupo.Models;
 using Caupo.Properties;
 using Caupo.Services;
 using Caupo.ViewModels;
-using Caupo.Views;
-using Syncfusion.Licensing;
 using Syncfusion.SfSkinManager;
-using Syncfusion.Themes.Office2019Black;
-using Syncfusion.Themes.Office2019Colorful;
+
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Media;
 
 namespace Caupo
 {
@@ -28,6 +25,7 @@ namespace Caupo
         public App()
         {
           
+
             // Globalni handleri za sve tipove izuzetaka
             this.DispatcherUnhandledException += App_DispatcherUnhandledException;
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
@@ -69,8 +67,23 @@ namespace Caupo
         private const string ElevationStateFile = "elevation_state.json";
         protected override async void OnStartup(StartupEventArgs e)
         {
-            base.OnStartup(e);
 
+            if(CurrentTheme == "Tamna")
+            {
+                SfSkinManager.ApplyThemeAsDefaultStyle = true;
+                SfSkinManager.ApplicationTheme = new Theme ("Office2019Black");
+
+            }
+            else
+            {
+                SfSkinManager.ApplyThemeAsDefaultStyle = true;
+                SfSkinManager.ApplicationTheme = new Theme ("Office2019Colorful");
+            }
+
+           
+            base.OnStartup(e);
+           
+         
             string tempPath = Path.Combine (Path.GetTempPath (), ElevationStateFile);
 
             // Ako postoji state fajl → znači aplikacija je restartovana kao admin
@@ -103,10 +116,9 @@ namespace Caupo
             };
 
             ApplyTheme (CurrentTheme);
-            EventManager.RegisterClassHandler(typeof(Window), Window.LoadedEvent, new RoutedEventHandler(OnWindowLoaded));
+            EventManager.RegisterClassHandler (typeof (Window), Window.LoadedEvent, new RoutedEventHandler (OnWindowLoaded));
 
-     
-            var culture = (CultureInfo)CultureInfo.InvariantCulture.Clone();
+            var culture = (CultureInfo)CultureInfo.InvariantCulture.Clone ();
 
             culture.NumberFormat.NumberDecimalSeparator = ".";
             culture.NumberFormat.CurrencyDecimalSeparator = ".";
@@ -114,70 +126,88 @@ namespace Caupo
             Thread.CurrentThread.CurrentCulture = culture;
             Thread.CurrentThread.CurrentUICulture = culture;
 
-            FrameworkElement.LanguageProperty.OverrideMetadata(
-                typeof(FrameworkElement),
-                new FrameworkPropertyMetadata(
-                    System.Windows.Markup.XmlLanguage.GetLanguage(culture.IetfLanguageTag)));
+            FrameworkElement.LanguageProperty.OverrideMetadata (
+                typeof (FrameworkElement),
+                new FrameworkPropertyMetadata (
+                    System.Windows.Markup.XmlLanguage.GetLanguage (culture.IetfLanguageTag)));
             PageNavigator.Navigate = page =>
             {
-                if (Application.Current.MainWindow.DataContext is MainViewModel vm)
+                if(Application.Current.MainWindow.DataContext is MainViewModel vm)
                     vm.CurrentPage = page;
             };
 
-            string savedIndexStr = Settings.Default.DisplayKuhinja;
-            int monitorIndex = 2; // default vrednost
 
-            if(!string.IsNullOrEmpty (savedIndexStr))
-            {
-                int.TryParse (savedIndexStr, out monitorIndex);
-            }
-
-            var monitors = MonitorHelper.GetMonitors ();
-
-            var window = new KitchenDisplay
-            {
-                WindowStyle = WindowStyle.None,
-                ResizeMode = ResizeMode.NoResize,
-                WindowStartupLocation = WindowStartupLocation.Manual
-            };
-            var m = monitors[monitorIndex];
-
-            window.WindowStartupLocation = WindowStartupLocation.Manual;
-            window.Left = m.Bounds.Left;
-            window.Top = m.Bounds.Top;
-            window.Width = m.Bounds.Width;
-            window.Height = m.Bounds.Height;
-
-            window.Show ();
-            window.WindowState = WindowState.Normal;
 
             string dbPath = Path.Combine (Settings.Default.DbPath, "sysFormWPF.db");
             string backupPath = Settings.Default.BackupUrl;
-
+            Debug.WriteLine ("❌ Backup traži bazu na: " + dbPath);
             _backupService = new DatabaseBackupService (dbPath, backupPath);
             _backupService.Start ();
 
 
-        }
-        
+           
 
-        
+        }
+
+
+
 
         private void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
-            if (sender is Window window)
+           /*  if (sender is Window window)
+             {
+                 // Primijeni trenutnu temu na novi prozor
+                 if (CurrentTheme == "Tamna")
+                 {
+                     SfSkinManager.SetTheme(window, new Theme("Office2019Black"));
+                 }
+                 else
+                 {
+                     SfSkinManager.SetTheme(window, new Theme("Office2019Colorful"));
+                 }
+             }*/
+           /* if(sender is Window window)
             {
-                // Primijeni trenutnu temu na novi prozor
-                if (CurrentTheme == "Tamna")
-                {
-                    SfSkinManager.SetTheme(window, new Theme("Office2019Black"));
-                }
-                else
-                {
-                    SfSkinManager.SetTheme(window, new Theme("Office2019Colorful"));
-                }
-            }
+                // Odredi boju pozadine na temelju trenutne teme
+                Color bgColor = (CurrentTheme == "Tamna")
+                    ? (Color)ColorConverter.ConvertFromString ("#2d2d30")  // tamna
+                    : (Color)ColorConverter.ConvertFromString ("#f5f5f5"); // svijetla
+
+                // Postavi pozadinu prozora
+                window.Background = new SolidColorBrush (bgColor);
+            }*/
+
         }
+
+   /*     public static void ApplyTheme(string tema)
+        {
+            // Ako je tema prazna, postavi default
+            if(string.IsNullOrWhiteSpace (tema))
+            {
+                Settings.Default.Tema = "Tamna";
+                Settings.Default.Save ();
+                tema = "Tamna";
+            }
+
+            CurrentTheme = tema;
+
+            // Odredi boju pozadine
+            Color bgColor = (tema == "Tamna")
+                ? (Color)ColorConverter.ConvertFromString ("#2d2d30")  // Tamna
+                : (Color)ColorConverter.ConvertFromString ("#f5f5f5"); // Svijetla
+
+            // Kreiraj SolidColorBrush
+            SolidColorBrush brush = new SolidColorBrush (bgColor);
+
+            // Postavi pozadinu za sve trenutno otvorene prozore
+            foreach(Window window in Application.Current.Windows)
+            {
+                window.Background = brush;
+            }
+
+            // Ako želiš, možeš i promijeniti globalni resurs:
+            // Application.Current.Resources["WindowBackgroundBrush"] = brush;
+        }*/
 
         public static void ApplyTheme(string tema)
         {
@@ -195,6 +225,7 @@ namespace Caupo
                 if (tema == "Tamna")
                 {
                     SfSkinManager.SetTheme(window, new Theme("Office2019Black"));
+                 
                 }
                 else
                 {

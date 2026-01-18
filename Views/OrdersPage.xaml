@@ -41,7 +41,7 @@
                 </TabItem>
 
                     <!-- Tab koji služi kao "+" -->
-                <TabItem x:Name="TabAdd" Header="&#xEA60;"  FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Height="70"   Foreground="{DynamicResource GlobalFontColor}" />
+                <TabItem x:Name="TabAdd" Header="&#xE710;"  FontFamily="Segoe MDL2 Assets" Height="70"   Foreground="{DynamicResource GlobalFontColor}" />
                 </TabControl>
 
          

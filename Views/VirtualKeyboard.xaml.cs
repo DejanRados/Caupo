@@ -22,7 +22,7 @@ namespace Caupo.Views
     /// </summary>
     public partial class VirtualKeyboard : UserControl
     {
-        private bool isUppercase = true;
+        private bool isUppercase = false;
         public VirtualKeyboard()
         {
             InitializeComponent ();
@@ -32,7 +32,7 @@ namespace Caupo.Views
         {
             isUppercase = !isUppercase;
             if (sender is Button btn)
-                btn.Content = isUppercase ? "\uE84A" : "\uE84B";
+                btn.Content = isUppercase ? "\uE84B" : "\uE84A" ;
             UpdateKeyboardCase ();
         }
 

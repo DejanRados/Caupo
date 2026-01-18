@@ -1,36 +1,39 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using Caupo.Data;
+using Caupo.Server;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO.Pipelines;
 using System.Text.Json;
-using System.Threading.Tasks;
-using Caupo.Data;
 using static Caupo.Data.DatabaseTables;
 
-namespace Caupo.Server
+public class ArtikliHandler : ICommandHandler
 {
-    public class ArtikliHandler : ICommandHandler
+    private readonly string _connectionString;
+
+    public ArtikliHandler(string cs) => _connectionString = cs;
+
+    public async Task<string> HandleAsync(Dictionary<string, string> parameters, ClientSession session)
     {
-        private readonly string _connectionString;
-
-        public ArtikliHandler(string cs) => _connectionString = cs;
-
-        public async Task<string> HandleAsync(Dictionary<string, string> parameters)
+        try
         {
-            try
+            using var db = new AppDbContext ();
+            var artikli = await db.Artikli.ToListAsync ();
+
+            var response = new ResponseMessage<List<TblArtikli>>
             {
-                using var db = new AppDbContext();
-                var artikli = await db.Artikli.ToListAsync();
-                Debug.WriteLine("---------- Na serveru  artikli.Count: " + artikli.Count);
-                return JsonSerializer.Serialize(new { success = true, artikli });
-            }
-            catch (Exception ex)
+                Status = "OK",
+                Data = artikli
+            };
+
+            return JsonSerializer.Serialize (response);
+        }
+        catch(Exception ex)
+        {
+            var response = new ResponseMessage<string>
             {
-                Debug.WriteLine("---------- Na serveru artikli: " +ex.ToString());
-                return JsonSerializer.Serialize(new { success = false, message = ex.Message });
-            }
+                Status = "Error",
+                Data = ex.Message
+            };
+
+            return JsonSerializer.Serialize (response);
         }
     }
 }

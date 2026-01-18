@@ -4,71 +4,55 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Caupo.Views"
+         xmlns:loc="clr-namespace:Caupo.ViewModels"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         WindowState="Maximized"
         AllowsTransparency="True"
-        Background="#44000000"
+        Background="Transparent"
+        Title="BuyerPopup" >
+   
+    <Border      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#44000000">
+        <Border Background="#3A3A40" CornerRadius="20" Height="500" Width="500">
+            <Grid Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="65"/>
+                </Grid.RowDefinitions>
+                <Label Content="Kupac" FontSize="15" Grid.Row="0" HorizontalContentAlignment="Center"/>
+                <StackPanel Grid.Row="1">
+                    <Label Content="Naziv" Foreground="{DynamicResource GlobalFontColor}"  />
+                    <TextBox x:Name="txtNaziv" Text="{Binding Kupac}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"  Foreground="{DynamicResource GlobalFontColor}" CaretBrush="{DynamicResource GlobalFontColor}"   Style="{DynamicResource TextBoxCustom}" />
+                    <Label Content="Adresa" Foreground="{DynamicResource GlobalFontColor}" />
+                    <TextBox Text="{Binding Adresa}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"    Foreground="{DynamicResource GlobalFontColor}"  CaretBrush="{DynamicResource GlobalFontColor}"  Style="{DynamicResource TextBoxCustom}" />
+                    <Label Content="Mjesto" Foreground="{DynamicResource GlobalFontColor}" />
+                    <TextBox Text="{Binding Mjesto}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"  Foreground="{DynamicResource GlobalFontColor}"  CaretBrush="{DynamicResource GlobalFontColor}"  Style="{DynamicResource TextBoxCustom}" />
+                    <Label Content="JIB" Foreground="{DynamicResource GlobalFontColor}" />
+                    <TextBox Text="{Binding JIB}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"   Foreground="{DynamicResource GlobalFontColor}"  CaretBrush="{DynamicResource GlobalFontColor}"  Style="{DynamicResource TextBoxCustom}" />
+                    <Label Content="PDV" Foreground="{DynamicResource GlobalFontColor}" />
+                    <TextBox Text="{Binding PDV}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"   Foreground="{DynamicResource GlobalFontColor}"  CaretBrush="{DynamicResource GlobalFontColor}"  Style="{DynamicResource TextBoxCustom}" />
 
-
-
-        Title="BuyerPopup" Height="450" Width="600">
-    <Border Background="#bb000000" CornerRadius="20" Height="300" Width="500">
-    <Grid Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <TextBlock Margin="5" Text="Kupac:" Grid.Row="0" Grid.Column="0" />
-            <TextBox Margin="5" Grid.Row="0" Grid.Column="1"  Width="250" Style="{DynamicResource TextBoxCustom}" Foreground="{DynamicResource GlobalFontColor}"
-                 Text="{Binding Kupac, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"/>
-
-        <TextBlock Margin="5" Grid.Row="1" Grid.Column="0" Text="Adresa:"/>
-            <TextBox Margin="5" Grid.Row="1" Grid.Column="1"  Width="250" Style="{DynamicResource TextBoxCustom}" Foreground="{DynamicResource GlobalFontColor}"
-                 Text="{Binding Adresa, UpdateSourceTrigger=PropertyChanged}"/>
-
-        <TextBlock Margin="5" Grid.Row="2" Grid.Column="0" Text="Mjesto:"/>
-            <TextBox Margin="5" Grid.Row="2" Grid.Column="1"  Width="250" Style="{DynamicResource TextBoxCustom}" Foreground="{DynamicResource GlobalFontColor}"
-                 Text="{Binding Mjesto, UpdateSourceTrigger=PropertyChanged}"/>
-
-        <TextBlock Margin="5" Grid.Row="3" Grid.Column="0" Text="PDV:"/>
-            <TextBox Margin="5" Grid.Row="3"  Grid.Column="1"  Width="250" Style="{DynamicResource TextBoxCustom}" Foreground="{DynamicResource GlobalFontColor}"
-                 Text="{Binding PDV, UpdateSourceTrigger=PropertyChanged}"/>
-
-        <TextBlock Margin="5" Grid.Row="4" Grid.Column="0" Text="JIB:"/>
-            <TextBox Margin="5" Grid.Row="4" Grid.Column="1"  Width="250" Style="{DynamicResource TextBoxCustom}" Foreground="{DynamicResource GlobalFontColor}"
-                 Text="{Binding JIB, UpdateSourceTrigger=PropertyChanged}"/>
-
-        <Grid Margin="5" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch"  >
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Button Style="{StaticResource MyButtonStyle}" Background="#922121" BorderThickness="0" Margin="10" HorizontalAlignment="Left" x:Name="CancelEditButton"    Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"  Command="{Binding CancelCommand}" Grid.Column="0">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60039;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBlock Text="Odustani"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
                 </StackPanel>
-            </Button>
 
-            <Button  Style="{StaticResource MyButtonStyle}" Background="#219124" BorderThickness="0" x:Name="SaveEditButton"    Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"   Command="{Binding SaveCommand}" Grid.Column="1" >
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#xEB4B;" Foreground="{DynamicResource GlobalFontColor}"  VerticalAlignment="Center"/>
-                    <TextBlock Text="Spremi"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
+
+                <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center">
+                    <Button Style="{StaticResource CancelButtonStyle}"  x:Name="CancelEditButton" Command="{Binding CancelCommand}"  Width="150"  Margin="5"  Height="50"   Foreground="{DynamicResource GlobalFontColor}"      Grid.Column="0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5">
+                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="20" Width="20" FontWeight="ExtraLight" Text="&#60039;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Odustani"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button  Style="{StaticResource PrimaryButtonStyle}"    x:Name="SaveEditButton"  Command="{Binding SaveCommand}" Width="150" Margin="5"   Height="50"        Grid.Column="1" HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="20" Width="20" FontWeight="ExtraLight" Text="&#xEB4B;" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Spremi"  VerticalAlignment="Center"   />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
-            </Button>
-
-        </Grid>
-      
-    </Grid>
+            </Grid>
+        </Border>
     </Border>
 </Window>

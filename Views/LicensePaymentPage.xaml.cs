@@ -784,6 +784,9 @@ namespace Caupo.Views
                             return;
                         }
 
+                        Settings.Default.Email = contactEmail;
+                        Settings.Default.Firma = companyName;
+                        Settings.Default.Save();
                         Debug.WriteLine ($"[WPF] User chose to replace existing data");
                     }
 

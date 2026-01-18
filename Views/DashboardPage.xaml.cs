@@ -44,14 +44,14 @@ namespace Caupo.Views
 
 
 
-            var dnevniPromet = CreateMenuItemWithSubitems("Dnevni promet ", "\xEC59", "#264653 ",
+            var dnevniPromet = CreateMenuItemWithSubitems("Dnevni promet ", "\xEC59", "#FF2FA4A9 ",
             new [] {
                    ("Dnevni promet ukupno", "\xE9A6", new Action(() => ViewModel.IzracunajDnevniPromet())),
                    ("Dnevni promet po radniku", "\xE787", new Action(() => ViewModel.IzracunajDnevniPrometPoRadniku())),
                    ("Dnevni promet po artiklima", "\xE8FD", new Action(() => ViewModel.IzracunajDnevniPrometPoArtiklima()))
                });
 
-            var periodicniPromet = CreateMenuItemWithSubitems("Periodični promet", "\xE787", "#2a9d8f",
+            var periodicniPromet = CreateMenuItemWithSubitems("Periodični promet", "\xE787", "#FF2FA4A9",
             new[] {
                      (Header: "Periodični promet ukupno", Icon: "\xE9A6", new Action(() => ViewModel.IzracunajPeriodicniPromet())),
                      (Header: "Periodični promet po radniku", Icon: "", new Action(() => ViewModel.IzracunajPeriodicniPrometPoRadniku())),
@@ -62,7 +62,7 @@ namespace Caupo.Views
             var sankPromet = new SidebarMenuItem
             {
                 Header = "Promet šanka",
-                Background =  (Brush)new BrushConverter().ConvertFrom("#d08c60"),
+                Background =  (Brush)new BrushConverter().ConvertFrom("#FF2FA4A9"),
                 Icon = "\xEC32",
                 Command = new RelayCommand(() => ViewModel.IzracunajDnevniPrometSanka())
 
@@ -71,7 +71,7 @@ namespace Caupo.Views
             var kuhinjaPromet = new SidebarMenuItem
             {
                 Header = "Promet kuhinje",
-                Background = (Brush)new BrushConverter().ConvertFrom("#797d62"),
+                Background = (Brush)new BrushConverter().ConvertFrom("#FF2FA4A9"),
                 Icon = "\xED56",
                 Command = new RelayCommand(() => ViewModel.IzracunajDnevniPrometKuhinje())
             };
@@ -79,14 +79,14 @@ namespace Caupo.Views
             var ostaloPromet = new SidebarMenuItem
             {
                 Header = "Promet ostalo",
-                Background = (Brush)new BrushConverter().ConvertFrom("#62797d"),
+                Background = (Brush)new BrushConverter().ConvertFrom("#FF2FA4A9"),
                 Icon = "\xE8EC", 
                 Command = new RelayCommand(() => ViewModel.IzracunajDnevniPrometOstalo())
             };
 
 
 
-            var namirnice = CreateMenuItemWithSubitems("Utrošak namirnica", "\xE719", "#de5f55",
+            var namirnice = CreateMenuItemWithSubitems("Utrošak namirnica", "\xE719", "#FF2FA4A9",
                   new[] {
                      (Header: "Dnevni utrošak", Icon: "\xE9A6", new Action(() => ViewModel.IzracunajDnevniUtrosakNamirnica())),
                      (Header: "Periodični utrošak", Icon: "\xE787", new Action(() => ViewModel.IzracunajPeriodicniUtrosakNamirnica())),
@@ -98,7 +98,7 @@ namespace Caupo.Views
             var rekapitulacija = new SidebarMenuItem
             {
                 Header = "Rekapitulacija prometa",
-                Background = (Brush)new BrushConverter().ConvertFrom("#303051"),
+                Background = (Brush)new BrushConverter().ConvertFrom("#FF2FA4A9"),
                 Icon = "\xE713",
                 Command = new RelayCommand(async () => await ViewModel.Print(ViewModel.OdDatuma))
 

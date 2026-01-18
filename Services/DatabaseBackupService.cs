@@ -31,8 +31,8 @@ namespace Caupo.Services
             {
                 string backupFile = Path.Combine (_backupPath,
                     $"sysFormWPF_{DateTime.Now:yyyyMMdd_HHmmss}.dll");
-
-                using(var source = new SqliteConnection ($"Data Source={_dbPath}"))
+                System.Diagnostics.Debug.WriteLine ($"✅ Backup source: {Globals.CurrentDbPath}");
+                using(var source = new SqliteConnection ($"Data Source={Globals.CurrentDbPath}"))
                 {
                     source.Open ();
 

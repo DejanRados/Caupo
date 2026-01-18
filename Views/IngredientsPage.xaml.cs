@@ -2,7 +2,7 @@
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
+
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -548,18 +548,31 @@ namespace Caupo.Views
 
         private void BtnFirst_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is IngredientsViewModel viewModel)
+            if(DataContext is IngredientsViewModel viewModel &&
+          viewModel.Ingredients.Any ())
             {
-                viewModel.SelectedIngredient = viewModel.Ingredients.FirstOrDefault();
+                var firstItem = viewModel.Ingredients.First ();
+
+                viewModel.SelectedIngredient = firstItem;
+
+                ListaNamirnica.UpdateLayout ();
+                ListaNamirnica.ScrollIntoView (firstItem);
             }
-         }
+        }
 
         private void BtnLast_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is IngredientsViewModel viewModel)
+            if(DataContext is IngredientsViewModel viewModel &&
+                viewModel.Ingredients.Any ())
             {
-                viewModel.SelectedIngredient = viewModel.Ingredients.Last();
+                var lastItem = viewModel.Ingredients.Last ();
+
+                viewModel.SelectedIngredient = lastItem;
+
+               ListaNamirnica.UpdateLayout ();
+               ListaNamirnica.ScrollIntoView (lastItem);
             }
         }
+
     }
 }

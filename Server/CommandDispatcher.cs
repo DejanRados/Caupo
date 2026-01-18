@@ -25,16 +25,20 @@ namespace Caupo.Server
         };
         }
 
-        public async Task<string> DispatchAsync(RequestMessage req)
+        public async Task<string> DispatchAsync(RequestMessage req, ClientSession session)
         {
-            Debug.WriteLine("--- DispatchAsync  ---  dobija: " + req.Command);
-            if (_handlers.TryGetValue(req.Command, out var handler))
+            Debug.WriteLine ($"[Dispatcher] Dispatch komande: {req.Command}");
+
+            if(_handlers.TryGetValue (req.Command, out var handler))
             {
-                Debug.WriteLine("--- _handlers.TryGetValue : " + req.Command);
-                return await handler.HandleAsync(req.Parameters);
+                Debug.WriteLine ($"[Dispatcher] Handler pronađen za {req.Command}");
+                return await handler.HandleAsync (req.Parameters, session);
             }
+
+            Debug.WriteLine ($"[Dispatcher] Nepoznata komanda: {req.Command}");
             return "Nepoznata komanda";
         }
+
     }
 
 }

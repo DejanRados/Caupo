@@ -3,170 +3,167 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Caupo.Data;
 using Caupo.Fiscal;
 using Caupo.Models;
+using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.Server
 {
     public class BlokHandler : ICommandHandler
     {
-
-
-        public async Task<string> HandleAsync(Dictionary<string, string> request)
+        public async Task<string> HandleAsync(
+            Dictionary<string, string> request,
+            ClientSession session)
         {
-            Debug.WriteLine("-------------   BlokHandler DOBIO -----------------------------");
-
             try
             {
-                // 1) DEBUG: ispiši ključeve i prvih 200 znakova vrijednosti da vidiš točno što dolazi
-                Debug.WriteLine("Request keys: " + string.Join(", ", request.Keys));
-                foreach (var kv in request)
-                {
-                    var val = kv.Value ?? "<null>";
-                    Debug.WriteLine($"Key='{kv.Key}' Len={val.Length} Preview='{(val.Length > 200 ? val.Substring(0, 200) + "..." : val)}'");
-                }
+                Debug.WriteLine ("------------- BlokHandler DOBIO -----------------------------");
 
-                // 2) Ako je request root koji sadrži "parameters" (rijeđi slučaj) - parsiraj ga u Dictionary<string,string>
-                if (request.TryGetValue("parameters", out var parametersJson) && !string.IsNullOrWhiteSpace(parametersJson))
+                // Parsiranje parameters ako postoji
+                if(request.TryGetValue ("parameters", out var parametersJson) &&
+                    !string.IsNullOrWhiteSpace (parametersJson))
                 {
-                    Debug.WriteLine("Parameters ključ pronađen, pokušavam parsirati...");
                     try
                     {
-                        // parametersJson može biti JSON object -> parsiramo ga i mapiramo sve property-e u string vrijednosti
-                        var parsed = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-                        using (var doc = JsonDocument.Parse(parametersJson))
+                        using var doc = JsonDocument.Parse (parametersJson);
+                        if(doc.RootElement.ValueKind == JsonValueKind.Object)
                         {
-                            if (doc.RootElement.ValueKind == JsonValueKind.Object)
+                            foreach(var prop in doc.RootElement.EnumerateObject ())
                             {
-                                foreach (var prop in doc.RootElement.EnumerateObject())
-                                {
-                                    string valueStr;
-                                    if (prop.Value.ValueKind == JsonValueKind.String)
-                                        valueStr = prop.Value.GetString() ?? "";
-                                    else
-                                        valueStr = prop.Value.GetRawText(); // npr. array -> raw JSON
-                                    parsed[prop.Name] = valueStr;
-                                }
-
-                                // zamijeni request sa parsed parametrima
-                                request = parsed;
-                                Debug.WriteLine("Parsed parameters keys: " + string.Join(", ", request.Keys));
-                            }
-                            else
-                            {
-                                Debug.WriteLine("Parameters nije JSON objekt (ValueKind=" + doc.RootElement.ValueKind + ")");
+                                request[prop.Name] = prop.Value.ValueKind == JsonValueKind.String
+                                    ? prop.Value.GetString () ?? ""
+                                    : prop.Value.GetRawText ();
                             }
                         }
                     }
-                    catch (Exception ex)
+                    catch(Exception ex)
                     {
-                        Debug.WriteLine("Greška pri parsiranju 'parameters': " + ex);
-                        return Error("Ne mogu parsirati parameters objekt: " + ex.Message);
+                        Debug.WriteLine ("Greška pri parsiranju parameters: " + ex);
+                        return Error ("Ne mogu parsirati parameters objekt: " + ex.Message);
                     }
                 }
-                else
+
+                // Validacija
+                if(!request.TryGetValue ("stavke", out var stavkeJson) || string.IsNullOrWhiteSpace (stavkeJson))
+                    return Error ("Nisu poslane stavke.");
+
+                if(!request.TryGetValue ("userId", out var userId) || string.IsNullOrWhiteSpace (userId))
+                    return Error ("Nije poslan korisnik.");
+
+                string source = request.TryGetValue ("source", out var src) ? src : "Unknown";
+
+                // Dohvat korisnika (LOKALNO)
+                TblRadnici korisnik;
+                using(var context = new AppDbContext ())
                 {
-                    Debug.WriteLine("Nema zasebnog 'parameters' ključa - koristim request direktno kao parametre.");
+                    korisnik = context.Radnici.FirstOrDefault (r => r.Radnik == userId);
+                    Debug.WriteLine ("[Server] Radnik: " + korisnik.Radnik);
+                    Debug.WriteLine ("[Server] UserId: " + userId);
                 }
 
-                // 3) Sada očekujemo da request sadrži ključ 'stavke' i 'userId' (ravno u dictionaryju)
-                if (!request.TryGetValue("stavke", out var stavkeJson) || string.IsNullOrWhiteSpace(stavkeJson))
-                    return Error("Nisu poslane stavke.");
-
-                if (!request.TryGetValue("userId", out var userId) || string.IsNullOrWhiteSpace(userId))
-                    return Error("Nije poslan korisnik.");
-
-                // 4) Postavimo ulogovanog korisnika
-                using (var context = new AppDbContext())
-                {
-                    Globals.ulogovaniKorisnik = context.Radnici
-                        .FirstOrDefault(r => r.Radnik == userId); 
-                }
-
-                // 5) Deserializiraj stavke (case-insensitive radi sigurnosti)
-                var jsonOptions = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                };
-
+                if(korisnik == null)
+                    return Error ("Korisnik ne postoji.");
+                Globals.ulogovaniKorisnik = korisnik;
+                // Deserializacija stavki
                 ObservableCollection<FiskalniRacun.Item> stavke;
-                List<FiskalniRacun.Item> stavkeSank = new List<FiskalniRacun.Item>();
-                List<FiskalniRacun.Item> stavkeKuhinja = new List<FiskalniRacun.Item>();
                 try
                 {
-                    stavke = JsonSerializer.Deserialize<ObservableCollection<FiskalniRacun.Item>>(stavkeJson, jsonOptions)
-                             ?? new ObservableCollection<FiskalniRacun.Item>();
+                    stavke = JsonSerializer.Deserialize<ObservableCollection<FiskalniRacun.Item>> (
+                        stavkeJson,
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                    ) ?? new ObservableCollection<FiskalniRacun.Item> ();
                 }
-                catch (Exception ex)
+                catch(Exception ex)
                 {
-                    Debug.WriteLine("Greška pri deserializaciji stavki: " + ex);
-                    return Error("Greška pri čitanju stavki: " + ex.Message);
+                    Debug.WriteLine ("Greška pri deserializaciji stavki: " + ex);
+                    return Error ("Greška pri čitanju stavki: " + ex.Message);
                 }
 
-                if (stavke.Count == 0)
-                    return Error("Lista stavki je prazna.");
+                if(stavke.Count == 0)
+                    return Error ("Lista stavki je prazna.");
 
-            foreach(var stavka in stavke)
-                {
-                    Debug.WriteLine("Stavka proizvod : " + stavka.Proizvod);
-                    if (stavka.Proizvod == 0)
-                    {
-                        stavkeSank.Add(stavka);
-                        Debug.WriteLine("Dodaje u stavkeSank: " + stavka);
-                    }
-                    else if(stavka.Proizvod == 1)
-                    {
-                        stavkeKuhinja.Add(stavka);
-                        Debug.WriteLine("Dodaje u stavkeKuhinja: " + stavka);
-                    }
+                // Grupiranje
+                var stavkeSank = new List<FiskalniRacun.Item> ();
+                var stavkeKuhinja = new List<FiskalniRacun.Item> ();
 
-                }
-                Debug.WriteLine($"Kuhinja count: {stavkeKuhinja.Count}");
-                Debug.WriteLine($"Sank count: {stavkeSank.Count}");
-                Debug.WriteLine($"Kuhinja printer: {Properties.Settings.Default.KuhinjaPrinter}");
-                Debug.WriteLine($"Sank printer: {Properties.Settings.Default.SankPrinter}");
-                // 7) Izračun total-a (sigurno, jer Quantity i UnitPrice mogu biti null)
-                decimal total = stavke.Sum(s => (decimal?)((s.Quantity ?? 0) * (s.UnitPrice ?? 0)) ?? 0);
-                if (!string.IsNullOrEmpty(Properties.Settings.Default.KuhinjaPrinter))
+                foreach(var stavka in stavke)
                 {
-                    if (stavkeKuhinja.Count > 0)
+                    switch(stavka.Proizvod)
                     {
-                        BlokPrinter blok = new BlokPrinter(stavkeKuhinja, "Kuhinja", userId, "Android");
-                        await blok.Print();
+                        case 0:
+                            stavkeSank.Add (stavka);
+                            break;
+                        case 1:
+                            stavkeKuhinja.Add (stavka);
+                            break;
+                        default:
+                            Debug.WriteLine ($"Nepoznat tip proizvoda: {stavka.Proizvod}");
+                            break;
                     }
                 }
 
-                if (!string.IsNullOrEmpty(Properties.Settings.Default.SankPrinter))
-                {
-                    if (stavkeSank.Count > 0)
+                // Štampa
+            
+                    if(!string.IsNullOrWhiteSpace (Properties.Settings.Default.KuhinjaPrinter) && stavkeKuhinja.Any ())
                     {
-                        BlokPrinter blok = new BlokPrinter(stavkeSank, "Sank", userId, "Android");
-                        await blok.Print();
+                        var blok = new BlokPrinter (stavkeKuhinja, "Kuhinja", userId, source);
+                        await blok.Print ();
                     }
-                }
-              
 
-                    return JsonSerializer.Serialize(new { success = true, message = "Blok poslat na štampanje." });
-              
+                    if(!string.IsNullOrWhiteSpace (Properties.Settings.Default.SankPrinter) &&  stavkeSank.Any ())
+                    {
+                        var blok = new BlokPrinter (stavkeSank, "Sank", userId, source);
+                        await blok.Print ();
+
+                    }
+                
+
+
+                return Ok ("Blok poslat na štampanje.");
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Debug.WriteLine("Unhandled exception u Blok handleru: " + ex.Message);
-                return Error("Greška pri štampanju bloka: " + ex.Message);
+                Debug.WriteLine ("Unhandled exception u Blok handleru: " + ex);
+                return Error ("Greška pri štampanju bloka: " + ex.Message);
             }
         }
 
 
+        private int GetBrojKopijaBloka()
+        {
+            if(!int.TryParse (Properties.Settings.Default.BlokKopija, out int kopije))
+                return 1; // fallback
+
+            // ograničenje 0–5
+            return Math.Clamp (kopije, 0, 5);
+        }
+        private string Ok(string msg)
+        {
+            return JsonSerializer.Serialize (new
+            {
+                Status = "OK",
+                Data = new
+                {
+                    success = true,
+                    message = msg
+                }
+            });
+        }
 
         private string Error(string msg)
         {
-            return JsonSerializer.Serialize(new { success = false, message = msg });
+            return JsonSerializer.Serialize (new
+            {
+                Status = "OK",
+                Data = new
+                {
+                    success = false,
+                    message = msg
+                }
+            });
         }
-
     }
-
 }

@@ -5,7 +5,7 @@ using Microsoft.Win32;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data.Entity;
+
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -380,7 +380,7 @@ namespace Caupo.Views
                 if(myMessageBox.Kliknuo != "Da")
                 {
                     Debug.WriteLine ("Korisnik nije kliknuo 'Da', otkazujem zatvaranje.");
-                    e.Cancel = true; // Dodao sam e.Cancel da zapravo spriječi zatvaranje
+                    //e.Cancel = true; // Dodao sam e.Cancel da zapravo spriječi zatvaranje
                     return;
                 }
                 else

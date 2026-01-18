@@ -40,7 +40,7 @@
                     <Setter Property="HorizontalAlignment" Value="Center"/>
                 </Style>
             </TabControl.Resources>
-            <TabItem x:Name="FirmaTab"   VerticalContentAlignment="Center" HorizontalAlignment="Center" Width="190" BorderThickness="0"  >
+            <TabItem x:Name="FirmaTab" Background="Transparent"  VerticalContentAlignment="Center" HorizontalAlignment="Center" Width="190" BorderThickness="0"  >
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="32" Height="35" FontWeight="ExtraLight" Text="&#xEB06;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -170,8 +170,8 @@
                     <TextBox  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtPrinterRacuni" Grid.Row="3" Grid.Column="1"  Margin="5,1" Height="20"   BorderThickness="0,0,0,1" VerticalAlignment="Bottom"/>
                     <TextBox  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtPrinterA4" Grid.Row="4" Grid.Column="1"  Margin="5,1" Height="20"  BorderThickness="0,0,0,1" VerticalAlignment="Bottom"/>
                     <TextBox  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtBackup" Grid.Row="5" Grid.Column="1"  Margin="5,1" Height="20"  BorderThickness="0,0,0,1" VerticalAlignment="Bottom"/>
-         
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}"   x:Name="cmbBrojKopijaBloka" Grid.Row="6" Grid.Column="1" Margin="5,3" Height="30" Width="150" HorizontalAlignment="Left" >
+
+                    <ComboBox Foreground="{DynamicResource GlobalFontColor}"   x:Name="cmbBrojKopijaBloka" Grid.Row="6" Grid.Column="1" Margin="5,3" Height="30" Width="150" HorizontalAlignment="Left" SelectedIndex="1">
 
                         <ComboBoxItem Content="0" />
                         <ComboBoxItem Content="1" />
@@ -274,36 +274,74 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="100"/>
                     </Grid.RowDefinitions>
-                    <ListView  x:Name="myListView" Padding="2"  Background="Transparent" Foreground="{DynamicResource GlobalFontColor}"   ItemsSource="{Binding Radnici}" SelectedItem="{Binding SelectedRadnik}"  HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0.5" Grid.Row="1" SelectionMode="Single"  BorderBrush ="{DynamicResource GlobalFontColor}" ScrollViewer.VerticalScrollBarVisibility="Visible" >
-                        <ListView.Resources>
+                    <DataGrid  x:Name="myListView" Grid.Row="1"
+                               Padding="2" 
+                               GridLinesVisibility="None"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               ItemsSource="{Binding Radnici}" 
+                               SelectedItem="{Binding SelectedRadnik}"  
+                               AutoGenerateColumns="False"
+                             HeadersVisibility="Column"
+                             CanUserAddRows="False"
+                             CanUserResizeRows="False"
+                             CanUserSortColumns="False"
+                             HorizontalScrollBarVisibility="Disabled"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             ClipToBounds="True"
+                             BorderBrush="{DynamicResource GlobalFontColor}"
+                             SelectionMode="Single"
+                               ScrollViewer.VerticalScrollBarVisibility="Auto" >
+                        <DataGrid.Resources>
                             <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
-                        </ListView.Resources>
-                        <ListView.View>
-                            <GridView  >
-                                <GridViewColumn Header="Id" DisplayMemberBinding="{Binding idRadnika}" Width="150"  />
-                                <GridViewColumn Header="Radnik" DisplayMemberBinding="{Binding Radnik}" Width="150" />
-                                <GridViewColumn Header="Dozvole" DisplayMemberBinding="{Binding Dozvole}" Width="150"/>
-                                <GridViewColumn Header="Lozinka" DisplayMemberBinding="{Binding Lozinka}"  Width="150"/>
-                                <GridViewColumn Header="" Width="150">
-                                    <GridViewColumn.CellTemplate  >
-                                        <DataTemplate >
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Height="50"  >
+                            </DataGrid.Resources>
+                        <DataGrid.Columns>
 
-                                                <Button  Command="{Binding DataContext.UpdateCommand, RelativeSource={RelativeSource AncestorType={x:Type ListView}}}" CommandParameter="{Binding}" PreviewMouseLeftButtonDown="Button_PreviewMouseLeftButtonDown"  Style="{StaticResource SecondaryButtonStyle}"       MinWidth="40"    Height="40"     Margin="5"  >
-                                                    <TextBlock  FontFamily="Segoe MDL2 Assets" Margin="5" TextAlignment="Left"  Text="&#xE777;" FontSize="15" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center"   VerticalAlignment="Center"  />
-                                                </Button>
-                                                <Button  Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType={x:Type ListView}}}" CommandParameter="{Binding}" PreviewMouseLeftButtonDown="Button_PreviewMouseLeftButtonDown_1"  Style="{StaticResource SecondaryButtonStyle}"  BorderBrush="#C93A3A"    MinWidth="40"    Height="40"   Foreground="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType={x:Type ListView}}}" Margin="5"  >
-                                                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="2" FontSize="19"  FontWeight="ExtraLight" Text="&#xEA81;" Foreground="{DynamicResource GlobalFontColor}"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                </Button>
+                          
 
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
-                    <Button  x:Name="NoviRadnikButton"  Click="NoviRadnikButton_Click" Style="{StaticResource SecondaryButtonStyle}"        Width="140"    Height="50"   Foreground="{DynamicResource GlobalFontColor}" Margin="2"  Grid.Row="2">
+                            <DataGridTemplateColumn Header="Radnik" Width="2*" >
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Radnik}" Height="60" TextAlignment="Left" TextWrapping="Wrap" Padding="10"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="Dozvole" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Dozvole}"       TextWrapping="Wrap"       TextAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="Lozinka" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Lozinka}"           TextAlignment="Center"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="#" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center"  Margin="0" >
+
+                                            <Button  Command="{Binding DataContext.UpdateCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}" PreviewMouseLeftButtonDown="Button_PreviewMouseLeftButtonDown"  Style="{StaticResource SecondaryButtonStyle}"       MinWidth="35"    Height="35"     Margin="1"  >
+                                                <TextBlock  FontFamily="Segoe MDL2 Assets" Margin="5" TextAlignment="Left"  Text="&#xE70F;" FontSize="15" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center"   VerticalAlignment="Center"  />
+                                            </Button>
+                                            <Button  Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}" PreviewMouseLeftButtonDown="Button_PreviewMouseLeftButtonDown_1"  Style="{StaticResource SecondaryButtonStyle}"  BorderBrush="#C93A3A"    MinWidth="35"    Height="35"   Foreground="{DynamicResource GlobalFontColor}" Margin="1"  >
+                                                <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="2" FontSize="19"  FontWeight="ExtraLight" Text="&#xEA81;" Foreground="{DynamicResource GlobalFontColor}"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Button>
+
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                    </DataGrid>
+                    <Button  x:Name="NoviRadnikButton"  Click="NoviRadnikButton_Click" Style="{StaticResource SecondaryButtonStyle}"        Width="150"    Height="50"   Foreground="{DynamicResource GlobalFontColor}" Margin="2"  Grid.Row="2">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="32" Width="35" FontWeight="ExtraLight" Text="&#xEBCD;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             <TextBlock Text="Novi radnik"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />

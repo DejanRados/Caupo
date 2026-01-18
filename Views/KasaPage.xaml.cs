@@ -513,6 +513,7 @@ namespace Caupo.Views
                     stavka.UnitPrice = (decimal?)artikl.Cijena;
                     stavka.Proizvod = artikl.VrstaArtikla;
                     stavka.JedinicaMjere = artikl.JedinicaMjere;
+            
                     Debug.WriteLine ("Convert.ToDecimal(txtKolicina.Text)  " + Convert.ToDecimal (txtKolicina.Text));
                     stavka.Quantity = Convert.ToDecimal (txtKolicina.Text);
 
@@ -520,17 +521,20 @@ namespace Caupo.Views
                     {
                         if (DataContext is KasaViewModel viewModel)
                         {
-                            if (viewModel.StavkaPostoji (artikl.Sifra))
+                            var stavkaBezNote = viewModel.NadjiStavkuZaPovecanje(artikl.Sifra);
+
+                            if(stavkaBezNote != null)
                             {
-                                Debug.WriteLine ("Stavka postoji, kol: " + (decimal)stavka.Quantity);
-                                viewModel.UpdateStavkuRacunaPlus (stavka, kolicina);
+                                Debug.WriteLine ("Stavka postoji (bez note), kol: " + (decimal)stavkaBezNote.Quantity);
+                                viewModel.UpdateStavkuRacunaPlus (stavkaBezNote, kolicina);
                             }
                             else
                             {
+                                Debug.WriteLine ("Stavka ne postoji (bez note), dodaje novu: " + stavka.Name);
                                 viewModel.DodajStavkuRacuna (stavka);
                                 viewModel.StavkeRacuna.CollectionChanged += (s, e) =>
                                 {
-                                    if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+                                    if(e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
                                     {
                                         Dispatcher.Invoke (() =>
                                         {
@@ -539,6 +543,7 @@ namespace Caupo.Views
                                     }
                                 };
                             }
+
                         }
 
                     });
@@ -577,20 +582,173 @@ namespace Caupo.Views
             return null;
         }
 
+        private System.Timers.Timer? _longPressTimer;
+        private const int LongPressThreshold = 400; // ms
+        private FiskalniRacun.Item? _pressedItem;
+        private DateTime _pressStartTime;
+
+
+
+        private void EndPress()
+        {
+            if(_longPressTimer != null)
+            {
+                _longPressTimer.Stop ();
+                _longPressTimer.Dispose ();
+                _longPressTimer = null;
+                Debug.WriteLine ("LongPressTimer stopped in Up event");
+            }
+
+            if(_pressedItem != null)
+            {
+                var stavkaZaUpdate = _pressedItem;
+                _pressedItem = null;
+
+                if(DataContext is KasaViewModel vm && vm.StavkeRacuna.Contains (stavkaZaUpdate))
+                {
+                    vm.UpdateStavkuRacunaMinus (stavkaZaUpdate, Convert.ToDecimal (txtKolicina.Text));
+                }
+                else
+                {
+                    Debug.WriteLine ("Short tap ignored, stavka više ne postoji");
+                }
+            }
+        }
+
+        private void ListStavkeRacuna_TouchUp(object sender, TouchEventArgs e)
+        {
+            e.Handled = true;
+            EndPress ();
+        }
+
         private void ListStavkeRacuna_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            var listView = sender as ListView;
-            if (listView != null)
+            e.Handled = true;
+            EndPress ();
+        }
+
+
+        private FiskalniRacun.Item? GetItemFromTouchOrMouse(object sender, InputEventArgs e)
+        {
+            if(sender is not ListView listView)
+                return null;
+
+            Point position;
+
+            // Odredi touch ili mouse poziciju
+            if(e is TouchEventArgs te)
+                position = te.GetTouchPoint (listView).Position;
+            else if(e is MouseEventArgs me)
+                position = me.GetPosition (listView);
+            else
+                return null;
+
+            // HitTest za vizualni element ispod kursora / touch-a
+            var hit = VisualTreeHelper.HitTest (listView, position)?.VisualHit;
+            if(hit == null)
+                return null;
+
+            // Pronađi ListViewItem roditelja
+            var itemContainer = FindAncestor<ListViewItem> (hit);
+            if(itemContainer?.DataContext is FiskalniRacun.Item stavka)
+                return stavka;
+
+            return null;
+        }
+
+        // Generic helper za pronalazak roditelja u vizualnom stablu
+        private static T? FindAncestor<T>(DependencyObject current) where T : DependencyObject
+        {
+            while(current != null)
             {
-                var clickedItem = listView.SelectedItem as FiskalniRacun.Item;
-                if (clickedItem != null)
-                {
-                    // Pozivamo komandu u ViewModelu sa kliknutom stavkom
-                    if (DataContext is KasaViewModel viewModel)
+                if(current is T t)
+                    return t;
+                current = VisualTreeHelper.GetParent (current);
+            }
+            return null;
+        }
+
+
+        private void ListStavkeRacuna_TouchDown(object sender, TouchEventArgs e)
+        {
+            Debug.WriteLine ("TouchDown fired");
+            e.Handled = true;
+
+            var stavka = GetItemFromTouchOrMouse (sender, e);
+            if(stavka != null)
+            {
+                _pressedItem = stavka;
+                _pressStartTime = DateTime.Now;
+                StartLongPressTimer (stavka);
+            }
+        }
+        private void ListStavkeRacuna_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Debug.WriteLine ("MouseLeftButtonDown fired");
+            e.Handled = true;
+
+            var stavka = GetItemFromTouchOrMouse (sender, e);
+            if(stavka != null)
+            {
+                _pressedItem = stavka;
+                _pressStartTime = DateTime.Now;
+                StartLongPressTimer (stavka);
+            }
+        }
+
+
+        private void StartLongPressTimer(FiskalniRacun.Item stavka)
+        {
+            // Stop old timer ako postoji
+            if(_longPressTimer != null)
+            {
+                _longPressTimer.Stop ();
+                _longPressTimer.Dispose ();
+                _longPressTimer = null;
+                Debug.WriteLine ("Previous LongPressTimer stopped before starting new one");
+            }
+
+            _longPressTimer = new System.Timers.Timer (LongPressThreshold);
+            _longPressTimer.Elapsed += (s, args) =>
+            {
+                _longPressTimer?.Stop ();
+                _longPressTimer?.Dispose ();
+                _longPressTimer = null;
+
+                Debug.WriteLine ("LongPressTimer elapsed for item: " + stavka.Name);
+
+                Dispatcher.Invoke (() => {
+                    if(_pressedItem != null && DataContext is KasaViewModel vm && vm.StavkeRacuna.Contains (_pressedItem))
                     {
-                        viewModel?.UpdateStavkuRacunaMinus (clickedItem, Convert.ToDecimal (txtKolicina.Text));
+                        Debug.WriteLine ("Opening Note popup for: " + _pressedItem.Name);
+                        UnosNote (_pressedItem);
+                        _pressedItem = null;
                     }
-                }
+                    else
+                    {
+                        Debug.WriteLine ("Long press canceled, stavka više ne postoji");
+                    }
+                });
+            };
+            _longPressTimer.Start ();
+            Debug.WriteLine ("LongPressTimer started for: " + stavka.Name);
+        }
+
+
+
+        private void UnosNote(FiskalniRacun.Item stavka)
+        {
+            MyInputBox dialog = new MyInputBox ();
+            dialog.InputTitle.Text = "OPIS STAVKE";
+            dialog.InputText.Focus ();
+            dialog.ShowDialog ();
+            string result = dialog.result;
+
+    
+
+            if(!string.IsNullOrWhiteSpace (result))
+            {
+                stavka.Note = result;
             }
         }
 
@@ -714,7 +872,7 @@ namespace Caupo.Views
             MainWindow.Instance.ShowKeyboard ();
         }
 
-
+      
     }
 }
 

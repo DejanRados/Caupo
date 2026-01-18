@@ -648,10 +648,15 @@ namespace Caupo.ViewModels
             TotalSum = StavkeRacuna?.Sum(item => item.TotalAmount ?? 0);
         }
 
-        public void UpdateTotalSum()
+        public FiskalniRacun.Item? NadjiStavkuZaPovecanje(string sifra)
         {
-            TotalSum = Math.Round((StavkeRacuna ?? []).Sum(item => item.TotalAmount ?? 0), 2);
+            var stavka = (StavkeRacuna ?? [])
+                .FirstOrDefault (item =>
+                    item.Sifra == sifra &&
+                    string.IsNullOrWhiteSpace (item.Note));
 
+            Debug.WriteLine ("Stavka za povecanje: " + (stavka != null));
+            return stavka;
         }
 
         public bool StavkaPostoji(string sifra)
@@ -661,29 +666,39 @@ namespace Caupo.ViewModels
             return existsBySifra;
         }
 
-        public void UpdateStavkuRacunaPlus(FiskalniRacun.Item stavkaracuna, decimal kolicina)
+        public void UpdateTotalSum()
         {
-            
-            var stavka = StavkeRacuna?.FirstOrDefault(item =>( item.Sifra?? "").Equals(stavkaracuna.Sifra));
-            Debug.WriteLine("--------------------------- Stavka : " + stavka?.Name);
-            decimal? trenutno = stavka?.Quantity;
-            if(stavka == null) 
-                return;
-            Debug.WriteLine("--------------------------- Stavka kolicina sto se salje : " + kolicina);
-            stavka.Quantity = trenutno + kolicina;
-    
-            UpdateTotalSum();
-            Debug.WriteLine("------------------- stavka.Quantity: " + stavka?.Quantity);
-            UpdateTotalSum();
+            TotalSum = Math.Round ((StavkeRacuna ?? []).Sum (item => item.TotalAmount ?? 0), 2);
 
         }
 
-        public async Task UpdateStavkuRacunaMinus(FiskalniRacun.Item stavkaracuna, decimal kolicina)
+        public void UpdateStavkuRacunaPlus(FiskalniRacun.Item stavkaracuna, decimal kolicina)
+        {
+            // Pronađi zadnju stavku sa istom šifrom koja NEMA Note
+            var stavka = StavkeRacuna?
+                .Where (item => (item.Sifra ?? "") == (stavkaracuna.Sifra ?? "") &&
+                               string.IsNullOrWhiteSpace (item.Note))
+                .LastOrDefault ();
+
+          
+
+            Debug.WriteLine ("--------------------------- Stavka za update: " + stavka.Name);
+            decimal? trenutno = stavka.Quantity;
+            Debug.WriteLine ("--------------------------- Kolicina koja se dodaje: " + kolicina);
+            stavka.Quantity = trenutno + kolicina;
+
+            UpdateTotalSum ();
+            Debug.WriteLine ("------------------- Nova količina: " + stavka.Quantity);
+        }
+
+
+        public async Task UpdateStavkuRacunaMinus(FiskalniRacun.Item stavka, decimal kolicina)
         {
             await Task.Delay(1);
             Debug.WriteLine("--------------------------- Selektovana stavka : " + SelectedStavka?.Name);
-            var stavka = StavkeRacuna?.FirstOrDefault(item => (item.Sifra ?? "").Equals(stavkaracuna.Sifra));
-      
+           // var stavka = StavkeRacuna?.FirstOrDefault(item => (item.Sifra ?? "").Equals(stavkaracuna.Sifra));
+            if(stavka == null)
+                return;
 
             decimal? trenutno = stavka?.Quantity;
             if (stavka== null)

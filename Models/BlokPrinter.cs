@@ -2,6 +2,7 @@
 using Caupo.Fiscal;
 using Caupo.Properties;
 using Caupo.ViewModels;
+
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.ObjectModel;
@@ -10,7 +11,7 @@ using System.Drawing;
 using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
-
+using System.Text.Json;
 using static Caupo.Data.DatabaseTables;
 using static Caupo.ViewModels.KitchenDisplayViewModel;
 
@@ -72,6 +73,7 @@ namespace Caupo.Models
                     {
                         Artikl = item.Name,
                         Sifra = item.Sifra,
+                        Note = item.Note,
                         Kolicina = Convert.ToDecimal(item.Quantity),
                         Cijena = Convert.ToDecimal(item.UnitPrice),
                         Zavrseno = "NE",
@@ -164,7 +166,10 @@ namespace Caupo.Models
                     await System.Windows.Application.Current.Dispatcher.BeginInvoke (new Action (() =>
                     {
                         var orderItems = new ObservableCollection<OrderItem> (
-                            _stavke.Select (s => new OrderItem { Name = s.Name, Quantity = s.Quantity })
+                            _stavke.Select (s => new OrderItem { 
+                                Name = s.Name,
+                                Note = s.Note,
+                                Quantity = s.Quantity })
                         );
                         newOrder.Items = orderItems;
                         App.GlobalKitchenVM.Orders.Add (newOrder);
@@ -192,8 +197,14 @@ namespace Caupo.Models
                 printDoc.DefaultPageSettings.PaperSize = ps;
                 printDoc.DefaultPageSettings.Margins = new Margins (5, 5, 5, 5);
 
-                // štampaj
-                printDoc.Print ();
+                int brojKopija = GetBrojKopijaBloka ();
+                Debug.WriteLine ("[Blok handler] brojKopija : " + brojKopija);
+                for(int i = 0; i < brojKopija; i++)
+                {
+                    printDoc.Print ();
+                 }
+            
+                
             }
             catch (Exception ex)
             {
@@ -205,7 +216,26 @@ namespace Caupo.Models
             }
         }
 
+        private int GetBrojKopijaBloka()
+        {
+            if(!int.TryParse (Properties.Settings.Default.BlokKopija, out int kopije))
+                return 1; // fallback
 
+            // ograničenje 0–5
+            return Math.Clamp (kopije, 0, 5);
+        }
+        private string Ok(string msg)
+        {
+            return JsonSerializer.Serialize (new
+            {
+                Status = "OK",
+                Data = new
+                {
+                    success = true,
+                    message = msg
+                }
+            });
+        }
         private void OnPrintPage(object sender, PrintPageEventArgs e)
         {
         
@@ -336,6 +366,25 @@ namespace Caupo.Models
                     g.DrawString(cijena, font, Brushes.Black, col2 + widthCol2 / 2 - sizeCijena.Width / 2, y);
                     g.DrawString(iznos, font, Brushes.Black, col3 + widthCol3 / 2 - sizeIznos.Width / 2, y);
 
+                    y += lineHeight;
+
+                    RectangleF rect = new RectangleF (col1, y, pageWidth, 1000); // visina velika da stane više redova
+
+                    // format koji omogućava wrap
+                    StringFormat sf = new StringFormat ();
+                    sf.Alignment = StringAlignment.Near; // lijevo poravnanje
+                    sf.FormatFlags = StringFormatFlags.LineLimit; // ograniči na rectangle
+                    sf.Trimming = StringTrimming.Word; // ne presijecati riječi, nego wrap
+
+                    if(!string.IsNullOrEmpty (item.Note))
+                    {
+                        g.DrawString ("( "+item.Note + ")", font, Brushes.Black, rect, sf);
+
+                        // računa koliko visine tekst zauzima
+                        SizeF textSize = g.MeasureString (item.Note, font, pageWidth);
+                        y += Convert.ToInt32(textSize.Height) + lineHeight; // pomjeri y ispod teksta
+                    }
+                    g.DrawLine(Pens.Gray, 0, y, pageWidth, y);
                     y += lineHeight;
                 }
 

@@ -154,9 +154,10 @@ namespace Caupo.ViewModels
         {
             var popup = new SupplierPopup();
             var novi = popup.Open();
-            Debug.WriteLine("Popup vratio novog dobavljaca: " + novi.Dobavljac);
+         
             if (novi != null)
             {
+                Debug.WriteLine ("Popup vratio novog dobavljaca: " + novi.Dobavljac);
                 using var db = new AppDbContext();
                 await db.Dobavljaci.AddAsync(novi);
                 await db.SaveChangesAsync();

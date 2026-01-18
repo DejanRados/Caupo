@@ -7,6 +7,7 @@
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         WindowState="Maximized"
+        Loaded="Window_Loaded"
         xmlns:syncfusionskin ="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
         xmlns:svg="http://sharpvectors.codeplex.com/svgc/"
         xmlns:vm="clr-namespace:Caupo.ViewModels"

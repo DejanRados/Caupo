@@ -2,53 +2,58 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        WindowStyle="None"
         WindowStartupLocation="CenterScreen"
+         WindowStyle="None"
+         WindowState="Maximized"
+         AllowsTransparency="True"
+         Background="Transparent"
         xmlns:loc="clr-namespace:Caupo"
          xmlns:local="clr-namespace:Caupo.ViewModels"
-        
-        
-        Title="SupplierPopup"  Width="400" Height="500">
+        Title="SupplierPopup"  >
    
     <Window.DataContext>
         <local:SupplierPopupViewModel/>
     </Window.DataContext>
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="50"/>
-        </Grid.RowDefinitions>
-        <Label Content="Dobavljač" FontSize="15" Grid.Row="0" HorizontalContentAlignment="Center"/>
-        <StackPanel Grid.Row="1">
-            <Label Content="Naziv" Foreground="{DynamicResource GlobalFontColor}"  />
-            <TextBox x:Name="txtNaziv" Text="{Binding Dobavljac.Dobavljac}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}" GotFocus="TextBox_GotFocus" Foreground="{DynamicResource GlobalFontColor}" CaretBrush="{DynamicResource GlobalFontColor}"   Style="{DynamicResource TextBoxCustom}" />
-            <Label Content="Adresa" Foreground="{DynamicResource GlobalFontColor}" />
-            <TextBox Text="{Binding Dobavljac.Adresa}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"  GotFocus="TextBox_GotFocus"  Foreground="{DynamicResource GlobalFontColor}"  CaretBrush="{DynamicResource GlobalFontColor}"  Style="{DynamicResource TextBoxCustom}" />
-            <Label Content="Mjesto" Foreground="{DynamicResource GlobalFontColor}" />
-            <TextBox Text="{Binding Dobavljac.Mjesto}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"  GotFocus="TextBox_GotFocus"  Foreground="{DynamicResource GlobalFontColor}"  CaretBrush="{DynamicResource GlobalFontColor}"  Style="{DynamicResource TextBoxCustom}" />
-            <Label Content="JIB" Foreground="{DynamicResource GlobalFontColor}" />
-            <TextBox Text="{Binding Dobavljac.JIB}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"  GotFocus="TextBox_GotFocus"  Foreground="{DynamicResource GlobalFontColor}"  CaretBrush="{DynamicResource GlobalFontColor}"  Style="{DynamicResource TextBoxCustom}" />
-            <Label Content="PDV" Foreground="{DynamicResource GlobalFontColor}" />
-            <TextBox Text="{Binding Dobavljac.PDV}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"  GotFocus="TextBox_GotFocus"  Foreground="{DynamicResource GlobalFontColor}"  CaretBrush="{DynamicResource GlobalFontColor}"  Style="{DynamicResource TextBoxCustom}" />
+    <Border      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#44000000">
+        <Border Background="#3A3A40" CornerRadius="20" Height="500" Width="500">
+            <Grid Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="65"/>
+                </Grid.RowDefinitions>
+                <Label Content="Dobavljač" FontSize="15" Grid.Row="0" HorizontalContentAlignment="Center"/>
+                <StackPanel Grid.Row="1">
+                    <Label Content="Naziv" Foreground="{DynamicResource GlobalFontColor}"  />
+                    <TextBox x:Name="txtNaziv" Text="{Binding Dobavljac.Dobavljac}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}" GotFocus="TextBox_GotFocus" Foreground="{DynamicResource GlobalFontColor}" CaretBrush="{DynamicResource GlobalFontColor}"   Style="{DynamicResource TextBoxCustom}" />
+                    <Label Content="Adresa" Foreground="{DynamicResource GlobalFontColor}" />
+                    <TextBox Text="{Binding Dobavljac.Adresa}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"  GotFocus="TextBox_GotFocus"  Foreground="{DynamicResource GlobalFontColor}"  CaretBrush="{DynamicResource GlobalFontColor}"  Style="{DynamicResource TextBoxCustom}" />
+                    <Label Content="Mjesto" Foreground="{DynamicResource GlobalFontColor}" />
+                    <TextBox Text="{Binding Dobavljac.Mjesto}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"  GotFocus="TextBox_GotFocus"  Foreground="{DynamicResource GlobalFontColor}"  CaretBrush="{DynamicResource GlobalFontColor}"  Style="{DynamicResource TextBoxCustom}" />
+                    <Label Content="JIB" Foreground="{DynamicResource GlobalFontColor}" />
+                    <TextBox Text="{Binding Dobavljac.JIB}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"  GotFocus="TextBox_GotFocus"  Foreground="{DynamicResource GlobalFontColor}"  CaretBrush="{DynamicResource GlobalFontColor}"  Style="{DynamicResource TextBoxCustom}" />
+                    <Label Content="PDV" Foreground="{DynamicResource GlobalFontColor}" />
+                    <TextBox Text="{Binding Dobavljac.PDV}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"  GotFocus="TextBox_GotFocus"  Foreground="{DynamicResource GlobalFontColor}"  CaretBrush="{DynamicResource GlobalFontColor}"  Style="{DynamicResource TextBoxCustom}" />
 
-        </StackPanel>
-
-     
-        <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center">
-            <Button Style="{StaticResource MyButtonStyle}"  BorderBrush="#ff3232" x:Name="CancelButton"  Click="Cancel_Click"  Width="100"  Margin="5"  Height="40"   Foreground="{DynamicResource GlobalFontColor}"      Grid.Column="0">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="20" Width="20" FontWeight="ExtraLight" Text="&#60039;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBlock Text="Odustani"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
                 </StackPanel>
-            </Button>
 
-            <Button  Style="{StaticResource MyButtonStyle}"  BorderBrush="#32ff32"  x:Name="OKButton"  Click="Ok_Click" Width="100" Margin="5"   Height="40"        Grid.Column="1" HorizontalAlignment="Left">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="20" Width="20" FontWeight="ExtraLight" Text="&#xEB4B;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBlock Text="Spremi"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
+
+                <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center">
+                    <Button Style="{StaticResource CancelButtonStyle}"  x:Name="CancelButton"  Click="Cancel_Click"  Width="150"  Margin="5"  Height="50"   Foreground="{DynamicResource GlobalFontColor}"      Grid.Column="0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5">
+                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="20" Width="20" FontWeight="ExtraLight" Text="&#60039;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Odustani"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button  Style="{StaticResource PrimaryButtonStyle}"    x:Name="OKButton"  Click="Ok_Click" Width="150" Margin="5"   Height="50"        Grid.Column="1" HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="20" Width="20" FontWeight="ExtraLight" Text="&#xEB4B;" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Spremi"  VerticalAlignment="Center"   />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
-            </Button>
-        </StackPanel>
-    </Grid>
+            </Grid>
+        </Border>
+    </Border>
 </Window>

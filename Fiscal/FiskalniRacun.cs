@@ -1,25 +1,17 @@
 ﻿using Caupo.Data;
 using Caupo.Models;
 using Caupo.Properties;
-using Caupo.ViewModels;
 using Caupo.Views;
-using DocumentFormat.OpenXml.Bibliography;
-using DocumentFormat.OpenXml.Office2021.PowerPoint.Comment;
-using MahApps.Metro.Controls;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using QRCoder;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Printing;
-using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Windows;
 using static Caupo.Data.DatabaseTables;
@@ -143,6 +135,22 @@ namespace Caupo.Fiscal
             [JsonIgnore]
             //  [JsonProperty("Printed", NullValueHandling = NullValueHandling.Ignore)]
             public string? Printed { get; set; }
+
+            [JsonProperty ("note", NullValueHandling = NullValueHandling.Ignore)]
+            private string? _note;
+
+            public string? Note
+            {
+                get => _note;
+                set
+                {
+                    if(_note != value)
+                    {
+                        _note = value;
+                        OnPropertyChanged (nameof (Note));
+                    }
+                }
+            }
 
             public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -302,7 +310,7 @@ namespace Caupo.Fiscal
             }
             catch (Exception ex)
             {
-                Console.WriteLine ("Greška prilikom ispisa: " + ex.Message);
+                Debug.WriteLine ("Greška prilikom ispisa: " + ex.Message);
             }
         }
 
