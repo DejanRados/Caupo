@@ -37,7 +37,7 @@ namespace Caupo
         private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             Debug.WriteLine($"🚨 [UI Thread Exception] {e.Exception.Message}\n{e.Exception.StackTrace}");
-            e.Handled = true; // sprečava crash, ako želiš možeš postaviti na false za debug
+            e.Handled = true; 
         }
 
         private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -50,9 +50,9 @@ namespace Caupo
 
         private void TaskScheduler_UnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
         {
-            Debug.WriteLine($"⚠️ [Async Task Exception] {e.Exception.Message}\n{e.Exception.StackTrace}");
-            e.SetObserved(); // označi exception kao "obrađen"
-        }
+            Debug.WriteLine ($"⚠️ [Async Task Exception] {e.Exception.Message}\n{e.Exception.StackTrace}");
+            e.SetObserved ();
+        } 
 
 
        
@@ -60,19 +60,16 @@ namespace Caupo
         {
             _backupService?.Dispose ();
 
-         
             base.OnExit (e);
         }
 
         private const string ElevationStateFile = "elevation_state.json";
         protected override async void OnStartup(StartupEventArgs e)
         {
-
             if(CurrentTheme == "Tamna")
             {
                 SfSkinManager.ApplyThemeAsDefaultStyle = true;
                 SfSkinManager.ApplicationTheme = new Theme ("Office2019Black");
-
             }
             else
             {
