@@ -24,7 +24,6 @@ namespace Caupo
         public static string CurrentTheme { get; set; } = Settings.Default.Tema;
         public App()
         {
-          
 
             // Globalni handleri za sve tipove izuzetaka
             this.DispatcherUnhandledException += App_DispatcherUnhandledException;
@@ -77,10 +76,8 @@ namespace Caupo
                 SfSkinManager.ApplicationTheme = new Theme ("Office2019Colorful");
             }
 
-           
             base.OnStartup(e);
-           
-         
+
             string tempPath = Path.Combine (Path.GetTempPath (), ElevationStateFile);
 
             // Ako postoji state fajl → znači aplikacija je restartovana kao admin
@@ -133,16 +130,11 @@ namespace Caupo
                     vm.CurrentPage = page;
             };
 
-
-
             string dbPath = Path.Combine (Settings.Default.DbPath, "sysFormWPF.db");
             string backupPath = Settings.Default.BackupUrl;
             Debug.WriteLine ("❌ Backup traži bazu na: " + dbPath);
             _backupService = new DatabaseBackupService (dbPath, backupPath);
             _backupService.Start ();
-
-
-           
 
         }
 
@@ -163,48 +155,8 @@ namespace Caupo
                      SfSkinManager.SetTheme(window, new Theme("Office2019Colorful"));
                  }
              }*/
-           /* if(sender is Window window)
-            {
-                // Odredi boju pozadine na temelju trenutne teme
-                Color bgColor = (CurrentTheme == "Tamna")
-                    ? (Color)ColorConverter.ConvertFromString ("#2d2d30")  // tamna
-                    : (Color)ColorConverter.ConvertFromString ("#f5f5f5"); // svijetla
-
-                // Postavi pozadinu prozora
-                window.Background = new SolidColorBrush (bgColor);
-            }*/
-
+         
         }
-
-   /*     public static void ApplyTheme(string tema)
-        {
-            // Ako je tema prazna, postavi default
-            if(string.IsNullOrWhiteSpace (tema))
-            {
-                Settings.Default.Tema = "Tamna";
-                Settings.Default.Save ();
-                tema = "Tamna";
-            }
-
-            CurrentTheme = tema;
-
-            // Odredi boju pozadine
-            Color bgColor = (tema == "Tamna")
-                ? (Color)ColorConverter.ConvertFromString ("#2d2d30")  // Tamna
-                : (Color)ColorConverter.ConvertFromString ("#f5f5f5"); // Svijetla
-
-            // Kreiraj SolidColorBrush
-            SolidColorBrush brush = new SolidColorBrush (bgColor);
-
-            // Postavi pozadinu za sve trenutno otvorene prozore
-            foreach(Window window in Application.Current.Windows)
-            {
-                window.Background = brush;
-            }
-
-            // Ako želiš, možeš i promijeniti globalni resurs:
-            // Application.Current.Resources["WindowBackgroundBrush"] = brush;
-        }*/
 
         public static void ApplyTheme(string tema)
         {

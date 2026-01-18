@@ -3,6 +3,10 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# temp fajlovi skripte
+temp_git_status.txt
+*.log
+*.bat
 
 # Ignoriši setup projekat
 CaupoSetup/
