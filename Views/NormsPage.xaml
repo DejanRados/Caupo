@@ -6,13 +6,11 @@
         xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:local="clr-namespace:Caupo.ViewModels"
          xmlns:syncfusionskin ="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF" 
-
          xmlns:svg="http://sharpvectors.codeplex.com/svgc/" xmlns:Caupo="clr-namespace:Caupo"
         mc:Ignorable="d"
-        UseLayoutRounding="True"
-          >
+        UseLayoutRounding="True"  >
 
-    <Grid>
+    <Grid x:Name="MainContent">
         <!-- Header -->
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="55" Background="#323232" >
             <Grid.ColumnDefinitions>

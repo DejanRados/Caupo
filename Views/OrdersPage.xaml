@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Loaded="Window_Loaded"  >
 
-    <Grid>
+    <Grid x:Name="MainContent">
         <Grid.RowDefinitions>
             <RowDefinition Height="56"/>
             <RowDefinition Height="*"/>

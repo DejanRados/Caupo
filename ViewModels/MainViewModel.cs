@@ -42,7 +42,7 @@ namespace Caupo.ViewModels
             {
 
                 Application.Current.Resources["GlobalFontColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (244, 244, 244));
-                Application.Current.Resources["GlobalBackgroundColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (46, 46, 49));
+                Application.Current.Resources["GlobalBackgroundColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (45, 45, 48));
                 var brushFont = Application.Current.Resources["GlobalFontColor"] as SolidColorBrush;
                 var brushBack = Application.Current.Resources["GlobalBackgroundColor"] as SolidColorBrush;
                 Debug.WriteLine ("Aktivna tema koju vidi viewmodel je : " + tema + " i postavio je GlobalFontColor " + $"#{brushFont.Color.R:X2}{brushFont.Color.G:X2}{brushFont.Color.B:X2}");
@@ -50,7 +50,7 @@ namespace Caupo.ViewModels
             }
             else
             {
-                Application.Current.Resources["GlobalFontColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (46, 46, 49));
+                Application.Current.Resources["GlobalFontColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (45, 45, 48));
                 Application.Current.Resources["GlobalBackgroundColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (244, 244, 244));
                 var brush = Application.Current.Resources["GlobalFontColor"] as SolidColorBrush;
                 var brushBack = Application.Current.Resources["GlobalBackgroundColor"] as SolidColorBrush;

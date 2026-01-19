@@ -13,11 +13,11 @@
         Loaded="Window_Loaded"
         Title="FoodInPopup">
     <Border      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#44000000">
-        <Border Background="{DynamicResource GlobalBackgroundColor}" CornerRadius="20" Height="400" Width="600">
+        <Border BorderThickness="0.5" BorderBrush="{DynamicResource GlobalFontColor}" Background="{DynamicResource GlobalBackgroundColor}"  CornerRadius="20" Height="300" Width="600">
             <Grid >
                 <Grid.RowDefinitions>
                     <RowDefinition Height="100"/>
-                    <RowDefinition Height="150"/>
+                    <RowDefinition Height="80"/>
                     <RowDefinition Height="100"/>
                 </Grid.RowDefinitions>
                 <TextBlock x:Name="Article" Foreground="{DynamicResource GlobalFontColor}" Text="Artikl" HorizontalAlignment="Stretch" Padding="10" FontSize="30" VerticalAlignment="Center" TextAlignment="Left" TextWrapping="WrapWithOverflow" Width="600" Margin="20,0"/>
@@ -28,15 +28,15 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="50"/>
-                        <RowDefinition Height="50"/>
+                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="40"/>
                     </Grid.RowDefinitions>
                     <Label Foreground="{DynamicResource GlobalFontColor}"  Grid.Row="0" Grid.Column="0" Content="Nabavna cijena bez PDV-a" VerticalAlignment="Center" HorizontalContentAlignment="Center"/>
-                    <TextBox x:Name="Cijena" KeyDown="TextBox_KeyDown" GotFocus="TextBox_GotFocus" BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0,0,0,1" Foreground="{DynamicResource GlobalFontColor}" CaretBrush="{DynamicResource GlobalFontColor}" Text="" HorizontalAlignment="Stretch" Height="30" Width="150" TextWrapping="Wrap" Background="Transparent"     TextAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="1"   />
+                    <TextBox Style="{StaticResource TextBoxCustom}" x:Name="Cijena" KeyDown="TextBox_KeyDown" GotFocus="TextBox_GotFocus" BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0,0,0,1" Foreground="{DynamicResource GlobalFontColor}" CaretBrush="{DynamicResource GlobalFontColor}" Text="" HorizontalAlignment="Stretch" Height="30" Width="150" TextWrapping="Wrap" Background="Transparent"     TextAlignment="Center" VerticalAlignment="Center" Grid.Column="0" Grid.Row="1"   />
                     <Label Foreground="{DynamicResource GlobalFontColor}"  Grid.Row="0" Grid.Column="1" Content="Količina" VerticalAlignment="Center" HorizontalContentAlignment="Center"/>
-                    <TextBox x:Name="Kolicina" KeyDown="TextBox_KeyDown" GotFocus="TextBox_GotFocus"  BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0,0,0,1" Foreground="{DynamicResource GlobalFontColor}" CaretBrush="{DynamicResource GlobalFontColor}" Text="" HorizontalAlignment="Stretch" Height="30" Width="150" TextWrapping="Wrap" Background="Transparent"     TextAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1"   />
+                    <TextBox Style="{StaticResource TextBoxCustom}" x:Name="Kolicina" KeyDown="TextBox_KeyDown" GotFocus="TextBox_GotFocus"  BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0,0,0,1" Foreground="{DynamicResource GlobalFontColor}" CaretBrush="{DynamicResource GlobalFontColor}" Text="" HorizontalAlignment="Stretch" Height="30" Width="150" TextWrapping="Wrap" Background="Transparent"     TextAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1"   />
                     <Label Foreground="{DynamicResource GlobalFontColor}"  Grid.Row="0" Grid.Column="2" Content="Popust" VerticalAlignment="Center" HorizontalContentAlignment="Center"/>
-                    <TextBox x:Name="Popust" KeyDown="TextBox_KeyDown" GotFocus="TextBox_GotFocus"  BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0,0,0,1" Foreground="{DynamicResource GlobalFontColor}" CaretBrush="{DynamicResource GlobalFontColor}" Text="" HorizontalAlignment="Stretch" Height="30" Width="150" TextWrapping="Wrap" Background="Transparent"     TextAlignment="Center" VerticalAlignment="Center" Grid.Column="2" Grid.Row="1"   />
+                    <TextBox Style="{StaticResource TextBoxCustom}" x:Name="Popust" KeyDown="TextBox_KeyDown" GotFocus="TextBox_GotFocus"  BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0,0,0,1" Foreground="{DynamicResource GlobalFontColor}" CaretBrush="{DynamicResource GlobalFontColor}" Text="" HorizontalAlignment="Stretch" Height="30" Width="150" TextWrapping="Wrap" Background="Transparent"     TextAlignment="Center" VerticalAlignment="Center" Grid.Column="2" Grid.Row="1"   />
                 </Grid>
                 <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center">
                     <Button Style="{StaticResource CancelButtonStyle}"   x:Name="CancelButton"  Click="CancelButton_Click"   MaxHeight="60" MinWidth="150"   Margin="5"    Foreground="{DynamicResource GlobalFontColor}"      Grid.Column="0">

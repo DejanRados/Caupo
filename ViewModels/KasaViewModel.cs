@@ -312,6 +312,7 @@ namespace Caupo.ViewModels
                 }
             }
         }
+        public event Action<bool>? MultiUserVisibilityChanged;
 
         private bool _isLoggedIn = false;
         public bool IsLoggedIn
@@ -341,6 +342,8 @@ namespace Caupo.ViewModels
                 pokusaj = 3;
                 Debug.WriteLine ("IsMultiUserVisible = TRUE → pokusaj postavljen na 3");
             }
+
+            MultiUserVisibilityChanged?.Invoke (IsMultiUserVisible);
         }
 
 

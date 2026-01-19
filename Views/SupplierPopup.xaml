@@ -14,8 +14,8 @@
     <Window.DataContext>
         <local:SupplierPopupViewModel/>
     </Window.DataContext>
-    <Border      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#44000000">
-        <Border Background="#3A3A40" CornerRadius="20" Height="500" Width="500">
+    <Border      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#22000000">
+        <Border CornerRadius="20" Height="500" Width="500" BorderThickness="0.5" BorderBrush="{DynamicResource GlobalFontColor}" Background="{DynamicResource GlobalBackgroundColor}" >
             <Grid Margin="20">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="40"/>

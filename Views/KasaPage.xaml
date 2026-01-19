@@ -17,12 +17,7 @@
     <UserControl.Resources>
         <help:CategoryToBoolConverter x:Key="CategoryToBoolConverter"/>
     </UserControl.Resources>
-    <Grid >
-      
-        <Border x:Name="RacunIdikator" Background="#66323232" HorizontalAlignment="Stretch" Panel.ZIndex="999" CornerRadius="25" Visibility="Collapsed" VerticalAlignment="Stretch">
- 
-           
-        </Border>
+    <Grid>
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="55" Background="#323232" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -34,39 +29,49 @@
             <Label x:Name="lblUlogovaniKorisnik" Content="Ime i prezime" Foreground="#fafafa" FontSize="16" Grid.Column="1" HorizontalAlignment="Right"  VerticalAlignment="Center"/>
             <Button x:Name="CloseButton" Style="{StaticResource CloseButtonStyle}"  VerticalAlignment="Top" HorizontalAlignment="Right" Padding="0" Margin="1" Click="CloseButton_Click" Grid.Column="2" />
         </Grid>
-        <Grid x:Name="MultiUserGrid" Panel.ZIndex="999"   Background="#22000000"   Margin="0,55,0,0"  Visibility="{Binding IsMultiUserVisible,  Converter={StaticResource BooleanToVisibilityConverter}}" >
-        <Border Background="#bb000000" Padding="20" VerticalAlignment="Center"  HorizontalAlignment="Center" CornerRadius="20" Width="400" Height="200">
-                <StackPanel Orientation="Vertical"   VerticalAlignment="Center"  HorizontalAlignment="Center"  Width="250"  >
-                    <Label Content="Lozinka/PIN"  Foreground="#f8f8f8" HorizontalAlignment="Center" />
-                    <TextBox x:Name="txtPassword" Width="150"  Margin="10" Background="Transparent" TabIndex="0" GotFocus="TextBox_GotFocus" LostFocus="TextBox_LostFocus"
-                             FontFamily="pack://application:,,,/Assets/Fonts/#Password"
-                            Foreground="#f8f8f8"
-                           CaretBrush="#f8f8f8"
-                             BorderThickness="0,0,0,1"
-                             Height="30"
-                             CharacterCasing="Upper"
-                             FontSize="15"
-                            
 
-             
-                             FontWeight="ExtraBold"
-                             KeyDown="txtPassword_KeyDown"
-                             VerticalAlignment="Center"
-                             HorizontalContentAlignment="Center"
-                             HorizontalAlignment="Center">
-                      
+
+        <Grid x:Name="MultiUserGrid" Panel.ZIndex="999"   Background="#77000000"   Margin="0,55,0,0"  Visibility="{Binding IsMultiUserVisible,  Converter={StaticResource BooleanToVisibilityConverter}}" >
+            <Border Background="{DynamicResource GlobalBackgroundColor}" BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0.5" Padding="20" VerticalAlignment="Center"  HorizontalAlignment="Center" CornerRadius="20" Width="420" Height="250" Margin="0,-55,0,0">
+                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="40" Margin="20" Text="&#xE72E;" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <StackPanel Orientation="Vertical"   VerticalAlignment="Center"  HorizontalAlignment="Center"  Width="250"  >
+                    <Label Content="Lozinka/PIN"  Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" />
+                    <TextBox Style="{DynamicResource TextBoxCustom}" x:Name="txtPassword" Width="150"  Margin="10" Background="Transparent" TabIndex="0" GotFocus="TextBox_GotFocus" LostFocus="TextBox_LostFocus"
+                       FontFamily="pack://application:,,,/Assets/Fonts/#Password"
+                      Foreground="{DynamicResource GlobalFontColor}"
+                     CaretBrush="{DynamicResource GlobalFontColor}"
+                       BorderThickness="0,0,0,1"
+                       Height="30"
+                       CharacterCasing="Upper"
+                       FontSize="15"
+                       FontWeight="ExtraBold"
+                       KeyDown="txtPassword_KeyDown"
+                       VerticalAlignment="Center"
+                       HorizontalContentAlignment="Center"
+                       HorizontalAlignment="Center">
+
                     </TextBox>
-                    <Button Style="{StaticResource CancelButtonStyle}"  BorderBrush="Transparent" Margin="5" Background="#419141"    x:Name="BtnPassword"     Width="120"    Height="50"   Foreground="#f8f8f8"   Click="BtnPassword_Click">
+                    <Button Style="{StaticResource PrimaryButtonStyle}"  BorderBrush="Transparent" Margin="5"   x:Name="BtnPassword"     Width="150"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"   Click="BtnPassword_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="20" Margin="5" FontWeight="ExtraLight" Text="&#xE73E;" Foreground="#f8f8f8" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <TextBlock Text="U redu"  VerticalAlignment="Center" Margin="5" Foreground="#f8f8f8" />
+                            <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="20" Margin="5" FontWeight="ExtraLight" Text="&#xE73E;" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="U redu"  VerticalAlignment="Center" Margin="5" />
                         </StackPanel>
                     </Button>
 
                 </StackPanel>
+                </Grid>
             </Border>
 
         </Grid>
+        <Grid x:Name="MainContent">
+      
+        <Border x:Name="RacunIdikator" Background="#66323232" HorizontalAlignment="Stretch" Panel.ZIndex="999" CornerRadius="25" Visibility="Collapsed" VerticalAlignment="Stretch">
+ 
+           
+        </Border>
+      
+  
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="0.1*"/>
@@ -263,11 +268,13 @@
                     <ItemsControl x:Name="PicePanel" ItemsSource="{Binding ArtikliPiceFilter}"  Visibility="Visible" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160" Margin="1">
-                                    <Button Style="{StaticResource ArticleButtonStyle}"  Margin="1"  Tag="{Binding Sifra}" PreviewMouseLeftButtonDown="Button_MouseDown"  MinHeight="60"  PreviewMouseMove="Button_MouseMove"    PreviewMouseUp="Button_MouseUp"  AllowDrop="True"    DragOver="Button_DragOver"  Drop="Button_Drop"   VerticalAlignment="Stretch" HorizontalAlignment="Stretch"   >
+                                <Viewbox Stretch="Uniform" MinWidth="110" MaxWidth="160" Margin="1">
+                                    <Button Style="{StaticResource ArticleButtonStyle}" BorderThickness="0" Margin="1"  Tag="{Binding Sifra}" PreviewMouseLeftButtonDown="Button_MouseDown"  MinHeight="50"  PreviewMouseMove="Button_MouseMove"    PreviewMouseUp="Button_MouseUp"  AllowDrop="True"    DragOver="Button_DragOver"  Drop="Button_Drop"   VerticalAlignment="Stretch" HorizontalAlignment="Stretch"   >
                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left">
-                                            <Image   Width="45" Height="45" Source="{Binding SlikaSource, TargetNullValue={x:Null}}"  Stretch="Uniform" Margin="0"/>
-                                            <TextBlock Text="{Binding ArtiklNormativ}" Width="70"  VerticalAlignment="Center" TextWrapping="Wrap"  Foreground="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType=ItemsControl}}" />
+                                            <Border Width="33" Background="{DynamicResource GlobalBackgroundColor}" Height="50" CornerRadius="5,0,0,5" Margin="1">
+                                            <Image   Width="35" Height="45" Source="{Binding SlikaSource, TargetNullValue={x:Null}}"  Stretch="Uniform" Margin="0"/>
+                                            </Border>
+                                           <TextBlock Text="{Binding ArtiklNormativ}" Width="70" Padding="5"  VerticalAlignment="Center" TextWrapping="Wrap"  Foreground="{Binding DataContext.FontColor, RelativeSource={RelativeSource AncestorType=ItemsControl}}" />
                                         </StackPanel>
                                     </Button>
                                 </Viewbox>
@@ -324,19 +331,6 @@
             </ScrollViewer>
 
 
-            <!--This is the hidden helper Grid which does the resizing -->
-            <Grid Visibility="Hidden">
-                <Grid.ColumnDefinitions>
-                    <!--Width is bound to width of the first GridViewColumn -->
-                    <ColumnDefinition Width="*" />
-                    <!--Width is set to "Fill"-->
-                    <ColumnDefinition Width="*"/>
-                    <!--Correction Width-->
-                    <ColumnDefinition Width="20"/>
-                </Grid.ColumnDefinitions>
-                <!--This is the hidden helper Field which is used to bind to, using the "Fill" column of the helper grid-->
-                <Grid Grid.Column="0" x:Name="helperField"/>
-            </Grid>
             <Border Grid.Row="1" Grid.Column="5" CornerRadius="10" BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0" Margin="10,20,10,0">
                 <DataGrid  x:Name="ListStavkeRacuna"
                     TouchDown="ListStavkeRacuna_TouchDown"
@@ -409,5 +403,6 @@
             </Border>
             <Label x:Name="lblIznos" Foreground="{DynamicResource GlobalFontColor}"  Content="{Binding TotalSum}" ContentStringFormat="{}{0:0.00}" FontSize="40" Grid.Row="2" Grid.Column="5" HorizontalAlignment="Right" Margin="0,0,50,0"/>
         </Grid>
+    </Grid>
     </Grid>
 </UserControl>

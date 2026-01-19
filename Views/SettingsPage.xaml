@@ -13,7 +13,7 @@
         >
   
 
-    <Grid  >
+    <Grid  x:Name="MainContent">
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="55" Background="#323232" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -71,14 +71,14 @@
                     <Label Foreground="{DynamicResource GlobalFontColor}" Content="Email" Grid.Row="5" Grid.Column="0"/>
                     <Label Foreground="{DynamicResource GlobalFontColor}" Content="Žiroračun" Grid.Row="6" Grid.Column="0"/>
                     <Label Foreground="{DynamicResource GlobalFontColor}" Content="PDV obveznik" Grid.Row="7" Grid.Column="0"/>
-                    <TextBox  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtFrima" Grid.Row="0" Grid.Column="1" Margin="9" Height="30"  BorderThickness="0,0,0,1"  />
-                    <TextBox  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtAdresa" Grid.Row="1" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                    <TextBox  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtMjesto" Grid.Row="2" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                    <TextBox  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtJIB" Grid.Row="3" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                    <TextBox  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtPDV" Grid.Row="4" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                    <TextBox  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtEmail" Grid.Row="5" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                    <TextBox  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtZR" Grid.Row="6" Grid.Column="1" Margin="9"  Height="30"  BorderThickness="0,0,0,1"/>
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbPDV" Grid.Row="7" Grid.Column="1" Margin="9" Height="30" Width="150" HorizontalAlignment="Left"  >
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtFrima" Grid.Row="0" Grid.Column="1" Margin="9" Height="30"  BorderThickness="0,0,0,1"  />
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtAdresa" Grid.Row="1" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtMjesto" Grid.Row="2" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtJIB" Grid.Row="3" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtPDV" Grid.Row="4" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtEmail" Grid.Row="5" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtZR" Grid.Row="6" Grid.Column="1" Margin="9"  Height="30"  BorderThickness="0,0,0,1"/>
+                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbPDV" Grid.Row="7" Grid.Column="1" Margin="9" Height="auto" Width="150" HorizontalAlignment="Left"  >
                         <ComboBoxItem Content="NE" />
                         <ComboBoxItem Content="DA" />
                     </ComboBox>
@@ -108,14 +108,14 @@
                     <Label Foreground="{DynamicResource GlobalFontColor}" Content="LPFR PIN" Grid.Row="2" Grid.Column="0"/>
                     <Label Foreground="{DynamicResource GlobalFontColor}" Content="LPFR eksterni printer" Grid.Row="3" Grid.Column="0"/>
                     <Label Foreground="{DynamicResource GlobalFontColor}" Content="Širina trake " Grid.Row="4" Grid.Column="0"/>
-                    <TextBox  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtLPFRIP" Grid.Row="0" Grid.Column="1" Margin="9" Height="30"  BorderThickness="0,0,0,1"  />
-                    <TextBox  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtLPFRAPI" Grid.Row="1" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                    <TextBox  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtLPFRPIN" Grid.Row="2" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbExterniPrinter" Grid.Row="3" Grid.Column="1" Margin="9" Height="30" Width="150" HorizontalAlignment="Left"  >
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtLPFRIP" Grid.Row="0" Grid.Column="1" Margin="9" Height="30"  BorderThickness="0,0,0,1"  />
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtLPFRAPI" Grid.Row="1" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtLPFRPIN" Grid.Row="2" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
+                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbExterniPrinter" Grid.Row="3" Grid.Column="1" Margin="9" Height="auto" Width="150" HorizontalAlignment="Left"  >
                         <ComboBoxItem Content="NE" />
                         <ComboBoxItem Content="DA" />
                     </ComboBox>
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbSirinaTrake" Grid.Row="4" Grid.Column="1" Margin="9" Height="30" Width="150" HorizontalAlignment="Left"  >
+                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbSirinaTrake" Grid.Row="4" Grid.Column="1" Margin="9" Height="auto" Width="150" HorizontalAlignment="Left"  >
                         <ComboBoxItem Content="57" />
                         <ComboBoxItem Content="80" />
                     </ComboBox>
@@ -164,14 +164,14 @@
                     <Label Foreground="{DynamicResource GlobalFontColor}" Content="Izaberi temu aplikacije" Grid.Row="10" Grid.Column="0" VerticalContentAlignment="Center"/>
                     <Label Foreground="{DynamicResource GlobalFontColor}" Content="Postavi IP adresu servera" Grid.Row="11" Grid.Column="0" VerticalContentAlignment="Center"/>
                     <Label Foreground="{DynamicResource GlobalFontColor}" Content="Serverski mod" Grid.Row="12" Grid.Column="0" VerticalContentAlignment="Center"/>
-                    <TextBox  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent"  x:Name="txtLogo" Grid.Row="0" Grid.Column="1" Margin="5,1" Height="20"  BorderThickness="0,0,0,1"  VerticalAlignment="Bottom"/>
-                    <TextBox  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtPrinterSank" Grid.Row="1" Grid.Column="1"  Margin="5,1" Height="20"  BorderThickness="0,0,0,1" VerticalAlignment="Bottom"/>
-                    <TextBox  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtPrinterKuhinja" Grid.Row="2" Grid.Column="1"  Margin="5,1" Height="20"  BorderThickness="0,0,0,1" VerticalAlignment="Bottom"/>
-                    <TextBox  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtPrinterRacuni" Grid.Row="3" Grid.Column="1"  Margin="5,1" Height="20"   BorderThickness="0,0,0,1" VerticalAlignment="Bottom"/>
-                    <TextBox  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtPrinterA4" Grid.Row="4" Grid.Column="1"  Margin="5,1" Height="20"  BorderThickness="0,0,0,1" VerticalAlignment="Bottom"/>
-                    <TextBox  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtBackup" Grid.Row="5" Grid.Column="1"  Margin="5,1" Height="20"  BorderThickness="0,0,0,1" VerticalAlignment="Bottom"/>
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent"  x:Name="txtLogo" Grid.Row="0" Grid.Column="1" Margin="5,1" Height="auto"  BorderThickness="0,0,0,1"  VerticalAlignment="Bottom"/>
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtPrinterSank" Grid.Row="1" Grid.Column="1"  Margin="5,1" Height="Auto"  BorderThickness="0,0,0,1" VerticalAlignment="Bottom"/>
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtPrinterKuhinja" Grid.Row="2" Grid.Column="1"  Margin="5,1" Height="Auto"  BorderThickness="0,0,0,1" VerticalAlignment="Bottom"/>
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtPrinterRacuni" Grid.Row="3" Grid.Column="1"  Margin="5,1" Height="Auto"   BorderThickness="0,0,0,1" VerticalAlignment="Bottom"/>
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtPrinterA4" Grid.Row="4" Grid.Column="1"  Margin="5,1" Height="Auto"  BorderThickness="0,0,0,1" VerticalAlignment="Bottom"/>
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtBackup" Grid.Row="5" Grid.Column="1"  Margin="5,1" Height="Auto"  BorderThickness="0,0,0,1" VerticalAlignment="Bottom"/>
 
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}"   x:Name="cmbBrojKopijaBloka" Grid.Row="6" Grid.Column="1" Margin="5,3" Height="30" Width="150" HorizontalAlignment="Left" SelectedIndex="1">
+                    <ComboBox Foreground="{DynamicResource GlobalFontColor}"   x:Name="cmbBrojKopijaBloka" Grid.Row="6" Grid.Column="1" Margin="5,3" Height="Auto" Width="150" HorizontalAlignment="Left" SelectedIndex="1">
 
                         <ComboBoxItem Content="0" />
                         <ComboBoxItem Content="1" />
@@ -180,11 +180,11 @@
                         <ComboBoxItem Content="4" />
                         <ComboBoxItem Content="5" />
                     </ComboBox>
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}"  x:Name="cmbProdajaMinus" Grid.Row="7" Grid.Column="1" Margin="5,3" Height="30" Width="150" HorizontalAlignment="Left"  >
+                    <ComboBox Foreground="{DynamicResource GlobalFontColor}"  x:Name="cmbProdajaMinus" Grid.Row="7" Grid.Column="1" Margin="5,3" Height="auto" Width="150" HorizontalAlignment="Left"  >
                         <ComboBoxItem Content="NE" />
                         <ComboBoxItem Content="DA" />
                     </ComboBox>
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbMultiUser" Grid.Row="8" Grid.Column="1" Margin="5,3" Height="30" Width="150" HorizontalAlignment="Left"  >
+                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbMultiUser" Grid.Row="8" Grid.Column="1" Margin="5,3" Height="auto" Width="150" HorizontalAlignment="Left"  >
                         <ComboBoxItem Content="NE" />
                         <ComboBoxItem Content="DA" />
                     </ComboBox>
@@ -192,26 +192,26 @@
                               Grid.Row="9"
                               Grid.Column="1"
                               Margin="5,3"
-                              Height="30"
+                              Height="auto"
                               Width="150"
                               HorizontalAlignment="Left"
                               ItemsSource="{Binding Monitors}" 
                               SelectedItem="{Binding SelectedMonitor}" 
                               DisplayMemberPath="Name"/>
 
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbTema" Grid.Row="10" Grid.Column="1" Margin="5,3" Height="30" Width="150" HorizontalAlignment="Left" SelectionChanged="cmbTema_SelectionChanged" >
+                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbTema" Grid.Row="10" Grid.Column="1" Margin="5,3" Height="auto" Width="150" HorizontalAlignment="Left" SelectionChanged="cmbTema_SelectionChanged" >
                         <ComboBoxItem Content="Tamna" />
                         <ComboBoxItem Content="Svijetla" />
                     </ComboBox>
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbInterfaces" Grid.Row="11" Margin="5,3"    SelectionChanged="cmbInterfaces_SelectionChanged" Grid.Column="1" Height="30" Width="150" HorizontalAlignment="Left"  />
+                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbInterfaces" Grid.Row="11" Margin="5,3"    SelectionChanged="cmbInterfaces_SelectionChanged" Grid.Column="1" Height="auto" Width="150" HorizontalAlignment="Left"  />
                     <StackPanel Orientation="Horizontal" Grid.Row="12" Grid.Column="1">
-                        <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbServerskiMod"   Margin="5,3" Height="30" Width="150" HorizontalAlignment="Left" SelectionChanged="cmbServerskiMod_SelectionChanged" >
+                        <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbServerskiMod"   Margin="5,3" Height="auto" Width="150" HorizontalAlignment="Left" SelectionChanged="cmbServerskiMod_SelectionChanged" >
                             <ComboBoxItem Content="DA" />
                             <ComboBoxItem Content="NE" />
                         </ComboBox>
-                        <TextBox  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtDBPath" Visibility="Collapsed"    Margin="5,3" Height="30" FontSize="12" BorderThickness="0,0,0,1" Width="324" VerticalAlignment="Center" HorizontalContentAlignment="Left"/>
+                        <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtDBPath" Visibility="Collapsed"    Margin="5,3" Height="30" FontSize="12" BorderThickness="0,0,0,1" Width="324" VerticalAlignment="Center" HorizontalContentAlignment="Left"/>
                     </StackPanel>
-                    <TextBox  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtIPServer" Grid.Row="11" Grid.Column="1"  Margin="185,10,0,10" Height="20" FontSize="16" BorderThickness="0,0,0,1" HorizontalAlignment="Left" Width="150" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="2"/>
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtIPServer" Grid.Row="11" Grid.Column="1"  Margin="185,10,0,10" Height="20" FontSize="16" BorderThickness="0,0,0,1" HorizontalAlignment="Left" Width="150" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="2"/>
 
                     
                     <Button Margin="2"   x:Name="LogoButton"  Click="LogoButton_Click"  Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Top" Width="75"  Style="{StaticResource SecondaryButtonStyle}"    Foreground="{DynamicResource GlobalFontColor}">

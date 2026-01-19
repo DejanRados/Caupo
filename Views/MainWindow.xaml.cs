@@ -117,7 +117,7 @@ namespace Caupo
             {
                 From = 0,
                 To = 1,
-                Duration = TimeSpan.FromSeconds (1) // trajanje fadea
+                Duration = TimeSpan.FromSeconds (0.5) // trajanje fadea
             };
 
             newPage.BeginAnimation (UIElement.OpacityProperty, fadeIn);

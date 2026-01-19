@@ -59,8 +59,7 @@ namespace Caupo.Views
             {
 
                 string letter = btn.Content.ToString ();
-                if(letter == "Sakrij")
-                    MainWindow.Instance.HideKeyboard ();
+              
 
                 if(!isUppercase)
                 {

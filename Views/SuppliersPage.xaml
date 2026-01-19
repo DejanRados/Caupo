@@ -12,8 +12,8 @@
         UseLayoutRounding="True"
           >
 
- 
-    <Grid>
+
+    <Grid x:Name="MainContent">
         <!-- Header -->
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="55" Background="#323232" >
             <Grid.ColumnDefinitions>

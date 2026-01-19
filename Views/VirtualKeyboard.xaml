@@ -6,78 +6,79 @@
              xmlns:local="clr-namespace:Caupo.Views"
              mc:Ignorable="d" 
              IsHitTestVisible="True"
+     
              d:DesignHeight="100" d:DesignWidth="800">
     <Border CornerRadius="20" Padding="3" Background="{DynamicResource GlobalBackgroundColor}" HorizontalAlignment="Center" BorderThickness="2" BorderBrush="{DynamicResource GlobalFontColor}" Margin="5">
     <WrapPanel Orientation="Vertical" x:Name="KeyboardPanel" Margin="3"   Background="{DynamicResource GlobalBackgroundColor}" HorizontalAlignment="Center"  >
         
         <!-- RED 1 -->
         <UniformGrid Rows="1" Columns="11" Margin="10,5,10,0" HorizontalAlignment="Center" MinWidth="1000">
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}"  Content="1" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="2" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}"  Content="3" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="4" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="5" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="6" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="7" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="8" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="9" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="0" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="&#xE72B;" FontFamily="Segoe MDL2 Assets" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}"  Content="1" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="2" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}"  Content="3" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="4" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="5" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="6" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="7" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="8" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="9" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="0" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="&#xE72B;" FontFamily="Segoe MDL2 Assets" Click="KeyboardButton_Click"/>
         </UniformGrid>
         
         <UniformGrid Rows="1" Columns="13" Margin="10,0" >
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}"  Content="q" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="w" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}"  Content="e" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="r" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="t" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="y" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="u" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="i" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="o" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="p" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="š" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="đ" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="Enter" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}"  Content="q" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="w" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}"  Content="e" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="r" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="t" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="y" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="u" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="i" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="o" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="p" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="š" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="đ" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="Enter" Click="KeyboardButton_Click"/>
         </UniformGrid>
 
         <!-- RED 2 -->
         <UniformGrid Rows="1" Columns="12" Margin="10,0">
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="a" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="s" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="d" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="f" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="g" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="h" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="j" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="k" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="l" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="č" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="ć" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="ž" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="a" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="s" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="d" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="f" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="g" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="h" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="j" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="k" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="l" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="č" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="ć" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="ž" Click="KeyboardButton_Click"/>
         </UniformGrid>
 
         <!-- RED 3 -->
         <UniformGrid Rows="1" Columns="11" Margin="10,0">
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="&#xE84B;" FontFamily="Segoe MDL2 Assets" Click="ShiftButton_Click"  FontSize="16"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="z" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="x" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="c" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="v" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="b" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="n" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="m" Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="," Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="." Click="KeyboardButton_Click"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="-" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="&#xE84B;" FontFamily="Segoe MDL2 Assets" Click="ShiftButton_Click"  FontSize="16"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="z" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="x" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="c" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="v" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="b" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="n" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="m" Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="," Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="." Click="KeyboardButton_Click"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="-" Click="KeyboardButton_Click"/>
           
         </UniformGrid>
 
         <!-- RED 4 – specijalni -->
         <UniformGrid Rows="1" Columns="3" Margin="10,0,0,10">
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="Sakrij" Click="KeyboardButton_Click" Width="100" HorizontalAlignment="Left"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="&#xE75D;" Click="KeyboardButton_Click" FontFamily="Segoe MDL2 Assets"/>
-            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="45" Style="{StaticResource CancelButtonStyle}" Content="Reset" Click="KeyboardButton_Click" Width="100" HorizontalAlignment="Right"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="Sakrij" Click="KeyboardButton_Click" Width="100" HorizontalAlignment="Left"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="&#xE75D;" Click="KeyboardButton_Click" FontFamily="Segoe MDL2 Assets"/>
+            <Button Focusable="False" IsTabStop="False" Margin="2" Foreground="{DynamicResource GlobalFontColor}" Height="40" Style="{StaticResource CancelButtonStyle}" Content="Reset" Click="KeyboardButton_Click" Width="100" HorizontalAlignment="Right"/>
         </UniformGrid>
    
     </WrapPanel>

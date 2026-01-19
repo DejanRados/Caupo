@@ -128,7 +128,8 @@ namespace Caupo.ViewModels
         }
 
 
-
+        public event Func<TblKupci?, TblKupci?>? OpenBuyerPopupRequested;
+        public event Func<string, bool?>? ConfirmDeleteRequested;
 
 
         public BuyersViewModel()
@@ -144,30 +145,66 @@ namespace Caupo.ViewModels
 
         // --- RelayCommand za Edit ---
         [RelayCommand (CanExecute = nameof (CanEditDelete))]
+    
         private async Task EditBuyerAsync()
         {
             if(SelectedBuyer == null || SelectedBuyer.Kupac == "Gradjani")
-            {
-                Debug.WriteLine ("EditBuyerAsync: SelectedBuyer je null, ili Gradjani izlazim.");
                 return;
+
+            var updated = OpenBuyerPopupRequested?.Invoke (SelectedBuyer);
+            if(updated != null)
+            {
+                using var db = new AppDbContext ();
+                db.Kupci.Update (updated);
+                await db.SaveChangesAsync ();
+
+                // Update ObservableCollection
+                var index = Buyers.IndexOf (SelectedBuyer);
+                Buyers[index] = updated;
+                SelectedBuyer = updated;
             }
-            await OpenKupacPopupAsync (SelectedBuyer);
         }
 
-        private bool CanEditDelete() => SelectedBuyer != null;
+        [RelayCommand]
+        private async Task AddBuyerAsync()
+        {
+            var newBuyer = OpenBuyerPopupRequested?.Invoke (null);
+            if(newBuyer != null)
+            {
+                using var db = new AppDbContext ();
+                db.Kupci.Add (newBuyer);
+                await db.SaveChangesAsync ();
 
+                Buyers.Add (newBuyer);
+                SelectedBuyer = newBuyer;
+            }
+        }
+
+
+
+        private bool CanEditDelete() => SelectedBuyer != null;
         // --- RelayCommand za Delete (isto princip) ---
         [RelayCommand (CanExecute = nameof (CanEditDelete))]
         private async Task DeleteBuyerAsync()
         {
-            await DeleteSelectedBuyerAsync ();
-        }
+            if(SelectedBuyer == null || SelectedBuyer.Kupac == "Gradjani")
+                return;
 
-        // --- RelayCommand za Add ---
-        [RelayCommand]
-        private async Task AddBuyerAsync()
-        {
-            await OpenKupacPopupAsync ();
+            bool? result = ConfirmDeleteRequested?.Invoke (SelectedBuyer.Kupac);
+
+            if(result == true)
+            {
+                using var db = new AppDbContext ();
+                var kupacDb = await db.Kupci.FirstOrDefaultAsync (k => k.IdKupca == SelectedBuyer.IdKupca);
+                if(kupacDb != null)
+                {
+                    db.Kupci.Remove (kupacDb);
+                    await db.SaveChangesAsync ();
+
+                    Buyers.Remove (SelectedBuyer);
+                    SelectedBuyer = Buyers.FirstOrDefault ();
+                }
+            }
         }
 
         public async Task InitializeAsync()
@@ -302,13 +339,14 @@ namespace Caupo.ViewModels
 
         private async Task<bool> OpenKupacPopupAsync(TblKupci? kupac = null)
         {
+            
             var vm = new BuyerPopupViewModel (kupac);
             var window = new BuyerPopup
             {
                 DataContext = vm,
                 //Owner = Application.Current.MainWindow
             };
-
+         
             var tcs = new TaskCompletionSource<bool> ();
 
             vm.CloseRequested += (s, result) =>

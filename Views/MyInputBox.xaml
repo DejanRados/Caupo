@@ -11,12 +11,12 @@
  Background="Transparent"
         Loaded="Window_Loaded"   >
     <Grid >
-        <Border      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent">
-            <Border   Height="260" Width="420" CornerRadius="7"   HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0.5" BorderBrush="{DynamicResource GlobalFontColor}" Background="{DynamicResource GlobalBackgroundColor}">
+        <Border      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#33000000">
+            <Border   Height="255" Width="420" CornerRadius="7"   HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0.5" BorderBrush="{DynamicResource GlobalFontColor}" Background="{DynamicResource GlobalBackgroundColor}">
                 <Grid >
                     <Grid.RowDefinitions>
                         <RowDefinition Height="80"/>
-                        <RowDefinition Height="100"/>
+                        <RowDefinition Height="95"/>
                         <RowDefinition Height="80"/>
                     </Grid.RowDefinitions>
                     <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Foreground="{DynamicResource GlobalFontColor}" Margin="15" FontSize="45"  FontWeight="ExtraLight" Text="&#xEA74;"  HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="0"/>

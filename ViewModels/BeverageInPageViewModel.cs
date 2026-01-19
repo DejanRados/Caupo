@@ -169,6 +169,9 @@ namespace Caupo.ViewModels
         public ICommand DeleteArticleCommand { get; }
 
         public bool HasUnsavedChanges { get; set; }
+
+        public event Func<string, bool>? ShowDeletePopupRequested;
+
         public BeverageInPageViewModel()
         {
             AddNewStockInCommand = new RelayCommand (AddNewStockIn);
@@ -214,31 +217,28 @@ namespace Caupo.ViewModels
         }
         private async void DeleteStockInItem(TblUlazStavke stavka)
         {
-
             if(stavka == null)
                 return;
 
-            YesNoPopup myMessageBox = new YesNoPopup ();
-            myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-            myMessageBox.MessageTitle.Text = "POTVRDA BRISANJA";
-            myMessageBox.MessageText.Text = "Da li ste sigurni da želite obrisati stavku  :" + Environment.NewLine + stavka.Artikl + " ?";
-            myMessageBox.ShowDialog ();
-            if(myMessageBox.Kliknuo == "Da")
+            // Pozovi event da popup otvori View i vrati rezultat
+            bool confirmDelete = ShowDeletePopupRequested?.Invoke (stavka.Artikl) ?? false;
+
+            if(!confirmDelete)
+                return;
+
+            using var db = new AppDbContext ();
+
+            // 1. Obriši iz baze
+            var item = await db.UlazStavke.FindAsync (stavka.RedniBroj);
+            if(item != null)
             {
-
-                using var db = new AppDbContext ();
-
-                // 1. Obriši iz baze
-                var item = await db.UlazStavke.FindAsync (stavka.RedniBroj);
-                if(item != null)
-                {
-                    db.UlazStavke.Remove (item);
-                    await db.SaveChangesAsync ();
-                }
-
-                StockInItems.Remove (stavka);
+                db.UlazStavke.Remove (item);
+                await db.SaveChangesAsync ();
             }
+
+            StockInItems.Remove (stavka);
         }
+
 
         public async Task UpdateStockInItem()
         {

@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.Views
@@ -27,7 +28,31 @@ namespace Caupo.Views
             lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
             // this.Loaded += BeverageInPage_Loaded;
             _ = LoadInitialStockAsync (brojulaza);
-            //  _brojUlaza = brojulaza;
+            if(DataContext is BeverageInPageViewModel vm)
+            {
+                vm.ShowDeletePopupRequested += ShowDeletePopup;
+            }
+        }
+
+        // metoda koja zapravo pokazuje popup i primjenjuje blur
+        private bool ShowDeletePopup(string itemName)
+        {
+            // Blur cijelog sadržaja
+            MainContent.Effect = new BlurEffect { Radius = 5 };
+
+            var myMessageBox = new YesNoPopup
+            {
+                WindowStartupLocation = WindowStartupLocation.CenterScreen
+            };
+            myMessageBox.MessageTitle.Text = "POTVRDA BRISANJA";
+            myMessageBox.MessageText.Text = $"Da li ste sigurni da želite obrisati stavku:\n{itemName}?";
+
+            bool? result = myMessageBox.ShowDialog ();
+
+            // Ukloni blur
+            MainContent.Effect = null;
+
+            return myMessageBox.Kliknuo == "Da";
         }
 
         /*   private async void BeverageInPage_Loaded(object sender, RoutedEventArgs e)
@@ -294,6 +319,7 @@ namespace Caupo.Views
                 vm.ErrorOccurred += ViewModel_ErrorOccurred;
                 if(vm.SelectedArticle != null)
                 {
+                    MainContent.Effect = new BlurEffect { Radius = 5 };
                     var win = new BeverageInPopup (vm.SelectedArticle);
                     if(win.ShowDialog () == true)
                     {
@@ -304,7 +330,7 @@ namespace Caupo.Views
 
                         vm.ProcessArticle ();
                     }
-
+                    MainContent.Effect = null;
                 }
             }
             if(_errorOccurred)
@@ -326,7 +352,7 @@ namespace Caupo.Views
                 if(stavka != null)
                 {
                     var win = new BeverageInPopup (stavka);
-
+                    MainContent.Effect = new BlurEffect { Radius = 5 };
                     win.IsUpdate = true;
                     if(win.ShowDialog () == true)
                     {
@@ -339,6 +365,7 @@ namespace Caupo.Views
 
 
                     }
+                    MainContent.Effect = null;
                     win.IsUpdate = false;
                 }
             }

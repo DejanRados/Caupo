@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 
 namespace Caupo.Views
@@ -452,7 +453,7 @@ namespace Caupo.Views
             else
             {
 
-
+                MainContent.Effect = new BlurEffect { Radius = 8 };
                 sto = button.TableName;
 
                 string naslov = "GREŠKA";
@@ -463,6 +464,7 @@ namespace Caupo.Views
                 myMessageBox.MessageTitle.Text = naslov;
                 myMessageBox.MessageText.Text = tekst;
                 myMessageBox.ShowDialog ();
+                MainContent.Effect = null;
                 return;
             }
 
@@ -516,6 +518,7 @@ namespace Caupo.Views
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
+            MainContent.Effect = new BlurEffect { Radius = 8 };
             var options = new JsonSerializerOptions
             {
                 WriteIndented = true,
@@ -602,6 +605,7 @@ namespace Caupo.Views
                 myMessageBox.MessageTitle.Text = naslov;
                 myMessageBox.MessageText.Text = tekst;
                 myMessageBox.ShowDialog ();
+                MainContent.Effect = null;
             }
             catch(Exception ex)
             {
@@ -613,6 +617,7 @@ namespace Caupo.Views
                 myMessageBox.MessageTitle.Text = naslov;
                 myMessageBox.MessageText.Text = tekst;
                 myMessageBox.ShowDialog ();
+                MainContent.Effect = null;
                 Debug.WriteLine ($"❌ Error saving JSON: {ex.Message}");
             }
         }
@@ -620,6 +625,7 @@ namespace Caupo.Views
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
+            MainContent.Effect = new BlurEffect { Radius = 8 };
             if(zauzeteNarudzbe.Count > 0)
             {
                 string naslov = "GREŠKA";
@@ -630,6 +636,7 @@ namespace Caupo.Views
                 myMessageBox1.MessageTitle.Text = naslov;
                 myMessageBox1.MessageText.Text = tekst;
                 myMessageBox1.ShowDialog ();
+                MainContent.Effect = null;
                 return;
 
 
@@ -661,10 +668,12 @@ namespace Caupo.Views
                 }
 
             }
+            MainContent.Effect = null;
         }
 
         private void EditText(TableButton button)
         {
+            MainContent.Effect = new BlurEffect { Radius = 8 };
             var inputDialog = new MyInputBox
             {
                 WindowStyle = WindowStyle.None,
@@ -690,6 +699,7 @@ namespace Caupo.Views
             };
 
             inputDialog.ShowDialog ();
+            MainContent.Effect = null;
         }
 
 
@@ -697,6 +707,7 @@ namespace Caupo.Views
 
         private void EditSize(Button button)
         {
+            MainContent.Effect = new BlurEffect { Radius = 8 };
             var inputDialog = new SizeInputDialog ();
             if(inputDialog.ShowDialog () == true)
             {
@@ -712,10 +723,12 @@ namespace Caupo.Views
 
                 }
             }
+            MainContent.Effect = null;
         }
 
         private void DeleteButton(TableButton button)
         {
+            MainContent.Effect = new BlurEffect { Radius = 8 };
             YesNoPopup myMessageBox = new YesNoPopup ();
             myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             myMessageBox.MessageText.Text = "Da li ste sigurni da želite obrisati " + button.TableName + "?";
@@ -739,6 +752,7 @@ namespace Caupo.Views
                 }
 
             }
+            MainContent.Effect = null;
         }
 
         public class CanvasTabInfo
@@ -1145,8 +1159,9 @@ namespace Caupo.Views
                 string oldName = tab.Header.ToString ();
 
 
+                MainContent.Effect = new BlurEffect { Radius = 8 };
 
-                var inputDialog = new MyInputBox ();
+         var inputDialog = new MyInputBox ();
 
                 inputDialog.Owner = MainWindow.Instance;
                 inputDialog.Topmost = false;
@@ -1161,7 +1176,7 @@ namespace Caupo.Views
                     }
                 };
                 inputDialog.ShowDialog ();
-
+                MainContent.Effect = null;
             }
 
 
@@ -1173,6 +1188,7 @@ namespace Caupo.Views
                 ctx.PlacementTarget is TabItem tab &&
                 tab.Header.ToString () != "+")
             {
+                MainContent.Effect = new BlurEffect { Radius = 8 };
                 YesNoPopup myMessageBox = new YesNoPopup ();
                 myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                 myMessageBox.MessageTitle.Text = "POTVRDA BRISANJA";
@@ -1182,6 +1198,7 @@ namespace Caupo.Views
                 {
                     tabControl.Items.Remove (tab);
                 }
+                MainContent.Effect = null;
             }
         }
 

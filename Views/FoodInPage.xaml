@@ -12,7 +12,7 @@
         UseLayoutRounding="True"
           >
 
-    <Grid>
+    <Grid  x:Name="MainContent" >
         <!-- Header -->
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="55" Background="#323232" >
             <Grid.ColumnDefinitions>
@@ -39,16 +39,6 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!--This is the hidden helper Grid which does the resizing -->
-            <Grid Visibility="Hidden">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="0.90*"/>
-                    <ColumnDefinition Width="0.13*" />
-                    <ColumnDefinition Width="20"/>
-                </Grid.ColumnDefinitions>
-                <!--This is the hidden helper Field which is used to bind to, using the "Fill" column of the helper grid-->
-                <Grid Grid.Column="1" x:Name="helperField"/>
-            </Grid>
             <Grid  Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Margin="60,60,0,0" VerticalAlignment="Top" HorizontalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -373,7 +363,7 @@
                                 <Button Style="{StaticResource CancelButtonStyle}"
                                  BorderBrush="Transparent"
                                  x:Name="BtnDelete" 
-                                 Command="{Binding DataContext.DeleteArticleCommand,   RelativeSource={RelativeSource AncestorType=ListView}}"
+                                 Command="{Binding DataContext.DeleteArticleCommand,   RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                  CommandParameter="{Binding}" Width="30" Height="30" Padding="0"  VerticalAlignment="Center"   ToolTip="Obriši stavku" >
                                     <TextBlock 
                                FontFamily="pack://application:,,,/Assets/Fonts/#codicon"

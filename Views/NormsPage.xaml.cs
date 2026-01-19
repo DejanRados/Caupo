@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.Views
@@ -208,6 +209,7 @@ namespace Caupo.Views
                 vm.ErrorOccurred += ViewModel_ErrorOccurred;
                 if(vm.SelectedJelo != null)
                 {
+                    MainContent.Effect = new BlurEffect { Radius = 8 };
                     MyInputBox myInput = new MyInputBox ();
                     myInput.InputTitle.Text = "NOVI NORMATIV" + Environment.NewLine + Environment.NewLine + "Unesite potrebnu količinu " + repromaterijal.Repromaterijal + " u " + repromaterijal.JedinicaMjereName;
                     myInput.InputTitle.FontSize = 14;
@@ -228,6 +230,7 @@ namespace Caupo.Views
                         await vm.InsertNorm (norm, vm.SelectedJelo);
 
                     }
+                    MainContent.Effect = null;
                 }
                 if(_errorOccurred)
                 {
@@ -250,6 +253,7 @@ namespace Caupo.Views
                 vm.ErrorOccurred += ViewModel_ErrorOccurred;
                 if(vm.SelectedNorm != null)
                 {
+                    MainContent.Effect = new BlurEffect { Radius = 8 };
                     MyInputBox myInput = new MyInputBox ();
                     myInput.InputTitle.Text = "IZMJENA NORMATIVA" + Environment.NewLine + Environment.NewLine + "Unesite potrebnu količinu " + norm.Repromaterijal + " u " + norm.JedinicaMjere;
                     myInput.InputTitle.FontSize = 14;
@@ -273,6 +277,7 @@ namespace Caupo.Views
                         await vm.UpdateNorm (normUpdated, vm.SelectedJelo);
 
                     }
+                    MainContent.Effect = null;
                 }
                 else
                 {

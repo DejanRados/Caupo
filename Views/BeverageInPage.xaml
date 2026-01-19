@@ -10,7 +10,7 @@
          xmlns:svg="http://sharpvectors.codeplex.com/svgc/" xmlns:Caupo="clr-namespace:Caupo"
         mc:Ignorable="d"   >
 
-    <Grid>
+    <Grid x:Name="MainContent">
         <!-- Header -->
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="55" Background="#323232" >
             <Grid.ColumnDefinitions>
@@ -379,7 +379,7 @@
                                 <Button Style="{StaticResource CancelButtonStyle}"
                                        BorderBrush="Transparent"
                                        x:Name="BtnDelete" 
-                                       Command="{Binding DataContext.DeleteArticleCommand,   RelativeSource={RelativeSource AncestorType=ListView}}"
+                                       Command="{Binding DataContext.DeleteArticleCommand,   RelativeSource={RelativeSource AncestorType=DataGrid}}"
                                        CommandParameter="{Binding}" Width="30" Height="30" Padding="0"  VerticalAlignment="Center"   ToolTip="Obriši stavku" >
                                                                 <TextBlock 
                                      FontFamily="pack://application:,,,/Assets/Fonts/#codicon"

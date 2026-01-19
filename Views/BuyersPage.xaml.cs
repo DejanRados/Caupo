@@ -4,9 +4,11 @@ using Caupo.Properties;
 using Caupo.ViewModels;
 using ClosedXML.Excel;
 using Microsoft.Win32;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using static Caupo.Data.DatabaseTables;
 
@@ -21,6 +23,67 @@ namespace Caupo.Views
             this.DataContext = new BuyersViewModel ();
 
             lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
+
+            if(DataContext is BuyersViewModel vm)
+            {
+                vm.OpenBuyerPopupRequested += OpenBuyerPopup;
+                vm.ConfirmDeleteRequested += ShowDeletePopup;
+            }
+        }
+
+        private bool? ShowDeletePopup(string buyerName)
+        {
+            // Blur parent sadržaja dok je popup otvoren
+            var parentWindow = Window.GetWindow (this);
+            if(parentWindow != null)
+                parentWindow.Effect = new BlurEffect { Radius = 5 };
+
+            var myMessageBox = new YesNoPopup
+            {
+                WindowStartupLocation = WindowStartupLocation.CenterScreen
+            };
+            myMessageBox.MessageTitle.Text = "POTVRDA BRISANJA";
+            myMessageBox.MessageText.Text = $"Da li ste sigurni da želite obrisati kupca:\n{buyerName}?";
+
+            myMessageBox.ShowDialog ();
+
+            // ukloni blur
+            if(parentWindow != null)
+                parentWindow.Effect = null;
+
+            // vraća true samo ako je kliknuo "Da"
+            return myMessageBox.Kliknuo == "Da";
+        }
+
+
+        private TblKupci? OpenBuyerPopup(TblKupci? buyer)
+        {
+            var vm = new BuyerPopupViewModel (buyer);
+            var popup = new BuyerPopup
+            {
+                DataContext = vm,
+                Owner = Window.GetWindow (this) // parent window
+            };
+
+            // Blur parent window dok je popup otvoren
+            var parentWindow = Window.GetWindow (this);
+            if(parentWindow != null)
+                parentWindow.Effect = new BlurEffect { Radius = 5 };
+
+            var tcs = new TaskCompletionSource<TblKupci?> ();
+            vm.CloseRequested += (s, result) =>
+            {
+                tcs.SetResult (result ? vm.Model : null);
+                popup.Close ();
+            };
+
+            popup.ShowDialog ();
+
+            // ukloni blur nakon zatvaranja
+            if(parentWindow != null)
+                parentWindow.Effect = null;
+
+            return tcs.Task.Result;
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)

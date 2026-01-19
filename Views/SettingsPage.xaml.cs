@@ -12,6 +12,7 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 
 namespace Caupo.Views
 {
@@ -254,6 +255,7 @@ namespace Caupo.Views
                 myMessageBox.MessageTitle.Text = "Obavještenje";
                 myMessageBox.MessageText.Text = "Podešavanja su spremljena!";
                 myMessageBox.ShowDialog ();
+                MainContent.Effect = null;
                 var page = new HomePage
                 {
                     DataContext = new HomeViewModel ()
@@ -422,10 +424,12 @@ namespace Caupo.Views
         {
             if(DataContext is SettingsViewModel viewModel)
             {
+                MainContent.Effect = new BlurEffect { Radius = 5 };
                 NewWorkerPopup noviradnik = new NewWorkerPopup (viewModel);
                 noviradnik.isUpdate = false;
 
                 noviradnik.ShowDialog ();
+                MainContent.Effect = null;
             }
         }
 
@@ -665,6 +669,7 @@ namespace Caupo.Views
 
         private async void SaveSettingsButton_Click(object sender, RoutedEventArgs e)
         {
+            MainContent.Effect = new BlurEffect { Radius = 8 };
             bool firmaChecked = await CheckFirma ();
             if(!firmaChecked)
                 return;
@@ -683,6 +688,7 @@ namespace Caupo.Views
 
         private void LogoButton_Click(object sender, RoutedEventArgs e)
         {
+            MainContent.Effect = new BlurEffect { Radius = 5 };
             // Kreiraj instancu OpenFileDialog-a
             OpenFileDialog openFileDialog = new OpenFileDialog ();
 
@@ -695,56 +701,66 @@ namespace Caupo.Views
                 // Dodela odabrane slike u TextBox
                 txtLogo.Text = openFileDialog.FileName;
             }
+            MainContent.Effect = null;
         }
 
         private void SankButton_Click(object sender, RoutedEventArgs e)
         {
             PrinterDialog printerDialog = new PrinterDialog ();
+            printerDialog.MessageTitle.Text = "Izaberite printer za šank";
+            MainContent.Effect = new BlurEffect { Radius = 5 };
             if(printerDialog.ShowDialog () == true)
             {
                 txtPrinterSank.Text = printerDialog.SelectedPrinter;
             }
+            MainContent.Effect = null;
         }
 
         private void KuhinjaButton_Click(object sender, RoutedEventArgs e)
         {
             PrinterDialog printDialog = new PrinterDialog ();
-
+            printDialog.MessageTitle.Text = "Izaberite printer za kuhinju";
+            MainContent.Effect = new BlurEffect { Radius = 5 };
             // Prikazivanje dijaloga za odabir štampača
             if(printDialog.ShowDialog () == true)
             {
                 // Dodela imena odabranog štampača u TextBox
                 txtPrinterKuhinja.Text = printDialog.SelectedPrinter;
             }
+            MainContent.Effect = null;
         }
 
         private void RacuniButton_Click(object sender, RoutedEventArgs e)
         {
             PrinterDialog printDialog = new PrinterDialog ();
-
+            printDialog.MessageTitle.Text = "Izaberite printer za fiskalne račune";
+            MainContent.Effect = new BlurEffect { Radius = 5 };
             // Prikazivanje dijaloga za odabir štampača
             if(printDialog.ShowDialog () == true)
             {
                 // Dodela imena odabranog štampača u TextBox
                 txtPrinterRacuni.Text = printDialog.SelectedPrinter;
             }
+            MainContent.Effect = null;
         }
 
         private void A4Button_Click(object sender, RoutedEventArgs e)
         {
             PrinterDialog printDialog = new PrinterDialog ();
-
+            printDialog.MessageTitle.Text = "Izaberite A4 priner ";
+            MainContent.Effect = new BlurEffect { Radius = 5 };
             // Prikazivanje dijaloga za odabir štampača
             if(printDialog.ShowDialog () == true)
             {
                 // Dodela imena odabranog štampača u TextBox
                 txtPrinterA4.Text = printDialog.SelectedPrinter;
             }
+            MainContent.Effect = null;
         }
 
         private void BackupButton_Click(object sender, RoutedEventArgs e)
         {
-
+            MainContent.Effect = new BlurEffect { Radius = 5 };
             var folderDialog = new OpenFolderDialog
             {
                 Title = "Izaberite folder za rezervnu kopiju.",
@@ -756,7 +772,7 @@ namespace Caupo.Views
                 txtBackup.Text = folderDialog.FolderName;
 
             }
-
+            MainContent.Effect = null;
         }
 
         private void cmbInterfaces_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
@@ -802,11 +818,11 @@ namespace Caupo.Views
                 if(tema == "Tamna")
                 {
                     Application.Current.Resources["GlobalFontColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (244, 244, 244));
-                    Application.Current.Resources["GlobalBackgroundColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (46, 46, 49));
+                    Application.Current.Resources["GlobalBackgroundColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (45, 45, 48));
                 }
                 else
                 {
-                    Application.Current.Resources["GlobalFontColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (46, 46, 49));
+                    Application.Current.Resources["GlobalFontColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (45, 45, 48));
                     Application.Current.Resources["GlobalBackgroundColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (244, 244, 244));
 
                 }
@@ -841,6 +857,7 @@ namespace Caupo.Views
 
                 if(servermode == "DA")
                 {
+                    MainContent.Effect = new BlurEffect { Radius = 5 };
                     MyMessageBox myMessageBox = new MyMessageBox ();
                     // //myMessageBox.Owner = this;
                     myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -848,7 +865,7 @@ namespace Caupo.Views
                     myMessageBox.MessageTitle.Text = "Obavještenje";
                     myMessageBox.MessageText.Text = "Izaberite folder u kome će se nalaziti baza podataka";
                     myMessageBox.ShowDialog ();
-
+                    MainContent.Effect = null;
                     txtDBPath.Visibility = Visibility.Visible;
                     DbPathButton.Visibility = Visibility.Visible;
                 }
@@ -862,6 +879,7 @@ namespace Caupo.Views
 
         private void DbPathButton_Click(object sender, RoutedEventArgs e)
         {
+            MainContent.Effect = new BlurEffect { Radius = 5 };
             var folderDialog = new OpenFolderDialog
             {
                 Title = "Izaberite folder za bazu podataka.",
@@ -873,6 +891,7 @@ namespace Caupo.Views
                 txtDBPath.Text = folderDialog.FolderName;
 
             }
+            MainContent.Effect = null;
         }
 
         private void Button_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)

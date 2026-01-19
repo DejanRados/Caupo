@@ -168,7 +168,7 @@
     
             <Style x:Key="ArticleButtonStyle" TargetType="Button">
                 <Setter Property="Foreground" Value="#2FA4A9"/>
-                <Setter Property="Background" Value="#442FA4A9"/>
+                <Setter Property="Background" Value="#882FA4A9"/>
                 <Setter Property="BorderBrush" Value="#2FA4A9"/>
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="Padding" Value="12,6"/>
@@ -370,7 +370,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="2">
+                                CornerRadius="0">
                                 <ScrollViewer x:Name="PART_ContentHost"/>
                             </Border>
                             <ControlTemplate.Triggers>
@@ -930,22 +930,23 @@
                                 CornerRadius="10"
                                 SnapsToDevicePixels="False" UseLayoutRounding="True"
                                 Padding="{TemplateBinding Padding}">
-                                    <ContentPresenter x:Name="Header" ContentSource="Header"  TextElement.Foreground="#eaeaea" 
+                                    <ContentPresenter x:Name="Header" ContentSource="Header"  TextElement.Foreground="{DynamicResource GlobalFontColor}"
                                   HorizontalAlignment="Center" 
                                   VerticalAlignment="Center">
                                     </ContentPresenter>
                                 </Border>
-                                <Border x:Name="HoverOverlay"     CornerRadius="11"   Padding="{TemplateBinding Padding}"  Background="#11000000"   BorderBrush="{TemplateBinding BorderBrush}"   BorderThickness="{TemplateBinding BorderThickness}"   IsHitTestVisible="False" SnapsToDevicePixels="False" UseLayoutRounding="True"/>
+                                <Border x:Name="HoverOverlay"     CornerRadius="11"   Padding="{TemplateBinding Padding}"  Background="#332FA4A9"   BorderBrush="{TemplateBinding BorderBrush}"   BorderThickness="0"   IsHitTestVisible="False" SnapsToDevicePixels="False" UseLayoutRounding="True"/>
                             </Grid>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter TargetName="HoverOverlay"  Property="Opacity"  Value="0.1"/>
                                     <Setter TargetName="BackgroundBorder" Property="BorderThickness" Value="2"/>
-                                    <Setter TargetName="BackgroundBorder" Property="Background" Value="Transparent"/>
+                                    <Setter TargetName="BackgroundBorder" Property="Background" Value="#552FA4A9"/>
                                 </Trigger>
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter TargetName="HoverOverlay"  Property="Opacity"  Value="0"/>
                                     <Setter TargetName="BackgroundBorder" Property="Background" Value="#FF2FA4A9"/>
+                                    <Setter TargetName="Header" Property="TextElement.Foreground" Value="#f5f5f5"/>
                                 </Trigger>
                                 <Trigger Property="IsFocused" Value="True">
                                     <Setter TargetName="HoverOverlay"  Property="Opacity"  Value="0"/>

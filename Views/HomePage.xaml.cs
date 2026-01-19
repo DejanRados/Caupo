@@ -37,7 +37,7 @@ namespace Caupo.Views
                 {
                     From = 0, // Start at fully transparent
                     To = 1,   // End at fully visible
-                    Duration = new Duration (TimeSpan.FromSeconds (1.5)) // Duration of 2 seconds
+                    Duration = new Duration (TimeSpan.FromSeconds (0.5)) // Duration of 2 seconds
                 };
 
 

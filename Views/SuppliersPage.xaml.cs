@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Effects;
 using static Caupo.Data.DatabaseTables;
 using static Caupo.ViewModels.SuppliersViewModel;
 
@@ -24,7 +25,44 @@ namespace Caupo.Views
             // --- OVDJE DODAŠ LISTENER ---
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
             lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
+
+            if(DataContext is SuppliersViewModel vm)
+            {
+                vm.OpenSupplierPopupRequested += OpenSupplierPopup;
+            }
         }
+
+
+
+            private void ApplyBlur()
+                {
+                    MainContent.Effect = new BlurEffect { Radius = 8 };
+                }
+
+                private void RemoveBlur()
+                {
+                    MainContent.Effect = null;
+                }
+
+
+        private TblDobavljaci? OpenSupplierPopup(TblDobavljaci? supplier)
+        {
+            ApplyBlur ();
+
+            SupplierPopup popup =
+                supplier == null
+                    ? new SupplierPopup ()
+                    : new SupplierPopup (supplier);
+
+            var result = popup.Open (); // ShowDialog
+
+            RemoveBlur ();
+
+            return result;
+        }
+
+
+
 
         private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
@@ -139,5 +177,7 @@ namespace Caupo.Views
             }
         }
 
+     
     }
+    
 }

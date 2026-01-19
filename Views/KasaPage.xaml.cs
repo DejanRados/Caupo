@@ -11,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
 using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.Views
@@ -28,14 +29,16 @@ namespace Caupo.Views
             cmbNacinPlacanja.SelectedIndex = 0;
             lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
             //this.DataContext = new KasaViewModel ();
-
-
+            MultiUserGrid.IsVisibleChanged += (s, e) => UpdateBlur ();
         }
 
 
-
-
-
+        private void UpdateBlur()
+        {
+            MainContent.Effect = MultiUserGrid.Visibility == Visibility.Visible
+                ? new BlurEffect { Radius = 8 }
+                : null;
+        }
         private void KasaWindow_Loaded(object sender, RoutedEventArgs e)
         {
 
@@ -354,7 +357,7 @@ namespace Caupo.Views
                 {
                     From = 0, // Start at fully transparent
                     To = 1,   // End at fully visible
-                    Duration = new Duration (TimeSpan.FromSeconds (1.5)) // Duration of 2 seconds
+                    Duration = new Duration (TimeSpan.FromSeconds (0.5)) // Duration of 2 seconds
                 };
                 button.BeginAnimation (UIElement.OpacityProperty, fadeInAnimation);
             }
@@ -734,6 +737,7 @@ namespace Caupo.Views
 
         private void UnosNote(FiskalniRacun.Item stavka)
         {
+            MainContent.Effect = new BlurEffect { Radius = 8 };
             MyInputBox dialog = new MyInputBox ();
             dialog.InputTitle.Text = "OPIS STAVKE";
             dialog.InputText.Focus ();
@@ -746,6 +750,7 @@ namespace Caupo.Views
             {
                 stavka.Note = result;
             }
+            MainContent.Effect = null;
         }
 
 

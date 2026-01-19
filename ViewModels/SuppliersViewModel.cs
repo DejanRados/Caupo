@@ -121,6 +121,8 @@ namespace Caupo.ViewModels
         public ICommand DeleteCommand { get; }
 
         public ICollectionView SuppliersFilter { get; private set; }
+
+        public event Func<TblDobavljaci?, TblDobavljaci?>? OpenSupplierPopupRequested;
         public SuppliersViewModel()
         {
 
@@ -140,9 +142,10 @@ namespace Caupo.ViewModels
         // ADD
         private async void AddDobavljac()
         {
-            var popup = new SupplierPopup ();
-            var novi = popup.Open ();
+            //var popup = new SupplierPopup ();
+            //var novi = popup.Open ();
 
+            var novi = OpenSupplierPopupRequested?.Invoke (null);
             if(novi != null)
             {
                 Debug.WriteLine ("Popup vratio novog dobavljaca: " + novi.Dobavljac);
@@ -163,8 +166,10 @@ namespace Caupo.ViewModels
             if(SelectedSupplier == null )
                 return;
 
-            var popup = new SupplierPopup (SelectedSupplier);
-            var editovani = popup.Open ();
+            //var popup = new SupplierPopup (SelectedSupplier);
+            //var editovani = popup.Open ();
+
+            var editovani = OpenSupplierPopupRequested?.Invoke (SelectedSupplier);
             //Debug.WriteLine("Popup vratio editovanog dobavljaca: " + editovani.IdDobavljaca);
             if(editovani != null)
             {
