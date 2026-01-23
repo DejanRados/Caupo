@@ -256,6 +256,7 @@ namespace Caupo.Views
                 myMessageBox.MessageText.Text = "Podešavanja su spremljena!";
                 myMessageBox.ShowDialog ();
                 MainContent.Effect = null;
+                CloseButton.IsEnabled = true;
                 var page = new HomePage
                 {
                     DataContext = new HomeViewModel ()
@@ -669,7 +670,7 @@ namespace Caupo.Views
 
         private async void SaveSettingsButton_Click(object sender, RoutedEventArgs e)
         {
-            MainContent.Effect = new BlurEffect { Radius = 8 };
+            CloseButton.IsEnabled = false;
             bool firmaChecked = await CheckFirma ();
             if(!firmaChecked)
                 return;
@@ -679,7 +680,7 @@ namespace Caupo.Views
             bool aplikacijaChecked = await CheckAplikacija ();
             if(!aplikacijaChecked)
                 return;
-
+            MainContent.Effect = new BlurEffect { Radius = 8 };
             await SaveSettings ();
 
         }

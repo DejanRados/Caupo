@@ -36,13 +36,44 @@
                     <ColumnDefinition Width="150"/>
                 </Grid.ColumnDefinitions>
 
-                <Label Content="Gotovina: " Foreground="{DynamicResource GlobalFontColor}" Grid.Row="1" Grid.Column="0" FontSize="16"/>
+                <Label   Foreground="{DynamicResource GlobalFontColor}" Grid.Row="1" Grid.Column="0" FontSize="16">
+                    <Label.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE9A6;" Margin="0,0,10,0" FontSize="20" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Gotovina: " HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Label.Content>
+                </Label>
                 <Label Content="{Binding PrometKes}" ContentStringFormat="{}{0:F2}" Grid.Row="1" Grid.Column="1" FontSize="16" Foreground="{DynamicResource GlobalFontColor}" HorizontalContentAlignment="Right"/>
-                <Label Content="Kartica: " Foreground="{DynamicResource GlobalFontColor}" Grid.Row="2" Grid.Column="0" FontSize="16"/>
+
+                <Label  Foreground="{DynamicResource GlobalFontColor}" Grid.Row="2" Grid.Column="0" FontSize="16">
+                    <Label.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8C7;" Margin="0,0,10,0" FontSize="20" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Kartica: " HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Label.Content>
+                </Label>
                 <Label Content="{Binding PrometKartica}" ContentStringFormat="{}{0:F2}" Grid.Row="2" Grid.Column="1" FontSize="16" Foreground="{DynamicResource GlobalFontColor}" HorizontalContentAlignment="Right"/>
-                <Label Content="Ček: " Foreground="{DynamicResource GlobalFontColor}" Grid.Row="3" Grid.Column="0" FontSize="16"/>
+               
+                <Label  Foreground="{DynamicResource GlobalFontColor}" Grid.Row="3" Grid.Column="0" FontSize="16">
+                    <Label.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE929;" Margin="0,0,10,0" FontSize="20" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Ček: " HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Label.Content>
+                </Label>
                 <Label Content="{Binding PrometCek}" ContentStringFormat="{}{0:F2}" Grid.Row="3" Grid.Column="1" FontSize="16" Foreground="{DynamicResource GlobalFontColor}" HorizontalContentAlignment="Right"/>
-                <Label Content="Virman: " Foreground="{DynamicResource GlobalFontColor}" Grid.Row="4" Grid.Column="0" FontSize="16"/>
+                
+                <Label  Foreground="{DynamicResource GlobalFontColor}" Grid.Row="4" Grid.Column="0" FontSize="16">
+                    <Label.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8A1;" Margin="0,0,10,0" FontSize="20" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Virman: " HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Label.Content>
+                </Label>
                 <Label Content="{Binding PrometVirman}" ContentStringFormat="{}{0:F2}" Grid.Row="4" Grid.Column="1" FontSize="16" Foreground="{DynamicResource GlobalFontColor}" HorizontalContentAlignment="Right"/>
                 <Separator Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Margin="5" Height="1"/>
                 <Label Content="Ostvareni promet: " Foreground="{DynamicResource GlobalFontColor}" Grid.Row="6" Grid.Column="0" FontSize="16"/>
