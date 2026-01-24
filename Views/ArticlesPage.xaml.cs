@@ -1,5 +1,6 @@
 ﻿using Caupo.Data;
 using Caupo.Helpers;
+using Caupo.Properties;
 using Caupo.ViewModels;
 using ClosedXML.Excel;
 using Microsoft.Win32;
@@ -731,65 +732,6 @@ namespace Caupo.Views
             }
         }
 
-        private void SaveExcelFile(string filePath)
-        {
-
-            using(var workbook = new XLWorkbook ())
-            {
-                var worksheet = workbook.Worksheets.Add ("Artikli");
-
-                worksheet.Cell (1, 1).Value = "ID";
-                worksheet.Cell (1, 2).Value = "Sifra";
-                worksheet.Cell (1, 3).Value = "Artikl";
-                worksheet.Cell (1, 4).Value = "JedinicaMjere";
-                worksheet.Cell (1, 5).Value = "Cijena";
-                worksheet.Cell (1, 6).Value = "InternaSifra";
-                worksheet.Cell (1, 7).Value = "PoreskaStopa";
-                worksheet.Cell (1, 8).Value = "Slika";
-                worksheet.Cell (1, 9).Value = "Normativ";
-                worksheet.Cell (1, 10).Value = "VrstaArtikla";
-                worksheet.Cell (1, 11).Value = "Kategorija";
-                worksheet.Cell (1, 12).Value = "Pozicija";
-                worksheet.Cell (1, 13).Value = "ArtiklNormativ";
-                worksheet.Cell (1, 14).Value = "PrikazatiNaDispleju";
-
-                if(DataContext is ArticlesViewModel viewModel)
-                {
-                    int row = 2;
-                    if(viewModel.Artikli != null)
-                    {
-                        foreach(var artikl in viewModel.Artikli)
-                        {
-                            worksheet.Cell (row, 1).Value = artikl.IdArtikla;
-                            worksheet.Cell (row, 2).Value = artikl.Sifra;
-                            worksheet.Cell (row, 3).Value = artikl.Artikl;
-                            worksheet.Cell (row, 4).Value = artikl.JedinicaMjere;
-                            worksheet.Cell (row, 5).Value = artikl.Cijena;
-                            worksheet.Cell (row, 6).Value = artikl.InternaSifra;
-                            worksheet.Cell (row, 7).Value = artikl.PoreskaStopa;
-                            worksheet.Cell (row, 8).Value = artikl.Slika;
-                            worksheet.Cell (row, 9).Value = artikl.Normativ;
-                            worksheet.Cell (row, 10).Value = artikl.VrstaArtikla;
-                            worksheet.Cell (row, 11).Value = artikl.Kategorija;
-                            worksheet.Cell (row, 12).Value = artikl.Pozicija;
-                            worksheet.Cell (row, 13).Value = artikl.ArtiklNormativ;
-                            worksheet.Cell (row, 14).Value = artikl.PrikazatiNaDispleju;
-
-                            row++;
-                        }
-                    }
-                }
-                workbook.SaveAs (filePath);
-            }
-
-            MyMessageBox myMessageBox = new MyMessageBox
-            {
-                WindowStartupLocation = WindowStartupLocation.CenterScreen
-            };
-            myMessageBox.MessageTitle.Text = "IZVOZ U EXCEL";
-            myMessageBox.MessageText.Text = "Izvoz tabele Artikli je uspješno završen.";
-            myMessageBox.ShowDialog ();
-        }
         private async void BtnImport_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog ();
@@ -806,50 +748,208 @@ namespace Caupo.Views
 
         }
 
-        public async Task ImportExcelToSQLiteAsync(string excelFilePath)
+        private void SaveExcelFile(string filePath)
         {
-            using(var workbook = new XLWorkbook (excelFilePath))
+            Debug.WriteLine ("=== START EXPORT EXCEL ===");
+
+            using var workbook = new XLWorkbook ();
+            var worksheet = workbook.Worksheets.Add ("Artikli");
+            var listSheet = workbook.Worksheets.Add ("Lists");
+
+            // =========================
+            // HEADER (REDOM, BEZ RUPA)
+            // =========================
+            worksheet.Cell (1, 1).Value = "Artikl";
+            worksheet.Cell (1, 2).Value = "VrstaArtikla";
+            worksheet.Cell (1, 3).Value = "Cijena";
+            worksheet.Cell (1, 4).Value = "Normativ";
+            worksheet.Cell (1, 5).Value = "JedinicaMjere";
+            Debug.WriteLine ("Headers written");
+
+            // =========================
+            // DROPDOWN LISTE
+            // =========================
+            // VrstaArtikla
+            listSheet.Cell ("C1").Value = "Piće";
+            listSheet.Cell ("C2").Value = "Hrana";
+            listSheet.Cell ("C3").Value = "Ostalo";
+
+            // JedinicaMjere
+            listSheet.Cell ("A1").Value = "kom";
+            listSheet.Cell ("A2").Value = "kg";
+            listSheet.Cell ("A3").Value = "m";
+            listSheet.Cell ("A4").Value = "m2";
+            listSheet.Cell ("A5").Value = "m3";
+            listSheet.Cell ("A6").Value = "lit";
+            listSheet.Cell ("A7").Value = "tona";
+            listSheet.Cell ("A8").Value = "g";
+            listSheet.Cell ("A9").Value = "por";
+            listSheet.Cell ("A10").Value = "pak";
+
+            // =========================
+            // DATA CONTEXT
+            // =========================
+            if(DataContext is not ArticlesViewModel vm || vm.Artikli == null)
             {
-                var worksheet = workbook.Worksheets.First ();
-                using(var db = new AppDbContext ())
+                Debug.WriteLine ("ERROR: DataContext or Artikli is NULL");
+                return;
+            }
+
+            // Normativ list
+            int normativRow = 1;
+            if(vm.Normativi != null)
+            {
+                foreach(var n in vm.Normativi)
                 {
-
-                    var artikliList = worksheet.RowsUsed ()
-                        .Skip (1)
-                        .Select (row => new TblArtikli
-                        {
-                            Sifra = row.Cell (2).GetValue<string> (),
-                            Artikl = row.Cell (3).GetValue<string> (),
-                            JedinicaMjere = row.Cell (4).GetValue<int?> (),
-                            Cijena = row.Cell (5).GetValue<decimal> (),
-                            InternaSifra = row.Cell (6).GetValue<string> (),
-                            PoreskaStopa = row.Cell (7).GetValue<int?> (),
-                            Slika = row.Cell (8).GetValue<string> (),
-                            Normativ = row.Cell (9).GetValue<decimal> (),
-                            VrstaArtikla = row.Cell (10).GetValue<int> (),
-                            Kategorija = row.Cell (11).GetValue<int?> (),
-                            Pozicija = row.Cell (12).GetValue<int?> (),
-                            ArtiklNormativ = row.Cell (13).GetValue<string> (),
-                            PrikazatiNaDispleju = row.Cell (14).GetValue<string> (),
-
-                        })
-                        .ToList ();
-
-
-                    await db.Artikli.AddRangeAsync (artikliList);
-                    await db.SaveChangesAsync ();
+                    // Pretvori decimal u string da dropdown radi
+                    listSheet.Cell (normativRow, 2).Value = n.Normativ.ToString ();
+                    Debug.WriteLine ($"Normativ added to list: {n.Normativ}");
+                    normativRow++;
                 }
             }
-            MyMessageBox myMessageBox = new MyMessageBox
-            {
-                WindowStartupLocation = WindowStartupLocation.CenterScreen
-            };
-            myMessageBox.MessageTitle.Text = "UVOZ EXCEL";
-            myMessageBox.MessageText.Text = "Uvoz artikala iz Excel fajla je završen!";
-            myMessageBox.ShowDialog ();
 
+            // =========================
+            // PODACI
+            // =========================
+            int row = 2;
+            foreach(var a in vm.Artikli)
+            {
+                Debug.WriteLine ($"Exporting: {a.Artikl}");
+
+                worksheet.Cell (row, 1).Value = a.Artikl;
+                worksheet.Cell (row, 2).Value = a.VrstaArtiklaName;
+                worksheet.Cell (row, 3).Value = a.Cijena;
+                worksheet.Cell (row, 4).Value = a.Normativ.ToString (); // convert decimal -> string
+                worksheet.Cell (row, 5).Value = a.JedinicaMjereName;
+
+                //VrstaArtikla dropdown
+                worksheet.Range (row, 2, row, 2)
+                         .SetDataValidation ()
+                         .List (listSheet.Range ("C1:C3"));
+
+                //JedinicaMjere dropdown
+                worksheet.Range (row, 5, row, 5)
+                         .SetDataValidation ()
+                         .List (listSheet.Range ("A1:A10"));
+
+                // Normativ dropdown
+                worksheet.Range (row, 4, row, 4)
+                         .SetDataValidation ()
+                         .List (listSheet.Range ($"B1:B{normativRow - 1}"));
+
+                row++;
+            }
+
+            // =========================
+            // ZAKLJUČAVANJE STRUKTURE
+            // =========================
+            //worksheet.RangeUsed ().Style.Protection.Locked = false;
+           // worksheet.Row (1).Style.Protection.Locked = true;
+
+            //worksheet.Protect ("lock");
+            //listSheet.Protect ("lock");
+            //listSheet.Visibility = XLWorksheetVisibility.VeryHidden;
+
+            worksheet.Columns ().AdjustToContents ();
+
+            workbook.SaveAs (filePath);
+            Debug.WriteLine ("=== EXPORT FINISHED ===");
+
+            new MyMessageBox
+            {
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                MessageTitle = { Text = "IZVOZ U EXCEL" },
+                MessageText = { Text = "Izvoz tabele Artikli je uspješno završen." }
+            }.ShowDialog ();
         }
 
+
+
+
+
+
+        public async Task ImportExcelToSQLiteAsync(string excelFilePath)
+        {
+            using var workbook = new XLWorkbook (excelFilePath);
+            var worksheet = workbook.Worksheets.First ();
+
+            using var db = new AppDbContext ();
+
+            var artikliList = worksheet.RowsUsed ()
+                .Skip (1)
+                .Select ((row, index) =>
+                {
+                    int rb = index + 1;
+
+                    string artikl = row.Cell (1).GetValue<string> ();
+                    decimal normativ = row.Cell (4).GetValue<decimal> ();
+
+                    return new TblArtikli
+                    {
+                        Sifra = rb.ToString (),
+                        InternaSifra = rb.ToString (),
+                        Artikl = artikl,
+                        JedinicaMjere = MapJedinicaMjere (row.Cell (5).GetValue<string> ()),
+                        Cijena = row.Cell (3).GetValue<decimal> (),
+                        Normativ = normativ,
+                        VrstaArtikla = MapVrstaArtikla (row.Cell (2).GetValue<string> ()),
+
+                        PoreskaStopa = Settings.Default.PDV == "DA" ? 2 : 0,
+                        Slika = "placeholder.png",
+                        Kategorija = null,
+                        Pozicija = rb,
+                        ArtiklNormativ = normativ != 1 ? $"{artikl} {normativ}" : artikl,
+                        PrikazatiNaDispleju = "DA"
+                    };
+                })
+                .ToList ();
+
+            await db.Artikli.AddRangeAsync (artikliList);
+            await db.SaveChangesAsync ();
+
+            new MyMessageBox
+            {
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                MessageTitle = { Text = "UVOZ EXCEL" },
+                MessageText = { Text = "Uvoz artikala iz Excel fajla je završen!" }
+            }.ShowDialog ();
+        }
+
+
+        private static int? MapVrstaArtikla(string? value)
+        {
+            if(string.IsNullOrWhiteSpace (value))
+                return null;
+
+            return value.Trim ().ToLower () switch
+            {
+                "Piće" => 0,
+                "Hrana" => 1,
+                "Ostalo" => 2,
+                _ => null
+            };
+        }
+
+        private static int? MapJedinicaMjere(string? value)
+        {
+            if(string.IsNullOrWhiteSpace (value))
+                return null;
+
+            return value.Trim ().ToLower () switch
+            {
+                "kom" => 1,
+                "kg" => 2,
+                "m" => 3,
+                "m2" => 4,
+                "m3" => 5,
+                "lit" => 6,
+                "tona" => 7,
+                "g" => 8,
+                "por" => 9,
+                "pak" => 10,
+                _ => null
+            };
+        }
         private void BtnFirst_Click(object sender, RoutedEventArgs e)
         {
             if(DataContext is ArticlesViewModel viewModel)

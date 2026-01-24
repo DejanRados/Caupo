@@ -1185,6 +1185,10 @@
                                     <Setter Property="Background" Value="#FFCCCCCC" />
                                     <Setter Property="Foreground" Value="DarkRed" />
                                 </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    
+                                    <Setter Property="Foreground" Value="Gray" />
+                                </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Setter.Value>
@@ -1228,6 +1232,10 @@
                                 <Trigger Property="IsPressed" Value="True">
                                     <Setter Property="Background" Value="#FFCCCCCC" />
                                     <Setter Property="Foreground" Value="DarkRed" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+
+                                    <Setter Property="Foreground" Value="Gray" />
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
