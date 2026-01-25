@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -75,6 +76,43 @@ namespace Caupo.ViewModels
         #endregion
 
 
+       
+        public enum Drzava
+        {
+            FederacijaBiH,
+            RepublikaSrpska,
+            Hrvatska,
+            Srbija
+        }
+
+   
+            private Drzava _odabranaDrzava;
+            public Drzava OdabranaDrzava
+            {
+                get => _odabranaDrzava;
+                set
+                {
+                    if(_odabranaDrzava != value)
+                    {
+                        _odabranaDrzava = value;
+
+                    Properties.Settings.Default.Country = value.ToString ();
+                    Properties.Settings.Default.Save ();
+                    OnPropertyChanged (nameof (OdabranaDrzava));
+
+                    OnPropertyChanged (nameof (ShowFBIH));
+                    OnPropertyChanged (nameof (ShowRS));
+                    OnPropertyChanged (nameof (ShowHR));
+                    OnPropertyChanged (nameof (ShowSR));
+                }
+                }
+            }
+
+            public IEnumerable<Drzava> Drzave =>
+                Enum.GetValues (typeof (Drzava)).Cast<Drzava> ();
+
+        
+       
 
 
         // Firma
@@ -328,6 +366,10 @@ namespace Caupo.ViewModels
             }
         }
 
+        public bool ShowFBIH => OdabranaDrzava == Drzava.FederacijaBiH;
+        public bool ShowRS => OdabranaDrzava == Drzava.RepublikaSrpska;
+        public bool ShowHR => OdabranaDrzava == Drzava.Hrvatska;
+        public bool ShowSR => OdabranaDrzava == Drzava.Srbija;
 
         //public ICommand AddCommand { get; }
         public ICommand UpdateCommand { get; }
@@ -337,6 +379,9 @@ namespace Caupo.ViewModels
             Radnici = new ObservableCollection<TblRadnici> ();
             DeleteCommand = new AsyncRelayCommand (async () => await DeleteRadnik (SelectedRadnik));
             UpdateCommand = new AsyncRelayCommand (async () => await OpenUpdateRadnik (SelectedRadnik));
+
+           
+
             Start ();
 
             var all = GetAllMonitors ();
@@ -347,6 +392,15 @@ namespace Caupo.ViewModels
                 SelectedMonitor = Monitors[0];
 
             LoadSettingsFromProperties ();
+
+            var savedCountry = Properties.Settings.Default.Country;
+
+            // Provjeri null prije parsiranja
+            if(!string.IsNullOrWhiteSpace (savedCountry) && Enum.TryParse<Drzava> (savedCountry, out var drzava))
+                _odabranaDrzava = drzava;
+            else
+                _odabranaDrzava = Drzava.FederacijaBiH; // fallback
+
         }
         public bool isUpdate = false;
 

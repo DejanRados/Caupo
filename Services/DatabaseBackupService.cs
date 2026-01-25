@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
+using System.Diagnostics;
 using System.IO;
 
 namespace Caupo.Services
@@ -27,15 +28,21 @@ namespace Caupo.Services
         {
             try
             {
-                string backupFile = Path.Combine (_backupPath,
-                  //   $"sysFormWPF_{DateTime.Now:yyyyMMdd_HHmmss}.dll");
-                  $"sysFormWPF.dll");
-                System.Diagnostics.Debug.WriteLine ($"✅ Backup source: {Globals.CurrentDbPath}");
+                string backupFile = Path.Combine (_backupPath, "sysFormWPF.dll");
+
+                // Ako fajl postoji, obriši ga da bi VACUUM INTO mogao da piše
+                if(File.Exists (backupFile))
+                {
+                    File.Delete (backupFile);
+                    Debug.WriteLine ($"♻️ Stari backup obrisan: {backupFile}");
+                }
+
+                Debug.WriteLine ($"✅ Backup source: {Globals.CurrentDbPath}");
+
                 using(var source = new SqliteConnection ($"Data Source={Globals.CurrentDbPath}"))
                 {
                     source.Open ();
 
-                    // Ovo je najbolji način!
                     using(var command = source.CreateCommand ())
                     {
                         command.CommandText = $"VACUUM INTO '{backupFile}';";
@@ -43,13 +50,14 @@ namespace Caupo.Services
                     }
                 }
 
-                System.Diagnostics.Debug.WriteLine ($"✅ Backup: {backupFile}");
+                Debug.WriteLine ($"✅ Backup uspešno napravljen: {backupFile}");
             }
             catch(Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine ($"❌ Backup failed: {ex.Message}");
+                Debug.WriteLine ($"❌ Backup failed: {ex.Message}");
             }
         }
+
 
 
         public void Dispose()

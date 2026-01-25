@@ -253,6 +253,12 @@
 </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Tring.Fiscal.Driver">
+      <HintPath>C:\Users\Dejan\Downloads\26-Tring.Fiscal.Server-CryptoFU\26-Tring.Fiscal.Server-CryptoFU\v3.5.169\Tring.Fiscal.Driver.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="Assets\Fonts\codicon.ttf" />
     <Resource Include="Assets\Fonts\password.ttf">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>

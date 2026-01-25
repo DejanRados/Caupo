@@ -5,13 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
        xmlns:syncfusionskin ="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
         xmlns:viewmodels="clr-namespace:Caupo.ViewModels"
-        
         mc:Ignorable="d"
         xmlns:local="clr-namespace:Caupo.ViewModels"
-    
-       xmlns:svg="http://sharpvectors.codeplex.com/svgc/"
-        >
-  
+              xmlns:loc="clr-namespace:Caupo.Helpers"
+       xmlns:svg="http://sharpvectors.codeplex.com/svgc/"  >
+
 
     <Grid  x:Name="MainContent">
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="55" Background="#323232" >
@@ -40,6 +38,43 @@
                     <Setter Property="HorizontalAlignment" Value="Center"/>
                 </Style>
             </TabControl.Resources>
+            <TabItem x:Name="CountryTab" Background="Transparent"  VerticalContentAlignment="Center" Width="190" BorderThickness="0" HorizontalContentAlignment="Center">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal" >
+                        <TextBlock FontFamily="Segoe MDL2 Assets" Margin="6" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#xE774;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <TextBlock Text="Region" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </StackPanel>
+                </TabItem.Header>
+              
+                <Grid HorizontalAlignment="Center" Width="500"  >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.2*"/>
+                        <ColumnDefinition Width="0.5*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+
+                    </Grid.RowDefinitions>
+                    <Label Foreground="{DynamicResource GlobalFontColor}" Content="Izaberi region" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" FontSize="16"/>
+
+
+                    <ComboBox    
+                        ItemsSource="{Binding Drzave}"
+                        SelectedItem="{Binding OdabranaDrzava}"
+                        Foreground="{DynamicResource GlobalFontColor}"
+                        x:Name="cmbRegion"
+                        Grid.Row="3"
+                        Grid.Column="1"
+                        Margin="9"
+                        Height="auto"
+                        Width="200"
+                        FontSize="16"
+                        HorizontalAlignment="Left"/>
+
+
+                </Grid>
+            </TabItem>
+
             <TabItem x:Name="FirmaTab" Background="Transparent"  VerticalContentAlignment="Center" HorizontalAlignment="Center" Width="190" BorderThickness="0"  >
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -84,7 +119,48 @@
                     </ComboBox>
                 </Grid>
             </TabItem>
-            <TabItem x:Name="FiskalizacijaTab" Background="Transparent"  VerticalContentAlignment="Center" Width="190" BorderThickness="0" >
+
+            <TabItem x:Name="FiskalizacijaFBiHTab" Background="Transparent"  VerticalContentAlignment="Center" Width="190" BorderThickness="0"  Visibility="{Binding ShowFBIH, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <svg:SvgViewbox   Width="30" Height="28" Source="{Binding DataContext.ImagePathFiskalizacijaButton, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}"  Stretch="Uniform" Margin="10,0,10,0"/>
+                        <TextBlock Text="Fiskalizacija" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </StackPanel>
+                </TabItem.Header>
+           
+
+                <Grid HorizontalAlignment="Center" Width="800"  >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.2*"/>
+                        <ColumnDefinition Width="0.5*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Label Foreground="{DynamicResource GlobalFontColor}" Content="IP adresa servera" Grid.Row="0" Grid.Column="0"/>
+                    <Label Foreground="{DynamicResource GlobalFontColor}" Content="LPFR API ključ" Grid.Row="1" Grid.Column="0"/>
+                    <Label Foreground="{DynamicResource GlobalFontColor}" Content="LPFR PIN" Grid.Row="2" Grid.Column="0"/>
+                    <Label Foreground="{DynamicResource GlobalFontColor}" Content="LPFR eksterni printer" Grid.Row="3" Grid.Column="0"/>
+                    <Label Foreground="{DynamicResource GlobalFontColor}" Content="Širina trake " Grid.Row="4" Grid.Column="0"/>
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtIpAddressTring" Grid.Row="0" Grid.Column="1" Margin="9" Height="30"  BorderThickness="0,0,0,1"  />
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtTring1" Grid.Row="1" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtLTring2" Grid.Row="2" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
+                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbTring1" Grid.Row="3" Grid.Column="1" Margin="9" Height="auto" Width="150" HorizontalAlignment="Left"  >
+                        <ComboBoxItem Content="NE" />
+                        <ComboBoxItem Content="DA" />
+                    </ComboBox>
+                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbTring2" Grid.Row="4" Grid.Column="1" Margin="9" Height="auto" Width="150" HorizontalAlignment="Left"  >
+                        <ComboBoxItem Content="57" />
+                        <ComboBoxItem Content="80" />
+                    </ComboBox>
+                </Grid>
+            </TabItem>
+
+            <TabItem x:Name="FiskalizacijaRSTab" Background="Transparent"  VerticalContentAlignment="Center" Width="190" BorderThickness="0"  Visibility="{Binding ShowRS, Converter={StaticResource BooleanToVisibilityConverter}}" >
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <svg:SvgViewbox   Width="30" Height="28" Source="{Binding DataContext.ImagePathFiskalizacijaButton, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}"  Stretch="Uniform" Margin="10,0,10,0"/>
@@ -121,6 +197,83 @@
                     </ComboBox>
                 </Grid>
             </TabItem>
+
+            <TabItem x:Name="FiskalizacijaHrTab" Background="Transparent"  VerticalContentAlignment="Center" Width="190" BorderThickness="0"  Visibility="{Binding ShowHR, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <svg:SvgViewbox   Width="30" Height="28" Source="{Binding DataContext.ImagePathFiskalizacijaButton, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}"  Stretch="Uniform" Margin="10,0,10,0"/>
+                        <TextBlock Text="Fiskalizacija" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid HorizontalAlignment="Center" Width="800"  >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.2*"/>
+                        <ColumnDefinition Width="0.5*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Label Foreground="{DynamicResource GlobalFontColor}" Content="Demo URL" Grid.Row="0" Grid.Column="0"/>
+                    <Label Foreground="{DynamicResource GlobalFontColor}" Content="Production URL" Grid.Row="1" Grid.Column="0"/>
+                    <Label Foreground="{DynamicResource GlobalFontColor}" Content="Certifikat lozinka" Grid.Row="2" Grid.Column="0"/>
+                    <Label Foreground="{DynamicResource GlobalFontColor}" Content="Poslovni prostor" Grid.Row="3" Grid.Column="0"/>
+                    <Label Foreground="{DynamicResource GlobalFontColor}" Content="Slijednost " Grid.Row="4" Grid.Column="0"/>
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtDemoUrl" Grid.Row="0" Grid.Column="1" Margin="9" Height="30"  BorderThickness="0,0,0,1"  />
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtProdUrl" Grid.Row="1" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtCertPassword" Grid.Row="2" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
+                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbPosProstor" Grid.Row="3" Grid.Column="1" Margin="9" Height="auto" Width="150" HorizontalAlignment="Left"  >
+                        <ComboBoxItem Content="NE" />
+                        <ComboBoxItem Content="DA" />
+                    </ComboBox>
+                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbSlijednost" Grid.Row="4" Grid.Column="1" Margin="9" Height="auto" Width="150" HorizontalAlignment="Left"  >
+                        <ComboBoxItem Content="57" />
+                        <ComboBoxItem Content="80" />
+                    </ComboBox>
+                </Grid>
+            </TabItem>
+
+            <TabItem x:Name="FiskalizacijaSrTab" Background="Transparent"  VerticalContentAlignment="Center" Width="190" BorderThickness="0"  Visibility="{Binding ShowSR, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <svg:SvgViewbox   Width="30" Height="28" Source="{Binding DataContext.ImagePathFiskalizacijaButton, RelativeSource={RelativeSource AncestorType={x:Type TabControl}}}"  Stretch="Uniform" Margin="10,0,10,0"/>
+                        <TextBlock Text="Fiskalizacija" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid HorizontalAlignment="Center" Width="800"  >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.2*"/>
+                        <ColumnDefinition Width="0.5*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Label Foreground="{DynamicResource GlobalFontColor}" Content="Srbija" Grid.Row="0" Grid.Column="0"/>
+                    <Label Foreground="{DynamicResource GlobalFontColor}" Content="Srbija" Grid.Row="1" Grid.Column="0"/>
+                    <Label Foreground="{DynamicResource GlobalFontColor}" Content="Srbija" Grid.Row="2" Grid.Column="0"/>
+                    <Label Foreground="{DynamicResource GlobalFontColor}" Content="Srbija" Grid.Row="3" Grid.Column="0"/>
+                    <Label Foreground="{DynamicResource GlobalFontColor}" Content="Srbija" Grid.Row="4" Grid.Column="0"/>
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtSrbija1" Grid.Row="0" Grid.Column="1" Margin="9" Height="30"  BorderThickness="0,0,0,1"  />
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtSrbija2" Grid.Row="1" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
+                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtLSrbija3" Grid.Row="2" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
+                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbSrbija1" Grid.Row="3" Grid.Column="1" Margin="9" Height="auto" Width="150" HorizontalAlignment="Left"  >
+                        <ComboBoxItem Content="NE" />
+                        <ComboBoxItem Content="DA" />
+                    </ComboBox>
+                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbSrbija2" Grid.Row="4" Grid.Column="1" Margin="9" Height="auto" Width="150" HorizontalAlignment="Left"  >
+                        <ComboBoxItem Content="57" />
+                        <ComboBoxItem Content="80" />
+                    </ComboBox>
+                </Grid>
+            </TabItem>
+            
             <TabItem x:Name="AplikacijaTab"   Background="Transparent"  VerticalContentAlignment="Center" Width="190" BorderThickness="0" >
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
@@ -260,6 +413,7 @@
                   
                 </Grid>
             </TabItem>
+         
             <TabItem x:Name="RadniciTab"   Background="Transparent" VerticalContentAlignment="Center" Width="190" BorderThickness="0">
 
                 <TabItem.Header>

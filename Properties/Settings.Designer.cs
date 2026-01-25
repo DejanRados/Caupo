@@ -430,5 +430,17 @@ namespace Caupo.Properties {
                 this["ServerMod"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Country {
+            get {
+                return ((string)(this["Country"]));
+            }
+            set {
+                this["Country"] = value;
+            }
+        }
     }
 }

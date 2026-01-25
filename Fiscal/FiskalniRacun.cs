@@ -8,12 +8,15 @@ using Newtonsoft.Json.Linq;
 using QRCoder;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.Net.Http;
 using System.Text;
 using System.Windows;
+using Tring.Fiscal.Driver;
 using static Caupo.Data.DatabaseTables;
 
 
@@ -129,6 +132,30 @@ namespace Caupo.Fiscal
             [JsonIgnore]
             //[JsonProperty("JedinicaMjere", NullValueHandling = NullValueHandling.Ignore)]
             public int? JedinicaMjere { get; set; }
+            [NotMapped]
+            [JsonIgnore]
+            public string? JedinicaMjereName
+            {
+                get
+                {
+                    return JedinicaMjere switch
+                    {
+                        1 => "kom",
+                        2 => "kg",
+                        3 => "m",
+                        4 => "m2",
+                        5 => "m3",
+                        6 => "lit",
+                        7 => "tona",
+                        8 => "g",
+                        9 => "por",
+                        10 => "pak",
+                        _ => ""
+                    };
+                }
+            }
+
+
             [JsonIgnore]
             // [JsonProperty("Naziv", NullValueHandling = NullValueHandling.Ignore)]
             public string? Naziv { get; set; }
@@ -368,6 +395,30 @@ namespace Caupo.Fiscal
             }
         }
 
+        private TblRacuni KreirajRacun(
+                int nacinPlacanjaIndex,
+                decimal? totalSum,
+                TblKupci? selectedKupac)
+                    {
+                        var racun = new TblRacuni
+                        {
+                            Datum = DateTime.Now,
+                            NacinPlacanja = nacinPlacanjaIndex,
+                            Radnik = Globals.ulogovaniKorisnik.IdRadnika.ToString (),
+                            Iznos = totalSum,
+                            Kupac = "Gradjani"
+                        };
+
+                        if(nacinPlacanjaIndex != -1 && selectedKupac != null)
+                        {
+                            racun.Kupac = selectedKupac.Kupac;
+                            racun.KupacId = selectedKupac.JIB;
+                        }
+
+                        return racun;
+        }
+
+
 
         public async Task<bool> IzdajFiskalniRacun(string invoiceType, string transactionType, string ReferentDocumentNumber, string referentDocumentDT,
             ObservableCollection<Item> StavkeRacuna,
@@ -387,20 +438,7 @@ namespace Caupo.Fiscal
 
             Debug.WriteLine ("----------------------- BROJ RACUNA: " + brojracuna + " ------------------------------------------------------------ ");
 
-            var Racun = new TblRacuni
-            {
-                Datum = DateTime.Now,
-                NacinPlacanja = SelectedNacinPlacanjaIndex,
-                Radnik = Globals.ulogovaniKorisnik.IdRadnika.ToString (),
-                Iznos = TotalSum,
-                Kupac = "Gradjani" // default vrijednost
-            };
-
-            if(SelectedNacinPlacanjaIndex != -1 && selectedKupac != null)
-            {
-                Racun.Kupac = selectedKupac.Kupac;
-                Racun.KupacId = selectedKupac.JIB;
-            }
+            var Racun = KreirajRacun( SelectedNacinPlacanjaIndex,  TotalSum,  selectedKupac);
 
             // Mapiranje vrste plaćanja
             string paymenttype = SelectedNacinPlacanjaIndex switch
@@ -606,50 +644,9 @@ namespace Caupo.Fiscal
                         else
                         {
 
+                            await SacuvajRacunAsync (Racun, StavkeRacuna, brojfiskalnog);
+                            await PrintajBlokoveAsync (StavkeRacuna);
 
-                            using var db = new AppDbContext ();
-                            using var transaction = await db.Database.BeginTransactionAsync ();
-                            //Ubacujem račun u TblRacuni
-                            Racun.BrojFiskalnogRacuna = brojfiskalnog;
-                            await db.Racuni.AddAsync (Racun);
-                            await db.SaveChangesAsync ();
-
-                            //Ubacujem stavke racuna u TblRacunStavke
-                            foreach(var s in StavkeRacuna)
-                            {
-                                var stavka = new TblRacunStavka
-                                {
-                                    Artikl = s.Name,
-                                    Sifra = s.Sifra,
-                                    Kolicina = s.Quantity ?? 0m,
-                                    Cijena = s.UnitPrice,
-                                    VrstaArtikla = s.Proizvod,
-                                    JedinicaMjere = s.JedinicaMjere,
-                                    ArtiklNormativ = s.Naziv,
-                                    PoreskaStopa = PoreskaStopa (s.Labels[0]),
-                                    BrojRacuna = Racun.BrojRacuna
-                                };
-
-                                await db.RacunStavka.AddAsync (stavka);
-                            }
-                            await db.SaveChangesAsync ();
-                            await transaction.CommitAsync ();
-
-                            //Provjera za printanje blokova
-                            var SankStavke = StavkeRacuna.Where (item => item.Proizvod == 0 && item.Printed != "DA").ToList ();
-                            var KuhinjaStavke = StavkeRacuna.Where (item => item.Proizvod == 1 && item.Printed != "DA").ToList ();
-
-                            if(KuhinjaStavke.Any ())
-                            {
-                                var printer = new BlokPrinter (KuhinjaStavke, "Kuhinja", "Kasa", "Kasa");
-                                await printer.Print ();
-                            }
-
-                            if(SankStavke.Any ())
-                            {
-                                var printer = new BlokPrinter (SankStavke, "Sank", "Kasa", "Kasa");
-                                await printer.Print ();
-                            }
                         }
                     }
                 }
@@ -682,12 +679,242 @@ namespace Caupo.Fiscal
                 return false;
             }
 
-
-
-
-            return true;
         }
 
+        private async Task SacuvajRacunAsync(
+    TblRacuni racun,
+    IEnumerable<FiskalniRacun.Item> stavkeRacuna,
+    string brojFiskalnog)
+        {
+            using var db = new AppDbContext ();
+            using var transaction = await db.Database.BeginTransactionAsync ();
+
+            try
+            {
+                // --- Racun ---
+                racun.BrojFiskalnogRacuna = brojFiskalnog;
+                await db.Racuni.AddAsync (racun);
+                await db.SaveChangesAsync ();
+
+                // --- Stavke ---
+                foreach(var s in stavkeRacuna)
+                {
+                    var stavka = new TblRacunStavka
+                    {
+                        Artikl = s.Name,
+                        Sifra = s.Sifra,
+                        Kolicina = s.Quantity ?? 0m,
+                        Cijena = s.UnitPrice,
+                        VrstaArtikla = s.Proizvod,
+                        JedinicaMjere = s.JedinicaMjere,
+                        ArtiklNormativ = s.Naziv,
+                        PoreskaStopa = PoreskaStopa (s.Labels[0]),
+                        BrojRacuna = racun.BrojRacuna
+                    };
+
+                    await db.RacunStavka.AddAsync (stavka);
+                }
+
+                await db.SaveChangesAsync ();
+                await transaction.CommitAsync ();
+            }
+            catch
+            {
+                await transaction.RollbackAsync ();
+                throw;
+            }
+        }
+
+        private async Task PrintajBlokoveAsync(IEnumerable<FiskalniRacun.Item> stavke)
+        {
+            var sankStavke = stavke
+                .Where (s => s.Proizvod == 0 && s.Printed != "DA")
+                .ToList ();
+
+            var kuhinjaStavke = stavke
+                .Where (s => s.Proizvod == 1 && s.Printed != "DA")
+                .ToList ();
+
+            if(kuhinjaStavke.Any ())
+            {
+                var printer = new BlokPrinter (kuhinjaStavke, "Kuhinja", "Kasa", "Kasa");
+                await printer.Print ();
+            }
+
+            if(sankStavke.Any ())
+            {
+                var printer = new BlokPrinter (sankStavke, "Sank", "Kasa", "Kasa");
+                await printer.Print ();
+            }
+        }
+
+
+        public async Task<bool> IzdajFiskalniRacunTring(
+                        int SelectedNacinPlacanjaIndex,
+                        string radnik,
+                        ObservableCollection<FiskalniRacun.Item> StavkeRacuna,
+                        TblKupci? selectedKupac,
+                        int brojRacuna
+                        )
+        {
+            try
+            {
+                decimal? TotalSum = StavkeRacuna?.Sum (item => item.TotalAmount ?? 0);
+                var Racun = KreirajRacun (SelectedNacinPlacanjaIndex, TotalSum, selectedKupac);
+
+                // 1. Inicijalizacija printera
+                TringFiskalniPrinter printer = new TringFiskalniPrinter ();
+
+              printer.Inicijalizacija ("127.0.0.1", 8085, 0, "0");
+
+                KasaOdgovor odgovor = new KasaOdgovor ();
+                // 2. Napravi novi racun
+                //TringModels.Racun racun = new TringModels.Racun ();
+                Racun _racun = new Racun ();
+                // 3. Dodaj kupca
+                if(selectedKupac != null && selectedKupac.Kupac != "Gradjani")
+                {
+                    Kupac kupac = new Kupac
+                    {
+                        IDbroj = selectedKupac.JIB ?? "",
+                        Naziv = selectedKupac.Kupac ?? "",
+                        Adresa = selectedKupac.Adresa ?? "",
+                        Grad = selectedKupac.Mjesto ?? ""
+                    };
+                    _racun.Kupac = kupac;
+                }
+
+                // 4. Dodaj stavke
+                try
+                {
+                    foreach(var stavkaracuna in StavkeRacuna)
+                    {
+                        RacunStavka _stavka = new RacunStavka ();
+                        Artikal art = new Artikal ();
+                        art.Sifra = stavkaracuna.Sifra;
+                        art.Naziv = stavkaracuna.Name;
+                        art.JM = stavkaracuna.JedinicaMjereName;
+                        switch(stavkaracuna.Labels[0])
+                        {
+                            case "1":
+                                art.Stopa = VrstePoreskihStopa.A_Nulta_stopa_za_neregistrirane_obveznike;
+                                break;
+
+                            case "2":
+                                art.Stopa = VrstePoreskihStopa.E_Opca_poreska_stopa_PDV;
+                                break;
+
+                            case "3":
+                                art.Stopa = VrstePoreskihStopa.J_Nedefinirana;
+                                break;
+                            case "4":
+                                art.Stopa = VrstePoreskihStopa.K_Poreska_stopa_PDV_za_artikle_oslobodjene_PDV;
+                                break;
+                            default:
+                                break;
+                        }
+
+                        art.Cijena = Convert.ToDouble (stavkaracuna.UnitPrice);
+
+                        _stavka.artikal = art;
+                        _stavka.Kolicina = Convert.ToDouble (stavkaracuna.Quantity);
+                        _stavka.Rabat = 0;
+
+                        switch(SelectedNacinPlacanjaIndex)
+                        {
+                            case 0:
+
+                                _racun.DodajVrstuPlacanja (VrstePlacanja.Gotovina, 0);
+
+                                break;
+
+                            case 1:
+
+                                _racun.DodajVrstuPlacanja (VrstePlacanja.Kartica, 0);
+
+                                break;
+
+                            case 2:
+
+                                _racun.DodajVrstuPlacanja (VrstePlacanja.Cek, 0);
+
+                                break;
+
+                            case 3:
+
+                                _racun.DodajVrstuPlacanja (VrstePlacanja.Virman, 0);
+
+                                break;
+
+                            default:
+
+                                break;
+                        }
+
+                        _racun.DodajStavkuRacuna (_stavka);
+                    }
+                   
+                    _racun.Napomena = radnik + Environment.NewLine + "Int. broj računa: " + brojRacuna + Environment.NewLine + "Hvala na posjeti!";
+
+                    odgovor = printer.StampatiFiskalniRacun (_racun);
+
+                    if(odgovor.VrstaOdgovora == VrsteOdgovora.Greska)
+                    {
+                        // 1. Kreiramo string sa svim porukama greške
+                        string greske = string.Join (Environment.NewLine,
+                            odgovor.Odgovori.Select (o => $"{o.Naziv}: {o.Vrijednost}"));
+
+                        // 2. Logujemo greške u debug
+                        Debug.WriteLine ("Fiskalni printer vratio GREŠKU:");
+                        foreach(var o in odgovor.Odgovori)
+                        {
+                            Debug.WriteLine ($"{o.Naziv}: {o.Vrijednost}");
+                        }
+
+                       
+
+                        return false;
+                    }
+                    else
+                    {
+                        Debug.WriteLine ("Fiskalni printer vratio OK:");
+
+                        // Ispis svih odgovora u Debug i Console
+                        foreach(var o in odgovor.Odgovori)
+                        {
+                            string linija = $"{o.Naziv}: {o.Vrijednost}";
+                            Console.WriteLine (linija);
+                            Debug.WriteLine (linija);
+                        }
+
+                        // Pronalaženje broja fiskalnog računa
+                        var brojFiskalnog = odgovor.Odgovori
+                            .FirstOrDefault (o => o.Naziv == "BrojFiskalnogRacuna")?
+                            .Vrijednost?.ToString ();
+
+                        if(!string.IsNullOrEmpty (brojFiskalnog))
+                        {
+                            Debug.WriteLine ($"Broj fiskalnog računa: {brojFiskalnog}");
+                            await SacuvajRacunAsync (Racun, StavkeRacuna, brojFiskalnog);
+                            await PrintajBlokoveAsync (StavkeRacuna);
+                        }
+                    }
+                    return true;
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show (ex.Message);
+                    return false;
+                }
+
+            }
+            catch(Exception ex)
+            {
+
+                Debug.WriteLine ($"Stavke rašuna : {ex.Message}");
+                return false;
+            }
+        }
         int? PoreskaStopa(string taxLabel)
         {
 

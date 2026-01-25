@@ -4,6 +4,8 @@ using Caupo.Fiscal;
 using Caupo.Helpers;
 using Caupo.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.ObjectModel;
+using System.Configuration;
 using System.Diagnostics;
 using System.Globalization;
 using System.Windows;
@@ -12,7 +14,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
+using Tring.Fiscal.Driver;
 using static Caupo.Data.DatabaseTables;
+
 
 namespace Caupo.Views
 {
@@ -200,11 +204,25 @@ namespace Caupo.Views
                 try
                 {
                     FiskalniRacun fiskalniRacun = new FiskalniRacun ();
-                    bool uspjeh = await fiskalniRacun.IzdajFiskalniRacun ("Training", "Sale", null, null,
+                    /*bool uspjeh = await fiskalniRacun.IzdajFiskalniRacun ("Training", "Sale", null, null,
                         viewModel.StavkeRacuna,
                         viewModel.SelectedKupac,
                         cmbNacinPlacanja.SelectedIndex,
-                        viewModel.TotalSum);
+                        viewModel.TotalSum);*/
+                    int brojracuna;
+                    using(var db = new AppDbContext ())
+                    {
+                        brojracuna = await db.Racuni
+                            .MaxAsync (r => (int?)r.BrojRacuna) ?? 0;  // Ako je tabela prazna, vrati 0
+                    }
+
+                    bool uspjeh = await fiskalniRacun.IzdajFiskalniRacunTring (
+                        cmbNacinPlacanja.SelectedIndex,
+                        Globals.ulogovaniKorisnik.Radnik,
+                        viewModel.StavkeRacuna, 
+                        viewModel.SelectedKupac,
+                        brojracuna
+                      );
 
                     if(uspjeh)
                     {
@@ -247,6 +265,10 @@ namespace Caupo.Views
                 }
             }
         }
+
+
+
+      
 
         private void ShowMessage(string title, string message)
         {

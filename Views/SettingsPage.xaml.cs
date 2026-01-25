@@ -533,7 +533,7 @@ namespace Caupo.Views
             {
                 txtLPFRIP.BorderBrush = Brushes.Red;
                 //    txtLPFRIP.Watermark = "IP adresa LPFR-a je obavezan podatak";
-                FiskalizacijaTab.IsSelected = true;
+                FiskalizacijaRSTab.IsSelected = true;
                 await txtLPFRIP.Dispatcher.BeginInvoke (new Action (() => txtLPFRIP.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
             }
@@ -546,7 +546,7 @@ namespace Caupo.Views
             {
                 txtLPFRAPI.BorderBrush = Brushes.Red;
                 //  txtLPFRAPI.Watermark = "API ključ LPFR-a je obavezan podatak";
-                FiskalizacijaTab.IsSelected = true;
+                FiskalizacijaRSTab.IsSelected = true;
                 await txtLPFRAPI.Dispatcher.BeginInvoke (new Action (() => txtLPFRAPI.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
             }
@@ -559,7 +559,7 @@ namespace Caupo.Views
             {
                 txtLPFRPIN.BorderBrush = Brushes.Red;
                 //   txtLPFRPIN.Watermark = "PIN LPFR-a je obavezan podatak";
-                FiskalizacijaTab.IsSelected = true;
+                FiskalizacijaRSTab.IsSelected = true;
                 await txtLPFRPIN.Dispatcher.BeginInvoke (new Action (() => txtLPFRPIN.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
             }
@@ -571,7 +571,7 @@ namespace Caupo.Views
             if(cmbExterniPrinter.SelectedItem == null)
             {
                 MessageBox.Show ("Podatak da li se koristi eksterni printer je obavezan.\nIzaberite opciju.", "UPOZORENJE", MessageBoxButton.OK, MessageBoxImage.Error);
-                FiskalizacijaTab.IsSelected = true;
+                FiskalizacijaRSTab.IsSelected = true;
                 await cmbExterniPrinter.Dispatcher.BeginInvoke (new Action (() => cmbExterniPrinter.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
             }
@@ -579,7 +579,7 @@ namespace Caupo.Views
             if(cmbSirinaTrake.SelectedItem == null)
             {
                 MessageBox.Show ("Podatak o širini trake printera je obavezan.\nIzaberite opciju.", "UPOZORENJE", MessageBoxButton.OK, MessageBoxImage.Error);
-                FiskalizacijaTab.IsSelected = true;
+                FiskalizacijaRSTab.IsSelected = true;
                 await cmbSirinaTrake.Dispatcher.BeginInvoke (new Action (() => cmbSirinaTrake.Focus ()), System.Windows.Threading.DispatcherPriority.Background);
                 return false;
             }
