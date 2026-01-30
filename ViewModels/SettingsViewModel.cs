@@ -292,52 +292,7 @@ namespace Caupo.ViewModels
         }
 
         public int SelectedMonitorIndex { get; private set; } = -1;
-        private Brush? _fontColor;
-        public Brush? FontColor
-        {
-            get { return _fontColor; }
-            set
-            {
-                if(_fontColor != value)
-                {
-                    _fontColor = value;
-                    OnPropertyChanged (nameof (FontColor));
-                }
-            }
-        }
-
-        private string? _imagePathFiskalizacijaButton;
-        public string? ImagePathFiskalizacijaButton
-        {
-            get { return _imagePathFiskalizacijaButton; }
-            set
-            {
-                _imagePathFiskalizacijaButton = value;
-                OnPropertyChanged (nameof (ImagePathFiskalizacijaButton));
-            }
-        }
-
-        private string? _imagePathLogoButton;
-        public string? ImagePathLogoButton
-        {
-            get { return _imagePathLogoButton; }
-            set
-            {
-                _imagePathLogoButton = value;
-                OnPropertyChanged (nameof (ImagePathLogoButton));
-            }
-        }
-
-        private string? _imagePathPrinterButton;
-        public string? ImagePathPrinterButton
-        {
-            get { return _imagePathPrinterButton; }
-            set
-            {
-                _imagePathPrinterButton = value;
-                OnPropertyChanged (nameof (ImagePathPrinterButton));
-            }
-        }
+     
 
         private ObservableCollection<TblRadnici>? _radnici;
 
@@ -366,10 +321,6 @@ namespace Caupo.ViewModels
             }
         }
 
-        public bool ShowFBIH => OdabranaDrzava == Drzava.FederacijaBiH;
-        public bool ShowRS => OdabranaDrzava == Drzava.RepublikaSrpska;
-        public bool ShowHR => OdabranaDrzava == Drzava.Hrvatska;
-        public bool ShowSR => OdabranaDrzava == Drzava.Srbija;
 
         //public ICommand AddCommand { get; }
         public ICommand UpdateCommand { get; }
@@ -380,7 +331,7 @@ namespace Caupo.ViewModels
             DeleteCommand = new AsyncRelayCommand (async () => await DeleteRadnik (SelectedRadnik));
             UpdateCommand = new AsyncRelayCommand (async () => await OpenUpdateRadnik (SelectedRadnik));
 
-           
+
 
             Start ();
 
@@ -397,39 +348,27 @@ namespace Caupo.ViewModels
 
             // Provjeri null prije parsiranja
             if(!string.IsNullOrWhiteSpace (savedCountry) && Enum.TryParse<Drzava> (savedCountry, out var drzava))
-                _odabranaDrzava = drzava;
+            { _odabranaDrzava = drzava; }
             else
-                _odabranaDrzava = Drzava.FederacijaBiH; // fallback
+            { _odabranaDrzava = Drzava.FederacijaBiH; }// fallback
+           
 
         }
+
+        public bool ShowFBIH => OdabranaDrzava == Drzava.FederacijaBiH;
+        public bool ShowRS => OdabranaDrzava == Drzava.RepublikaSrpska;
+        public bool ShowHR => OdabranaDrzava == Drzava.Hrvatska;
+        public bool ShowSR => OdabranaDrzava == Drzava.Srbija;
+
         public bool isUpdate = false;
 
         public async void Start()
         {
 
             await LoadRadniciAsync ();
-            await SetImage ();
+           
         }
-        public async Task SetImage()
-        {
-            await Task.Delay (1);
-            string tema = Settings.Default.Tema;
-            Debug.WriteLine ("Aktivna tema koju vidi viewmodel je : " + tema);
-            if(tema == "Tamna")
-            {
-                ImagePathPrinterButton = "pack://application:,,,/Images/Dark/printer.svg";
-                ImagePathFiskalizacijaButton = "pack://application:,,,/Images/Dark/cashregister.svg";
-
-            }
-            else
-            {
-                ImagePathPrinterButton = "pack://application:,,,/Images/Light/printer.svg";
-                ImagePathFiskalizacijaButton = "pack://application:,,,/Images/Light/cashregister.svg";
-
-            }
-
-
-        }
+  
 
         public async Task LoadRadniciAsync()
         {

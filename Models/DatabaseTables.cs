@@ -854,6 +854,10 @@ namespace Caupo.Data
             [NotMapped]
             public bool IsReklamiran => Reklamiran == "DA";
             public string? Fakturisan { get; set; } = "NE";
+
+            public string? Jir { get; set; } 
+            public string? Zki { get; set; }
+            public string? BrojRacunaHr { get; set; }
             [NotMapped]
             [JsonIgnore]
             public decimal? Iznos { get; set; }

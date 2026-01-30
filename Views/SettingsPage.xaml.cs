@@ -1,4 +1,5 @@
-﻿using Caupo.Helpers;
+﻿
+using Caupo.Helpers;
 using Caupo.Models;
 using Caupo.Properties;
 using Caupo.Services;
@@ -36,6 +37,21 @@ namespace Caupo.Views
         private void LoadSettings()
         {
             _loading = true;
+
+            if(string.IsNullOrWhiteSpace (Properties.Settings.Default.DemoServerUrl))
+            {
+                Properties.Settings.Default.DemoServerUrl = "https://cistest.apis-it.hr:8449/FiskalizacijaServiceTest";
+            }
+
+            if(string.IsNullOrWhiteSpace (Properties.Settings.Default.ProductionSeverUrl))
+            {
+                Properties.Settings.Default.ProductionSeverUrl = "https://cis.porezna-uprava.hr:8449/FiskalizacijaService";
+            }
+            Properties.Settings.Default.Save ();
+            // Prikaži vrijednosti u TextBox-ovima
+            txtDemoUrl.Text = Properties.Settings.Default.DemoServerUrl;
+            txtProdUrl.Text = Properties.Settings.Default.ProductionSeverUrl;
+
 
             //Firma
             txtFrima.Text = Properties.Settings.Default.Firma;
@@ -94,6 +110,9 @@ namespace Caupo.Views
             txtLPFRAPI.Text = Properties.Settings.Default.LPFR_Key;
             txtLPFRPIN.Text = Properties.Settings.Default.LPFR_Pin;
 
+            string certificatesFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "Certificates");
+            string certPath = Path.Combine (certificatesFolder, Properties.Settings.Default.CerificateName);
+            txtCertifikat.Text = Properties.Settings.Default.CerificateName;
             string extPrinter = Properties.Settings.Default.ExterniPrinter;
             cmbExterniPrinter.SelectedItem = cmbExterniPrinter.Items.Cast<ComboBoxItem> ().FirstOrDefault (item => item.Content.ToString () == extPrinter);
             string sirinaTrake = Properties.Settings.Default.SirinaTrake;
@@ -102,7 +121,25 @@ namespace Caupo.Views
             // Network settings
             txtIPServer.Text = Properties.Settings.Default.ServerIP;
 
-            // Server Mod
+            // URL servera
+            txtDemoUrl.Text = Properties.Settings.Default.DemoServerUrl;
+            txtProdUrl.Text = Properties.Settings.Default.ProductionSeverUrl;
+
+            // Poslovni prostor i uređaj
+            txtPoslovniProstor.Text = Properties.Settings.Default.PoslovniProstor;
+            txtNaplatniUredjaj.Text = Properties.Settings.Default.NaplatniUredjaj;
+
+            // Oznaka i verzija
+            cmbOznakaSlijednosti.Text = Properties.Settings.Default.OznakaSlijednosti;
+            cmbVerzijaAplikacije.Text = Properties.Settings.Default.VerzijaAplikacije;
+
+            // Sertifikat
+            txtCertifikat.Text = Properties.Settings.Default.CerificateName;
+            txtCertifikatPassword.Text = Properties.Settings.Default.CerificatePassword;
+
+            txtPnpStopa.Text = Properties.Settings.Default.PnpStopa;
+            // Federacija BiH
+            txtIpAddressTring.Text = Properties.Settings.Default.TringServerIpAddress;
 
 
             _loading = false;
@@ -131,20 +168,12 @@ namespace Caupo.Views
                 Properties.Settings.Default.PDVKorisnik = cmbPDV.SelectedItem is ComboBoxItem pdv ? pdv.Content.ToString () : "DA";
                 Properties.Settings.Default.DisplayKuhinja = (selectedMonitor?.Index ?? 0).ToString ();
 
-
                 // Printers
                 Properties.Settings.Default.POSPrinter = txtPrinterRacuni.Text;
                 Properties.Settings.Default.A4Printer = txtPrinterA4.Text;
                 Properties.Settings.Default.KuhinjaPrinter = txtPrinterKuhinja.Text;
                 Properties.Settings.Default.SankPrinter = txtPrinterSank.Text;
 
-
-                // Fiscal device settings
-                Properties.Settings.Default.LPFR_IP = txtLPFRIP.Text;
-                Properties.Settings.Default.LPFR_Key = txtLPFRAPI.Text;
-                Properties.Settings.Default.LPFR_Pin = txtLPFRPIN.Text;
-                Properties.Settings.Default.ExterniPrinter = cmbExterniPrinter.SelectedItem is ComboBoxItem ext ? ext.Content.ToString () : "DA";
-                Properties.Settings.Default.SirinaTrake = cmbSirinaTrake.SelectedItem is ComboBoxItem traka ? traka.Content.ToString () : "57";
 
                 // Network settings
                 Properties.Settings.Default.ServerIP = txtIPServer.Text;
@@ -244,6 +273,45 @@ namespace Caupo.Views
                     }
                 }
 
+
+                // Podešavanja za fiskalizaciju
+                //
+                //Republika Srpska podešavanja
+                //
+                Properties.Settings.Default.LPFR_IP = txtLPFRIP.Text;
+                Properties.Settings.Default.LPFR_Key = txtLPFRAPI.Text;
+                Properties.Settings.Default.LPFR_Pin = txtLPFRPIN.Text;
+                Properties.Settings.Default.ExterniPrinter = cmbExterniPrinter.SelectedItem is ComboBoxItem ext ? ext.Content.ToString () : "DA";
+                Properties.Settings.Default.SirinaTrake = cmbSirinaTrake.SelectedItem is ComboBoxItem traka ? traka.Content.ToString () : "57";
+
+                // Hrvatska podešavanja
+                //
+                // Demo server URL
+                Properties.Settings.Default.DemoServerUrl = txtDemoUrl.Text;
+                //Produkcijski server URL
+                Properties.Settings.Default.ProductionSeverUrl = txtProdUrl.Text;
+                // Poslovni prostor
+                Properties.Settings.Default.PoslovniProstor = txtPoslovniProstor.Text;
+                // Naplatni uređaj
+                Properties.Settings.Default.NaplatniUredjaj = txtNaplatniUredjaj.Text;
+                // Oznaka slijednost
+                Properties.Settings.Default.OznakaSlijednosti = cmbOznakaSlijednosti.Text;
+                //Verzija Aplikacije
+                Properties.Settings.Default.VerzijaAplikacije = cmbVerzijaAplikacije.Text;
+                //Putanja do sertifikata
+                Properties.Settings.Default.CerificateName = txtCertifikat.Text; 
+                //Lozinka sertifikata
+                Properties.Settings.Default.CerificatePassword = txtCertifikatPassword.Text;
+                //PnpStopa stopa %
+                Properties.Settings.Default.PnpStopa = txtPnpStopa.Text;
+
+                // Federacija BiH podešavanja
+                //
+                //Tring server IP adresa
+                Properties.Settings.Default.TringServerIpAddress = txtIpAddressTring.Text;
+
+                //Region
+                Properties.Settings.Default.Country = cmbRegion.Text;
 
                 // Čuvanje podešavanja
                 Properties.Settings.Default.Save ();
@@ -827,11 +895,7 @@ namespace Caupo.Views
                     Application.Current.Resources["GlobalBackgroundColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (244, 244, 244));
 
                 }
-                // Ažuriraj slike u ViewModel-u
-                if(DataContext is SettingsViewModel viewModel)
-                {
-                    viewModel.SetImage ();
-                }
+             
             }
             else
             {
@@ -936,6 +1000,64 @@ namespace Caupo.Views
             // Ne postavljaj e.Handled = true !!!
             // Ostavlja događaj za dugme da izvrši Command
         }
+
+        private void CertifikatButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Dodavanje blur efekta dok dijalog radi
+            MainContent.Effect = new BlurEffect { Radius = 5 };
+
+            // Otvaranje dijaloga za odabir digitalnog sertifikata
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                // Filter samo za digitalne sertifikate
+                Filter = "Digital Certificates (*.cer;*.crt;*.pfx;*.p12;*.pem;*.der)|*.cer;*.crt;*.pfx;*.p12;*.pem;*.der"
+            };
+
+            if(openFileDialog.ShowDialog () == true)
+            {
+                string sourceFilePath = openFileDialog.FileName;
+
+                // Folder "Certificates" unutar projekta
+                string certificatesFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "Certificates");
+
+                // Ako folder ne postoji, kreiraj ga
+                if(!System.IO.Directory.Exists (certificatesFolder))
+               {
+                   System.IO.Directory.CreateDirectory (certificatesFolder);
+                }
+
+                // Nova putanja fajla u folderu "Certificates"
+                string fileName = Path.GetFileName (sourceFilePath);
+                string destFilePath = Path.Combine (certificatesFolder, fileName);
+              
+
+                try
+                {
+                    // Kopiranje fajla, prepisuje ako već postoji
+                    System.IO.File.Copy (sourceFilePath, destFilePath, true);
+
+                    // Upisivanje putanje kopiranog sertifikata u txtCertifikat
+                    txtCertifikat.Text = fileName;
+
+                    Settings.Default.CerificateName = fileName;
+                    Settings.Default.Save ();
+                }
+                catch(Exception ex)
+                {
+                    MyMessageBox myMessageBox = new MyMessageBox ();
+                    ////myMessageBox.Owner = this;
+                    myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+
+                    myMessageBox.MessageTitle.Text = "GREŠKA";
+                    myMessageBox.MessageText.Text = "Greška prilikom kopiranja sertifikata: " + ex.Message;
+                    myMessageBox.ShowDialog ();
+                }
+            }
+
+            // Uklanjanje blur efekta
+            MainContent.Effect = null;
+        }
+
     }
 }
 

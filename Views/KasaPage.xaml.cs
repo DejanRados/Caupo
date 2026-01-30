@@ -2,12 +2,16 @@
 using Caupo.Data;
 using Caupo.Fiscal;
 using Caupo.Helpers;
+using Caupo.Properties;
 using Caupo.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Diagnostics;
 using System.Globalization;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -15,7 +19,9 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
 using Tring.Fiscal.Driver;
+using Tring.Fiscal.Driver.Interfaces;
 using static Caupo.Data.DatabaseTables;
+using static Caupo.ViewModels.SettingsViewModel;
 
 
 namespace Caupo.Views
@@ -189,6 +195,7 @@ namespace Caupo.Views
         }
 
 
+
         private async void BtnFiskalni_Click(object sender, EventArgs e)
         {
             if(DataContext is KasaViewModel viewModel)
@@ -203,12 +210,9 @@ namespace Caupo.Views
 
                 try
                 {
+                 
                     FiskalniRacun fiskalniRacun = new FiskalniRacun ();
-                    /*bool uspjeh = await fiskalniRacun.IzdajFiskalniRacun ("Training", "Sale", null, null,
-                        viewModel.StavkeRacuna,
-                        viewModel.SelectedKupac,
-                        cmbNacinPlacanja.SelectedIndex,
-                        viewModel.TotalSum);*/
+                    /**/
                     int brojracuna;
                     using(var db = new AppDbContext ())
                     {
@@ -216,13 +220,54 @@ namespace Caupo.Views
                             .MaxAsync (r => (int?)r.BrojRacuna) ?? 0;  // Ako je tabela prazna, vrati 0
                     }
 
-                    bool uspjeh = await fiskalniRacun.IzdajFiskalniRacunTring (
-                        cmbNacinPlacanja.SelectedIndex,
-                        Globals.ulogovaniKorisnik.Radnik,
-                        viewModel.StavkeRacuna, 
-                        viewModel.SelectedKupac,
-                        brojracuna
-                      );
+                    if(!Enum.TryParse (Properties.Settings.Default.Country, out Drzava odabranaDrzava))
+                    {
+                        Debug.WriteLine ("[FISKALNI] Nije moguće parsirati odabranu državu. Koristi se FederacijaBiH kao default.");
+                        ShowMessage ("GREŠKA", "Niste izabrali region u kome aplikacija radi." + Environment.NewLine + "Ne možete izdavati račune");
+                        return;
+                    }
+
+
+                    bool uspjeh = odabranaDrzava switch
+                    {
+                        Drzava.Hrvatska => await fiskalniRacun.IzdajFiskalniRacunHrvatska (
+                            cmbNacinPlacanja.SelectedIndex,
+                            viewModel.SelectedKupac,
+                            viewModel.TotalSum,
+                            viewModel.StavkeRacuna,
+                            null,
+                            false),
+
+                        Drzava.RepublikaSrpska => await fiskalniRacun.IzdajFiskalniRacun (
+                            "Training", "Sale", null, null,
+                            viewModel.StavkeRacuna,
+                            viewModel.SelectedKupac,
+                            cmbNacinPlacanja.SelectedIndex,
+                            viewModel.TotalSum),
+
+                        Drzava.Srbija => await fiskalniRacun.IzdajFiskalniRacun (
+                            "Training", "Sale", null, null,
+                            viewModel.StavkeRacuna,
+                            viewModel.SelectedKupac,
+                            cmbNacinPlacanja.SelectedIndex,
+                            viewModel.TotalSum),
+
+                        Drzava.FederacijaBiH => await fiskalniRacun.IzdajFiskalniRacunTring (
+                            cmbNacinPlacanja.SelectedIndex,
+                            Globals.ulogovaniKorisnik.Radnik,
+                            viewModel.StavkeRacuna,
+                            viewModel.SelectedKupac,
+                            brojracuna),
+
+                        _ => false
+                    };
+
+           
+
+
+
+
+
 
                     if(uspjeh)
                     {
@@ -490,6 +535,33 @@ namespace Caupo.Views
             }
             e.Handled = true;
         }
+        string? TaxLabelHr(string ps)
+        {
+
+            string taxeslabel;
+            switch(ps)
+            {
+
+                case "2":
+                    taxeslabel = "\u0415";
+                    break;
+                case "4":
+                    taxeslabel = "\u041A";
+                    break;
+                case "1":
+                    taxeslabel = "\u0410";
+                    break;
+                case "3":
+                    taxeslabel = "\u0408";
+                    break;
+                default:
+                    taxeslabel = "Е";
+                    break;
+            }
+            return taxeslabel;
+
+        }
+
         string? TaxLabel(string ps)
         {
 
@@ -533,7 +605,8 @@ namespace Caupo.Views
                     stavka.Sifra = artikl.Sifra;
                     stavka.BrojRacuna = 222;
                     stavka.Naziv = artikl.ArtiklNormativ;
-                    stavka.Labels.Add (TaxLabel (artikl.PoreskaStopa.ToString ()));
+                    //Obratiti pažnju na region poslije
+                    stavka.Labels.Add (artikl.PoreskaStopa.ToString ());
                     stavka.UnitPrice = artikl.Cijena;
                     stavka.Proizvod = artikl.VrstaArtikla;
                     stavka.JedinicaMjere = artikl.JedinicaMjere;

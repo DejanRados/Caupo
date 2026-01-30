@@ -1,7 +1,10 @@
 ﻿using Caupo.Data;
+using Caupo.Helpers;
 using Caupo.Models;
 using Caupo.Properties;
+using Caupo.ViewModels;
 using Caupo.Views;
+using MAES.Fiskal;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -13,11 +16,21 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Printing;
+using System.Globalization;
+using System.IO;
 using System.Net.Http;
+using System.Net.Sockets;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.ServiceModel;
+using System.ServiceModel;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls.Ribbon;
 using Tring.Fiscal.Driver;
+using Tring.Fiscal.Driver.Interfaces;
 using static Caupo.Data.DatabaseTables;
+using static System.Net.WebRequestMethods;
 
 
 namespace Caupo.Fiscal
@@ -117,6 +130,57 @@ namespace Caupo.Fiscal
                     }
                 }
             }
+
+            [JsonIgnore]
+            public decimal PnpStopa
+            {
+                get
+                {
+                    if(decimal.TryParse (
+                            Settings.Default.PnpStopa,
+                            System.Globalization.NumberStyles.Any,
+                            System.Globalization.CultureInfo.InvariantCulture,
+                            out var pnp))
+                    {
+                        return Math.Clamp (pnp, 0m, 3m); // max 3%
+                    }
+
+                    return 0m;
+                }
+            }
+            [JsonIgnore]
+            public decimal Pdvstopa
+            {
+                get
+                {
+                    if(Labels == null || Labels.Count == 0)
+                        return 0m;
+
+                    return Labels[0] switch
+                    {
+                        "2" => 25m,
+                        "1" => 13m,
+                        "0" => 5m,
+                        _ => 0m
+                    };
+                }
+            }
+
+            [JsonIgnore]
+            public decimal UkupnoStope => Pdvstopa + PnpStopa;
+            [JsonIgnore]
+            public decimal? UkupnoPoreza => UnitPrice.HasValue ? Math.Round (UnitPrice.Value * (UkupnoStope / (100m + UkupnoStope)), 2, MidpointRounding.AwayFromZero) : null;
+
+            [JsonIgnore]
+            public decimal? Osnovica => UnitPrice.HasValue && UkupnoPoreza.HasValue ? UnitPrice - UkupnoPoreza : null;
+
+            [JsonIgnore]
+            public decimal? IznosPDV => (UkupnoPoreza.HasValue && UkupnoStope > 0) ? Math.Round (UkupnoPoreza.Value * (Pdvstopa / UkupnoStope), 2, MidpointRounding.AwayFromZero) : 0m;
+
+            [JsonIgnore]
+            public decimal? IznosPNP => (UkupnoPoreza.HasValue && UkupnoStope > 0) ? Math.Round (UkupnoPoreza.Value * (PnpStopa / UkupnoStope), 2, MidpointRounding.AwayFromZero) : 0m;
+
+
             [JsonIgnore]
             //   [JsonProperty("RedniBroj", NullValueHandling = NullValueHandling.Ignore)]
             public int? RedniBroj { get; set; }
@@ -205,7 +269,10 @@ namespace Caupo.Fiscal
         }
         [JsonIgnore]
         public bool kopijaracuna = false;
+        [JsonIgnore]
+        public bool naknadna_fiskalizacija = false;
 
+        public static bool reklamirani_racun = false;
         string? vrijeme;
         string? brojfiskalnog;
         string? brojfiskalnogshort;
@@ -214,6 +281,7 @@ namespace Caupo.Fiscal
         string printerwidth = Settings.Default.SirinaTrake;
         string IPLPFR = Settings.Default.LPFR_IP;
         string APILPFR = Settings.Default.LPFR_Key;
+
         bool success;
 
 
@@ -395,29 +463,37 @@ namespace Caupo.Fiscal
             }
         }
 
-        private TblRacuni KreirajRacun(
-                int nacinPlacanjaIndex,
-                decimal? totalSum,
-                TblKupci? selectedKupac)
-                    {
-                        var racun = new TblRacuni
-                        {
-                            Datum = DateTime.Now,
-                            NacinPlacanja = nacinPlacanjaIndex,
-                            Radnik = Globals.ulogovaniKorisnik.IdRadnika.ToString (),
-                            Iznos = totalSum,
-                            Kupac = "Gradjani"
-                        };
+        private TblRacuni KreirajRacun(int nacinPlacanjaIndex, decimal? totalSum, TblKupci? selectedKupac)
+        {
+            var racun = new TblRacuni
+            {
+                Datum = DateTime.Now,
+                NacinPlacanja = nacinPlacanjaIndex,
+                Radnik = Globals.ulogovaniKorisnik.IdRadnika.ToString (),
+                Iznos = totalSum,
+                Kupac = "Gradjani"
+            };
 
-                        if(nacinPlacanjaIndex != -1 && selectedKupac != null)
-                        {
-                            racun.Kupac = selectedKupac.Kupac;
-                            racun.KupacId = selectedKupac.JIB;
-                        }
+            if(nacinPlacanjaIndex != -1 && selectedKupac != null)
+            {
+                racun.Kupac = selectedKupac.Kupac;
+                racun.KupacId = selectedKupac.JIB;
+            }
 
-                        return racun;
+            return racun;
         }
 
+        private async Task<int> BrojRacuna()
+        {
+            using var db = new AppDbContext ();
+
+            // MaxAsync direktno na nullable int, EF Core vraća null ako nema redova
+            int? maxBroj = await db.Racuni
+                .MaxAsync (r => (int?)r.BrojRacuna);
+
+            // Ako nema redova, vrati 0
+            return maxBroj + 1 ?? 1;
+        }
 
 
         public async Task<bool> IzdajFiskalniRacun(string invoiceType, string transactionType, string ReferentDocumentNumber, string referentDocumentDT,
@@ -429,16 +505,12 @@ namespace Caupo.Fiscal
             if(StavkeRacuna.Count == 0)
                 return false;
 
-            int brojracuna;
-            using(var db = new AppDbContext ())
-            {
-                brojracuna = await db.Racuni
-                    .MaxAsync (r => (int?)r.BrojRacuna) ?? 0;  // Ako je tabela prazna, vrati 0
-            }
+            int brojracuna = await BrojRacuna ();
+
 
             Debug.WriteLine ("----------------------- BROJ RACUNA: " + brojracuna + " ------------------------------------------------------------ ");
 
-            var Racun = KreirajRacun( SelectedNacinPlacanjaIndex,  TotalSum,  selectedKupac);
+            var Racun = KreirajRacun (SelectedNacinPlacanjaIndex, TotalSum, selectedKupac);
 
             // Mapiranje vrste plaćanja
             string paymenttype = SelectedNacinPlacanjaIndex switch
@@ -681,10 +753,7 @@ namespace Caupo.Fiscal
 
         }
 
-        private async Task SacuvajRacunAsync(
-    TblRacuni racun,
-    IEnumerable<FiskalniRacun.Item> stavkeRacuna,
-    string brojFiskalnog)
+        private async Task SacuvajRacunAsync(TblRacuni racun, IEnumerable<FiskalniRacun.Item> stavkeRacuna, string brojFiskalnog)
         {
             using var db = new AppDbContext ();
             using var transaction = await db.Database.BeginTransactionAsync ();
@@ -765,8 +834,37 @@ namespace Caupo.Fiscal
                 // 1. Inicijalizacija printera
                 TringFiskalniPrinter printer = new TringFiskalniPrinter ();
 
-              printer.Inicijalizacija ("127.0.0.1", 8085, 0, "0");
+                try
+                {
+                    printer.Inicijalizacija ("127.0.0.1", 8085, 0, "0");
+                    Debug.WriteLine ("[PRINTER] Printer je uspješno inicijalizovan.");
+                }
+                catch(System.Net.Sockets.SocketException sockEx)
+                {
+                    Debug.WriteLine ("[PRINTER] Socket greška: " + sockEx.Message);
 
+                    MessageBox.Show (
+                        "Ne može se povezati na printer.\nProvjerite da li je printer uključen i da li je port 8085 slobodan.",
+                        "Greška konekcije",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning
+                    );
+
+                    return false;
+                }
+                catch(Exception ex)
+                {
+                    Debug.WriteLine ("[PRINTER] Druga greška prilikom inicijalizacije: " + ex.Message);
+
+                    MessageBox.Show (
+                        "Došlo je do greške prilikom inicijalizacije printera.\n" + ex.Message,
+                        "Greška printera",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning
+                    );
+
+                    return false;
+                }
                 KasaOdgovor odgovor = new KasaOdgovor ();
                 // 2. Napravi novi racun
                 //TringModels.Racun racun = new TringModels.Racun ();
@@ -853,7 +951,7 @@ namespace Caupo.Fiscal
 
                         _racun.DodajStavkuRacuna (_stavka);
                     }
-                   
+
                     _racun.Napomena = radnik + Environment.NewLine + "Int. broj računa: " + brojRacuna + Environment.NewLine + "Hvala na posjeti!";
 
                     odgovor = printer.StampatiFiskalniRacun (_racun);
@@ -871,7 +969,7 @@ namespace Caupo.Fiscal
                             Debug.WriteLine ($"{o.Naziv}: {o.Vrijednost}");
                         }
 
-                       
+
 
                         return false;
                     }
@@ -883,7 +981,7 @@ namespace Caupo.Fiscal
                         foreach(var o in odgovor.Odgovori)
                         {
                             string linija = $"{o.Naziv}: {o.Vrijednost}";
-                            Console.WriteLine (linija);
+                            Debug.WriteLine (linija);
                             Debug.WriteLine (linija);
                         }
 
@@ -915,6 +1013,323 @@ namespace Caupo.Fiscal
                 return false;
             }
         }
+
+
+
+
+        public decimal? pdv13osnovica;
+        public decimal? pdv13iznos;
+        public decimal? pdv25osnovica;
+        public decimal? pdv25iznos;
+        public decimal? pnposnovica;
+        public decimal? pnpiznos;
+        public string jir;
+        string zki;
+        public string naknadni_jir { get; set; }
+        public string fiskalizovan = "DA";
+        public string tekstGreske { get; set; }
+        public async Task<bool> IzdajFiskalniRacunHrvatska(
+           int vrstaplacanja,
+           TblKupci Kupac,
+           decimal? iznos_racuna,
+           ObservableCollection<FiskalniRacun.Item> StavkeRacuna,
+           string jir_poslani,
+           bool naknadnadostava)
+        {
+            try
+            {
+                // === Postavljanje tipova plaćanja i ostalih parametara ===
+                NacinPlacanjaType nacinPlacanjaType = vrstaplacanja switch
+                {
+                    0 => NacinPlacanjaType.G,
+                    1 => NacinPlacanjaType.K,
+                    2 => NacinPlacanjaType.C,
+                    3 => NacinPlacanjaType.T,
+                    4 => NacinPlacanjaType.O,
+                    _ => throw new ArgumentOutOfRangeException (nameof (vrstaplacanja), "Nepoznata vrsta placanja")
+                };
+
+                bool USustPdv = Settings.Default.PDVKorisnik?.ToUpper () == "DA";
+                string radnik = Globals.ulogovaniKorisnik.Radnik;
+                string oib_operatera = Globals.ulogovaniKorisnik.IB;
+                string oznaka_slijednosti = Settings.Default.OznakaSlijednosti;
+                string oznaka_pos_prostora = Settings.Default.PoslovniProstor;
+                string oznaka_nap_uredjaja = Settings.Default.NaplatniUredjaj;
+                string oib_firme = Settings.Default.JIB;
+                string firma = Settings.Default.Firma;
+                string kupac = Kupac.Kupac;
+                string datv = DateTime.Now.ToString ("dd.MM.yyyyTHH:mm:ss");
+                string datvQr = DateTime.Now.ToString ("yyyyMMdd_HHmm");
+                string brojracuna = (await BrojRacuna ()).ToString ();
+                brojfiskalnog = brojracuna;
+
+                OznakaSlijednostiType oznakaSlijednostiType = oznaka_slijednosti switch
+                {
+                    "Na nivou poslovnog prostora" => OznakaSlijednostiType.P,
+                    _ => OznakaSlijednostiType.N
+                };
+
+                string pnpStopa = decimal.TryParse (Settings.Default.PnpStopa, NumberStyles.Any, CultureInfo.InvariantCulture, out var p) ? p.ToString ("0.00", CultureInfo.InvariantCulture) : "0.00";
+
+                // === Porezi ===
+                var porezi = new Dictionary<int, (PorezType Porez, decimal? Osnovica, decimal? Iznos)>
+        {
+            { 0, (new PorezType { Stopa = 5.ToString("F2", CultureInfo.InvariantCulture) }, 0, 0) },
+            { 1, (new PorezType { Stopa = 13.ToString("F2", CultureInfo.InvariantCulture) }, 0, 0) },
+            { 2, (new PorezType { Stopa = 25.ToString("F2", CultureInfo.InvariantCulture) }, 0, 0) },
+            { 3, (new PorezType { Stopa = pnpStopa }, 0, 0) },
+        };
+
+                foreach(var stavka in StavkeRacuna)
+                {
+                    int stopa = Convert.ToInt32 (stavka.Labels[0]);
+                    if(porezi.ContainsKey (stopa))
+                    {
+                        var entry = porezi[stopa];
+                        entry.Osnovica += Convert.ToDecimal (stavka.Osnovica) * Convert.ToDecimal (stavka.Quantity);
+                        entry.Iznos += Convert.ToDecimal (stavka.IznosPDV) * Convert.ToDecimal (stavka.Quantity);
+                        porezi[stopa] = entry;
+                    }
+
+                    if(stavka.PnpStopa > 0)
+                    {
+                        var entry = porezi[3];
+                        entry.Osnovica += Convert.ToDecimal (stavka.Osnovica) * Convert.ToDecimal (stavka.Quantity);
+                        entry.Iznos += Convert.ToDecimal (stavka.IznosPNP) * Convert.ToDecimal (stavka.Quantity);
+                        porezi[3] = entry;
+                    }
+                }
+
+                foreach(var key in porezi.Keys.ToList ())
+                {
+                    var entry = porezi[key];
+                    entry.Porez.Osnovica = entry.Osnovica.HasValue ? entry.Osnovica.Value.ToString ("F2", CultureInfo.InvariantCulture) : "0.00";
+                    entry.Porez.Iznos = entry.Iznos.HasValue ? entry.Iznos.Value.ToString ("F2", CultureInfo.InvariantCulture) : "0.00";
+                    porezi[key] = entry;
+                }
+
+                var pdv5 = porezi[0].Porez;
+                var pdv13 = porezi[1].Porez;
+                var pdv25 = porezi[2].Porez;
+                var pnp = porezi[3].Porez;
+
+                pdv25iznos = decimal.Parse (pdv25.Iznos);
+                pdv25osnovica = decimal.Parse (pdv25.Osnovica);
+                pdv13iznos = decimal.Parse (pdv13.Iznos);
+                pdv13osnovica = decimal.Parse (pdv13.Osnovica);
+                pnpiznos = decimal.Parse (pnp.Iznos);
+                pnposnovica = decimal.Parse (pnp.Osnovica);
+
+                if(!kopijaracuna && vrstaplacanja != 3 & vrstaplacanja != 5)
+                {
+                    var invoice = new RacunType
+                    {
+                        BrRac = new BrojRacunaType
+                        {
+                            BrOznRac = brojracuna,
+                            OznPosPr = oznaka_pos_prostora,
+                            OznNapUr = oznaka_nap_uredjaja
+                        },
+                        DatVrijeme = datv,
+                        IznosUkupno = iznos_racuna.HasValue ? iznos_racuna.Value.ToString ("F2", CultureInfo.InvariantCulture) : "0.00",
+                        NakDost = naknadnadostava,
+                        Oib = oib_firme,
+                        OibOper = oib_operatera,
+                        OznSlijed = oznakaSlijednostiType,
+                        Pdv = new[] { pdv13, pdv25 },
+                        Pnp = new[] { pnp },
+                        USustPdv = USustPdv,
+                        NacinPlac = nacinPlacanjaType
+                    };
+
+                    // === Učitaj sertifikat ===
+                    string certificatesFolder = Path.Combine (AppDomain.CurrentDomain.BaseDirectory, "Certificates");
+                    string certPath = Path.Combine (certificatesFolder, Properties.Settings.Default.CerificateName);
+                    string certpass = "Demo2022";
+
+                    X509Certificate2 certificate = new X509Certificate2 (
+                        certPath,
+                        certpass,
+                        X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.Exportable
+                    );
+
+                    using(RSA rsa = certificate.GetRSAPrivateKey ())
+                    {
+                        if(rsa == null)
+                            throw new Exception ("RSA privatni ključ nije dostupan.");
+
+                        zki = invoice.ZKI (certificate);
+                        invoice.ZastKod = zki;
+                    }
+
+                    string url = Settings.Default.VerzijaAplikacije?.Trim ().Equals ("Demo", StringComparison.OrdinalIgnoreCase) == true
+                        ? "https://cistest.apis-it.hr:8449/FiskalizacijaServiceTest"
+                        : "https://cistest.apis-it.hr:8449/FiskalizacijaService";
+
+                    if(NetworkHelper.HasInternet ())
+                    {
+                        try
+                        {
+                            var response = await invoice.SendAsync (certificate, url);
+                            if(response != null && !string.IsNullOrWhiteSpace (response.Jir))
+                            {
+                                jir = response.Jir;
+                                fiskalizovan = "DA";
+                            }
+                          
+
+                            // Prikaži SOAP greške ako ih ima
+                            if(response?.Greske != null && response.Greske.Length > 0)
+                            {
+                                var porukeGresaka = response.Greske.Select (g => g.PorukaGreske).ToArray ();
+                                Debug.WriteLine ("[FISKALNI HR] GREŠKA: " + string.Join (", ", porukeGresaka));
+                                tekstGreske = ("[FISKALNI HR] GREŠKA: " + string.Join (", ", porukeGresaka));
+                                fiskalizovan = "NE";
+                            }
+                        }
+                        catch(Exception ex)
+                        {
+                            fiskalizovan = "NE";
+                            Debug.WriteLine (ex.ToString ());
+                            HandleFiscalizationException (ex);
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        tekstGreske = "Internet nije dostupan";
+                        fiskalizovan = "NE";
+                    }
+
+                        // === Lokalno spremanje + printanje (oba slučaja) ===
+                        await SpremiIPrintajRacun (
+                            kupac, radnik, vrstaplacanja, brojfiskalnog, jir, zki,
+                            brojracuna, oznaka_pos_prostora, oznaka_nap_uredjaja,
+                            StavkeRacuna, iznos_racuna, datv, datvQr,
+                            pdv13iznos, pdv13osnovica, pdv25iznos, pdv25osnovica, pnpiznos, pnposnovica, fiskalizovan, tekstGreske
+                        );
+                }
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine ("GLOBALNAGREŠKA: " + ex.Message);
+                ShowError ("GLOBALNAGREŠKA:", ex.Message);
+                return false;
+            }
+
+            return true;
+        }
+
+        private void HandleFiscalizationException(Exception r)
+        {
+            string odgovor = r.ToString ();
+            string naslov = "GREŠKA";
+            string tekst = "";
+
+            if(odgovor.Contains ("s005"))
+                tekst = "OIB iz poruke zahtjeva nije jednak OIB-u iz certifikata. Račun nije fiskalizovan.";
+            else if(odgovor.Contains ("s001") || odgovor.Contains ("s004") || odgovor.Contains ("s006"))
+            {
+                if(odgovor.Length > 250)
+                    odgovor = odgovor.Substring (0, 250);
+                tekst = $"Dogodila se greška: {Environment.NewLine}{Environment.NewLine}{odgovor}{Environment.NewLine}Račun nije fiskalizovan.";
+            }
+            else if(odgovor.Contains ("The operation has timed out"))
+                tekst = "Predviđeno vrijeme za fiskalizaciju računa je isteklo. Račun nije fiskalizovan.";
+            else if(odgovor.Contains ("The remote name could not be resolved"))
+                tekst = "Niste spojeni na internet, provjerite vezu! Račun nije fiskalizovan, potrebno je to uraditi naknadno (najkasnije 48h).";
+
+            if(!string.IsNullOrEmpty (tekst))
+            {
+                MyMessageBox frm = new MyMessageBox ();
+                frm.MessageText.Text = tekst;
+                frm.MessageTitle.Text = naslov;
+                frm.ShowDialog ();
+
+                jir = " ";
+                fiskalizovan = "NE";
+            }
+        }
+
+        // === Privatna metoda za spremanje i printanje ===
+        private async Task SpremiIPrintajRacun(
+            string kupac, string radnik, int vrstaplacanja, string brojfiskalnog,
+            string jir, string zki, string brojracuna, string oznaka_pos_prostora,
+            string oznaka_nap_uredjaja, ObservableCollection<FiskalniRacun.Item> StavkeRacuna,
+            decimal? iznos_racuna, string datv, string datvQr,
+            decimal? pdv13iznos, decimal? pdv13osnovica, decimal? pdv25iznos, decimal? pdv25osnovica,
+            decimal? pnpiznos, decimal? pnposnovica, string fiskalizovan, string tekstGreske)
+        {
+            TblRacuni racun = new TblRacuni
+            {
+                Kupac = kupac,
+                Datum = DateTime.ParseExact (datv, "dd.MM.yyyyTHH:mm:ss", CultureInfo.InvariantCulture),
+                Radnik = radnik,
+                NacinPlacanja = vrstaplacanja,
+                BrojFiskalnogRacuna = brojfiskalnog,
+                Fiskalizovan = fiskalizovan,
+                Jir = jir,
+                Zki = zki,
+                BrojRacunaHr = brojracuna + "/" + oznaka_pos_prostora + "/" + oznaka_nap_uredjaja,
+                Iznos = iznos_racuna
+            };
+
+            try
+            {
+                if(!kopijaracuna)
+                {
+                    if(reklamirani_racun)
+                    {
+                        await UpdateRacunStornoAsync (brojfiskalnog);
+                    }
+                    else
+                    {
+                        await SacuvajRacunAsync (racun, StavkeRacuna, brojfiskalnog);
+                        await PrintajBlokoveAsync (StavkeRacuna);
+
+                        var racunModel = new PrintRacunHrvatska.RacunModel
+                        {
+                            Firma = Settings.Default.Firma,
+                            Adresa = Settings.Default.Adresa,
+                            Grad = Settings.Default.Mjesto,
+                            Oib = Settings.Default.JIB,
+                            BrojRacuna = racun.BrojRacunaHr,
+                            DatumVrijeme = racun.Datum,
+                            Konobar = racun.Radnik,
+                            NacinPlacanja = racun.NacinPlacanja,
+                            Stavke = StavkeRacuna,
+                            Ukupno = racun.Iznos,
+                            JIR = racun.Jir,
+                            ZIK = racun.Zki,
+                            Logo = Image.FromFile (Settings.Default.LogoUrl),
+                            QR = @"https://porezna.gov.hr/rn?jir=" + jir + "&datv=" + datvQr + "&izn=" + iznos_racuna * 100,
+                            PDV13 = pdv13iznos,
+                            PDV13Osnovica = pdv13osnovica,
+                            PDV25 = pdv25iznos,
+                            PDV25Osnovica = pdv25osnovica,
+                            PNP = pnpiznos,
+                            PNPOsnovica = pnposnovica,
+                            PNPPostotak = Settings.Default.PnpStopa
+                        };
+
+                        PrintRacunHrvatska.Print (racunModel);
+                        if(fiskalizovan == "NE"){
+                            ShowError ("GREŠKA FISKALIZACIJE", "Račun nije fiskalizovan i spremljen je u bazu kao takav."+ Environment.NewLine + "Imate 48h da ga naknadno fiskalizujete" + Environment.NewLine + "Razlog: "+tekstGreske);
+                        }
+                     
+                    }
+                }
+            }
+            catch(Exception dbEx)
+            {
+                Debug.WriteLine ("DB GREŠKA: " + dbEx);
+                ShowError ("GREŠKA BAZE", dbEx.Message);
+            }
+        }
+
+
+
+
         int? PoreskaStopa(string taxLabel)
         {
 

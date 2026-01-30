@@ -442,5 +442,125 @@ namespace Caupo.Properties {
                 this["Country"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string CerificateName {
+            get {
+                return ((string)(this["CerificateName"]));
+            }
+            set {
+                this["CerificateName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string CerificatePassword {
+            get {
+                return ((string)(this["CerificatePassword"]));
+            }
+            set {
+                this["CerificatePassword"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string DemoServerUrl {
+            get {
+                return ((string)(this["DemoServerUrl"]));
+            }
+            set {
+                this["DemoServerUrl"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ProductionSeverUrl {
+            get {
+                return ((string)(this["ProductionSeverUrl"]));
+            }
+            set {
+                this["ProductionSeverUrl"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string PoslovniProstor {
+            get {
+                return ((string)(this["PoslovniProstor"]));
+            }
+            set {
+                this["PoslovniProstor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string NaplatniUredjaj {
+            get {
+                return ((string)(this["NaplatniUredjaj"]));
+            }
+            set {
+                this["NaplatniUredjaj"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string OznakaSlijednosti {
+            get {
+                return ((string)(this["OznakaSlijednosti"]));
+            }
+            set {
+                this["OznakaSlijednosti"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string VerzijaAplikacije {
+            get {
+                return ((string)(this["VerzijaAplikacije"]));
+            }
+            set {
+                this["VerzijaAplikacije"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TringServerIpAddress {
+            get {
+                return ((string)(this["TringServerIpAddress"]));
+            }
+            set {
+                this["TringServerIpAddress"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string PnpStopa {
+            get {
+                return ((string)(this["PnpStopa"]));
+            }
+            set {
+                this["PnpStopa"] = value;
+            }
+        }
     }
 }
