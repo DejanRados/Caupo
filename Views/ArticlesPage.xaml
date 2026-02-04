@@ -127,7 +127,7 @@
 
 
             </StackPanel>
-            <DataGrid x:Name="ListaArtikala" VerticalAlignment="Top" Margin="30,20"
+            <DataGrid x:Name="ListaArtikala" VerticalAlignment="Top" Margin="30,20" HorizontalAlignment="Left"
                 Grid.Row="1" Grid.RowSpan="2" Grid.Column="0"
                 MaxWidth="950" MaxHeight="800"
                 SelectionChanged="ListaArtikala_SelectionChanged" 

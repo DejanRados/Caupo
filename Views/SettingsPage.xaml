@@ -38,7 +38,7 @@
                     <Setter Property="HorizontalAlignment" Value="Center"/>
                 </Style>
             </TabControl.Resources>
-            <TabItem x:Name="CountryTab" Background="Transparent"  VerticalContentAlignment="Center" Width="190" BorderThickness="0" HorizontalContentAlignment="Center">
+            <TabItem x:Name="CountryTab" Background="Transparent"  VerticalContentAlignment="Center" Width="190"  BorderBrush="Transparent"  HorizontalContentAlignment="Center"  RenderOptions.BitmapScalingMode="NearestNeighbor"   RenderOptions.EdgeMode="Aliased">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" >
                         <TextBlock FontFamily="Segoe MDL2 Assets" Margin="6" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#xE774;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -75,7 +75,7 @@
                 </Grid>
             </TabItem>
 
-            <TabItem x:Name="FirmaTab" Background="Transparent"  VerticalContentAlignment="Center" HorizontalAlignment="Center" Width="190" BorderThickness="0"  >
+            <TabItem x:Name="FirmaTab" Background="Transparent"  VerticalContentAlignment="Center" HorizontalAlignment="Center" Width="190"  BorderBrush="Transparent"   RenderOptions.BitmapScalingMode="NearestNeighbor"  RenderOptions.EdgeMode="Aliased" >
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="32" Height="35" FontWeight="ExtraLight" Text="&#xEB06;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -120,7 +120,7 @@
                 </Grid>
             </TabItem>
 
-            <TabItem x:Name="FiskalizacijaFBiHTab" Background="Transparent"  VerticalContentAlignment="Center" Width="190" BorderThickness="0"  Visibility="{Binding ShowFBIH, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <TabItem x:Name="FiskalizacijaFBiHTab" Background="Transparent"  VerticalContentAlignment="Center" Width="190"  BorderBrush="Transparent"   Visibility="{Binding ShowFBIH, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FontFamily="Segoe MDL2 Assets" Margin="6" FontSize="24" Width="30"  Text="&#xEC5B;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -140,7 +140,7 @@
                 </Grid>
             </TabItem>
 
-            <TabItem x:Name="FiskalizacijaRSTab" Background="Transparent"  VerticalContentAlignment="Center" Width="190" BorderThickness="0"  Visibility="{Binding ShowRS, Converter={StaticResource BooleanToVisibilityConverter}}" >
+            <TabItem x:Name="FiskalizacijaRSTab" Background="Transparent"  VerticalContentAlignment="Center" Width="190"  BorderBrush="Transparent"   Visibility="{Binding ShowRS, Converter={StaticResource BooleanToVisibilityConverter}}" >
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FontFamily="Segoe MDL2 Assets" Margin="6" FontSize="24" Width="30"  Text="&#xEC5B;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -178,7 +178,7 @@
                 </Grid>
             </TabItem>
 
-            <TabItem x:Name="FiskalizacijaHrTab" Background="Transparent"  VerticalContentAlignment="Center" Width="190" BorderThickness="0"  Visibility="{Binding ShowHR, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <TabItem x:Name="FiskalizacijaHrTab" Background="Transparent"  VerticalContentAlignment="Center" Width="190"  BorderBrush="Transparent"   Visibility="{Binding ShowHR, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FontFamily="Segoe MDL2 Assets" Margin="6" FontSize="24" Width="30"  Text="&#xEC5B;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -236,7 +236,7 @@
                 </Grid>
             </TabItem>
 
-            <TabItem x:Name="FiskalizacijaSrTab" Background="Transparent"  VerticalContentAlignment="Center" Width="190" BorderThickness="0"  Visibility="{Binding ShowSR, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <TabItem x:Name="FiskalizacijaSrTab" Background="Transparent"  VerticalContentAlignment="Center" Width="190"  BorderBrush="Transparent"   Visibility="{Binding ShowSR, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FontFamily="Segoe MDL2 Assets" Margin="6" FontSize="24" Width="30"  Text="&#xEC5B;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -274,7 +274,7 @@
                 </Grid>
             </TabItem>
             
-            <TabItem x:Name="AplikacijaTab"   Background="Transparent"  VerticalContentAlignment="Center" Width="190" BorderThickness="0" >
+            <TabItem x:Name="AplikacijaTab"   Background="Transparent"  VerticalContentAlignment="Center" Width="190"  BorderBrush="Transparent"  >
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="32" Height="35" FontWeight="ExtraLight" Text="&#xEA7A;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -414,7 +414,7 @@
                 </Grid>
             </TabItem>
          
-            <TabItem x:Name="RadniciTab"   Background="Transparent" VerticalContentAlignment="Center" Width="190" BorderThickness="0">
+            <TabItem x:Name="RadniciTab"   Background="Transparent" VerticalContentAlignment="Center" Width="190"  BorderBrush="Transparent" >
 
                 <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
@@ -441,7 +441,7 @@
                              CanUserSortColumns="False"
                              HorizontalScrollBarVisibility="Disabled"
                              Background="Transparent"
-                             BorderThickness="0"
+                             
                              ClipToBounds="True"
                              BorderBrush="{DynamicResource GlobalFontColor}"
                              SelectionMode="Single"

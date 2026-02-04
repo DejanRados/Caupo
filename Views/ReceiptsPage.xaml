@@ -144,7 +144,7 @@
             </Grid>
             </Border>
           
-            <DataGrid x:Name="ListaRacuna" VerticalAlignment="Top" 
+            <DataGrid x:Name="ListaRacuna" VerticalAlignment="Top" HorizontalAlignment="Left"
                           Grid.Row="2"  Grid.Column="0" Margin="30,0,0,30"
                           MaxWidth="950" MaxHeight="800"
                           SelectionChanged="ListaRacuna_SelectionChanged" 

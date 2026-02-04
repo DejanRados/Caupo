@@ -155,8 +155,12 @@ namespace Caupo.ViewModels
         {
             try
             {
-                using var db = new AppDbContext ();
-                Firma = await db.Firma.FirstOrDefaultAsync ();
+                Firma = new DatabaseTables.TblFirma();
+                Firma.NazivFirme = Settings.Default.Firma;
+                Firma.Adresa = Settings.Default.Adresa;
+                Firma.Grad = Settings.Default.Mjesto;
+                Firma.JIB = Settings.Default.JIB;
+                Firma.PDV = Settings.Default.PDV;
                 Debug.WriteLine ("Firma učitana: " + (Firma?.NazivFirme ?? "null"));
             }
             catch(Exception ex)

@@ -116,33 +116,70 @@ namespace Caupo.Views
                     Globals.ulogovaniKorisnik = radnik;
 
                     string savedIndexStr = Settings.Default.DisplayKuhinja;
-                    Debug.WriteLine ("[KitchenDisplay] Postavljam na savedIndexStr iz Settings.Default.DisplayKuhinja" + savedIndexStr);
-                    int monitorIndex = 2; // default vrednost
-                    Debug.WriteLine ("[KitchenDisplay]  int monitorIndex = 2; // default vrednost");
-                    if(!string.IsNullOrEmpty (savedIndexStr))
-                    {
-                        int.TryParse (savedIndexStr, out monitorIndex);
-                        Debug.WriteLine ("[KitchenDisplay]  int monitorIndex  u    if(!string.IsNullOrEmpty (savedIndexStr)) =" + monitorIndex);
-                    }
-                    var monitors = MonitorHelper.GetMonitors ();
-                    var window = new KitchenDisplay
-                    {
-                        WindowStyle = WindowStyle.None,
-                        ResizeMode = ResizeMode.NoResize,
-                        WindowStartupLocation = WindowStartupLocation.Manual
-                    };
-                    var m = monitors[monitorIndex];
-                    window.WindowStartupLocation = WindowStartupLocation.Manual;
-                    window.Left = m.Bounds.Left;
-                    window.Top = m.Bounds.Top;
-                    window.Width = m.Bounds.Width;
-                    window.Height = m.Bounds.Height;
-                    window.Show ();
-                    window.WindowState = WindowState.Normal;
+                    Debug.WriteLine("[KitchenDisplay] DisplayKuhinja = " + savedIndexStr);
 
-                    var page = new HomePage ();
-                    page.DataContext = new HomeViewModel ();
-                    PageNavigator.NavigateWithFade (page);
+                    var monitors = MonitorHelper.GetMonitors();
+                    Debug.WriteLine("[KitchenDisplay] Broj monitora: " + monitors.Count);
+
+                    MonitorInfo targetMonitor = null;
+
+                    // Ako ima više od jednog monitora
+                    if (monitors.Count > 1)
+                    {
+                        // 1. Ako postoji savedIndexStr → koristi samo ako NIJE primarni
+                        if (int.TryParse(savedIndexStr, out int savedIndex))
+                        {
+                            var savedMonitor = monitors.FirstOrDefault(m => m.Index == savedIndex);
+
+                            if (savedMonitor != null && !savedMonitor.IsPrimary)
+                            {
+                                targetMonitor = savedMonitor;
+                                Debug.WriteLine("[KitchenDisplay] Koristim saved monitor: " + savedIndex);
+                            }
+                            else
+                            {
+                                Debug.WriteLine("[KitchenDisplay] Saved monitor je primarni ili ne postoji – ignorišem");
+                            }
+                        }
+
+                        // 2. Ako nema validnog saved monitora → prvi ne-primarni
+                        if (targetMonitor == null)
+                        {
+                            targetMonitor = monitors.FirstOrDefault(m => !m.IsPrimary);
+
+                            if (targetMonitor != null)
+                            {
+                                Debug.WriteLine("[KitchenDisplay] Koristim prvi ne-primarni monitor: " + targetMonitor.Index);
+                            }
+                        }
+                    }
+
+                    // ⛔ NEMA return-a, samo uslovno kreiranje prozora
+                    if (targetMonitor != null)
+                    {
+                        var window = new KitchenDisplay
+                        {
+                            WindowStyle = WindowStyle.None,
+                            ResizeMode = ResizeMode.NoResize,
+                            WindowStartupLocation = WindowStartupLocation.Manual,
+                            Left = targetMonitor.Bounds.Left,
+                            Top = targetMonitor.Bounds.Top,
+                            Width = targetMonitor.Bounds.Width,
+                            Height = targetMonitor.Bounds.Height
+                        };
+
+                        window.Show();
+                        window.WindowState = WindowState.Normal;
+                    }
+                    else
+                    {
+                        Debug.WriteLine("[KitchenDisplay] KitchenDisplay nije prikazan (nema dozvoljenog monitora)");
+                    }
+
+                    // 👇 ostatak metode ide dalje bez prekida
+                    var page = new HomePage();
+                    page.DataContext = new HomeViewModel();
+                    PageNavigator.NavigateWithFade(page);
 
 
                 }

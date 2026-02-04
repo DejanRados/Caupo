@@ -6,6 +6,8 @@ using ClosedXML.Excel;
 using Microsoft.Win32;
 
 using System.Diagnostics;
+using System.IO;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -865,9 +867,63 @@ namespace Caupo.Views
 
 
 
+        public async Task ImportExcelToSQLiteAsync(string excelFilePath)
+        {
+            using var workbook = new XLWorkbook(excelFilePath);
+            var worksheet = workbook.Worksheets.First();
+
+            using var db = new AppDbContext();
+
+            var productsFromJson = JsonSerializer.Deserialize<List<ProductDefinition>>(
+                File.ReadAllText("products.json")
+            )!;
+
+            var imageMapper = new ProductImageMapper(productsFromJson);
+
+            var artikliList = worksheet.RowsUsed()
+                .Skip(1)
+                .Select((row, index) =>
+                {
+                    int rb = index + 1;
+
+                    string artikl = row.Cell(1).GetValue<string>();
+                    decimal normativ = row.Cell(4).GetValue<decimal>();
+
+                    string? slika = imageMapper.ResolveImage(artikl);
+
+                    return new TblArtikli
+                    {
+                        Sifra = rb.ToString(),
+                        InternaSifra = rb.ToString(),
+                        Artikl = artikl,
+                        JedinicaMjere = MapJedinicaMjere(row.Cell(5).GetValue<string>()),
+                        Cijena = row.Cell(3).GetValue<decimal>(),
+                        Normativ = normativ,
+                        VrstaArtikla = MapVrstaArtikla(row.Cell(2).GetValue<string>()),
+                        PoreskaStopa = Settings.Default.PDV == "DA" ? 2 : 0,
+
+                        Slika = slika ?? "placeholder.png",
+
+                        Kategorija = null,
+                        Pozicija = rb,
+                        ArtiklNormativ = normativ != 1 ? $"{artikl} {normativ}" : artikl,
+                        PrikazatiNaDispleju = "DA"
+                    };
+                })
+                .ToList();
+
+            await db.Artikli.AddRangeAsync(artikliList);
+            await db.SaveChangesAsync();
+        }
+
+        public class ProductDefinition
+        {
+            public string Key { get; set; } = null!;
+            public string Category { get; set; } = null!;
+        }
 
 
-
+        /*
         public async Task ImportExcelToSQLiteAsync(string excelFilePath)
         {
             using var workbook = new XLWorkbook (excelFilePath);
@@ -914,7 +970,7 @@ namespace Caupo.Views
                 MessageText = { Text = "Uvoz artikala iz Excel fajla je završen!" }
             }.ShowDialog ();
         }
-
+        */
 
         private static int? MapVrstaArtikla(string? value)
         {

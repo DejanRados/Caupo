@@ -469,7 +469,7 @@ namespace Caupo.Fiscal
             {
                 Datum = DateTime.Now,
                 NacinPlacanja = nacinPlacanjaIndex,
-                Radnik = Globals.ulogovaniKorisnik.IdRadnika.ToString (),
+                Radnik = Globals.ulogovaniKorisnik.IdRadnika.ToString(),
                 Iznos = totalSum,
                 Kupac = "Gradjani"
             };
@@ -761,6 +761,7 @@ namespace Caupo.Fiscal
             try
             {
                 // --- Racun ---
+                Debug.WriteLine("[Tring] RADNIK PRIJE SAVE: " + racun.Radnik);
                 racun.BrojFiskalnogRacuna = brojFiskalnog;
                 await db.Racuni.AddAsync (racun);
                 await db.SaveChangesAsync ();
@@ -820,7 +821,7 @@ namespace Caupo.Fiscal
 
         public async Task<bool> IzdajFiskalniRacunTring(
                         int SelectedNacinPlacanjaIndex,
-                        string radnik,
+                        TblRadnici radnik,
                         ObservableCollection<FiskalniRacun.Item> StavkeRacuna,
                         TblKupci? selectedKupac,
                         int brojRacuna
@@ -952,7 +953,7 @@ namespace Caupo.Fiscal
                         _racun.DodajStavkuRacuna (_stavka);
                     }
 
-                    _racun.Napomena = radnik + Environment.NewLine + "Int. broj računa: " + brojRacuna + Environment.NewLine + "Hvala na posjeti!";
+                    _racun.Napomena = radnik.Radnik + Environment.NewLine + "Int. broj računa: " + brojRacuna + Environment.NewLine + "Hvala na posjeti!";
 
                     odgovor = printer.StampatiFiskalniRacun (_racun);
 
@@ -992,7 +993,8 @@ namespace Caupo.Fiscal
 
                         if(!string.IsNullOrEmpty (brojFiskalnog))
                         {
-                            Debug.WriteLine ($"Broj fiskalnog računa: {brojFiskalnog}");
+                            Debug.WriteLine ($"[TRING]Broj fiskalnog računa: {brojFiskalnog}");
+                            Debug.WriteLine($"[TRING]Racun radnik: {Racun.Radnik}");
                             await SacuvajRacunAsync (Racun, StavkeRacuna, brojFiskalnog);
                             await PrintajBlokoveAsync (StavkeRacuna);
                         }

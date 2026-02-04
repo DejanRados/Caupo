@@ -265,8 +265,8 @@
                     <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
                 </ScrollViewer.Resources>
                 <Grid>
-                    <ItemsControl x:Name="PicePanel" ItemsSource="{Binding ArtikliPiceFilter}"  Visibility="Visible" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                        <ItemsControl.ItemTemplate>
+                        <ItemsControl x:Name="PicePanel" ItemsSource="{Binding ArtikliPiceFilter}"  Visibility="Visible" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"   VirtualizingPanel.IsVirtualizing="True"   VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.CanContentScroll="True">
+                            <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Viewbox Stretch="Uniform" MinWidth="110" MaxWidth="160" Margin="1">
                                     <Button Style="{StaticResource ArticleButtonStyle}" BorderThickness="0" Margin="1"  Tag="{Binding Sifra}" PreviewMouseLeftButtonDown="Button_MouseDown"  MinHeight="50"  PreviewMouseMove="Button_MouseMove"    PreviewMouseUp="Button_MouseUp"  AllowDrop="True"    DragOver="Button_DragOver"  Drop="Button_Drop"   VerticalAlignment="Stretch" HorizontalAlignment="Stretch"   >
@@ -287,7 +287,7 @@
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
 
-                    <ItemsControl x:Name="HranaPanel" ItemsSource="{Binding ArtikliHranaFilter}"  Visibility="Collapsed" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+                    <ItemsControl x:Name="HranaPanel" ItemsSource="{Binding ArtikliHranaFilter}"  Visibility="Collapsed" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  VirtualizingPanel.IsVirtualizing="True"   VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.CanContentScroll="True">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Viewbox Stretch="Uniform" MinWidth="100"  MaxWidth="160"   Margin="1">
@@ -307,8 +307,8 @@
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
 
-                    <ItemsControl x:Name="OstaloPanel" ItemsSource="{Binding ArtikliOstaloFilter}" Visibility="Collapsed" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-                        <ItemsControl.ItemTemplate>
+                        <ItemsControl x:Name="OstaloPanel" ItemsSource="{Binding ArtikliOstaloFilter}" Visibility="Collapsed" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  VirtualizingPanel.IsVirtualizing="True"   VirtualizingPanel.VirtualizationMode="Recycling"   ScrollViewer.CanContentScroll="True">
+                            <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Viewbox Stretch="Uniform" MinWidth="100"  Margin="1" MaxWidth="160">
                                     <Button Style="{StaticResource ArticleButtonStyle}" Margin="1"  Tag="{Binding Sifra}"    

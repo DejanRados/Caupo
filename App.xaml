@@ -910,7 +910,7 @@
 
             <Style TargetType="TabItem" >
                 <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="BorderThickness" Value="2"/>
                 <Setter Property="BorderBrush" Value="#FF2FA4A9"/>
                 <Setter Property="SnapsToDevicePixels" Value="False"/>
                 <Setter Property="UseLayoutRounding" Value="True"/>

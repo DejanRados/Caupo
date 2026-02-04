@@ -222,7 +222,7 @@ namespace Caupo.Views
 
                     if(!Enum.TryParse (Properties.Settings.Default.Country, out Drzava odabranaDrzava))
                     {
-                        Debug.WriteLine ("[FISKALNI] Nije moguće parsirati odabranu državu. Koristi se FederacijaBiH kao default.");
+                        Debug.WriteLine ("[FISKALNI] Nije moguće parsirati odabranu državu. ");
                         ShowMessage ("GREŠKA", "Niste izabrali region u kome aplikacija radi." + Environment.NewLine + "Ne možete izdavati račune");
                         return;
                     }
@@ -254,7 +254,7 @@ namespace Caupo.Views
 
                         Drzava.FederacijaBiH => await fiskalniRacun.IzdajFiskalniRacunTring (
                             cmbNacinPlacanja.SelectedIndex,
-                            Globals.ulogovaniKorisnik.Radnik,
+                            Globals.ulogovaniKorisnik,
                             viewModel.StavkeRacuna,
                             viewModel.SelectedKupac,
                             brojracuna),
