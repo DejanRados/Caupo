@@ -165,49 +165,49 @@ namespace Caupo.Helpers
         public class ActivationResponse
         {
             [JsonPropertyName ("code")]
-            public string Code { get; set; }
+            public string? Code { get; set; }
 
             [JsonPropertyName ("success")]
             public bool Success { get; set; }
 
             [JsonPropertyName ("message")]
-            public string Message { get; set; }
+            public string? Message { get; set; }
 
             [JsonPropertyName ("license")]
-            public LicenseInfo License { get; set; }
+            public LicenseInfo? License { get; set; }
 
             [JsonPropertyName ("activation")]
-            public ActivationInfo Activation { get; set; }
+            public ActivationInfo? Activation { get; set; }
         }
 
         public class LicenseInfo
         {
             [JsonPropertyName ("id")]
-            public string Id { get; set; }
+            public int Id { get; set; }
 
             [JsonPropertyName ("type")]
-            public string Type { get; set; }
+            public string? Type { get; set; }
 
             [JsonPropertyName ("expiration_date")]
-            public string ExpirationDate { get; set; }
+            public string? ExpirationDate { get; set; }
 
             [JsonPropertyName ("max_users")]
-            public string MaxUsers { get; set; }
+            public int MaxUsers { get; set; }
 
             [JsonPropertyName ("company_name")]
-            public string CompanyName { get; set; }
+            public string? CompanyName { get; set; }
         }
 
         public class ActivationInfo
         {
             [JsonPropertyName ("id")]
-            public string Id { get; set; }
+            public string? Id { get; set; }
 
             [JsonPropertyName ("activation_date")]
-            public string ActivationDate { get; set; }
+            public string? ActivationDate { get; set; }
 
             [JsonPropertyName ("hardware_fingerprint")]
-            public string HardwareFingerprint { get; set; }
+            public string? HardwareFingerprint { get; set; }
         }
     }
 }

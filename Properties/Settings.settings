@@ -137,5 +137,52 @@
     <Setting Name="PnpStopa" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="SrbijaPfrType" Type="System.String" Scope="User">
+      <Value Profile="(Default)">VPFR</Value>
+    </Setting>
+
+    <Setting Name="SrbijaEnvironment" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Sandbox</Value>
+    </Setting>
+
+    <Setting Name="SrbijaVPFRUrl" Type="System.String" Scope="User">
+      <Value Profile="(Default)">https://vsdc.sandbox.suf.purs.gov.rs</Value>
+    </Setting>
+
+    <Setting Name="SrbijaLPFRUrl" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+
+    <Setting Name="SrbijaCertificateName" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+
+    <Setting Name="SrbijaCertificatePassword" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+
+    <Setting Name="SrbijaPAC" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+
+    <Setting Name="SrbijaAcceptLanguage" Type="System.String" Scope="User">
+      <Value Profile="(Default)">en-US</Value>
+    </Setting>
+
+    <Setting Name="SrbijaLPFRUrl" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+
+    <Setting Name="SrbijaLPFRToken" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+
+    <Setting Name="SrbijaLPFRPin" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+
+    <Setting Name="SrbijaLPFRJid" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

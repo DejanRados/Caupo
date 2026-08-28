@@ -2,131 +2,318 @@
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.IO;
-using System.Windows;
 using static Caupo.Data.DatabaseTables;
-
-
 
 namespace Caupo.Data
 {
     public class AppDbContext : DbContext
     {
+        private readonly string _dbPath;
 
-        private readonly string DbPath;
+
+        private const int DatabaseTimeoutSeconds = 10;
+
+  
+        private const int MaxSaveRetries = 5;
 
         public AppDbContext()
         {
+            _dbPath = ResolveDatabasePath ();
 
-            // DbPath =  Path.Combine (Properties.Settings.Default.DbPath, "sysFormWPF.db");
-            DbPath = Globals.CurrentDbPath;
-            Debug.WriteLine ($"[DEBUG]  DbPath Globals.CurrentDbPath: {DbPath}");
-            File.WriteAllText ("crash.log", $"[DEBUG]  DbPath Globals.CurrentDbPath: {DbPath}");
-            if(string.IsNullOrEmpty (DbPath))
-            {
-                // fallback – ako user još nije odabrao
-                DbPath = Path.Combine (Directory.GetCurrentDirectory (), "Data", "sysFormWPF.db");
-                Debug.WriteLine ($"[DEBUG] Fallback DbPath: {DbPath}");
-                File.WriteAllText ("crash.log", $"[DEBUG] Fallback DbPath: {DbPath}");
-            }
-
+            Debug.WriteLine ($"[DB] Database path: {_dbPath}");
         }
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
+
+        /// <summary>
+        /// Određuje koju bazu Caupo koristi.
+        /// Primarno koristi Globals.CurrentDbPath.
+        ///
+        /// Fallback trenutno ostavljamo radi kompatibilnosti sa postojećim
+        /// instalacijama. Kada uvedemo novi DsoftData first-run sistem,
+        /// ovaj fallback možemo ukloniti.
+        /// </summary>
+        private static string ResolveDatabasePath()
         {
-            if(!File.Exists (DbPath))
+            if(!string.IsNullOrWhiteSpace (Globals.CurrentDbPath))
             {
-                Debug.WriteLine ($"[ERROR] Database file does not exist: {DbPath}");
-                MessageBox.Show ($"Database not found at: {DbPath}", "Greška", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                return Globals.CurrentDbPath;
             }
 
-            // EF Core pravi konekciju iz connection stringa
-            options.UseSqlite ($"Data Source={DbPath}");
+            string fallbackPath = Path.Combine (
+                AppContext.BaseDirectory,
+                "Data",
+                "sysFormWPF.db"
+            );
 
+            Debug.WriteLine (
+                $"[DB] Globals.CurrentDbPath nije postavljen. " +
+                $"Koristim fallback: {fallbackPath}"
+            );
 
+            return fallbackPath;
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if(optionsBuilder.IsConfigured)
+                return;
+
+            if(string.IsNullOrWhiteSpace (_dbPath))
+            {
+                throw new InvalidOperationException (
+                    "Putanja do baze podataka nije definisana."
+                );
+            }
+
+            if(!File.Exists (_dbPath))
+            {
+                throw new FileNotFoundException (
+                    $"Baza podataka nije pronađena: {_dbPath}",
+                    _dbPath
+                );
+            }
+
+            var connectionStringBuilder = new SqliteConnectionStringBuilder
+            {
+                DataSource = _dbPath,
+  
+                Mode = SqliteOpenMode.ReadWrite,
+
+                Cache = SqliteCacheMode.Default,
+
+                DefaultTimeout = DatabaseTimeoutSeconds
+            };
+
+            optionsBuilder.UseSqlite (connectionStringBuilder.ToString ());
+
+#if DEBUG
+            optionsBuilder.EnableDetailedErrors ();
+#endif
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Ako neka tablica nema ključ
+            // TblFirma trenutno nema primary key.
             modelBuilder.Entity<TblFirma> ().HasNoKey ();
 
             base.OnModelCreating (modelBuilder);
         }
 
-        // Nadjačaj SaveChanges sa retry logikom
+        // =========================================================
+        // SAVE CHANGES - SYNCHRONOUS
+        // =========================================================
+
         public override int SaveChanges()
         {
-            return SaveChangesWithRetryAsync (false).GetAwaiter ().GetResult ();
+            return SaveChangesWithRetry ();
         }
 
-        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
-            return SaveChangesWithRetryAsync (true, cancellationToken);
+            return SaveChangesWithRetry (acceptAllChangesOnSuccess);
         }
 
-        private async Task<int> SaveChangesWithRetryAsync(bool isAsync, CancellationToken cancellationToken = default)
+        private int SaveChangesWithRetry(
+            bool acceptAllChangesOnSuccess = true)
         {
-            int retries = 3;
-            while(true)
+            for(int attempt = 1; attempt <= MaxSaveRetries; attempt++)
             {
                 try
                 {
-                    if(isAsync)
-                        return await base.SaveChangesAsync (cancellationToken);
-                    else
-                        return base.SaveChanges ();
+                    return base.SaveChanges (acceptAllChangesOnSuccess);
                 }
-                catch(SqliteException ex) when(ex.SqliteErrorCode == 5) // database is locked
+                catch(SqliteException ex) when(IsDatabaseLocked (ex))
                 {
-                    retries--;
-                    if(retries <= 0)
-                        throw;
+                    if(attempt >= MaxSaveRetries)
+                    {
+                        Debug.WriteLine (
+                            $"[DB] SaveChanges nije uspio nakon " +
+                            $"{MaxSaveRetries} pokušaja. " +
+                            $"SQLite error: {ex.SqliteErrorCode} - {ex.Message}"
+                        );
 
-                    await Task.Delay (200, cancellationToken);
+                        throw;
+                    }
+
+                    int delay = GetRetryDelay (attempt);
+
+                    Debug.WriteLine (
+                        $"[DB] Baza je zauzeta. " +
+                        $"SaveChanges pokušaj {attempt}/{MaxSaveRetries}. " +
+                        $"Ponovni pokušaj za {delay} ms."
+                    );
+
+                    Thread.Sleep (delay);
                 }
             }
+
+            // Teoretski nedostižno.
+            throw new InvalidOperationException (
+                "Neočekivana greška prilikom spremanja baze."
+            );
         }
 
+        // =========================================================
+        // SAVE CHANGES - ASYNCHRONOUS
+        // =========================================================
 
-        public DbSet<DatabaseTables.TblRadnici> Radnici { get; set; }
-        public DbSet<DatabaseTables.TblArtikli> Artikli { get; set; }
-        public DbSet<DatabaseTables.TblBrojBlokaSank> BrojBloka { get; set; }
-        public DbSet<DatabaseTables.TblBrojPokretanja> BrojPokretanja { get; set; }
-        public DbSet<DatabaseTables.TblDobavljaci> Dobavljaci { get; set; }
-        public DbSet<DatabaseTables.TblFaktura> Faktura { get; set; }
-        public DbSet<DatabaseTables.TblFakturaStavka> FakturaStavka { get; set; }
-        public DbSet<DatabaseTables.TblFirma> Firma { get; set; }
-        public DbSet<DatabaseTables.TblJediniceMjere> JediniceMjere { get; set; }
-        public DbSet<DatabaseTables.TblKategorije> Kategorije { get; set; }
-        public DbSet<DatabaseTables.TblKnjigaKuhinje> KnjigaKuhinje { get; set; }
-        public DbSet<DatabaseTables.TblKnjigaSanka> KnjigaSanka { get; set; }
-        public DbSet<DatabaseTables.TblKuhinja> Kuhinja { get; set; }
-        public DbSet<DatabaseTables.TblKuhinjaStavke> KuhinjaStavke { get; set; }
-        public DbSet<DatabaseTables.TblKupci> Kupci { get; set; }
-        public DbSet<DatabaseTables.TblKupciNarudzba> KupciNarudzba { get; set; }
-        public DbSet<DatabaseTables.TblKupciNarudzbeStavka> KupciNarudzbaStavke { get; set; }
-        public DbSet<DatabaseTables.TblNarudzbe> Narudzbe { get; set; }
-        public DbSet<DatabaseTables.TblNarudzbeStavke> NarudzbeStavke { get; set; }
-        public DbSet<DatabaseTables.TblNormativ> Normativ { get; set; }
-        public DbSet<DatabaseTables.TblNormativPica> NormativPica { get; set; }
-        public DbSet<DatabaseTables.TblOtpis> Otpis { get; set; }
-        public DbSet<DatabaseTables.TblOtpisStavka> OtpisStavka { get; set; }
-        public DbSet<DatabaseTables.TblPoreskeStope> PoreskeStope { get; set; }
-        public DbSet<DatabaseTables.TblRacuni> Racuni { get; set; }
-        public DbSet<DatabaseTables.TblRacunStavka> RacunStavka { get; set; }
-        public DbSet<DatabaseTables.TblReklamiraniRacun> ReklamiraniRacun { get; set; }
-        public DbSet<DatabaseTables.TblReklamiraniStavka> ReklamiraniStavka { get; set; }
-        public DbSet<DatabaseTables.TblRepromaterijal> Repromaterijal { get; set; }
-        public DbSet<DatabaseTables.TblUlaz> Ulaz { get; set; }
-        public DbSet<DatabaseTables.TblUlazStavke> UlazStavke { get; set; }
-        public DbSet<DatabaseTables.TblUlazRepromaterijal> UlazRepromaterijal { get; set; }
-        public DbSet<DatabaseTables.TblUlazRepromaterijalStavka> UlazRepromaterijalStavka { get; set; }
-        public DbSet<DatabaseTables.TblUplateDobavljacima> UplateDobavljacima { get; set; }
-        public DbSet<DatabaseTables.TblUplateKupaca> UplateKupaca { get; set; }
+        public override Task<int> SaveChangesAsync(
+            CancellationToken cancellationToken = default)
+        {
+            return SaveChangesWithRetryAsync (
+                acceptAllChangesOnSuccess: true,
+                cancellationToken
+            );
+        }
 
+        public override Task<int> SaveChangesAsync(
+            bool acceptAllChangesOnSuccess,
+            CancellationToken cancellationToken = default)
+        {
+            return SaveChangesWithRetryAsync (
+                acceptAllChangesOnSuccess,
+                cancellationToken
+            );
+        }
 
+        private async Task<int> SaveChangesWithRetryAsync(
+            bool acceptAllChangesOnSuccess,
+            CancellationToken cancellationToken)
+        {
+            for(int attempt = 1; attempt <= MaxSaveRetries; attempt++)
+            {
+                try
+                {
+                    return await base.SaveChangesAsync (
+                        acceptAllChangesOnSuccess,
+                        cancellationToken
+                    );
+                }
+                catch(SqliteException ex) when(IsDatabaseLocked (ex))
+                {
+                    if(attempt >= MaxSaveRetries)
+                    {
+                        Debug.WriteLine (
+                            $"[DB] SaveChangesAsync nije uspio nakon " +
+                            $"{MaxSaveRetries} pokušaja. " +
+                            $"SQLite error: {ex.SqliteErrorCode} - {ex.Message}"
+                        );
 
+                        throw;
+                    }
 
+                    int delay = GetRetryDelay (attempt);
+
+                    Debug.WriteLine (
+                        $"[DB] Baza je zauzeta. " +
+                        $"SaveChangesAsync pokušaj {attempt}/{MaxSaveRetries}. " +
+                        $"Ponovni pokušaj za {delay} ms."
+                    );
+
+                    await Task.Delay (delay, cancellationToken);
+                }
+            }
+
+   
+            throw new InvalidOperationException (
+                "Neočekivana greška prilikom spremanja baze."
+            );
+        }
+
+        /// <summary>
+        /// SQLITE_BUSY   = 5
+        /// SQLITE_LOCKED = 6
+        /// </summary>
+        private static bool IsDatabaseLocked(SqliteException ex)
+        {
+            return ex.SqliteErrorCode == 5 ||
+                   ex.SqliteErrorCode == 6;
+        }
+
+        /// <summary>
+        /// Progresivno čekanje:
+        ///
+        /// pokušaj 1 -> 250 ms
+        /// pokušaj 2 -> 500 ms
+        /// pokušaj 3 -> 750 ms
+        /// pokušaj 4 -> 1000 ms
+        /// </summary>
+        private static int GetRetryDelay(int attempt)
+        {
+            return 250 * attempt;
+        }
+
+        // =========================================================
+        // TABLES
+        // =========================================================
+
+        public DbSet<TblRadnici> Radnici { get; set; }
+
+        public DbSet<TblArtikli> Artikli { get; set; }
+
+        public DbSet<TblBrojBlokaSank> BrojBloka { get; set; }
+
+        public DbSet<TblBrojPokretanja> BrojPokretanja { get; set; }
+
+        public DbSet<TblDobavljaci> Dobavljaci { get; set; }
+
+        public DbSet<TblFaktura> Faktura { get; set; }
+
+        public DbSet<TblFakturaStavka> FakturaStavka { get; set; }
+
+        public DbSet<TblFirma> Firma { get; set; }
+
+        public DbSet<TblJediniceMjere> JediniceMjere { get; set; }
+
+        public DbSet<TblKategorije> Kategorije { get; set; }
+
+        public DbSet<TblKnjigaKuhinje> KnjigaKuhinje { get; set; }
+
+        public DbSet<TblKnjigaSanka> KnjigaSanka { get; set; }
+
+        public DbSet<TblKuhinja> Kuhinja { get; set; }
+
+        public DbSet<TblKuhinjaStavke> KuhinjaStavke { get; set; }
+
+        public DbSet<TblKupci> Kupci { get; set; }
+
+        public DbSet<TblKupciNarudzba> KupciNarudzba { get; set; }
+
+        public DbSet<TblKupciNarudzbeStavka> KupciNarudzbaStavke { get; set; }
+
+        public DbSet<TblNarudzbe> Narudzbe { get; set; }
+
+        public DbSet<TblNarudzbeStavke> NarudzbeStavke { get; set; }
+
+        public DbSet<TblNormativ> Normativ { get; set; }
+
+        public DbSet<TblNormativPica> NormativPica { get; set; }
+
+        public DbSet<TblOtpis> Otpis { get; set; }
+
+        public DbSet<TblOtpisStavka> OtpisStavka { get; set; }
+
+        public DbSet<TblPoreskeStope> PoreskeStope { get; set; }
+
+        public DbSet<TblRacuni> Racuni { get; set; }
+
+        public DbSet<TblRacunStavka> RacunStavka { get; set; }
+
+        public DbSet<TblReklamiraniRacun> ReklamiraniRacun { get; set; }
+
+        public DbSet<TblReklamiraniStavka> ReklamiraniStavka { get; set; }
+
+        public DbSet<TblRepromaterijal> Repromaterijal { get; set; }
+
+        public DbSet<TblUlaz> Ulaz { get; set; }
+
+        public DbSet<TblUlazStavke> UlazStavke { get; set; }
+
+        public DbSet<TblUlazRepromaterijal> UlazRepromaterijal { get; set; }
+
+        public DbSet<TblUlazRepromaterijalStavka> UlazRepromaterijalStavka { get; set; }
+
+        public DbSet<TblUplateDobavljacima> UplateDobavljacima { get; set; }
+
+        public DbSet<TblUplateKupaca> UplateKupaca { get; set; }
     }
-
 }

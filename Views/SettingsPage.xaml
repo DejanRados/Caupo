@@ -3,509 +3,2215 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-       xmlns:syncfusionskin ="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+        xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
         xmlns:viewmodels="clr-namespace:Caupo.ViewModels"
-        mc:Ignorable="d"
         xmlns:local="clr-namespace:Caupo.ViewModels"
-              xmlns:loc="clr-namespace:Caupo.Helpers"
-       xmlns:svg="http://sharpvectors.codeplex.com/svgc/"  >
+        xmlns:loc="clr-namespace:Caupo.Helpers"
+        xmlns:svg="http://sharpvectors.codeplex.com/svgc/"
+        mc:Ignorable="d">
 
+    <Grid x:Name="MainContent">
 
-    <Grid  x:Name="MainContent">
-        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="55" Background="#323232" >
+        <!-- ===================================================== -->
+        <!-- HEADER                                                -->
+        <!-- ===================================================== -->
+
+        <Grid HorizontalAlignment="Stretch"
+              VerticalAlignment="Top"
+              Height="55"
+              Background="#323232">
+
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="0.2*"/>
             </Grid.ColumnDefinitions>
-            <Image Source="pack://application:,,,/Images/dsoftlogosmall.png" Width="50" Height="50" Grid.Column="0" HorizontalAlignment="Left" Margin="20,0,0,0"/>
-            <Label  x:Name="lblApp" Content="Caupo - Postavke" Foreground="#fafafa" FontSize="25" Grid.Column="0" HorizontalAlignment="Center"  VerticalAlignment="Center"/>
-            <Label  x:Name="lblUlogovaniKorisnik" Content="Ime i prezime" Foreground="#fafafa" FontSize="15" Grid.Column="1" HorizontalAlignment="Right"  VerticalAlignment="Center"/>
-            <Button x:Name="CloseButton" Style="{StaticResource CloseButtonStyle}"  VerticalAlignment="Top" HorizontalAlignment="Right" Padding="0" Margin="1" Click="CloseButton_Click" Grid.Column="2" />
+
+            <Image Source="pack://application:,,,/Images/dsoftlogosmall.png"
+                   Width="50"
+                   Height="50"
+                   Grid.Column="0"
+                   HorizontalAlignment="Left"
+                   Margin="20,0,0,0"/>
+
+            <Label x:Name="lblApp"
+                   Content="Caupo - Postavke"
+                   Foreground="#fafafa"
+                   FontSize="25"
+                   Grid.Column="0"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"/>
+
+            <Label x:Name="lblUlogovaniKorisnik"
+                   Content="Ime i prezime"
+                   Foreground="#fafafa"
+                   FontSize="15"
+                   Grid.Column="1"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Center"/>
+
+            <Button x:Name="CloseButton"
+                    Style="{StaticResource CloseButtonStyle}"
+                    VerticalAlignment="Top"
+                    HorizontalAlignment="Right"
+                    Padding="0"
+                    Margin="1"
+                    Click="CloseButton_Click"
+                    Grid.Column="2"/>
+
         </Grid>
 
-        <Button  VerticalAlignment="Top" HorizontalAlignment="Right" Panel.ZIndex="999" Margin="0,70,50,100"  Click="SaveSettingsButton_Click" Style="{StaticResource PrimaryButtonStyle}"  BorderBrush="#65ff65"      Width="140"    Height="50"   Foreground="{DynamicResource GlobalFontColor}">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="24" Width="35" FontWeight="ExtraLight" Text="&#xEB4B;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <TextBlock Text="Spremi"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
+
+        <!-- ===================================================== -->
+        <!-- SPREMI                                                -->
+        <!-- ===================================================== -->
+
+        <Button VerticalAlignment="Top"
+                HorizontalAlignment="Right"
+                Panel.ZIndex="999"
+                Margin="0,70,50,100"
+                Command="{Binding SaveCommand}"
+                Style="{StaticResource PrimaryButtonStyle}"
+                BorderBrush="#65ff65"
+                Width="140"
+                Height="50"
+                Foreground="{DynamicResource GlobalFontColor}">
+
+            <StackPanel Orientation="Horizontal"
+                        VerticalAlignment="Center">
+
+                <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                           Margin="6"
+                           FontSize="24"
+                           Width="35"
+                           FontWeight="ExtraLight"
+                           Text="&#xEB4B;"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+
+                <TextBlock Text="Spremi"
+                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource GlobalFontColor}"/>
+
             </StackPanel>
+
         </Button>
 
 
-        <TabControl x:Name="TabControl"  TabStripPlacement="Bottom"  Background="Transparent" BorderBrush="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"   Margin="0,56,0,0"  >
+        <!-- ===================================================== -->
+        <!-- TAB CONTROL                                           -->
+        <!-- ===================================================== -->
+
+        <TabControl x:Name="TabControl"
+                    TabStripPlacement="Bottom"
+                    Background="Transparent"
+                    BorderBrush="Transparent"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Margin="0,56,0,0">
+
             <TabControl.Resources>
+
                 <Style TargetType="TabPanel">
-                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                    <Setter Property="HorizontalAlignment"
+                            Value="Center"/>
                 </Style>
+
             </TabControl.Resources>
-            <TabItem x:Name="CountryTab" Background="Transparent"  VerticalContentAlignment="Center" Width="190"  BorderBrush="Transparent"  HorizontalContentAlignment="Center"  RenderOptions.BitmapScalingMode="NearestNeighbor"   RenderOptions.EdgeMode="Aliased">
+
+
+            <!-- ================================================= -->
+            <!-- REGION                                            -->
+            <!-- ================================================= -->
+
+            <TabItem x:Name="CountryTab"
+                     Background="Transparent"
+                     VerticalContentAlignment="Center"
+                     Width="190"
+                     BorderBrush="Transparent"
+                     HorizontalContentAlignment="Center"
+                     RenderOptions.BitmapScalingMode="NearestNeighbor"
+                     RenderOptions.EdgeMode="Aliased">
+
                 <TabItem.Header>
-                    <StackPanel Orientation="Horizontal" >
-                        <TextBlock FontFamily="Segoe MDL2 Assets" Margin="6" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#xE774;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBlock Text="Region" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </StackPanel>
-                </TabItem.Header>
-              
-                <Grid HorizontalAlignment="Center" Width="500"  >
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0.2*"/>
-                        <ColumnDefinition Width="0.5*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
 
-                    </Grid.RowDefinitions>
-                    <Label Foreground="{DynamicResource GlobalFontColor}" Content="Izaberi region" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" FontSize="16"/>
-
-
-                    <ComboBox    
-                        ItemsSource="{Binding Drzave}"
-                        SelectedItem="{Binding OdabranaDrzava}"
-                        Foreground="{DynamicResource GlobalFontColor}"
-                        x:Name="cmbRegion"
-                        Grid.Row="3"
-                        Grid.Column="1"
-                        Margin="9"
-                        Height="auto"
-                        Width="200"
-                        FontSize="16"
-                        HorizontalAlignment="Left"/>
-
-
-                </Grid>
-            </TabItem>
-
-            <TabItem x:Name="FirmaTab" Background="Transparent"  VerticalContentAlignment="Center" HorizontalAlignment="Center" Width="190"  BorderBrush="Transparent"   RenderOptions.BitmapScalingMode="NearestNeighbor"  RenderOptions.EdgeMode="Aliased" >
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="32" Height="35" FontWeight="ExtraLight" Text="&#xEB06;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBlock Text="Firma" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </TabItem.Header>
-                <Grid HorizontalAlignment="Center" Width="800"  >
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0.2*"/>
-                        <ColumnDefinition Width="0.5*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Naziv firme" Grid.Row="0" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Adresa" Grid.Row="1" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Mjesto" Grid.Row="2" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="JIB" Grid.Row="3" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="PDV" Grid.Row="4" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Email" Grid.Row="5" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Žiroračun" Grid.Row="6" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="PDV obveznik" Grid.Row="7" Grid.Column="0"/>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtFrima" Grid.Row="0" Grid.Column="1" Margin="9" Height="30"  BorderThickness="0,0,0,1"  />
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtAdresa" Grid.Row="1" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtMjesto" Grid.Row="2" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtJIB" Grid.Row="3" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtPDV" Grid.Row="4" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtEmail" Grid.Row="5" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtZR" Grid.Row="6" Grid.Column="1" Margin="9"  Height="30"  BorderThickness="0,0,0,1"/>
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbPDV" Grid.Row="7" Grid.Column="1" Margin="9" Height="auto" Width="150" HorizontalAlignment="Left"  >
-                        <ComboBoxItem Content="NE" />
-                        <ComboBoxItem Content="DA" />
-                    </ComboBox>
-                </Grid>
-            </TabItem>
-
-            <TabItem x:Name="FiskalizacijaFBiHTab" Background="Transparent"  VerticalContentAlignment="Center" Width="190"  BorderBrush="Transparent"   Visibility="{Binding ShowFBIH, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <TabItem.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock FontFamily="Segoe MDL2 Assets" Margin="6" FontSize="24" Width="30"  Text="&#xEC5B;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBlock Text="Fiskalizacija" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+                        <TextBlock FontFamily="Segoe MDL2 Assets"
+                                   Margin="6"
+                                   FontSize="24"
+                                   Width="30"
+                                   FontWeight="ExtraLight"
+                                   Text="&#xE774;"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Text="Region"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+
                     </StackPanel>
+
                 </TabItem.Header>
-                <Grid HorizontalAlignment="Center" Width="800"  >
+
+                <Grid HorizontalAlignment="Center"
+                      Width="500">
+
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="0.2*"/>
                         <ColumnDefinition Width="0.5*"/>
                     </Grid.ColumnDefinitions>
+
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <Label VerticalAlignment="Center" Foreground="{DynamicResource GlobalFontColor}" Content="IP adresa servera" Grid.Row="0" Grid.Column="0"/>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtIpAddressTring" Grid.Row="0" Grid.Column="1" Margin="9" Height="30"  BorderThickness="0,0,0,1"  />
-                </Grid>
-            </TabItem>
 
-            <TabItem x:Name="FiskalizacijaRSTab" Background="Transparent"  VerticalContentAlignment="Center" Width="190"  BorderBrush="Transparent"   Visibility="{Binding ShowRS, Converter={StaticResource BooleanToVisibilityConverter}}" >
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock FontFamily="Segoe MDL2 Assets" Margin="6" FontSize="24" Width="30"  Text="&#xEC5B;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBlock Text="Fiskalizacija" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </StackPanel>
-                </TabItem.Header>
-                <Grid HorizontalAlignment="Center" Width="800"  >
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0.2*"/>
-                        <ColumnDefinition Width="0.5*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="LPFR IP adresa" Grid.Row="0" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="LPFR API ključ" Grid.Row="1" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="LPFR PIN" Grid.Row="2" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="LPFR eksterni printer" Grid.Row="3" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Širina trake " Grid.Row="4" Grid.Column="0"/>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtLPFRIP" Grid.Row="0" Grid.Column="1" Margin="9" Height="30"  BorderThickness="0,0,0,1"  />
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtLPFRAPI" Grid.Row="1" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtLPFRPIN" Grid.Row="2" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbExterniPrinter" Grid.Row="3" Grid.Column="1" Margin="9" Height="auto" Width="150" HorizontalAlignment="Left"  >
-                        <ComboBoxItem Content="NE" />
-                        <ComboBoxItem Content="DA" />
-                    </ComboBox>
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbSirinaTrake" Grid.Row="4" Grid.Column="1" Margin="9" Height="auto" Width="150" HorizontalAlignment="Left"  >
-                        <ComboBoxItem Content="57" />
-                        <ComboBoxItem Content="80" />
-                    </ComboBox>
-                </Grid>
-            </TabItem>
+                    <Label Foreground="{DynamicResource GlobalFontColor}"
+                           Content="Izaberi region"
+                           Grid.Row="0"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           FontSize="16"/>
 
-            <TabItem x:Name="FiskalizacijaHrTab" Background="Transparent"  VerticalContentAlignment="Center" Width="190"  BorderBrush="Transparent"   Visibility="{Binding ShowHR, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock FontFamily="Segoe MDL2 Assets" Margin="6" FontSize="24" Width="30"  Text="&#xEC5B;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBlock Text="Fiskalizacija" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </StackPanel>
-                </TabItem.Header>
-                <Grid HorizontalAlignment="Center" Width="800"  >
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0.2*"/>
-                        <ColumnDefinition Width="0.5*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-
-                    </Grid.RowDefinitions>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Demo Server URL" Grid.Row="0" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Production Server URL" Grid.Row="1" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Poslovni prostor" Grid.Row="2" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Naplatni uređaj" Grid.Row="3" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Ozbaka slijednosti " Grid.Row="4" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Verzija aplikacije" Grid.Row="5" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Cerifikat" Grid.Row="6" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Cerifikat zaporka" Grid.Row="7" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Porez na potrošnju %" Grid.Row="8" Grid.Column="0"/>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtDemoUrl" Grid.Row="0" Grid.Column="1" Margin="9" Height="30"  BorderThickness="0,0,0,1"  />
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtProdUrl" Grid.Row="1" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtPoslovniProstor" Grid.Row="2" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtNaplatniUredjaj" Grid.Row="3" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbOznakaSlijednosti" Grid.Row="4" Grid.Column="1" Margin="9" Height="auto" Width="200" HorizontalAlignment="Left"  >
-                        <ComboBoxItem Content="Na nivou naplatnog uređaja" />
-                        <ComboBoxItem Content="Na nivou poslovnog prostora" />
-                    </ComboBox>
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbVerzijaAplikacije" Grid.Row="5" Grid.Column="1" Margin="9" Height="auto" Width="150" HorizontalAlignment="Left"  >
-                        <ComboBoxItem Content="Demo" />
-                        <ComboBoxItem Content="Produkcijska" />
-                    </ComboBox>
-                    <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="1" Grid.ColumnSpan="3" Width="600">
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Width="450" Background="Transparent" x:Name="txtCertifikat"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                        <Button Margin="2"   x:Name="CertifikatButton"  Click="CertifikatButton_Click"   HorizontalAlignment="Center"  VerticalAlignment="Top" Width="75"  Style="{StaticResource SecondaryButtonStyle}"    Foreground="{DynamicResource GlobalFontColor}">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock  FontFamily="Segoe MDL2 Assets" Margin="5" TextAlignment="Left"  Text="&#xEC50;" FontSize="20" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center"   VerticalAlignment="Center"  />
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtCertifikatPassword" Grid.Row="7" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtPnpStopa" Grid.Row="8" Grid.Column="1" Width="100" HorizontalAlignment="Left"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                </Grid>
-            </TabItem>
-
-            <TabItem x:Name="FiskalizacijaSrTab" Background="Transparent"  VerticalContentAlignment="Center" Width="190"  BorderBrush="Transparent"   Visibility="{Binding ShowSR, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock FontFamily="Segoe MDL2 Assets" Margin="6" FontSize="24" Width="30"  Text="&#xEC5B;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBlock Text="Fiskalizacija" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </StackPanel>
-                </TabItem.Header>
-                <Grid HorizontalAlignment="Center" Width="800"  >
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0.2*"/>
-                        <ColumnDefinition Width="0.5*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Srbija" Grid.Row="0" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Srbija" Grid.Row="1" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Srbija" Grid.Row="2" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Srbija" Grid.Row="3" Grid.Column="0"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Srbija" Grid.Row="4" Grid.Column="0"/>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtSrbija1" Grid.Row="0" Grid.Column="1" Margin="9" Height="30"  BorderThickness="0,0,0,1"  />
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtSrbija2" Grid.Row="1" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtLSrbija3" Grid.Row="2" Grid.Column="1"  Margin="9" Height="30"  BorderThickness="0,0,0,1"/>
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbSrbija1" Grid.Row="3" Grid.Column="1" Margin="9" Height="auto" Width="150" HorizontalAlignment="Left"  >
-                        <ComboBoxItem Content="NE" />
-                        <ComboBoxItem Content="DA" />
-                    </ComboBox>
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbSrbija2" Grid.Row="4" Grid.Column="1" Margin="9" Height="auto" Width="150" HorizontalAlignment="Left"  >
-                        <ComboBoxItem Content="57" />
-                        <ComboBoxItem Content="80" />
-                    </ComboBox>
-                </Grid>
-            </TabItem>
-            
-            <TabItem x:Name="AplikacijaTab"   Background="Transparent"  VerticalContentAlignment="Center" Width="190"  BorderBrush="Transparent"  >
-                <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="32" Height="35" FontWeight="ExtraLight" Text="&#xEA7A;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBlock Text="Aplikacija" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </StackPanel>
-                </TabItem.Header>
-                <Grid HorizontalAlignment="Center" Width="800" VerticalAlignment="Top" >
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="0.2*"/>
-                        <ColumnDefinition Width="0.5*"/>
-                        <ColumnDefinition Width="0.1*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        
-                    </Grid.RowDefinitions>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Logo" Grid.Row="0" Grid.Column="0" VerticalContentAlignment="Center" />
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Printer Šank" Grid.Row="1" Grid.Column="0" VerticalContentAlignment="Center"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Printer Kuhinja" Grid.Row="2" Grid.Column="0" VerticalContentAlignment="Center"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Printer Računi" Grid.Row="3" Grid.Column="0" VerticalContentAlignment="Center"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Printer A4" Grid.Row="4" Grid.Column="0" VerticalContentAlignment="Center"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Lokacija rezerne kopije" Grid.Row="5" Grid.Column="0" VerticalContentAlignment="Center"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Broj kopija blokova" Grid.Row="6" Grid.Column="0" VerticalContentAlignment="Center"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Dozvoli prodaju u minus" Grid.Row="7" Grid.Column="0" VerticalContentAlignment="Center"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Višekorisničko okruženje" Grid.Row="8" Grid.Column="0" VerticalContentAlignment="Center"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Izaberi displej u kuhinji" Grid.Row="9" Grid.Column="0" VerticalContentAlignment="Center"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Izaberi temu aplikacije" Grid.Row="10" Grid.Column="0" VerticalContentAlignment="Center"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Postavi IP adresu servera" Grid.Row="11" Grid.Column="0" VerticalContentAlignment="Center"/>
-                    <Label VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" Content="Serverski mod" Grid.Row="12" Grid.Column="0" VerticalContentAlignment="Center"/>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent"  x:Name="txtLogo" Grid.Row="0" Grid.Column="1" Margin="5,1" Height="auto"  BorderThickness="0,0,0,1"  VerticalAlignment="Bottom"/>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtPrinterSank" Grid.Row="1" Grid.Column="1"  Margin="5,1" Height="Auto"  BorderThickness="0,0,0,1" VerticalAlignment="Bottom"/>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtPrinterKuhinja" Grid.Row="2" Grid.Column="1"  Margin="5,1" Height="Auto"  BorderThickness="0,0,0,1" VerticalAlignment="Bottom"/>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtPrinterRacuni" Grid.Row="3" Grid.Column="1"  Margin="5,1" Height="Auto"   BorderThickness="0,0,0,1" VerticalAlignment="Bottom"/>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtPrinterA4" Grid.Row="4" Grid.Column="1"  Margin="5,1" Height="Auto"  BorderThickness="0,0,0,1" VerticalAlignment="Bottom"/>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtBackup" Grid.Row="5" Grid.Column="1"  Margin="5,1" Height="Auto"  BorderThickness="0,0,0,1" VerticalAlignment="Bottom"/>
-
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}"   x:Name="cmbBrojKopijaBloka" Grid.Row="6" Grid.Column="1" Margin="5,3" Height="Auto" Width="150" HorizontalAlignment="Left" SelectedIndex="1">
-
-                        <ComboBoxItem Content="0" />
-                        <ComboBoxItem Content="1" />
-                        <ComboBoxItem Content="2" />
-                        <ComboBoxItem Content="3" />
-                        <ComboBoxItem Content="4" />
-                        <ComboBoxItem Content="5" />
-                    </ComboBox>
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}"  x:Name="cmbProdajaMinus" Grid.Row="7" Grid.Column="1" Margin="5,3" Height="auto" Width="150" HorizontalAlignment="Left"  >
-                        <ComboBoxItem Content="NE" />
-                        <ComboBoxItem Content="DA" />
-                    </ComboBox>
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbMultiUser" Grid.Row="8" Grid.Column="1" Margin="5,3" Height="auto" Width="150" HorizontalAlignment="Left"  >
-                        <ComboBoxItem Content="NE" />
-                        <ComboBoxItem Content="DA" />
-                    </ComboBox>
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbDisplejKuhinja"
-                              Grid.Row="9"
+                    <ComboBox x:Name="cmbRegion"
+                              ItemsSource="{Binding Drzave}"
+                              SelectedItem="{Binding OdabranaDrzava,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                              Foreground="{DynamicResource GlobalFontColor}"
+                              Grid.Row="0"
                               Grid.Column="1"
-                              Margin="5,3"
-                              Height="auto"
-                              Width="150"
-                              HorizontalAlignment="Left"
-                              ItemsSource="{Binding Monitors}" 
-                              SelectedItem="{Binding SelectedMonitor}" 
-                              DisplayMemberPath="Name"/>
+                              Margin="9"
+                              Width="200"
+                              FontSize="16"
+                              HorizontalAlignment="Left"/>
 
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbTema" Grid.Row="10" Grid.Column="1" Margin="5,3" Height="auto" Width="150" HorizontalAlignment="Left" SelectionChanged="cmbTema_SelectionChanged" >
-                        <ComboBoxItem Content="Tamna" />
-                        <ComboBoxItem Content="Svijetla" />
-                    </ComboBox>
-                    <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbInterfaces" Grid.Row="11" Margin="5,3"    SelectionChanged="cmbInterfaces_SelectionChanged" Grid.Column="1" Height="auto" Width="150" HorizontalAlignment="Left"  />
-                    <StackPanel Orientation="Horizontal" Grid.Row="12" Grid.Column="1">
-                        <ComboBox Foreground="{DynamicResource GlobalFontColor}" x:Name="cmbServerskiMod"   Margin="5,3" Height="auto" Width="150" HorizontalAlignment="Left" SelectionChanged="cmbServerskiMod_SelectionChanged" >
-                            <ComboBoxItem Content="DA" />
-                            <ComboBoxItem Content="NE" />
-                        </ComboBox>
-                        <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtDBPath" Visibility="Collapsed"    Margin="5,3" Height="30" FontSize="12" BorderThickness="0,0,0,1" Width="324" VerticalAlignment="Center" HorizontalContentAlignment="Left"/>
-                    </StackPanel>
-                    <TextBox Style="{DynamicResource TextBoxCustom}"  Foreground="{DynamicResource GlobalFontColor}" Background="Transparent" x:Name="txtIPServer" Grid.Row="11" Grid.Column="1"  Margin="185,10,0,10" Height="20" FontSize="16" BorderThickness="0,0,0,1" HorizontalAlignment="Left" Width="150" VerticalAlignment="Center" HorizontalContentAlignment="Center" Padding="2"/>
-
-                    
-                    <Button Margin="2"   x:Name="LogoButton"  Click="LogoButton_Click"  Grid.Row="0" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Top" Width="75"  Style="{StaticResource SecondaryButtonStyle}"    Foreground="{DynamicResource GlobalFontColor}">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock  FontFamily="Segoe MDL2 Assets" Margin="5" TextAlignment="Left"  Text="&#xEB9F;" FontSize="20" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center"   VerticalAlignment="Center"  />
-                        </StackPanel>
-                    </Button>
-                    <Button Margin="2"  x:Name="SankButton"  Click="SankButton_Click" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Top" Width="75"  Style="{StaticResource SecondaryButtonStyle}"     Foreground="{DynamicResource GlobalFontColor}">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock  FontFamily="Segoe MDL2 Assets" Margin="5" TextAlignment="Left"  Text="&#xEC5B;" FontSize="20" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center"   VerticalAlignment="Center"  />
-
-                        </StackPanel>
-                    </Button>
-
-                    <Button Margin="2"  x:Name="KuhinjaButton"   Click="KuhinjaButton_Click" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Top" Width="75"  Style="{StaticResource SecondaryButtonStyle}"       Foreground="{DynamicResource GlobalFontColor}">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock  FontFamily="Segoe MDL2 Assets" Margin="5" TextAlignment="Left"  Text="&#xEC5B;" FontSize="20" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center"   VerticalAlignment="Center"  />
-
-                        </StackPanel>
-                    </Button>
-
-                    <Button Margin="2" x:Name="RacuniButton"   Click="RacuniButton_Click" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Top" Width="75"  Style="{StaticResource SecondaryButtonStyle}"      Foreground="{DynamicResource GlobalFontColor}">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock  FontFamily="Segoe MDL2 Assets" Margin="5" TextAlignment="Left"  Text="&#xEC5B;" FontSize="20" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center"   VerticalAlignment="Center"  />
-                        </StackPanel>
-                    </Button>
-
-                    <Button Margin="2" x:Name="A4Button"   Click="A4Button_Click"  Grid.Row="4" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Top" Width="75"  Style="{StaticResource SecondaryButtonStyle}"     Foreground="{DynamicResource GlobalFontColor}">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock  FontFamily="Segoe MDL2 Assets" Margin="5" TextAlignment="Left"  Text="&#xE749;" FontSize="20" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center"   VerticalAlignment="Center"  />
-                        </StackPanel>
-                    </Button>
-
-                    <Button Margin="2" x:Name="BackupButton"  Click="BackupButton_Click"  Grid.Row="5" Grid.Column="2" HorizontalAlignment="Center"  VerticalAlignment="Top" Width="75"  Style="{StaticResource SecondaryButtonStyle}"      Foreground="{DynamicResource GlobalFontColor}">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock  FontFamily="Segoe MDL2 Assets" Margin="5" TextAlignment="Left"  Text="&#xF12B;" FontSize="20" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center"   VerticalAlignment="Center"  />
-                        </StackPanel>
-                    </Button>
-
-                    <Button x:Name="DbPathButton"  Click="DbPathButton_Click"  Grid.Row="12" Grid.Column="2" Visibility="Collapsed" HorizontalAlignment="Center"  VerticalAlignment="Top" Width="75"  Style="{StaticResource SecondaryButtonStyle}"     Foreground="{DynamicResource GlobalFontColor}">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock  FontFamily="Segoe MDL2 Assets" Margin="5" TextAlignment="Left"  Text="&#xF12B;" FontSize="20" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center"   VerticalAlignment="Center"  />
-                        </StackPanel>
-                    </Button>
-
-                  
                 </Grid>
+
             </TabItem>
-         
-            <TabItem x:Name="RadniciTab"   Background="Transparent" VerticalContentAlignment="Center" Width="190"  BorderBrush="Transparent" >
+
+
+            <!-- ================================================= -->
+            <!-- FIRMA                                             -->
+            <!-- ================================================= -->
+
+            <TabItem x:Name="FirmaTab"
+                     Background="Transparent"
+                     VerticalContentAlignment="Center"
+                     HorizontalAlignment="Center"
+                     Width="190"
+                     BorderBrush="Transparent"
+                     RenderOptions.BitmapScalingMode="NearestNeighbor"
+                     RenderOptions.EdgeMode="Aliased">
 
                 <TabItem.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="32" Height="35" FontWeight="ExtraLight" Text="&#xEA7E;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBlock Text="Radnici" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"  />
+
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center">
+
+                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                   Margin="6"
+                                   FontSize="32"
+                                   Height="35"
+                                   FontWeight="ExtraLight"
+                                   Text="&#xEB06;"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Text="Firma"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+
                     </StackPanel>
+
                 </TabItem.Header>
-                <Grid HorizontalAlignment="Center" Width="800"  VerticalAlignment="Center">
+
+                <Grid HorizontalAlignment="Center"
+                      Width="800">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.2*"/>
+                        <ColumnDefinition Width="0.5*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Content="Naziv firme"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           VerticalAlignment="Center"
+                           Grid.Row="0"
+                           Grid.Column="0"/>
+
+                    <Label Content="Adresa"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           VerticalAlignment="Center"
+                           Grid.Row="1"
+                           Grid.Column="0"/>
+
+                    <Label Content="Mjesto"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           VerticalAlignment="Center"
+                           Grid.Row="2"
+                           Grid.Column="0"/>
+
+                    <Label Content="JIB"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           VerticalAlignment="Center"
+                           Grid.Row="3"
+                           Grid.Column="0"/>
+
+                    <Label Content="PDV"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           VerticalAlignment="Center"
+                           Grid.Row="4"
+                           Grid.Column="0"/>
+
+                    <Label Content="Email"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           VerticalAlignment="Center"
+                           Grid.Row="5"
+                           Grid.Column="0"/>
+
+                    <Label Content="Žiroračun"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           VerticalAlignment="Center"
+                           Grid.Row="6"
+                           Grid.Column="0"/>
+
+                    <Label Content="PDV obveznik"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           VerticalAlignment="Center"
+                           Grid.Row="7"
+                           Grid.Column="0"/>
+
+
+                    <TextBox x:Name="txtFrima"
+                             Text="{Binding Firma,
+                                            Mode=TwoWay,
+                                            UpdateSourceTrigger=PropertyChanged}"
+                             Style="{DynamicResource TextBoxCustom}"
+                             Foreground="{DynamicResource GlobalFontColor}"
+                             Background="Transparent"
+                             Grid.Row="0"
+                             Grid.Column="1"
+                             Margin="9"
+                             Height="30"
+                             BorderThickness="0,0,0,1"/>
+
+                    <TextBox x:Name="txtAdresa"
+                             Text="{Binding Adresa,
+                                            Mode=TwoWay,
+                                            UpdateSourceTrigger=PropertyChanged}"
+                             Style="{DynamicResource TextBoxCustom}"
+                             Foreground="{DynamicResource GlobalFontColor}"
+                             Background="Transparent"
+                             Grid.Row="1"
+                             Grid.Column="1"
+                             Margin="9"
+                             Height="30"
+                             BorderThickness="0,0,0,1"/>
+
+                    <TextBox x:Name="txtMjesto"
+                             Text="{Binding Mjesto,
+                                            Mode=TwoWay,
+                                            UpdateSourceTrigger=PropertyChanged}"
+                             Style="{DynamicResource TextBoxCustom}"
+                             Foreground="{DynamicResource GlobalFontColor}"
+                             Background="Transparent"
+                             Grid.Row="2"
+                             Grid.Column="1"
+                             Margin="9"
+                             Height="30"
+                             BorderThickness="0,0,0,1"/>
+
+                    <TextBox x:Name="txtJIB"
+                             Text="{Binding JIB,
+                                            Mode=TwoWay,
+                                            UpdateSourceTrigger=PropertyChanged}"
+                             Style="{DynamicResource TextBoxCustom}"
+                             Foreground="{DynamicResource GlobalFontColor}"
+                             Background="Transparent"
+                             Grid.Row="3"
+                             Grid.Column="1"
+                             Margin="9"
+                             Height="30"
+                             BorderThickness="0,0,0,1"/>
+
+                    <TextBox x:Name="txtPDV"
+                             Text="{Binding PDV,
+                                            Mode=TwoWay,
+                                            UpdateSourceTrigger=PropertyChanged}"
+                             Style="{DynamicResource TextBoxCustom}"
+                             Foreground="{DynamicResource GlobalFontColor}"
+                             Background="Transparent"
+                             Grid.Row="4"
+                             Grid.Column="1"
+                             Margin="9"
+                             Height="30"
+                             BorderThickness="0,0,0,1"/>
+
+                    <TextBox x:Name="txtEmail"
+                             Text="{Binding Email,
+                                            Mode=TwoWay,
+                                            UpdateSourceTrigger=PropertyChanged}"
+                             Style="{DynamicResource TextBoxCustom}"
+                             Foreground="{DynamicResource GlobalFontColor}"
+                             Background="Transparent"
+                             Grid.Row="5"
+                             Grid.Column="1"
+                             Margin="9"
+                             Height="30"
+                             BorderThickness="0,0,0,1"/>
+
+                    <TextBox x:Name="txtZR"
+                             Text="{Binding ZR,
+                                            Mode=TwoWay,
+                                            UpdateSourceTrigger=PropertyChanged}"
+                             Style="{DynamicResource TextBoxCustom}"
+                             Foreground="{DynamicResource GlobalFontColor}"
+                             Background="Transparent"
+                             Grid.Row="6"
+                             Grid.Column="1"
+                             Margin="9"
+                             Height="30"
+                             BorderThickness="0,0,0,1"/>
+
+                    <ComboBox x:Name="cmbPDV"
+                              SelectedIndex="{Binding PDVKorisnik,
+                                                      Mode=TwoWay}"
+                              Foreground="{DynamicResource GlobalFontColor}"
+                              Grid.Row="7"
+                              Grid.Column="1"
+                              Margin="9"
+                              Width="150"
+                              HorizontalAlignment="Left">
+
+                        <ComboBoxItem Content="NE"/>
+                        <ComboBoxItem Content="DA"/>
+
+                    </ComboBox>
+
+                </Grid>
+
+            </TabItem>
+
+
+            <!-- ================================================= -->
+            <!-- FBiH                                              -->
+            <!-- ================================================= -->
+
+            <TabItem x:Name="FiskalizacijaFBiHTab"
+                     Background="Transparent"
+                     VerticalContentAlignment="Center"
+                     Width="190"
+                     BorderBrush="Transparent"
+                     Visibility="{Binding ShowFBIH,
+                                          Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                <TabItem.Header>
+
+                    <StackPanel Orientation="Horizontal">
+
+                        <TextBlock FontFamily="Segoe MDL2 Assets"
+                                   Margin="6"
+                                   FontSize="24"
+                                   Width="30"
+                                   Text="&#xEC5B;"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Text="Fiskalizacija"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+
+                    </StackPanel>
+
+                </TabItem.Header>
+
+                <Grid HorizontalAlignment="Center"
+                      Width="800">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.2*"/>
+                        <ColumnDefinition Width="0.5*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Content="IP adresa servera"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           VerticalAlignment="Center"
+                           Grid.Row="0"
+                           Grid.Column="0"/>
+
+                    <TextBox x:Name="txtIpAddressTring"
+                             Text="{Binding TringServerIpAddress,
+                                            Mode=TwoWay,
+                                            UpdateSourceTrigger=PropertyChanged}"
+                             Style="{DynamicResource TextBoxCustom}"
+                             Foreground="{DynamicResource GlobalFontColor}"
+                             Background="Transparent"
+                             Grid.Row="0"
+                             Grid.Column="1"
+                             Margin="9"
+                             Height="30"
+                             BorderThickness="0,0,0,1"/>
+
+                </Grid>
+
+            </TabItem>
+
+
+            <!-- ================================================= -->
+            <!-- REPUBLIKA SRPSKA                                  -->
+            <!-- ================================================= -->
+
+            <TabItem x:Name="FiskalizacijaRSTab"
+                     Background="Transparent"
+                     VerticalContentAlignment="Center"
+                     Width="190"
+                     BorderBrush="Transparent"
+                     Visibility="{Binding ShowRS,
+                                          Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                <TabItem.Header>
+
+                    <StackPanel Orientation="Horizontal">
+
+                        <TextBlock FontFamily="Segoe MDL2 Assets"
+                                   Margin="6"
+                                   FontSize="24"
+                                   Width="30"
+                                   Text="&#xEC5B;"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Text="Fiskalizacija"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+
+                    </StackPanel>
+
+                </TabItem.Header>
+
+                <Grid HorizontalAlignment="Center"
+                      Width="800">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="0.2*"/>
+                        <ColumnDefinition Width="0.5*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Content="LPFR IP adresa"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           VerticalAlignment="Center"
+                           Grid.Row="0"
+                           Grid.Column="0"/>
+
+                    <Label Content="LPFR API ključ"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           VerticalAlignment="Center"
+                           Grid.Row="1"
+                           Grid.Column="0"/>
+
+                    <Label Content="LPFR PIN"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           VerticalAlignment="Center"
+                           Grid.Row="2"
+                           Grid.Column="0"/>
+
+                    <Label Content="LPFR eksterni printer"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           VerticalAlignment="Center"
+                           Grid.Row="3"
+                           Grid.Column="0"/>
+
+                    <Label Content="Širina trake"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           VerticalAlignment="Center"
+                           Grid.Row="4"
+                           Grid.Column="0"/>
+
+
+                    <TextBox x:Name="txtLPFRIP"
+                             Text="{Binding LPFRIP,
+                                            Mode=TwoWay,
+                                            UpdateSourceTrigger=PropertyChanged}"
+                             Style="{DynamicResource TextBoxCustom}"
+                             Foreground="{DynamicResource GlobalFontColor}"
+                             Background="Transparent"
+                             Grid.Row="0"
+                             Grid.Column="1"
+                             Margin="9"
+                             Height="30"
+                             BorderThickness="0,0,0,1"/>
+
+                    <TextBox x:Name="txtLPFRAPI"
+                             Text="{Binding LPFRKey,
+                                            Mode=TwoWay,
+                                            UpdateSourceTrigger=PropertyChanged}"
+                             Style="{DynamicResource TextBoxCustom}"
+                             Foreground="{DynamicResource GlobalFontColor}"
+                             Background="Transparent"
+                             Grid.Row="1"
+                             Grid.Column="1"
+                             Margin="9"
+                             Height="30"
+                             BorderThickness="0,0,0,1"/>
+
+                    <TextBox x:Name="txtLPFRPIN"
+                             Text="{Binding LPFRPin,
+                                            Mode=TwoWay,
+                                            UpdateSourceTrigger=PropertyChanged}"
+                             Style="{DynamicResource TextBoxCustom}"
+                             Foreground="{DynamicResource GlobalFontColor}"
+                             Background="Transparent"
+                             Grid.Row="2"
+                             Grid.Column="1"
+                             Margin="9"
+                             Height="30"
+                             BorderThickness="0,0,0,1"/>
+
+                    <ComboBox x:Name="cmbExterniPrinter"
+                              SelectedIndex="{Binding ExterniPrinter,
+                                                      Mode=TwoWay}"
+                              Foreground="{DynamicResource GlobalFontColor}"
+                              Grid.Row="3"
+                              Grid.Column="1"
+                              Margin="9"
+                              Width="150"
+                              HorizontalAlignment="Left">
+
+                        <ComboBoxItem Content="NE"/>
+                        <ComboBoxItem Content="DA"/>
+
+                    </ComboBox>
+
+                    <ComboBox x:Name="cmbSirinaTrake"
+                              SelectedValue="{Binding SirinaTrake,
+                                                      Mode=TwoWay}"
+                              SelectedValuePath="Content"
+                              Foreground="{DynamicResource GlobalFontColor}"
+                              Grid.Row="4"
+                              Grid.Column="1"
+                              Margin="9"
+                              Width="150"
+                              HorizontalAlignment="Left">
+
+                        <ComboBoxItem Content="57"/>
+                        <ComboBoxItem Content="80"/>
+
+                    </ComboBox>
+
+                </Grid>
+
+            </TabItem>
+
+
+            <!-- ================================================= -->
+            <!-- HRVATSKA                                          -->
+            <!-- ================================================= -->
+
+            <TabItem x:Name="FiskalizacijaHrTab"
+                     Background="Transparent"
+                     VerticalContentAlignment="Center"
+                     Width="190"
+                     BorderBrush="Transparent"
+                     Visibility="{Binding ShowHR,
+                                          Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                <TabItem.Header>
+
+                    <StackPanel Orientation="Horizontal">
+
+                        <TextBlock FontFamily="Segoe MDL2 Assets"
+                                   Margin="6"
+                                   FontSize="24"
+                                   Width="30"
+                                   Text="&#xEC5B;"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Text="Fiskalizacija"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+
+                    </StackPanel>
+
+                </TabItem.Header>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+                    <StackPanel HorizontalAlignment="Center"
+                                Width="800"
+                                Margin="0,25,0,25">
+
+
+                        <!-- ============================================= -->
+                        <!-- HR - SERVER                                   -->
+                        <!-- ============================================= -->
+
+                        <TextBlock Text="Porezna uprava"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Margin="9,5,9,15"/>
+
+                        <Grid>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="230"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                            </Grid.RowDefinitions>
+
+                            <Label Content="Demo Server URL"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="0"
+                                   Grid.Column="0"/>
+
+                            <TextBox x:Name="txtDemoUrl"
+                                     Text="{Binding DemoServerUrl,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{DynamicResource TextBoxCustom}"
+                                     Foreground="{DynamicResource GlobalFontColor}"
+                                     Background="Transparent"
+                                     Grid.Row="0"
+                                     Grid.Column="1"
+                                     Margin="9"
+                                     Height="30"
+                                     BorderThickness="0,0,0,1"/>
+
+                            <Label Content="Production Server URL"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="1"
+                                   Grid.Column="0"/>
+
+                            <TextBox x:Name="txtProdUrl"
+                                     Text="{Binding ProductionServerUrl,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{DynamicResource TextBoxCustom}"
+                                     Foreground="{DynamicResource GlobalFontColor}"
+                                     Background="Transparent"
+                                     Grid.Row="1"
+                                     Grid.Column="1"
+                                     Margin="9"
+                                     Height="30"
+                                     BorderThickness="0,0,0,1"/>
+
+                        </Grid>
+
+
+                        <Separator Margin="9,15"/>
+
+
+                        <!-- ============================================= -->
+                        <!-- HR - POSLOVNI PROSTOR                         -->
+                        <!-- ============================================= -->
+
+                        <TextBlock Text="Naplatni uređaj"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Margin="9,5,9,15"/>
+
+                        <Grid>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="230"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                            </Grid.RowDefinitions>
+
+                            <Label Content="Poslovni prostor"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="0"
+                                   Grid.Column="0"/>
+
+                            <TextBox x:Name="txtPoslovniProstor"
+                                     Text="{Binding PoslovniProstor,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{DynamicResource TextBoxCustom}"
+                                     Foreground="{DynamicResource GlobalFontColor}"
+                                     Background="Transparent"
+                                     Grid.Row="0"
+                                     Grid.Column="1"
+                                     Margin="9"
+                                     Height="30"
+                                     BorderThickness="0,0,0,1"/>
+
+                            <Label Content="Naplatni uređaj"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="1"
+                                   Grid.Column="0"/>
+
+                            <TextBox x:Name="txtNaplatniUredjaj"
+                                     Text="{Binding NaplatniUredjaj,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{DynamicResource TextBoxCustom}"
+                                     Foreground="{DynamicResource GlobalFontColor}"
+                                     Background="Transparent"
+                                     Grid.Row="1"
+                                     Grid.Column="1"
+                                     Margin="9"
+                                     Height="30"
+                                     BorderThickness="0,0,0,1"/>
+
+                            <Label Content="Oznaka slijednosti"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="2"
+                                   Grid.Column="0"/>
+
+                            <ComboBox x:Name="cmbOznakaSlijednosti"
+                                      SelectedIndex="{Binding OznakaSlijednosti,
+                                                              Mode=TwoWay}"
+                                      Foreground="{DynamicResource GlobalFontColor}"
+                                      Grid.Row="2"
+                                      Grid.Column="1"
+                                      Margin="9"
+                                      Width="250"
+                                      HorizontalAlignment="Left">
+
+                                <ComboBoxItem Content="Na nivou naplatnog uređaja"/>
+                                <ComboBoxItem Content="Na nivou poslovnog prostora"/>
+
+                            </ComboBox>
+
+                            <Label Content="Verzija aplikacije"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="3"
+                                   Grid.Column="0"/>
+
+                            <ComboBox x:Name="cmbVerzijaAplikacije"
+                                      SelectedIndex="{Binding VerzijaAplikacije,
+                                                              Mode=TwoWay}"
+                                      Foreground="{DynamicResource GlobalFontColor}"
+                                      Grid.Row="3"
+                                      Grid.Column="1"
+                                      Margin="9"
+                                      Width="150"
+                                      HorizontalAlignment="Left">
+
+                                <ComboBoxItem Content="Demo"/>
+                                <ComboBoxItem Content="Produkcijska"/>
+
+                            </ComboBox>
+
+                            <Label Content="Porez na potrošnju %"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="4"
+                                   Grid.Column="0"/>
+
+                            <TextBox x:Name="txtPnpStopa"
+                                     Text="{Binding PnpStopa,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{DynamicResource TextBoxCustom}"
+                                     Foreground="{DynamicResource GlobalFontColor}"
+                                     Background="Transparent"
+                                     Grid.Row="4"
+                                     Grid.Column="1"
+                                     Margin="9"
+                                     Height="30"
+                                     Width="100"
+                                     HorizontalAlignment="Left"
+                                     BorderThickness="0,0,0,1"/>
+
+                        </Grid>
+
+
+                        <Separator Margin="9,15"/>
+
+
+                        <!-- ============================================= -->
+                        <!-- HR - CERTIFIKAT                               -->
+                        <!-- ============================================= -->
+
+                        <TextBlock Text="Certifikat"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Margin="9,5,9,15"/>
+
+                        <Grid>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="230"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="80"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                            </Grid.RowDefinitions>
+
+                            <Label Content="Certifikat"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="0"
+                                   Grid.Column="0"/>
+
+                            <TextBox x:Name="txtCertifikat"
+                                     Text="{Binding CertificateName,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{DynamicResource TextBoxCustom}"
+                                     Foreground="{DynamicResource GlobalFontColor}"
+                                     Background="Transparent"
+                                     Grid.Row="0"
+                                     Grid.Column="1"
+                                     Margin="9"
+                                     Height="30"
+                                     BorderThickness="0,0,0,1"
+                                     IsReadOnly="True"/>
+
+                            <Button x:Name="CertifikatButton"
+                                    Command="{Binding SelectCroatiaCertificateCommand}"
+                                    Grid.Row="0"
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Width="75"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Foreground="{DynamicResource GlobalFontColor}">
+
+                                <StackPanel Orientation="Horizontal"
+                                            VerticalAlignment="Center">
+
+                                    <TextBlock FontFamily="Segoe MDL2 Assets"
+                                               Margin="5"
+                                               Text="&#xEC50;"
+                                               FontSize="20"
+                                               Foreground="{DynamicResource GlobalFontColor}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+
+                                </StackPanel>
+
+                            </Button>
+
+                            <Label Content="Certifikat zaporka"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="1"
+                                   Grid.Column="0"/>
+
+                            <TextBox x:Name="txtCertifikatPassword"
+                                     Text="{Binding CertificatePassword,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{DynamicResource TextBoxCustom}"
+                                     Foreground="{DynamicResource GlobalFontColor}"
+                                     Background="Transparent"
+                                     Grid.Row="1"
+                                     Grid.Column="1"
+                                     Grid.ColumnSpan="2"
+                                     Margin="9"
+                                     Height="30"
+                                     BorderThickness="0,0,0,1"/>
+
+                        </Grid>
+
+                    </StackPanel>
+
+                </ScrollViewer>
+
+            </TabItem>
+
+
+            <!-- ================================================= -->
+            <!-- SRBIJA                                            -->
+            <!-- ================================================= -->
+
+            <TabItem x:Name="FiskalizacijaSrTab"
+                     Background="Transparent"
+                     VerticalContentAlignment="Center"
+                     Width="190"
+                     BorderBrush="Transparent"
+                     Visibility="{Binding ShowSR,
+                                          Converter={StaticResource BooleanToVisibilityConverter}}">
+
+                <TabItem.Header>
+
+                    <StackPanel Orientation="Horizontal">
+
+                        <TextBlock FontFamily="Segoe MDL2 Assets"
+                                   Margin="6"
+                                   FontSize="24"
+                                   Width="30"
+                                   Text="&#xEC5B;"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Text="Fiskalizacija"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+
+                    </StackPanel>
+
+                </TabItem.Header>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+                    <StackPanel HorizontalAlignment="Center"
+                                Width="800"
+                                Margin="0,20,0,30">
+
+
+                        <!-- ============================================= -->
+                        <!-- SRBIJA - OPŠTE                                -->
+                        <!-- ============================================= -->
+
+                        <TextBlock Text="PFR konfiguracija"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Margin="9,5,9,15"/>
+
+                        <Grid>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="230"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                            </Grid.RowDefinitions>
+
+                            <Label Content="Tip PFR-a"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="0"
+                                   Grid.Column="0"/>
+
+                            <ComboBox x:Name="cmbSrbijaPfrType"
+                                      SelectedValue="{Binding SrbijaPfrType,
+                                                              Mode=TwoWay,
+                                                              UpdateSourceTrigger=PropertyChanged}"
+                                      SelectedValuePath="Content"
+                                      Foreground="{DynamicResource GlobalFontColor}"
+                                      Grid.Row="0"
+                                      Grid.Column="1"
+                                      Margin="9"
+                                      Width="150"
+                                      HorizontalAlignment="Left">
+
+                                <ComboBoxItem Content="VPFR"/>
+                                <ComboBoxItem Content="LPFR"/>
+
+                            </ComboBox>
+
+                            <Label Content="Okruženje"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="1"
+                                   Grid.Column="0"/>
+
+                            <ComboBox x:Name="cmbSrbijaEnvironment"
+                                      SelectedValue="{Binding SrbijaEnvironment,
+                                                              Mode=TwoWay,
+                                                              UpdateSourceTrigger=PropertyChanged}"
+                                      SelectedValuePath="Content"
+                                      Foreground="{DynamicResource GlobalFontColor}"
+                                      Grid.Row="1"
+                                      Grid.Column="1"
+                                      Margin="9"
+                                      Width="150"
+                                      HorizontalAlignment="Left">
+
+                                <ComboBoxItem Content="Sandbox"/>
+                                <ComboBoxItem Content="Produkcija"/>
+
+                            </ComboBox>
+
+                        </Grid>
+
+
+                        <Separator Margin="9,15"/>
+
+
+                        <!-- ============================================= -->
+                        <!-- SRBIJA - VPFR                                 -->
+                        <!-- ============================================= -->
+
+                        <TextBlock Text="V-PFR"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Margin="9,5,9,15"/>
+
+                        <Grid>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="230"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="80"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                            </Grid.RowDefinitions>
+
+                            <Label Content="V-PFR URL"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="0"
+                                   Grid.Column="0"/>
+
+                            <TextBox x:Name="txtSrbijaVPFRUrl"
+                                     Text="{Binding SrbijaVPFRUrl,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{DynamicResource TextBoxCustom}"
+                                     Foreground="{DynamicResource GlobalFontColor}"
+                                     Background="Transparent"
+                                     Grid.Row="0"
+                                     Grid.Column="1"
+                                     Grid.ColumnSpan="2"
+                                     Margin="9"
+                                     Height="30"
+                                     BorderThickness="0,0,0,1"/>
+
+                            <Label Content="Certifikat"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="1"
+                                   Grid.Column="0"/>
+
+                            <TextBox x:Name="txtSrbijaCertificate"
+                                     Text="{Binding SrbijaCertificateName,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{DynamicResource TextBoxCustom}"
+                                     Foreground="{DynamicResource GlobalFontColor}"
+                                     Background="Transparent"
+                                     Grid.Row="1"
+                                     Grid.Column="1"
+                                     Margin="9"
+                                     Height="30"
+                                     IsReadOnly="True"
+                                     BorderThickness="0,0,0,1"/>
+
+                            <Button Command="{Binding SelectSrbijaCertificateCommand}"
+                                    Grid.Row="1"
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Width="75"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Foreground="{DynamicResource GlobalFontColor}">
+
+                                <TextBlock FontFamily="Segoe MDL2 Assets"
+                                           Margin="5"
+                                           Text="&#xEC50;"
+                                           FontSize="20"
+                                           Foreground="{DynamicResource GlobalFontColor}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+
+                            </Button>
+
+                            <Label Content="Certifikat zaporka"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="2"
+                                   Grid.Column="0"/>
+
+                            <TextBox x:Name="txtSrbijaCertificatePassword"
+                                     Text="{Binding SrbijaCertificatePassword,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{DynamicResource TextBoxCustom}"
+                                     Foreground="{DynamicResource GlobalFontColor}"
+                                     Background="Transparent"
+                                     Grid.Row="2"
+                                     Grid.Column="1"
+                                     Grid.ColumnSpan="2"
+                                     Margin="9"
+                                     Height="30"
+                                     BorderThickness="0,0,0,1"/>
+
+                            <Label Content="PAC"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="3"
+                                   Grid.Column="0"/>
+
+                            <TextBox x:Name="txtSrbijaPAC"
+                                     Text="{Binding SrbijaPAC,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{DynamicResource TextBoxCustom}"
+                                     Foreground="{DynamicResource GlobalFontColor}"
+                                     Background="Transparent"
+                                     Grid.Row="3"
+                                     Grid.Column="1"
+                                     Grid.ColumnSpan="2"
+                                     Margin="9"
+                                     Height="30"
+                                     BorderThickness="0,0,0,1"/>
+
+                            <Label Content="Jezik komunikacije"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="4"
+                                   Grid.Column="0"/>
+
+                            <ComboBox x:Name="cmbSrbijaLanguage"
+                                      SelectedValue="{Binding SrbijaAcceptLanguage,
+                                                              Mode=TwoWay,
+                                                              UpdateSourceTrigger=PropertyChanged}"
+                                      SelectedValuePath="Content"
+                                      Foreground="{DynamicResource GlobalFontColor}"
+                                      Grid.Row="4"
+                                      Grid.Column="1"
+                                      Margin="9"
+                                      Width="180"
+                                      HorizontalAlignment="Left">
+
+                                <ComboBoxItem Content="sr-Cyrl-RS"/>
+                                <ComboBoxItem Content="en-US"/>
+
+                            </ComboBox>
+
+                        </Grid>
+
+
+                        <Separator Margin="9,15"/>
+
+
+                        <!-- ============================================= -->
+                        <!-- SRBIJA - LPFR                                 -->
+                        <!-- ============================================= -->
+
+
+
+                        <TextBlock Text="L-PFR"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Margin="9,5,9,15"/>
+
+                        <Grid>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="230"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                            </Grid.RowDefinitions>
+
+
+                                                        <!-- TOKEN -->
+
+                                                        <Label Content="Token"
+                                       Foreground="{DynamicResource GlobalFontColor}"
+                                       VerticalAlignment="Center"
+                                       Grid.Row="0"
+                                       Grid.Column="0"/>
+
+                                                        <TextBox x:Name="txtSrbijaLPFRToken"
+                                         Text="{Binding SrbijaLPFRToken,
+                                                        Mode=TwoWay,
+                                                        UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{DynamicResource TextBoxCustom}"
+                                         Foreground="{DynamicResource GlobalFontColor}"
+                                         Background="Transparent"
+                                         Grid.Row="0"
+                                         Grid.Column="1"
+                                         Margin="9"
+                                         Height="30"
+                                         BorderThickness="0,0,0,1"/>
+
+
+                                                        <!-- URL -->
+
+                                                        <Label Content="L-PFR URL"
+                                       Foreground="{DynamicResource GlobalFontColor}"
+                                       VerticalAlignment="Center"
+                                       Grid.Row="1"
+                                       Grid.Column="0"/>
+
+                                                        <TextBox x:Name="txtSrbijaLPFRUrl"
+                                         Text="{Binding SrbijaLPFRUrl,
+                                                        Mode=TwoWay,
+                                                        UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{DynamicResource TextBoxCustom}"
+                                         Foreground="{DynamicResource GlobalFontColor}"
+                                         Background="Transparent"
+                                         Grid.Row="1"
+                                         Grid.Column="1"
+                                         Margin="9"
+                                         Height="30"
+                                         BorderThickness="0,0,0,1"/>
+
+
+                                                        <!-- PIN -->
+
+                                                        <Label Content="PIN"
+                                       Foreground="{DynamicResource GlobalFontColor}"
+                                       VerticalAlignment="Center"
+                                       Grid.Row="2"
+                                       Grid.Column="0"/>
+
+                                                        <TextBox x:Name="txtSrbijaLPFRPin"
+                                         Text="{Binding SrbijaLPFRPin,
+                                                        Mode=TwoWay,
+                                                        UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{DynamicResource TextBoxCustom}"
+                                         Foreground="{DynamicResource GlobalFontColor}"
+                                         Background="Transparent"
+                                         Grid.Row="2"
+                                         Grid.Column="1"
+                                         Margin="9"
+                                         Height="30"
+                                         BorderThickness="0,0,0,1"/>
+
+
+                                                        <!-- JID -->
+
+                                                        <Label Content="JID"
+                                       Foreground="{DynamicResource GlobalFontColor}"
+                                       VerticalAlignment="Center"
+                                       Grid.Row="3"
+                                       Grid.Column="0"/>
+
+                                                        <TextBox x:Name="txtSrbijaLPFRJid"
+                                         Text="{Binding SrbijaLPFRJid,
+                                                        Mode=TwoWay,
+                                                        UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{DynamicResource TextBoxCustom}"
+                                         Foreground="{DynamicResource GlobalFontColor}"
+                                         Background="Transparent"
+                                         Grid.Row="3"
+                                         Grid.Column="1"
+                                         Margin="9"
+                                         Height="30"
+                                         BorderThickness="0,0,0,1"/>
+
+                        </Grid>
+
+
+                        <Separator Margin="9,15"/>
+
+
+                        <!-- ============================================= -->
+                        <!-- SRBIJA - TEST                                 -->
+                        <!-- ============================================= -->
+
+                        <TextBlock Text="Provjera komunikacije"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Margin="9,5,9,15"/>
+
+                        <Grid>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="230"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Label Content="Status"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Column="0"/>
+
+                            <TextBlock Text="{Binding SrbijaConnectionStatus}"
+                                       Foreground="{DynamicResource GlobalFontColor}"
+                                       VerticalAlignment="Center"
+                                       Margin="9"
+                                       Grid.Column="1"/>
+
+                            <Button Command="{Binding TestSrbijaPfrCommand}"
+                                    Grid.Column="2"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    BorderBrush="#65ff65"
+                                    Height="40"
+                                    Margin="5"
+                                    Foreground="{DynamicResource GlobalFontColor}">
+
+                                <StackPanel Orientation="Horizontal">
+
+                                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                               Text="&#xEB50;"
+                                               FontSize="18"
+                                               Margin="5"
+                                               Foreground="{DynamicResource GlobalFontColor}"/>
+
+                                    <TextBlock Text="Testiraj"
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource GlobalFontColor}"/>
+
+                                </StackPanel>
+
+                            </Button>
+
+                        </Grid>
+
+                    </StackPanel>
+
+                </ScrollViewer>
+
+            </TabItem>
+
+
+            <!-- ================================================= -->
+            <!-- APLIKACIJA                                        -->
+            <!-- ================================================= -->
+
+            <TabItem x:Name="AplikacijaTab"
+                     Background="Transparent"
+                     VerticalContentAlignment="Center"
+                     Width="190"
+                     BorderBrush="Transparent">
+
+                <TabItem.Header>
+
+                    <StackPanel Orientation="Horizontal">
+
+                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                   Margin="6"
+                                   FontSize="32"
+                                   Height="35"
+                                   FontWeight="ExtraLight"
+                                   Text="&#xEA7A;"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Text="Aplikacija"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+
+                    </StackPanel>
+
+                </TabItem.Header>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+
+                    <StackPanel HorizontalAlignment="Center"
+                                Width="800"
+                                Margin="0,20,0,30">
+
+
+                        <!-- ============================================= -->
+                        <!-- DATOTEKE I BAZA                               -->
+                        <!-- ============================================= -->
+
+                        <TextBlock Text="Datoteke i baza podataka"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Margin="9,5,9,15"/>
+
+                        <Grid>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="230"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="80"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                            </Grid.RowDefinitions>
+
+                            <Label Content="Logo"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="0"
+                                   Grid.Column="0"/>
+
+                            <TextBox x:Name="txtLogo"
+                                     Text="{Binding LogoUrl,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{DynamicResource TextBoxCustom}"
+                                     Foreground="{DynamicResource GlobalFontColor}"
+                                     Background="Transparent"
+                                     Grid.Row="0"
+                                     Grid.Column="1"
+                                     Margin="5"
+                                     BorderThickness="0,0,0,1"/>
+
+                            <Button x:Name="LogoButton"
+                                    Command="{Binding SelectLogoCommand}"
+                                    Grid.Row="0"
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    Width="75"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Foreground="{DynamicResource GlobalFontColor}">
+
+                                <TextBlock FontFamily="Segoe MDL2 Assets"
+                                           Margin="5"
+                                           Text="&#xEB9F;"
+                                           FontSize="20"
+                                           Foreground="{DynamicResource GlobalFontColor}"/>
+
+                            </Button>
+
+
+                            <Label Content="Lokacija rezervne kopije"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="1"
+                                   Grid.Column="0"/>
+
+                            <TextBox x:Name="txtBackup"
+                                     Text="{Binding BackupUrl,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{DynamicResource TextBoxCustom}"
+                                     Foreground="{DynamicResource GlobalFontColor}"
+                                     Background="Transparent"
+                                     Grid.Row="1"
+                                     Grid.Column="1"
+                                     Margin="5"
+                                     BorderThickness="0,0,0,1"/>
+
+                            <Button x:Name="BackupButton"
+                                    Command="{Binding SelectBackupCommand}"
+                                    Grid.Row="1"
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    Width="75"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Foreground="{DynamicResource GlobalFontColor}">
+
+                                <TextBlock FontFamily="Segoe MDL2 Assets"
+                                           Margin="5"
+                                           Text="&#xF12B;"
+                                           FontSize="20"
+                                           Foreground="{DynamicResource GlobalFontColor}"/>
+
+                            </Button>
+
+
+                            <Label Content="Baza podataka"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="2"
+                                   Grid.Column="0"/>
+
+                            <TextBox x:Name="txtDBPath"
+                                     Text="{Binding DbPath}"
+                                     IsReadOnly="True"
+                                     Style="{DynamicResource TextBoxCustom}"
+                                     Foreground="{DynamicResource GlobalFontColor}"
+                                     Background="Transparent"
+                                     Grid.Row="2"
+                                     Grid.Column="1"
+                                     Margin="5"
+                                     BorderThickness="0,0,0,1"/>
+
+                            <Button x:Name="DbPathButton"
+                                    Command="{Binding SelectDatabaseCommand}"
+                                    Grid.Row="2"
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    Width="75"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Foreground="{DynamicResource GlobalFontColor}">
+
+                                <TextBlock FontFamily="Segoe MDL2 Assets"
+                                           Margin="5"
+                                           Text="&#xF12B;"
+                                           FontSize="20"
+                                           Foreground="{DynamicResource GlobalFontColor}"/>
+
+                            </Button>
+
+                        </Grid>
+
+
+                        <Separator Margin="9,15"/>
+
+
+                        <!-- ============================================= -->
+                        <!-- PRINTERI                                      -->
+                        <!-- ============================================= -->
+
+                        <TextBlock Text="Printeri"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Margin="9,5,9,15"/>
+
+                        <Grid>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="230"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="80"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                            </Grid.RowDefinitions>
+
+
+                            <Label Content="Printer Šank"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="0"
+                                   Grid.Column="0"/>
+
+                            <TextBox x:Name="txtPrinterSank"
+                                     Text="{Binding SankPrinter,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{DynamicResource TextBoxCustom}"
+                                     Foreground="{DynamicResource GlobalFontColor}"
+                                     Background="Transparent"
+                                     Grid.Row="0"
+                                     Grid.Column="1"
+                                     Margin="5"
+                                     BorderThickness="0,0,0,1"/>
+
+                            <Button x:Name="SankButton"
+                                    Command="{Binding SelectSankPrinterCommand}"
+                                    Grid.Row="0"
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    Width="75"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Foreground="{DynamicResource GlobalFontColor}">
+
+                                <TextBlock FontFamily="Segoe MDL2 Assets"
+                                           Margin="5"
+                                           Text="&#xEC5B;"
+                                           FontSize="20"
+                                           Foreground="{DynamicResource GlobalFontColor}"/>
+
+                            </Button>
+
+
+                            <Label Content="Printer Kuhinja"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="1"
+                                   Grid.Column="0"/>
+
+                            <TextBox x:Name="txtPrinterKuhinja"
+                                     Text="{Binding KuhinjaPrinter,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{DynamicResource TextBoxCustom}"
+                                     Foreground="{DynamicResource GlobalFontColor}"
+                                     Background="Transparent"
+                                     Grid.Row="1"
+                                     Grid.Column="1"
+                                     Margin="5"
+                                     BorderThickness="0,0,0,1"/>
+
+                            <Button x:Name="KuhinjaButton"
+                                    Command="{Binding SelectKuhinjaPrinterCommand}"
+                                    Grid.Row="1"
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    Width="75"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Foreground="{DynamicResource GlobalFontColor}">
+
+                                <TextBlock FontFamily="Segoe MDL2 Assets"
+                                           Margin="5"
+                                           Text="&#xEC5B;"
+                                           FontSize="20"
+                                           Foreground="{DynamicResource GlobalFontColor}"/>
+
+                            </Button>
+
+
+                            <Label Content="Printer Računi"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="2"
+                                   Grid.Column="0"/>
+
+                            <TextBox x:Name="txtPrinterRacuni"
+                                     Text="{Binding POSPrinter,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{DynamicResource TextBoxCustom}"
+                                     Foreground="{DynamicResource GlobalFontColor}"
+                                     Background="Transparent"
+                                     Grid.Row="2"
+                                     Grid.Column="1"
+                                     Margin="5"
+                                     BorderThickness="0,0,0,1"/>
+
+                            <Button x:Name="RacuniButton"
+                                    Command="{Binding SelectPOSPrinterCommand}"
+                                    Grid.Row="2"
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    Width="75"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Foreground="{DynamicResource GlobalFontColor}">
+
+                                <TextBlock FontFamily="Segoe MDL2 Assets"
+                                           Margin="5"
+                                           Text="&#xEC5B;"
+                                           FontSize="20"
+                                           Foreground="{DynamicResource GlobalFontColor}"/>
+
+                            </Button>
+
+
+                            <Label Content="Printer A4"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="3"
+                                   Grid.Column="0"/>
+
+                            <TextBox x:Name="txtPrinterA4"
+                                     Text="{Binding A4Printer,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{DynamicResource TextBoxCustom}"
+                                     Foreground="{DynamicResource GlobalFontColor}"
+                                     Background="Transparent"
+                                     Grid.Row="3"
+                                     Grid.Column="1"
+                                     Margin="5"
+                                     BorderThickness="0,0,0,1"/>
+
+                            <Button x:Name="A4Button"
+                                    Command="{Binding SelectA4PrinterCommand}"
+                                    Grid.Row="3"
+                                    Grid.Column="2"
+                                    Margin="2"
+                                    Width="75"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    Foreground="{DynamicResource GlobalFontColor}">
+
+                                <TextBlock FontFamily="Segoe MDL2 Assets"
+                                           Margin="5"
+                                           Text="&#xE749;"
+                                           FontSize="20"
+                                           Foreground="{DynamicResource GlobalFontColor}"/>
+
+                            </Button>
+
+                        </Grid>
+
+
+                        <Separator Margin="9,15"/>
+
+
+                        <!-- ============================================= -->
+                        <!-- PRODAJA                                       -->
+                        <!-- ============================================= -->
+
+                        <TextBlock Text="Prodaja"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Margin="9,5,9,15"/>
+
+                        <Grid>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="230"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                            </Grid.RowDefinitions>
+
+                            <Label Content="Broj kopija blokova"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="0"
+                                   Grid.Column="0"/>
+
+                            <ComboBox x:Name="cmbBrojKopijaBloka"
+                                      SelectedValue="{Binding BrojKopijaBloka,
+                                                              Mode=TwoWay}"
+                                      SelectedValuePath="Content"
+                                      Foreground="{DynamicResource GlobalFontColor}"
+                                      Grid.Row="0"
+                                      Grid.Column="1"
+                                      Margin="5"
+                                      Width="150"
+                                      HorizontalAlignment="Left">
+
+                                <ComboBoxItem Content="0"/>
+                                <ComboBoxItem Content="1"/>
+                                <ComboBoxItem Content="2"/>
+                                <ComboBoxItem Content="3"/>
+                                <ComboBoxItem Content="4"/>
+                                <ComboBoxItem Content="5"/>
+
+                            </ComboBox>
+
+                            <Label Content="Dozvoli prodaju u minus"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="1"
+                                   Grid.Column="0"/>
+
+                            <ComboBox x:Name="cmbProdajaMinus"
+                                      SelectedIndex="{Binding ProdajaMinus,
+                                                              Mode=TwoWay}"
+                                      Foreground="{DynamicResource GlobalFontColor}"
+                                      Grid.Row="1"
+                                      Grid.Column="1"
+                                      Margin="5"
+                                      Width="150"
+                                      HorizontalAlignment="Left">
+
+                                <ComboBoxItem Content="NE"/>
+                                <ComboBoxItem Content="DA"/>
+
+                            </ComboBox>
+
+                            <Label Content="Višekorisničko okruženje"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="2"
+                                   Grid.Column="0"/>
+
+                            <ComboBox x:Name="cmbMultiUser"
+                                      SelectedIndex="{Binding MultiUser,
+                                                              Mode=TwoWay}"
+                                      Foreground="{DynamicResource GlobalFontColor}"
+                                      Grid.Row="2"
+                                      Grid.Column="1"
+                                      Margin="5"
+                                      Width="150"
+                                      HorizontalAlignment="Left">
+
+                                <ComboBoxItem Content="NE"/>
+                                <ComboBoxItem Content="DA"/>
+
+                            </ComboBox>
+
+                        </Grid>
+
+
+                        <Separator Margin="9,15"/>
+
+
+                        <!-- ============================================= -->
+                        <!-- PRIKAZ                                        -->
+                        <!-- ============================================= -->
+
+                        <TextBlock Text="Prikaz"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Margin="9,5,9,15"/>
+
+                        <Grid>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="230"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="55"/>
+                            </Grid.RowDefinitions>
+
+                            <Label Content="Displej u kuhinji"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="0"
+                                   Grid.Column="0"/>
+
+                            <ComboBox x:Name="cmbDisplejKuhinja"
+                                      ItemsSource="{Binding Monitors}"
+                                      SelectedItem="{Binding SelectedMonitor,
+                                                            Mode=TwoWay,
+                                                            UpdateSourceTrigger=PropertyChanged}"
+                                      DisplayMemberPath="Name"
+                                      Foreground="{DynamicResource GlobalFontColor}"
+                                      Grid.Row="0"
+                                      Grid.Column="1"
+                                      Margin="5"
+                                      Width="250"
+                                      HorizontalAlignment="Left"/>
+
+                            <Label Content="Tema aplikacije"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="1"
+                                   Grid.Column="0"/>
+
+                            <ComboBox x:Name="cmbTema"
+                                      SelectedIndex="{Binding Tema,
+                                                              Mode=TwoWay}"
+                                      Foreground="{DynamicResource GlobalFontColor}"
+                                      Grid.Row="1"
+                                      Grid.Column="1"
+                                      Margin="5"
+                                      Width="150"
+                                      HorizontalAlignment="Left">
+
+                                <ComboBoxItem Content="Tamna"/>
+                                <ComboBoxItem Content="Svijetla"/>
+
+                            </ComboBox>
+
+                        </Grid>
+
+
+                        <Separator Margin="9,15"/>
+
+
+                        <!-- ============================================= -->
+                        <!-- MREŽA                                         -->
+                        <!-- ============================================= -->
+
+                        <TextBlock Text="Mreža"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold"
+                                   Margin="9,5,9,15"/>
+
+                        <Grid>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="230"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="55"/>
+                            </Grid.RowDefinitions>
+
+                            <Label Content="IP adresa servera"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"
+                                   Grid.Row="0"
+                                   Grid.Column="0"/>
+
+                            <TextBox x:Name="txtIPServer"
+                                     Text="{Binding ServerIP,
+                                                    Mode=TwoWay,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{DynamicResource TextBoxCustom}"
+                                     Foreground="{DynamicResource GlobalFontColor}"
+                                     Background="Transparent"
+                                     Grid.Row="0"
+                                     Grid.Column="1"
+                                     Width="200"
+                                     HorizontalAlignment="Left"
+                                     Margin="5"
+                                     Height="30"
+                                     BorderThickness="0,0,0,1"/>
+
+                        </Grid>
+
+                    </StackPanel>
+
+                </ScrollViewer>
+
+            </TabItem>
+
+
+            <!-- ================================================= -->
+            <!-- RADNICI                                           -->
+            <!-- ================================================= -->
+
+            <TabItem x:Name="RadniciTab"
+                     Background="Transparent"
+                     VerticalContentAlignment="Center"
+                     Width="190"
+                     BorderBrush="Transparent">
+
+                <TabItem.Header>
+
+                    <StackPanel Orientation="Horizontal">
+
+                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                   Margin="6"
+                                   FontSize="32"
+                                   Height="35"
+                                   FontWeight="ExtraLight"
+                                   Text="&#xEA7E;"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Text="Radnici"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+
+                    </StackPanel>
+
+                </TabItem.Header>
+
+                <Grid HorizontalAlignment="Center"
+                      Width="800"
+                      VerticalAlignment="Center">
+
                     <Grid.RowDefinitions>
                         <RowDefinition Height="100"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="100"/>
                     </Grid.RowDefinitions>
-                    <DataGrid  x:Name="myListView" Grid.Row="1"
-                               Padding="2" 
-                               GridLinesVisibility="None"
-                               Foreground="{DynamicResource GlobalFontColor}"
-                               ItemsSource="{Binding Radnici}" 
-                               SelectedItem="{Binding SelectedRadnik}"  
-                               AutoGenerateColumns="False"
-                             HeadersVisibility="Column"
-                             CanUserAddRows="False"
-                             CanUserResizeRows="False"
-                             CanUserSortColumns="False"
-                             HorizontalScrollBarVisibility="Disabled"
-                             Background="Transparent"
-                             
-                             ClipToBounds="True"
-                             BorderBrush="{DynamicResource GlobalFontColor}"
-                             SelectionMode="Single"
-                               ScrollViewer.VerticalScrollBarVisibility="Auto" >
+
+                    <DataGrid x:Name="myListView"
+                              Grid.Row="1"
+                              Padding="2"
+                              GridLinesVisibility="None"
+                              Foreground="{DynamicResource GlobalFontColor}"
+                              ItemsSource="{Binding Radnici}"
+                              SelectedItem="{Binding SelectedRadnik,
+                                                    Mode=TwoWay}"
+                              AutoGenerateColumns="False"
+                              HeadersVisibility="Column"
+                              CanUserAddRows="False"
+                              CanUserResizeRows="False"
+                              CanUserSortColumns="False"
+                              HorizontalScrollBarVisibility="Disabled"
+                              Background="Transparent"
+                              ClipToBounds="True"
+                              BorderBrush="{DynamicResource GlobalFontColor}"
+                              SelectionMode="Single"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto">
+
                         <DataGrid.Resources>
-                            <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
-                            </DataGrid.Resources>
+
+                            <Style TargetType="ScrollBar"
+                                   BasedOn="{StaticResource WideVerticalScrollBar}"/>
+
+                        </DataGrid.Resources>
+
                         <DataGrid.Columns>
 
-                          
+                            <DataGridTemplateColumn Header="Radnik"
+                                                    Width="2*">
 
-                            <DataGridTemplateColumn Header="Radnik" Width="2*" >
                                 <DataGridTemplateColumn.CellTemplate>
+
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Radnik}" Height="60" TextAlignment="Left" TextWrapping="Wrap" Padding="10"/>
+
+                                        <TextBlock Text="{Binding Radnik}"
+                                                   Height="60"
+                                                   TextAlignment="Left"
+                                                   TextWrapping="Wrap"
+                                                   Padding="10"/>
+
                                     </DataTemplate>
+
                                 </DataGridTemplateColumn.CellTemplate>
+
                             </DataGridTemplateColumn>
 
-                            <DataGridTemplateColumn Header="Dozvole" Width="*">
+
+                            <DataGridTemplateColumn Header="Dozvole"
+                                                    Width="*">
+
                                 <DataGridTemplateColumn.CellTemplate>
+
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Dozvole}"       TextWrapping="Wrap"       TextAlignment="Center"/>
+
+                                        <TextBlock Text="{Binding Dozvole}"
+                                                   TextWrapping="Wrap"
+                                                   TextAlignment="Center"/>
+
                                     </DataTemplate>
+
                                 </DataGridTemplateColumn.CellTemplate>
+
                             </DataGridTemplateColumn>
 
-                            <DataGridTemplateColumn Header="Lozinka" Width="*">
+
+                            <DataGridTemplateColumn Header="Lozinka"
+                                                    Width="*">
+
                                 <DataGridTemplateColumn.CellTemplate>
+
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Lozinka}"           TextAlignment="Center"/>
+
+                                        <TextBlock Text="{Binding Lozinka}"
+                                                   TextAlignment="Center"/>
+
                                     </DataTemplate>
+
                                 </DataGridTemplateColumn.CellTemplate>
+
                             </DataGridTemplateColumn>
 
-                            <DataGridTemplateColumn Header="#" Width="*">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center"  Margin="0" >
 
-                                            <Button  Command="{Binding DataContext.UpdateCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}" PreviewMouseLeftButtonDown="Button_PreviewMouseLeftButtonDown"  Style="{StaticResource SecondaryButtonStyle}"       MinWidth="35"    Height="35"     Margin="1"  >
-                                                <TextBlock  FontFamily="Segoe MDL2 Assets" Margin="5" TextAlignment="Left"  Text="&#xE70F;" FontSize="15" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center"   VerticalAlignment="Center"  />
+                            <DataGridTemplateColumn Header="#"
+                                                    Width="*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+
+                                    <DataTemplate>
+
+                                        <StackPanel Orientation="Horizontal"
+                                                    VerticalAlignment="Center"
+                                                    Margin="0">
+
+                                            <Button Command="{Binding DataContext.UpdateCommand,
+                                                                      RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource SecondaryButtonStyle}"
+                                                    MinWidth="35"
+                                                    Height="35"
+                                                    Margin="1">
+
+                                                <TextBlock FontFamily="Segoe MDL2 Assets"
+                                                           Margin="5"
+                                                           Text="&#xE70F;"
+                                                           FontSize="15"
+                                                           Foreground="{DynamicResource GlobalFontColor}"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
+
                                             </Button>
-                                            <Button  Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" CommandParameter="{Binding}" PreviewMouseLeftButtonDown="Button_PreviewMouseLeftButtonDown_1"  Style="{StaticResource SecondaryButtonStyle}"  BorderBrush="#C93A3A"    MinWidth="35"    Height="35"   Foreground="{DynamicResource GlobalFontColor}" Margin="1"  >
-                                                <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="2" FontSize="19"  FontWeight="ExtraLight" Text="&#xEA81;" Foreground="{DynamicResource GlobalFontColor}"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                                            <Button Command="{Binding DataContext.DeleteCommand,
+                                                                      RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource SecondaryButtonStyle}"
+                                                    BorderBrush="#C93A3A"
+                                                    MinWidth="35"
+                                                    Height="35"
+                                                    Margin="1">
+
+                                                <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                                           Margin="2"
+                                                           FontSize="19"
+                                                           FontWeight="ExtraLight"
+                                                           Text="&#xEA81;"
+                                                           Foreground="{DynamicResource GlobalFontColor}"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
+
                                             </Button>
 
                                         </StackPanel>
+
                                     </DataTemplate>
+
                                 </DataGridTemplateColumn.CellTemplate>
+
                             </DataGridTemplateColumn>
-                            </DataGrid.Columns>
+
+                        </DataGrid.Columns>
+
                     </DataGrid>
-                    <Button  x:Name="NoviRadnikButton"  Click="NoviRadnikButton_Click" Style="{StaticResource SecondaryButtonStyle}"        Width="150"    Height="50"   Foreground="{DynamicResource GlobalFontColor}" Margin="2"  Grid.Row="2">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="32" Width="35" FontWeight="ExtraLight" Text="&#xEBCD;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <TextBlock Text="Novi radnik"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
+
+
+                    <Button x:Name="NoviRadnikButton"
+                            Command="{Binding NewRadnikCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}"
+                            Width="150"
+                            Height="50"
+                            Foreground="{DynamicResource GlobalFontColor}"
+                            Margin="2"
+                            Grid.Row="2">
+
+                        <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+
+                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                       Margin="6"
+                                       FontSize="32"
+                                       Width="35"
+                                       FontWeight="ExtraLight"
+                                       Text="&#xEBCD;"
+                                       Foreground="{DynamicResource GlobalFontColor}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+
+                            <TextBlock Text="Novi radnik"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource GlobalFontColor}"/>
+
                         </StackPanel>
+
                     </Button>
-                  
+
                 </Grid>
+
             </TabItem>
+
         </TabControl>
 
-
     </Grid>
+
 </UserControl>

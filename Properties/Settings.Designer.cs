@@ -12,7 +12,7 @@ namespace Caupo.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.14.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "18.9.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -560,6 +560,150 @@ namespace Caupo.Properties {
             }
             set {
                 this["PnpStopa"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("VPFR")]
+        public string SrbijaPfrType {
+            get {
+                return ((string)(this["SrbijaPfrType"]));
+            }
+            set {
+                this["SrbijaPfrType"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Sandbox")]
+        public string SrbijaEnvironment {
+            get {
+                return ((string)(this["SrbijaEnvironment"]));
+            }
+            set {
+                this["SrbijaEnvironment"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://vsdc.sandbox.suf.purs.gov.rs")]
+        public string SrbijaVPFRUrl {
+            get {
+                return ((string)(this["SrbijaVPFRUrl"]));
+            }
+            set {
+                this["SrbijaVPFRUrl"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SrbijaLPFRUrl {
+            get {
+                return ((string)(this["SrbijaLPFRUrl"]));
+            }
+            set {
+                this["SrbijaLPFRUrl"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SrbijaCertificateName {
+            get {
+                return ((string)(this["SrbijaCertificateName"]));
+            }
+            set {
+                this["SrbijaCertificateName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SrbijaCertificatePassword {
+            get {
+                return ((string)(this["SrbijaCertificatePassword"]));
+            }
+            set {
+                this["SrbijaCertificatePassword"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SrbijaPAC {
+            get {
+                return ((string)(this["SrbijaPAC"]));
+            }
+            set {
+                this["SrbijaPAC"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("en-US")]
+        public string SrbijaAcceptLanguage {
+            get {
+                return ((string)(this["SrbijaAcceptLanguage"]));
+            }
+            set {
+                this["SrbijaAcceptLanguage"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SrbijaLPFRUrl1 {
+            get {
+                return ((string)(this["SrbijaLPFRUrl1"]));
+            }
+            set {
+                this["SrbijaLPFRUrl1"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SrbijaLPFRToken {
+            get {
+                return ((string)(this["SrbijaLPFRToken"]));
+            }
+            set {
+                this["SrbijaLPFRToken"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SrbijaLPFRPin {
+            get {
+                return ((string)(this["SrbijaLPFRPin"]));
+            }
+            set {
+                this["SrbijaLPFRPin"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SrbijaLPFRJid {
+            get {
+                return ((string)(this["SrbijaLPFRJid"]));
+            }
+            set {
+                this["SrbijaLPFRJid"] = value;
             }
         }
     }
