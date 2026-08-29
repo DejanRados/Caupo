@@ -24,15 +24,15 @@
                 <Label Content="Kupac" FontSize="15" Grid.Row="0" HorizontalContentAlignment="Center"/>
                 <StackPanel Grid.Row="1">
                     <Label Content="Naziv" Foreground="{DynamicResource GlobalFontColor}"  />
-                    <TextBox x:Name="txtNaziv" Text="{Binding Kupac}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"  Foreground="{DynamicResource GlobalFontColor}" CaretBrush="{DynamicResource GlobalFontColor}"   Style="{DynamicResource TextBoxCustom}" />
+                    <TextBox x:Name="txtNaziv"  Text="{Binding Kupac}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"  Foreground="{DynamicResource GlobalFontColor}" CaretBrush="{DynamicResource GlobalFontColor}"   Style="{DynamicResource TextBoxCustom}" />
                     <Label Content="Adresa" Foreground="{DynamicResource GlobalFontColor}" />
-                    <TextBox Text="{Binding Adresa}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"    Foreground="{DynamicResource GlobalFontColor}"  CaretBrush="{DynamicResource GlobalFontColor}"  Style="{DynamicResource TextBoxCustom}" />
+                    <TextBox x:Name="txtAdresa" Text="{Binding Adresa}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"    Foreground="{DynamicResource GlobalFontColor}"  CaretBrush="{DynamicResource GlobalFontColor}"  Style="{DynamicResource TextBoxCustom}" />
                     <Label Content="Mjesto" Foreground="{DynamicResource GlobalFontColor}" />
-                    <TextBox Text="{Binding Mjesto}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"  Foreground="{DynamicResource GlobalFontColor}"  CaretBrush="{DynamicResource GlobalFontColor}"  Style="{DynamicResource TextBoxCustom}" />
+                    <TextBox x:Name="txtMjesto"  Text="{Binding Mjesto}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"  Foreground="{DynamicResource GlobalFontColor}"  CaretBrush="{DynamicResource GlobalFontColor}"  Style="{DynamicResource TextBoxCustom}" />
                     <Label Content="JIB" Foreground="{DynamicResource GlobalFontColor}" />
-                    <TextBox Text="{Binding JIB}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"   Foreground="{DynamicResource GlobalFontColor}"  CaretBrush="{DynamicResource GlobalFontColor}"  Style="{DynamicResource TextBoxCustom}" />
+                    <TextBox x:Name="txtJIB"  Text="{Binding JIB}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"   Foreground="{DynamicResource GlobalFontColor}"  CaretBrush="{DynamicResource GlobalFontColor}"  Style="{DynamicResource TextBoxCustom}" />
                     <Label Content="PDV" Foreground="{DynamicResource GlobalFontColor}" />
-                    <TextBox Text="{Binding PDV}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"   Foreground="{DynamicResource GlobalFontColor}"  CaretBrush="{DynamicResource GlobalFontColor}"  Style="{DynamicResource TextBoxCustom}" />
+                    <TextBox x:Name="txtPDV"  Text="{Binding PDV}" Margin="0 2 0 15" BorderBrush="{DynamicResource GlobalFontColor}"   Foreground="{DynamicResource GlobalFontColor}"  CaretBrush="{DynamicResource GlobalFontColor}"  Style="{DynamicResource TextBoxCustom}" />
 
                 </StackPanel>
 

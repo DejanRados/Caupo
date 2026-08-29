@@ -165,45 +165,86 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-    
+
             <Style x:Key="ArticleButtonStyle" TargetType="Button">
+
                 <Setter Property="Foreground" Value="#2FA4A9"/>
                 <Setter Property="Background" Value="#882FA4A9"/>
                 <Setter Property="BorderBrush" Value="#2FA4A9"/>
                 <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="Padding" Value="12,6"/>
+
+                <!-- Bitno za pravilno pozicioniranje sadržaja -->
+                <Setter Property="Padding" Value="1"/>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+
                 <Setter Property="FontWeight" Value="Normal"/>
                 <Setter Property="FontSize" Value="12"/>
                 <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+
                 <Setter Property="Template">
                     <Setter.Value>
+
                         <ControlTemplate TargetType="Button">
-                            <Border x:Name="Root"
-                        Background="{TemplateBinding Background}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="4">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                            <Border
+                    x:Name="Root"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="4">
+
+                                <ContentPresenter
+                        Margin="{TemplateBinding Padding}"
+                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                        Content="{TemplateBinding Content}"
+                        ContentTemplate="{TemplateBinding ContentTemplate}"
+                        ContentStringFormat="{TemplateBinding ContentStringFormat}"/>
+
                             </Border>
+
                             <ControlTemplate.Triggers>
+
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="Root" Property="Background" Value="#1A2FA4A9"/>
+                                    <Setter
+                            TargetName="Root"
+                            Property="Background"
+                            Value="#1A2FA4A9"/>
                                 </Trigger>
+
                                 <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="Root" Property="Background" Value="#2FA4A9"/>
-                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter
+                            TargetName="Root"
+                            Property="Background"
+                            Value="#2FA4A9"/>
+
+                                    <Setter
+                            Property="Foreground"
+                            Value="White"/>
                                 </Trigger>
+
                                 <Trigger Property="IsEnabled" Value="False">
-                                    <Setter TargetName="Root" Property="Opacity" Value="0.5"/>
-                                    <Setter Property="Cursor" Value="Arrow"/>
+                                    <Setter
+                            TargetName="Root"
+                            Property="Opacity"
+                            Value="0.5"/>
+
+                                    <Setter
+                            Property="Cursor"
+                            Value="Arrow"/>
                                 </Trigger>
+
                             </ControlTemplate.Triggers>
+
                         </ControlTemplate>
+
                     </Setter.Value>
                 </Setter>
+
             </Style>
-      
+
             <Style TargetType="local:TableButton" x:Key="TableButtonStyle">
                 <Setter Property="Foreground" Value="#2D2D30"/>
                 <Setter Property="Background" Value="#cdcdcd"/>
@@ -355,40 +396,170 @@
                 <Setter Property="CaretBrush" Value="{DynamicResource GlobalFontColor}" />
             </Style>
 
-            <Style x:Key="TextBoxCustom" TargetType="TextBox">
-                <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource GlobalFontColor}" />
-                <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                <Setter Property="CaretBrush" Value="{DynamicResource GlobalFontColor}" />
-                <Setter Property="Padding" Value="4"/>
-                <Setter Property="FontSize" Value="16"/>
+            <Style x:Key="TextBoxCustom"
+       TargetType="TextBox">
+
+                <Setter Property="Background"
+            Value="Transparent"/>
+
+                <Setter Property="Foreground"
+            Value="{DynamicResource GlobalFontColor}"/>
+
+                <Setter Property="BorderBrush"
+            Value="{DynamicResource GlobalFontColor}"/>
+
+                <Setter Property="BorderThickness"
+            Value="0,0,0,1"/>
+
+                <Setter Property="CaretBrush"
+            Value="{DynamicResource GlobalFontColor}"/>
+
+                <Setter Property="Padding"
+            Value="4"/>
+
+                <Setter Property="FontSize"
+            Value="16"/>
+
+                <Setter Property="FocusVisualStyle"
+            Value="{x:Null}"/>
+
                 <Setter Property="Template">
                     <Setter.Value>
+
                         <ControlTemplate TargetType="TextBox">
-                            <Border x:Name="border" 
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="0">
+
+                            <Border x:Name="border"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="0">
+
                                 <ScrollViewer x:Name="PART_ContentHost"/>
+
                             </Border>
+
                             <ControlTemplate.Triggers>
-                                <Trigger Property="IsEnabled" Value="false">
-                                    <Setter TargetName="border" Property="Opacity" Value="0.6"/>
+
+                                <Trigger Property="IsEnabled"
+                             Value="False">
+
+                                    <Setter TargetName="border"
+                                Property="Opacity"
+                                Value="0.6"/>
+
                                 </Trigger>
-                                <Trigger Property="IsMouseOver" Value="true">
-                                    <Setter Property="BorderBrush" Value="LightGray"/>
+
+                                <Trigger Property="IsMouseOver"
+                             Value="True">
+
+                                    <Setter TargetName="border"
+                                Property="BorderBrush"
+                                Value="LightGray"/>
+
                                 </Trigger>
-                                <Trigger Property="IsFocused" Value="true">
-                                    <Setter Property="BorderBrush" Value="#FF2FA4A9"/>
+
+                                <Trigger Property="IsKeyboardFocused"
+                             Value="True">
+
+                                    <Setter TargetName="border"
+                                Property="Background"
+                                Value="Transparent"/>
+
+                                    <Setter TargetName="border"
+                                Property="BorderBrush"
+                                Value="#FF2FA4A9"/>
+
                                 </Trigger>
+
                             </ControlTemplate.Triggers>
+
                         </ControlTemplate>
+
                     </Setter.Value>
                 </Setter>
+
             </Style>
-       
+
+            <Style x:Key="PasswordBoxCustom"
+       TargetType="PasswordBox">
+
+                <Setter Property="Background"
+            Value="Transparent"/>
+
+                <Setter Property="Foreground"
+            Value="{DynamicResource GlobalFontColor}"/>
+
+                <Setter Property="BorderBrush"
+            Value="{DynamicResource GlobalFontColor}"/>
+
+                <Setter Property="BorderThickness"
+            Value="0,0,0,1"/>
+
+                <Setter Property="CaretBrush"
+            Value="{DynamicResource GlobalFontColor}"/>
+
+                <Setter Property="Padding"
+            Value="4"/>
+
+                <Setter Property="FontSize"
+            Value="16"/>
+
+                <Setter Property="FocusVisualStyle"
+            Value="{x:Null}"/>
+
+                <Setter Property="Template">
+                    <Setter.Value>
+
+                        <ControlTemplate TargetType="PasswordBox">
+
+                            <Border x:Name="border"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="0">
+
+                                <ScrollViewer
+                        x:Name="PART_ContentHost"
+                        Margin="{TemplateBinding Padding}"/>
+
+                            </Border>
+
+                            <ControlTemplate.Triggers>
+
+                                <Trigger Property="IsEnabled"
+                             Value="False">
+                                    <Setter TargetName="border"
+                                Property="Opacity"
+                                Value="0.6"/>
+                                </Trigger>
+
+                                <Trigger Property="IsMouseOver"
+                             Value="True">
+                                    <Setter TargetName="border"
+                                Property="BorderBrush"
+                                Value="LightGray"/>
+                                </Trigger>
+
+                                <Trigger Property="IsKeyboardFocused"
+                             Value="True">
+                                    <Setter TargetName="border"
+                                Property="Background"
+                                Value="Transparent"/>
+
+                                    <Setter TargetName="border"
+                                Property="BorderBrush"
+                                Value="#FF2FA4A9"/>
+                                </Trigger>
+
+                            </ControlTemplate.Triggers>
+
+                        </ControlTemplate>
+
+                    </Setter.Value>
+                </Setter>
+
+            </Style>
+
             <Style x:Key="WideVerticalScrollBar" TargetType="{x:Type ScrollBar}">
                 <Setter Property="Width" Value="40"/>
                 <Setter Property="BorderBrush" Value="#22000000"/>

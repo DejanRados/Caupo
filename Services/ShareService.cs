@@ -9,75 +9,248 @@ namespace Caupo.Services
         {
             try
             {
-                Process checkProcess = new Process ();
-                checkProcess.StartInfo.FileName = "net";
-                checkProcess.StartInfo.Arguments = "share";
-                checkProcess.StartInfo.UseShellExecute = false;
-                checkProcess.StartInfo.RedirectStandardOutput = true;
-                checkProcess.StartInfo.CreateNoWindow = true;
-                checkProcess.Start ();
+                var psi = new ProcessStartInfo
+                {
+                    FileName = "net.exe",
+                    Arguments = $"share \"{shareName}\"",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                };
 
-                string output = checkProcess.StandardOutput.ReadToEnd ();
-                checkProcess.WaitForExit ();
+                using var process = Process.Start (psi);
 
-                return output.Contains (shareName);
+                if(process == null)
+                    return false;
+
+                process.WaitForExit ();
+
+                return process.ExitCode == 0;
             }
-            catch
+            catch(Exception ex)
             {
+                Debug.WriteLine (
+                    $"[SHARE] Greška provjere share-a: {ex}");
+
                 return false;
             }
         }
 
-        public async Task CreateAndShareFolderAsync(string folderPath, string shareName)
+
+        public async Task CreateAndShareFolderAsync(
+            string folderPath,
+            string shareName)
         {
-            try
+            if(string.IsNullOrWhiteSpace (folderPath))
+                throw new ArgumentException (
+                    "Folder nije definisan.",
+                    nameof (folderPath));
+
+            if(string.IsNullOrWhiteSpace (shareName))
+                throw new ArgumentException (
+                    "Share name nije definisan.",
+                    nameof (shareName));
+
+
+            folderPath = folderPath.Trim ();
+            shareName = shareName.Trim ();
+
+
+            Debug.WriteLine (
+                $"[SHARE] Priprema foldera: {folderPath}");
+
+            Debug.WriteLine (
+                $"[SHARE] Naziv share-a: {shareName}");
+
+
+            // =================================================
+            // 1. KREIRAJ FOLDER AKO NE POSTOJI
+            // =================================================
+
+            if(!Directory.Exists (folderPath))
             {
-                // Kreiraj folder ako ne postoji
-                if(!Directory.Exists (folderPath))
-                    Directory.CreateDirectory (folderPath);
+                Directory.CreateDirectory (folderPath);
 
-                // Provjeri postoji li share
-                Process checkProcess = new Process ();
-                checkProcess.StartInfo.FileName = "net";
-                checkProcess.StartInfo.Arguments = "share";
-                checkProcess.StartInfo.UseShellExecute = false;
-                checkProcess.StartInfo.RedirectStandardOutput = true;
-                checkProcess.StartInfo.CreateNoWindow = true;
-                checkProcess.Start ();
-                string output = await checkProcess.StandardOutput.ReadToEndAsync ();
-                checkProcess.WaitForExit ();
+                Debug.WriteLine (
+                    $"[SHARE] Folder kreiran: {folderPath}");
+            }
+            else
+            {
+                Debug.WriteLine (
+                    $"[SHARE] Folder već postoji: {folderPath}");
+            }
 
-                if(output.Contains (shareName))
-                    return; // Share već postoji, ništa se ne radi
 
-                // Kreiranje share (admin UAC prompt)
-                var psi = new ProcessStartInfo
+            // =================================================
+            // 2. NTFS PRAVA
+            // =================================================
+            //
+            // S-1-1-0 = Everyone
+            //
+            // Koristimo SID umjesto naziva "Everyone"
+            // zato što naziv zavisi od jezika Windowsa.
+            //
+            // (OI) = fajlovi nasljeđuju prava
+            // (CI) = folderi nasljeđuju prava
+            // F    = Full Control
+            //
+            // SQLite mora moći kreirati i brisati
+            // journal/WAL/SHM fajlove u ovom folderu.
+            // =================================================
+
+            Debug.WriteLine (
+                "[SHARE] Postavljam NTFS prava...");
+
+
+            await RunProcessAsync (
+                "icacls.exe",
+                $"\"{folderPath}\" /grant *S-1-1-0:(OI)(CI)F /T /C");
+
+
+            Debug.WriteLine (
+                "[SHARE] NTFS prava postavljena.");
+
+
+            // =================================================
+            // 3. AKO SHARE VEĆ POSTOJI
+            // =================================================
+
+            if(IsShareExists (shareName))
+            {
+                Debug.WriteLine (
+                    $"[SHARE] Share već postoji: {shareName}");
+
+                return;
+            }
+
+
+            // =================================================
+            // 4. KREIRAJ WINDOWS SHARE
+            // =================================================
+
+            Debug.WriteLine (
+                "[SHARE] Kreiram Windows share...");
+
+
+            /*
+             * OVDJE NEMA runas.
+             *
+             * App.xaml.cs je već restartovao Caupo
+             * kao administrator prije ulaska u ovu metodu.
+             */
+
+            await RunProcessAsync (
+                "net.exe",
+                $"share \"{shareName}\"=\"{folderPath}\" /GRANT:Everyone,FULL /UNLIMITED");
+
+
+            // =================================================
+            // 5. PROVJERI REZULTAT
+            // =================================================
+
+            if(!IsShareExists (shareName))
+            {
+                throw new InvalidOperationException (
+                    $"Windows share '{shareName}' nije kreiran.");
+            }
+
+
+            string networkPath =
+                $@"\\{Environment.MachineName}\{shareName}";
+
+
+            Debug.WriteLine (
+                $"[SHARE] Share uspješno kreiran.");
+
+            Debug.WriteLine (
+                $"[SHARE] Mrežna putanja: {networkPath}");
+        }
+
+
+        // =====================================================
+        // POKRETANJE WINDOWS KOMANDE
+        // =====================================================
+
+        private static async Task RunProcessAsync(
+            string fileName,
+            string arguments)
+        {
+            Debug.WriteLine (
+                $"[SHARE CMD] {fileName} {arguments}");
+
+
+            var psi = new ProcessStartInfo
+            {
+                FileName = fileName,
+                Arguments = arguments,
+
+                UseShellExecute = false,
+
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+
+                CreateNoWindow = true
+            };
+
+
+            using var process =
+                new Process
                 {
-                    FileName = "net",
-                    Arguments = $"share {shareName}=\"{folderPath}\" /GRANT:Everyone,FULL",
-                    Verb = "runas",           // UAC prompt se pojavljuje samo jednom
-                    UseShellExecute = true,
-                    CreateNoWindow = true
+                    StartInfo = psi
                 };
 
-                await Task.Run (() =>
-                {
-                    var process = Process.Start (psi);
-                    process.WaitForExit ();
-                });
-            }
-            catch(System.ComponentModel.Win32Exception)
+
+            process.Start ();
+
+
+            Task<string> outputTask =
+                process.StandardOutput.ReadToEndAsync ();
+
+            Task<string> errorTask =
+                process.StandardError.ReadToEndAsync ();
+
+
+            await process.WaitForExitAsync ();
+
+
+            string output =
+                await outputTask;
+
+            string error =
+                await errorTask;
+
+
+            if(!string.IsNullOrWhiteSpace (output))
             {
-                System.Windows.MessageBox.Show ("Operacija zahtijeva administratorske privilegije.",
-                                "Greška", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                Debug.WriteLine (
+                    "[SHARE CMD OUTPUT] " +
+                    output.Trim ());
             }
-            catch(Exception ex)
+
+
+            if(!string.IsNullOrWhiteSpace (error))
             {
-                System.Windows.MessageBox.Show ($"Došlo je do greške: {ex.Message}",
-                                "Greška", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                Debug.WriteLine (
+                    "[SHARE CMD ERROR] " +
+                    error.Trim ());
+            }
+
+
+            Debug.WriteLine (
+                $"[SHARE CMD] ExitCode = {process.ExitCode}");
+
+
+            if(process.ExitCode != 0)
+            {
+                throw new InvalidOperationException (
+                    $"Komanda nije uspješno izvršena.\n\n" +
+                    $"{fileName} {arguments}\n\n" +
+                    $"Exit code: {process.ExitCode}\n\n" +
+                    (!string.IsNullOrWhiteSpace (error)
+                        ? error
+                        : output));
             }
         }
     }
 }
-
-

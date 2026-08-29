@@ -4,40 +4,75 @@ using System.Windows;
 
 namespace Caupo.Helpers
 {
-
-
     public static class AdminHelper
     {
         public static bool IsAdministrator()
         {
-            var identity = WindowsIdentity.GetCurrent ();
-            var principal = new WindowsPrincipal (identity);
-            return principal.IsInRole (WindowsBuiltInRole.Administrator);
+            using WindowsIdentity identity =
+                WindowsIdentity.GetCurrent ();
+
+            WindowsPrincipal principal =
+                new WindowsPrincipal (identity);
+
+            return principal.IsInRole (
+                WindowsBuiltInRole.Administrator);
         }
+
 
         public static void RestartAsAdmin()
         {
-            var psi = new ProcessStartInfo
+            string? exePath =
+                Environment.ProcessPath;
+
+            if(string.IsNullOrWhiteSpace (exePath))
             {
-                FileName = Process.GetCurrentProcess ().MainModule.FileName,
-                UseShellExecute = true,
-                Verb = "runas" // UAC prompt
-            };
+                throw new InvalidOperationException (
+                    "Nije moguće pronaći Caupo.exe.");
+            }
+
+
+            var psi =
+                new ProcessStartInfo
+                {
+                    FileName = exePath,
+                    UseShellExecute = true,
+                    Verb = "runas",
+                    WorkingDirectory =
+                        AppContext.BaseDirectory
+                };
+
+
             Process.Start (psi);
+
             Application.Current.Shutdown ();
         }
 
+
         public static void RestartAsUser()
         {
-            var psi = new ProcessStartInfo
+            string? exePath =
+                Environment.ProcessPath;
+
+            if(string.IsNullOrWhiteSpace (exePath))
             {
-                FileName = Process.GetCurrentProcess ().MainModule.FileName,
-                UseShellExecute = true
-            };
+                throw new InvalidOperationException (
+                    "Nije moguće pronaći Caupo.exe.");
+            }
+
+
+            var psi =
+                new ProcessStartInfo
+                {
+                    FileName = exePath,
+                    UseShellExecute = true,
+                    WorkingDirectory =
+                        AppContext.BaseDirectory
+                };
+
+
             Process.Start (psi);
+
             Application.Current.Shutdown ();
         }
     }
 }
-
-

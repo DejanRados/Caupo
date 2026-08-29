@@ -10,7 +10,7 @@
         xmlns:svg="http://sharpvectors.codeplex.com/svgc/"
         mc:Ignorable="d">
 
-    <Grid x:Name="MainContent">
+    <Grid x:Name="MainContent"  >
 
         <!-- ===================================================== -->
         <!-- HEADER                                                -->
@@ -108,6 +108,7 @@
                     Background="Transparent"
                     BorderBrush="Transparent"
                     HorizontalAlignment="Stretch"
+                    
                     VerticalAlignment="Stretch"
                     Margin="0,56,0,0">
 
@@ -691,8 +692,8 @@
                             </Grid.ColumnDefinitions>
 
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
                             </Grid.RowDefinitions>
 
                             <Label Content="Demo Server URL"
@@ -757,11 +758,11 @@
                             </Grid.ColumnDefinitions>
 
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
                             </Grid.RowDefinitions>
 
                             <Label Content="Poslovni prostor"
@@ -890,8 +891,8 @@
                             </Grid.ColumnDefinitions>
 
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
                             </Grid.RowDefinitions>
 
                             <Label Content="Certifikat"
@@ -1027,8 +1028,8 @@
                             </Grid.ColumnDefinitions>
 
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
                             </Grid.RowDefinitions>
 
                             <Label Content="Tip PFR-a"
@@ -1102,11 +1103,11 @@
                             </Grid.ColumnDefinitions>
 
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
                             </Grid.RowDefinitions>
 
                             <Label Content="V-PFR URL"
@@ -1258,10 +1259,10 @@
                             </Grid.ColumnDefinitions>
 
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
                             </Grid.RowDefinitions>
 
 
@@ -1432,7 +1433,7 @@
 
                 <TabItem.Header>
 
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal"  >
 
                         <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
                                    Margin="6"
@@ -1455,9 +1456,9 @@
 
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
 
-                    <StackPanel HorizontalAlignment="Center"
-                                Width="800"
-                                Margin="0,20,0,30">
+                    <StackPanel HorizontalAlignment="Stretch"
+                                MaxWidth="800"
+                               >
 
 
                         <!-- ============================================= -->
@@ -1473,15 +1474,17 @@
                         <Grid>
 
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="230"/>
+                                <ColumnDefinition Width="auto"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="auto"/>
                             </Grid.ColumnDefinitions>
 
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="30"/>
                             </Grid.RowDefinitions>
 
                             <Label Content="Logo"
@@ -1556,39 +1559,74 @@
                             </Button>
 
 
+                            <!-- ===================================================== -->
+                            <!-- TIP KASE -->
+                            <!-- ===================================================== -->
+
+                            <Label Content="Tip kase"
+                                       Foreground="{DynamicResource GlobalFontColor}"
+                                       VerticalAlignment="Center"
+                                       Grid.Row="2"
+                                       Grid.Column="0"/>
+
+                            <ComboBox x:Name="cmbCashRegisterType"
+                                      Grid.Row="2"
+                                      Grid.Column="1"
+                                      Grid.ColumnSpan="2"
+                                      Margin="5"
+                                       Width="300"
+                                      Height="35"
+                                      VerticalContentAlignment="Center"
+                                      HorizontalAlignment="Left"
+                                        SelectionChanged="CashRegisterType_SelectionChanged">
+                                <ComboBoxItem Content="Glavna kasa"    Tag="Main"/>
+                                <ComboBoxItem Content="Dodatna kasa"  Tag="Secondary"/>
+                            </ComboBox>
+
+
+                            <!-- ===================================================== -->
+                            <!-- BAZA PODATAKA -->
+                            <!-- ===================================================== -->
+
                             <Label Content="Baza podataka"
-                                   Foreground="{DynamicResource GlobalFontColor}"
-                                   VerticalAlignment="Center"
-                                   Grid.Row="2"
-                                   Grid.Column="0"/>
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               VerticalAlignment="Center"
+                               Grid.Row="3"
+                               Grid.Column="0"/>        
 
                             <TextBox x:Name="txtDBPath"
-                                     Text="{Binding DbPath}"
-                                     IsReadOnly="True"
-                                     Style="{DynamicResource TextBoxCustom}"
-                                     Foreground="{DynamicResource GlobalFontColor}"
-                                     Background="Transparent"
-                                     Grid.Row="2"
-                                     Grid.Column="1"
-                                     Margin="5"
-                                     BorderThickness="0,0,0,1"/>
+                                 Text="{Binding DbPath}"
+                                 IsReadOnly="True"
+                                 Style="{DynamicResource TextBoxCustom}"
+                                 Foreground="{DynamicResource GlobalFontColor}"
+                                 Background="Transparent"
+                                 Grid.Row="3"
+                                 Grid.Column="1"
+                                 Margin="5"
+                                 BorderThickness="0,0,0,1"/>
 
                             <Button x:Name="DbPathButton"
-                                    Command="{Binding SelectDatabaseCommand}"
-                                    Grid.Row="2"
+                                    Click="DbPathButton_Click"
+                                    Grid.Row="3"
                                     Grid.Column="2"
                                     Margin="2"
                                     Width="75"
+                                    Visibility="Collapsed"
                                     Style="{StaticResource SecondaryButtonStyle}"
-                                    Foreground="{DynamicResource GlobalFontColor}">
-
-                                <TextBlock FontFamily="Segoe MDL2 Assets"
-                                           Margin="5"
-                                           Text="&#xF12B;"
-                                           FontSize="20"
-                                           Foreground="{DynamicResource GlobalFontColor}"/>
-
-                            </Button>
+                                    Foreground="{DynamicResource GlobalFontColor}"
+                                    Content="Pronađi"
+                                    ToolTip="Pronađi glavnu kasu na mreži"/>
+                            
+                            <TextBlock x:Name="txtCashRegisterStatus"
+                                           Grid.Row="4"
+                                           Grid.Column="1"
+                                           Grid.ColumnSpan="2"
+                                           Margin="5,2,5,0"
+                                           FontSize="12"
+                                           Opacity="0.75"
+                                           Foreground="{DynamicResource GlobalFontColor}"
+                                           VerticalAlignment="Top"
+                                           Text="Glavna kasa - lokalna baza podataka."/>
 
                         </Grid>
 
@@ -1609,16 +1647,16 @@
                         <Grid>
 
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="230"/>
+                                <ColumnDefinition Width="auto"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="auto"/>
                             </Grid.ColumnDefinitions>
 
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
                             </Grid.RowDefinitions>
 
 
@@ -1789,9 +1827,9 @@
                             </Grid.ColumnDefinitions>
 
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
                             </Grid.RowDefinitions>
 
                             <Label Content="Broj kopija blokova"
@@ -1886,8 +1924,8 @@
                             </Grid.ColumnDefinitions>
 
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="55"/>
-                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="50"/>
+                                <RowDefinition Height="50"/>
                             </Grid.RowDefinitions>
 
                             <Label Content="Displej u kuhinji"
@@ -1954,7 +1992,7 @@
                             </Grid.ColumnDefinitions>
 
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="55"/>
+                                <RowDefinition Height="50"/>
                             </Grid.RowDefinitions>
 
                             <Label Content="IP adresa servera"

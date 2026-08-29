@@ -1231,9 +1231,9 @@ namespace Caupo.ViewModels
                 // APLIKACIJA
                 // =================================================
 
-                Properties.Settings.Default.DbPath =
-                    DbPath?.Trim ()
-                    ?? string.Empty;
+              //  Properties.Settings.Default.DbPath =
+              //      DbPath?.Trim ()
+              //      ?? string.Empty;
 
                 Properties.Settings.Default.BackupUrl =
                     BackupUrl?.Trim ()
@@ -1600,6 +1600,32 @@ namespace Caupo.ViewModels
             // =================================================
             // APLIKACIJA
             // =================================================
+
+            if(string.IsNullOrWhiteSpace (POSPrinter))
+            {
+                ShowError (
+                    "Printer za račune je obavezan podatak.\n\n" +
+                    "Odaberite printer za račune prije spremanja postavki.");
+
+                return false;
+            }
+
+            if(string.IsNullOrWhiteSpace (BackupUrl))
+            {
+                ShowError (
+                    "Odaberite direktorij za backup.");
+
+                return false;
+            }
+
+            if(!Directory.Exists (BackupUrl))
+            {
+                ShowError (
+                    "Direktorij za backup ne postoji.\n\n" +
+                    BackupUrl);
+
+                return false;
+            }
 
             if(string.IsNullOrWhiteSpace (DbPath))
             {

@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using System.Windows.Media;
@@ -67,26 +68,107 @@ namespace Caupo.Data
                     };
                 }
             }
-            public string? Slika { get; set; }
+
+            private string? _slika;
+
+            public string? Slika
+            {
+                get => _slika;
+                set
+                {
+                    if(_slika == value)
+                        return;
+
+                    _slika = value;
+
+                    // Ako se putanja slike promijeni,
+                    // stari cache više nije validan.
+                    _slikaSource = null;
+                    _cachedSlikaPath = null;
+
+                    OnPropertyChanged (nameof (Slika));
+                    OnPropertyChanged (nameof (SlikaSource));
+                }
+            }
+
+
+            private ImageSource? _slikaSource;
+            private string? _cachedSlikaPath;
+
 
             [NotMapped]
             [JsonIgnore]
-            public ImageSource SlikaSource
+            public ImageSource? SlikaSource
             {
                 get
                 {
-                    if(string.IsNullOrWhiteSpace (Slika)|| Slika == "bez_slike")
-                        return null; // ili pack URI placeholder slike
+                    if(string.IsNullOrWhiteSpace (Slika) ||
+                        Slika == "bez_slike")
+                    {
+                        return null;
+                    }
+
+
+                    // Već učitana ista slika.
+                    if(_slikaSource != null &&
+                        string.Equals (
+                            _cachedSlikaPath,
+                            Slika,
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        return _slikaSource;
+                    }
+
+
                     try
                     {
-                        return new BitmapImage (new Uri (Slika, UriKind.Absolute));
+                        var bitmap =
+                            new BitmapImage ();
+
+                        bitmap.BeginInit ();
+
+
+                        bitmap.CacheOption =
+                            BitmapCacheOption.OnLoad;
+
+  
+                        bitmap.DecodePixelWidth = 96;
+
+                        bitmap.UriSource =
+                            new Uri (
+                                Slika,
+                                UriKind.Absolute);
+
+                        bitmap.EndInit ();
+
+                        /*
+                         * BitmapImage je sada immutable.
+                         * Freeze smanjuje WPF overhead i omogućava
+                         * sigurnije korištenje objekta.
+                         */
+                        if(bitmap.CanFreeze)
+                            bitmap.Freeze ();
+
+
+                        _slikaSource = bitmap;
+                        _cachedSlikaPath = Slika;
+
+                        return _slikaSource;
                     }
-                    catch
+                    catch(Exception ex)
                     {
-                        return null; // ne postoji fajl ili krivi path
+                        Debug.WriteLine (
+                            $"[ARTIKL] Ne mogu učitati sliku '{Slika}': {ex.Message}");
+
+                        _slikaSource = null;
+                        _cachedSlikaPath = null;
+
+                        return null;
                     }
                 }
             }
+
+
             public decimal? Normativ { get; set; }
             public int? VrstaArtikla { get; set; }
             [NotMapped]

@@ -14,6 +14,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -42,6 +43,18 @@ namespace Caupo.Views
             MultiUserGrid.IsVisibleChanged += (s, e) => UpdateBlur ();
         }
 
+        private static bool IsInsideScrollBar(DependencyObject? source)
+        {
+            while(source != null)
+            {
+                if(source is ScrollBar)
+                    return true;
+
+                source = VisualTreeHelper.GetParent (source);
+            }
+
+            return false;
+        }
 
         private void UpdateBlur()
         {
@@ -49,16 +62,25 @@ namespace Caupo.Views
                 ? new BlurEffect { Radius = 8 }
                 : null;
         }
-        private void KasaWindow_Loaded(object sender, RoutedEventArgs e)
+        private async void KasaWindow_Loaded( object sender,  RoutedEventArgs e)
         {
+                            if(DataContext is not KasaViewModel vm)
+                                return;
 
-        }
+                            await vm.InitializeAsync ();
+
+                            ArtikliScroll.ScrollToTop ();
+                            KategorijeScroll.ScrollToTop ();
+
+                            Debug.WriteLine (
+                                "[KASA] KasaPage inicijalizovan.");
+          }
+
         private VirtualKeyboard virtualKeyboard;
         private TextBox? FocusedTextBox = null;
 
         public void ReceiveKey(string key)
         {
-            // 📌 Ako TextBox ima fokus → unos teksta
             if(FocusedTextBox != null)
             {
                 switch(key)
@@ -67,71 +89,86 @@ namespace Caupo.Views
 
                         if(FocusedTextBox.Text.Length > 0)
                         {
-                            int pos = FocusedTextBox.SelectionStart;
+                            int pos =
+                                FocusedTextBox.SelectionStart;
+
                             if(pos > 0)
                             {
                                 FocusedTextBox.Text =
-                                    FocusedTextBox.Text.Remove (pos - 1, 1);
-                                FocusedTextBox.SelectionStart = pos - 1;
+                                    FocusedTextBox.Text.Remove (
+                                        pos - 1,
+                                        1);
+
+                                FocusedTextBox.SelectionStart =
+                                    pos - 1;
                             }
                         }
 
-
-
                         break;
+
 
                     case "\uE75D":
-                        InsertIntoFocused ("\u0020");
+
+                        InsertIntoFocused (" ");
                         break;
+
+
                     case "Sakrij":
-                        //FocusedTextBox = null;
+
                         KeyboardButton_Click (null, null);
                         break;
+
+
                     case "Enter":
-                        //FocusedTextBox = null;
+
                         KeyboardButton_Click (null, null);
                         break;
+
+
                     case "Reset":
+
                         FocusedTextBox = null;
+
                         btnReset_Click (null, null);
                         break;
 
+
                     default:
+
                         InsertIntoFocused (key);
                         break;
                 }
 
-                return;  // ⛔ NE IDE filter ako kucamo u textbox!
+                return;
             }
+
+
             switch(key)
             {
-
                 case "Sakrij":
-                    //FocusedTextBox = null;
+
                     KeyboardButton_Click (null, null);
                     return;
 
+
                 case "Reset":
+
                     FocusedTextBox = null;
+
                     btnReset_Click (null, null);
                     return;
-
-
-                default:
-
-                    break;
-
             }
-            // 📌 Ako TextBox NIJE u fokusu → radi filter
-            if(PicePanel.Visibility == Visibility.Visible)
-                (DataContext as KasaViewModel)?.FilterDrinkByFirstLetter (key);
 
-            if(HranaPanel.Visibility == Visibility.Visible)
-                (DataContext as KasaViewModel)?.FilterFoodByFirstLetter (key);
 
-            if(OstaloPanel.Visibility == Visibility.Visible)
-                (DataContext as KasaViewModel)?.FilterRestByFirstLetter (key);
+            if(DataContext is KasaViewModel vm)
+            {
+                vm.FilterByFirstLetter (key);
+
+                ArtikliScroll.ScrollToTop ();
+            }
         }
+
+
         private void InsertIntoFocused(string text)
         {
             if(FocusedTextBox == null)
@@ -162,27 +199,25 @@ namespace Caupo.Views
 
 
         }
-        private void TextBox_LostFocus(object sender, RoutedEventArgs e)
+        private void TextBox_LostFocus(
+            object sender,
+            RoutedEventArgs e)
         {
-            if(FocusedTextBox.Name == "txtKolicina")
+            if(sender is TextBox textBox &&
+                textBox.Name == "txtKolicina")
             {
-                if(string.IsNullOrWhiteSpace (FocusedTextBox.Text))
+                if(!decimal.TryParse (
+                        textBox.Text,
+                        NumberStyles.Number,
+                        CultureInfo.CurrentCulture,
+                        out decimal value) ||
+                    value <= 0)
                 {
-                    FocusedTextBox.Text = "1";
+                    textBox.Text = "1";
                 }
-                if(!double.TryParse (FocusedTextBox.Text, NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out double value))
-                {
-                    FocusedTextBox.Text = "1";
-                }
-
-                if(value < 0)
-                {
-                    FocusedTextBox.Text = "1";
-                }
-
             }
-            FocusedTextBox = null;
 
+            FocusedTextBox = null;
         }
 
 
@@ -210,7 +245,7 @@ namespace Caupo.Views
 
                 try
                 {
-                 
+
                     FiskalniRacun fiskalniRacun = new FiskalniRacun ();
                     /**/
                     int brojracuna;
@@ -262,7 +297,7 @@ namespace Caupo.Views
                         _ => false
                     };
 
-           
+
 
 
 
@@ -271,16 +306,17 @@ namespace Caupo.Views
 
                     if(uspjeh)
                     {
-                        viewModel.StavkeRacuna.Clear ();
+                       
                         if(viewModel.IsMultiUser)
                         {
-
+                            viewModel.ClearRacun ();
                             viewModel.IsLoggedIn = false;
                             await Dispatcher.BeginInvoke (new Action (() =>
                             {
 
                                 txtPassword.Focus ();
                                 Keyboard.Focus (txtPassword);
+                                txtPassword.SelectAll ();
                                 txtPassword.SelectAll ();
 
                             }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
@@ -313,7 +349,7 @@ namespace Caupo.Views
 
 
 
-      
+
 
         private void ShowMessage(string title, string message)
         {
@@ -326,94 +362,69 @@ namespace Caupo.Views
             myMessageBox.ShowDialog ();
         }
 
-        private void PiceButton_Click(object sender, RoutedEventArgs e)
+        private void PiceButton_Click(
+            object sender,
+            RoutedEventArgs e)
         {
+            if(DataContext is not KasaViewModel vm)
+                return;
+
+            vm.SelectedCategory =
+                KasaViewModel.Category.Pice;
+
             ArtikliScroll.ScrollToTop ();
             KategorijeScroll.ScrollToTop ();
-
-            PicePanel.Visibility = Visibility.Visible;
-            HranaPanel.Visibility = Visibility.Collapsed;
-            OstaloPanel.Visibility = Visibility.Collapsed;
-
-            KategorijaPicePanel.Visibility = Visibility.Visible;
-            KategorijaHranaPanel.Visibility = Visibility.Collapsed;
-            KategorijaOstaloPanel.Visibility = Visibility.Collapsed;
         }
 
-        private void HranaButton_Click(object sender, RoutedEventArgs e)
+        private void HranaButton_Click(
+    object sender,
+    RoutedEventArgs e)
         {
+            if(DataContext is not KasaViewModel vm)
+                return;
+
+            vm.SelectedCategory =
+                KasaViewModel.Category.Hrana;
+
             ArtikliScroll.ScrollToTop ();
             KategorijeScroll.ScrollToTop ();
-
-            PicePanel.Visibility = Visibility.Collapsed;
-            HranaPanel.Visibility = Visibility.Visible;
-            OstaloPanel.Visibility = Visibility.Collapsed;
-
-            KategorijaPicePanel.Visibility = Visibility.Collapsed;
-            KategorijaHranaPanel.Visibility = Visibility.Visible;
-            KategorijaOstaloPanel.Visibility = Visibility.Collapsed;
         }
 
-        private void OstaloButton_Click(object sender, RoutedEventArgs e)
+        private void OstaloButton_Click(
+    object sender,
+    RoutedEventArgs e)
         {
+            if(DataContext is not KasaViewModel vm)
+                return;
+
+            vm.SelectedCategory =
+                KasaViewModel.Category.Ostalo;
+
             ArtikliScroll.ScrollToTop ();
             KategorijeScroll.ScrollToTop ();
-
-            PicePanel.Visibility = Visibility.Collapsed;
-            HranaPanel.Visibility = Visibility.Collapsed;
-            OstaloPanel.Visibility = Visibility.Visible;
-
-            KategorijaPicePanel.Visibility = Visibility.Collapsed;
-            KategorijaHranaPanel.Visibility = Visibility.Collapsed;
-            KategorijaOstaloPanel.Visibility = Visibility.Visible;
         }
 
 
-        private void ButtonCategoryDrink_Clicked(object sender, EventArgs e)
+        private void ButtonCategory_Clicked(
+         object sender,
+         RoutedEventArgs e)
         {
+            if(sender is not Button button)
+                return;
 
-            var button = sender as Button;
+            if(DataContext is not KasaViewModel vm)
+                return;
 
-            Dispatcher.Invoke (() =>
-        {
-            if(DataContext is KasaViewModel viewModel)
+            if(!int.TryParse (
+                    button.Tag?.ToString (),
+                    out int categoryId))
             {
-
-                viewModel?.FilterDrinkByCategory (Convert.ToInt32 (button.Tag));
-
+                return;
             }
-        });
-        }
 
-        private void ButtonCategoryFood_Clicked(object sender, EventArgs e)
-        {
+            vm.FilterByCategory (categoryId);
 
-            var button = sender as Button;
-            Debug.WriteLine ("Kliknuoa na " + button.Tag);
-            Dispatcher.Invoke (() =>
-
-            {
-                if(DataContext is KasaViewModel viewModel)
-                {
-                    viewModel?.FilterFoodByCategory (Convert.ToInt32 (button.Tag));
-
-                }
-            });
-        }
-
-        private void ButtonCategoryRest_Clicked(object sender, EventArgs e)
-        {
-
-            var button = sender as Button;
-            Dispatcher.Invoke (() =>
-
-            {
-                if(DataContext is KasaViewModel viewModel)
-                {
-                    viewModel?.FilterRestByCategory (Convert.ToInt32 (button.Tag));
-
-                }
-            });
+            ArtikliScroll.ScrollToTop ();
         }
 
         private void FadeInOut(object sender)
@@ -493,32 +504,37 @@ namespace Caupo.Views
         }
 
 
-        private async void Button_Drop(object sender, DragEventArgs e)
+        private async void Button_Drop(
+            object sender,
+            DragEventArgs e)
         {
-            var targetButton = sender as Button;
+            if(sender is not Button targetButton)
+                return;
 
-            if(targetButton != null)
+            if(e.Data.GetData ("Artikl")
+                is not TblArtikli draggedArtikl)
             {
-                // Preuzimamo Artikl sa drag podacima
-                var draggedArtikl = e.Data.GetData ("Artikl") as TblArtikli;
-                var targetArtikl = targetButton.DataContext as TblArtikli;
-
-                if(draggedArtikl != null && targetArtikl != null)
-                {
-                    // Razmenjujemo pozicije između dragovanog i ciljanog artikla
-                    int? tempPozicija = draggedArtikl.Pozicija;
-                    draggedArtikl.Pozicija = targetArtikl.Pozicija;
-                    targetArtikl.Pozicija = tempPozicija;
-
-                    // Ažuriramo UI tako da se reflektuje promena pozicija
-                    if(DataContext is KasaViewModel viewModel)
-                    {
-                        // Pozivamo metodu da ažuriramo pozicije u bazi
-                        await viewModel.UpdateArticlePosition (draggedArtikl);
-                        await viewModel.UpdateArticlePosition (targetArtikl);
-                    }
-                }
+                return;
             }
+
+            if(targetButton.DataContext
+                is not TblArtikli targetArtikl)
+            {
+                return;
+            }
+
+            if(draggedArtikl.IdArtikla ==
+                targetArtikl.IdArtikla)
+            {
+                return;
+            }
+
+            if(DataContext is not KasaViewModel vm)
+                return;
+
+            await vm.SwapArticlePositionsAsync (
+                draggedArtikl,
+                targetArtikl);
         }
 
 
@@ -588,69 +604,105 @@ namespace Caupo.Views
             return taxeslabel;
 
         }
-        private async void dugmic_Clicked(object sender, EventArgs e)
+
+        private void dugmic_Clicked(
+            object sender,
+            EventArgs e)
         {
-            decimal kolicina = Convert.ToDecimal (txtKolicina.Text);
-            var button = sender as Button;
-            Debug.WriteLine ("Kliknuo na dugme: " + button.Tag);
-            FadeInOut (button);
-            using(var db = new AppDbContext ())
+            if(sender is not Button button)
+                return;
+
+            if(button.DataContext
+                is not TblArtikli artikl)
             {
-                Debug.WriteLine ("Kliknuo na dugme: " + button.Tag);
-                var artikl = await db.Artikli.SingleOrDefaultAsync (a => a.Sifra == button.Tag);
-                if(artikl != null)
-                {
-                    FiskalniRacun.Item stavka = new FiskalniRacun.Item ();
-                    stavka.Name = artikl.Artikl;
-                    stavka.Sifra = artikl.Sifra;
-                    stavka.BrojRacuna = 222;
-                    stavka.Naziv = artikl.ArtiklNormativ;
-                    //Obratiti pažnju na region poslije
-                    stavka.Labels.Add (artikl.PoreskaStopa.ToString ());
-                    stavka.UnitPrice = artikl.Cijena;
-                    stavka.Proizvod = artikl.VrstaArtikla;
-                    stavka.JedinicaMjere = artikl.JedinicaMjere;
-
-                    Debug.WriteLine ("Convert.ToDecimal(txtKolicina.Text)  " + Convert.ToDecimal (txtKolicina.Text));
-                    stavka.Quantity = Convert.ToDecimal (txtKolicina.Text);
-
-                    Dispatcher.Invoke (() =>
-                    {
-                        if(DataContext is KasaViewModel viewModel)
-                        {
-                            var stavkaBezNote = viewModel.NadjiStavkuZaPovecanje (artikl.Sifra);
-
-                            if(stavkaBezNote != null)
-                            {
-                                Debug.WriteLine ("Stavka postoji (bez note), kol: " + (decimal)stavkaBezNote.Quantity);
-                                viewModel.UpdateStavkuRacunaPlus (stavkaBezNote, kolicina);
-                            }
-                            else
-                            {
-                                Debug.WriteLine ("Stavka ne postoji (bez note), dodaje novu: " + stavka.Name);
-                                viewModel.DodajStavkuRacuna (stavka);
-                                viewModel.StavkeRacuna.CollectionChanged += (s, e) =>
-                                {
-                                    if(e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
-                                    {
-                                        Dispatcher.Invoke (() =>
-                                        {
-                                            if(ListStavkeRacuna.Items.Count > 0)
-                                            {
-                                                var lastItem = ListStavkeRacuna.Items[ListStavkeRacuna.Items.Count - 1];
-                                                ListStavkeRacuna.ScrollIntoView (lastItem);
-                                            }
-                                        });
-                                    }
-                                };
-                            }
-
-                        }
-
-                    });
-                }
-                txtKolicina.Text = "1";
+                return;
             }
+
+            if(DataContext
+                is not KasaViewModel vm)
+            {
+                return;
+            }
+
+
+            if(!decimal.TryParse (
+                    txtKolicina.Text,
+                    NumberStyles.Number,
+                    CultureInfo.CurrentCulture,
+                    out decimal kolicina) ||
+                kolicina <= 0)
+            {
+                kolicina = 1m;
+            }
+
+
+            FadeInOut (button);
+
+
+            var postojecaStavka =
+                vm.NadjiStavkuZaPovecanje (
+                    artikl.Sifra);
+
+
+            if(postojecaStavka != null)
+            {
+                vm.UpdateStavkuRacunaPlus (
+                    postojecaStavka,
+                    kolicina);
+            }
+            else
+            {
+                var stavka =
+                    new FiskalniRacun.Item
+                    {
+                        Name = artikl.Artikl,
+
+                        Sifra = artikl.Sifra,
+
+                        BrojRacuna = 222,
+
+                        Naziv =
+                            artikl.ArtiklNormativ,
+
+                        UnitPrice =
+                            artikl.Cijena,
+
+                        Proizvod =
+                            artikl.VrstaArtikla,
+
+                        JedinicaMjere =
+                            artikl.JedinicaMjere,
+
+                        Quantity =
+                            kolicina
+                    };
+
+
+                stavka.Labels.Add (
+                    artikl.PoreskaStopa.ToString ());
+
+
+                vm.DodajStavkuRacuna (
+                    stavka);
+
+
+                Dispatcher.BeginInvoke (
+                    new Action (() =>
+                    {
+                        if(ListStavkeRacuna.Items.Count == 0)
+                            return;
+
+                        var lastItem =
+                            ListStavkeRacuna.Items[
+                                ListStavkeRacuna.Items.Count - 1];
+
+                        ListStavkeRacuna.ScrollIntoView (
+                            lastItem);
+                    }));
+            }
+
+
+            txtKolicina.Text = "1";
         }
 
 
@@ -708,15 +760,17 @@ namespace Caupo.Views
             }
         }
 
-        private void ListStavkeRacuna_TouchUp(object sender, TouchEventArgs e)
-        {
-            e.Handled = true;
-            EndPress ();
-        }
 
-        private void ListStavkeRacuna_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+
+        private void ListStavkeRacuna_PreviewMouseLeftButtonUp(
+       object sender,
+       MouseButtonEventArgs e)
         {
+            if(IsInsideScrollBar (e.OriginalSource as DependencyObject))
+                return;
+
             e.Handled = true;
+
             EndPress ();
         }
 
@@ -762,29 +816,59 @@ namespace Caupo.Views
         }
 
 
-        private void ListStavkeRacuna_TouchDown(object sender, TouchEventArgs e)
+        private void ListStavkeRacuna_TouchDown(
+    object sender,
+    TouchEventArgs e)
         {
+            if(IsInsideScrollBar (e.OriginalSource as DependencyObject))
+                return;
+
             Debug.WriteLine ("TouchDown fired");
+
             e.Handled = true;
 
             var stavka = GetItemFromTouchOrMouse (sender, e);
+
             if(stavka != null)
             {
                 _pressedItem = stavka;
                 _pressStartTime = DateTime.Now;
+
                 StartLongPressTimer (stavka);
             }
         }
-        private void ListStavkeRacuna_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+
+        private void ListStavkeRacuna_TouchUp(
+    object sender,
+    TouchEventArgs e)
         {
+            if(IsInsideScrollBar (e.OriginalSource as DependencyObject))
+                return;
+
+            e.Handled = true;
+
+            EndPress ();
+        }
+
+
+        private void ListStavkeRacuna_PreviewMouseLeftButtonDown(
+    object sender,
+    MouseButtonEventArgs e)
+        {
+            if(IsInsideScrollBar (e.OriginalSource as DependencyObject))
+                return;
+
             Debug.WriteLine ("MouseLeftButtonDown fired");
+
             e.Handled = true;
 
             var stavka = GetItemFromTouchOrMouse (sender, e);
+
             if(stavka != null)
             {
                 _pressedItem = stavka;
                 _pressStartTime = DateTime.Now;
+
                 StartLongPressTimer (stavka);
             }
         }
@@ -864,37 +948,39 @@ namespace Caupo.Views
             }
         }
 
-        private void KasaWindow_PreviewKeyDown(object sender, KeyEventArgs e)
+        private void KasaWindow_PreviewKeyDown(
+            object sender,
+            KeyEventArgs e)
         {
-            if(DataContext is KasaViewModel viewModel)
+            if(DataContext is not KasaViewModel vm)
+                return;
+
+
+            if(FocusedTextBox != null)
+                return;
+
+
+            if(e.Key >= Key.A &&
+                e.Key <= Key.Z)
             {
-                if(e.Key >= Key.A && e.Key <= Key.Z)
-                {
+                vm.FilterByFirstLetter (
+                    e.Key.ToString ());
+
+                ArtikliScroll.ScrollToTop ();
+
+                e.Handled = true;
+
+                return;
+            }
 
 
+            if(e.Key == Key.Escape)
+            {
+                vm.ArtikliFilterReset ();
 
-                    string pressedKey = e.Key.ToString ();
+                ArtikliScroll.ScrollToTop ();
 
-                    if(PicePanel.Visibility == Visibility.Visible)
-                    {
-                        viewModel?.FilterDrinkByFirstLetter (pressedKey);
-                    }
-
-                    if(HranaPanel.Visibility == Visibility.Visible)
-                    {
-                        viewModel?.FilterFoodByFirstLetter (pressedKey);
-                    }
-
-                    if(OstaloPanel.Visibility == Visibility.Visible)
-                    {
-                        viewModel?.FilterRestByFirstLetter (pressedKey);
-                    }
-                }
-                if(e.Key == Key.Escape)
-                {
-                    viewModel?.ArtikliFilterReset ();
-                }
-
+                e.Handled = true;
             }
         }
 
@@ -907,58 +993,134 @@ namespace Caupo.Views
             }
         }
 
-        private async void BtnPassword_Click(object sender, RoutedEventArgs e)
+
+        private async void BtnPassword_Click(
+    object sender,
+    RoutedEventArgs e)
         {
-            if(DataContext is KasaViewModel vm)
+            if(DataContext is not KasaViewModel vm)
+                return;
+
+
+            string pin =
+                txtPassword.Text.Trim ();
+
+
+            if(string.IsNullOrWhiteSpace (pin))
             {
-                Debug.WriteLine ("---------------------------------------Password:" + txtPassword.Text + ", pokusaj: " + vm.pokusaj);
-                vm.pokusaj -= 1;
-                if(vm.pokusaj < 1)
-                {
-                    MyMessageBox myMessageBox = new MyMessageBox ();
-                    myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                    myMessageBox.MessageTitle.Text = "GREŠKA";
-                    myMessageBox.MessageText.Text = "Pogrešna lozinka" + Environment.NewLine + "Nemate pristup aplikaciji";
-                    myMessageBox.ShowDialog ();
-                    System.Windows.Application.Current.Shutdown ();
-                }
+                txtPassword.Focus ();
 
-                using(var db = new AppDbContext ())
-                {
-
-                    var radnik = await db.Radnici
-                                          .Where (r => r.Lozinka == txtPassword.Text)
-                                          .FirstOrDefaultAsync ();
-
-                    if(radnik == null)
-                    {
-
-                        MyMessageBox myMessageBox = new MyMessageBox ();
-                        myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                        myMessageBox.MessageTitle.Text = "GREŠKA";
-                        myMessageBox.MessageText.Text = "Pogrešna lozinka" + Environment.NewLine + "Pokušajte ponovo, preostalo " + vm.pokusaj + " pokušaja.";
-                        myMessageBox.ShowDialog ();
-
-                        txtPassword.Text = "";
-                        txtPassword.Focus ();
-                    }
-                    else
-                    {
-                        Globals.ulogovaniKorisnik = radnik;
-                        lblUlogovaniKorisnik.Content = radnik.Radnik;
-                        MultiUserGrid.Visibility = Visibility.Collapsed;
-                        MainWindow.Instance.HideKeyboard ();
-                    }
-                }
+                return;
             }
+
+
+            await using var db =
+                new AppDbContext ();
+
+
+            var radnik =
+                await db.Radnici
+                    .AsNoTracking ()
+                    .FirstOrDefaultAsync (
+                        r => r.Lozinka == pin);
+
+
+            // =====================================================
+            // ISPRAVAN PIN
+            // =====================================================
+
+            if(radnik != null)
+            {
+                Globals.ulogovaniKorisnik =
+                    radnik;
+
+                lblUlogovaniKorisnik.Content =
+                    radnik.Radnik;
+
+
+                vm.IsLoggedIn = true;
+
+
+                txtPassword.Text = "";
+
+
+                MainWindow.Instance.HideKeyboard ();
+
+                return;
+            }
+
+
+            // =====================================================
+            // POGREŠAN PIN
+            // =====================================================
+
+            vm.pokusaj--;
+
+
+            if(vm.pokusaj <= 0)
+            {
+                MyMessageBox myMessageBox =
+                    new MyMessageBox
+                    {
+                        WindowStartupLocation =
+                            WindowStartupLocation.CenterScreen
+                    };
+
+                myMessageBox.MessageTitle.Text =
+                    "GREŠKA";
+
+                myMessageBox.MessageText.Text =
+                    "Pogrešna lozinka" +
+                    Environment.NewLine +
+                    "Nemate pristup aplikaciji";
+
+                myMessageBox.ShowDialog ();
+
+
+                Application.Current.Shutdown ();
+
+                return;
+            }
+
+
+            MyMessageBox poruka =
+                new MyMessageBox
+                {
+                    WindowStartupLocation =
+                        WindowStartupLocation.CenterScreen
+                };
+
+            poruka.MessageTitle.Text =
+                "GREŠKA";
+
+            poruka.MessageText.Text =
+                "Pogrešna lozinka" +
+                Environment.NewLine +
+                $"Pokušajte ponovo, preostalo {vm.pokusaj} pokušaja.";
+
+            poruka.ShowDialog ();
+
+
+            txtPassword.Text = "";
+
+            txtPassword.Focus ();
+
+            Keyboard.Focus (
+                txtPassword);
         }
 
-        private void btnReset_Click(object sender, RoutedEventArgs e)
+
+        private void btnReset_Click(
+         object sender,
+         RoutedEventArgs e)
         {
-            if(DataContext is KasaViewModel viewModel)
-            {
-                viewModel?.ArtikliFilterReset ();
-            }
+            if(DataContext is not KasaViewModel vm)
+                return;
+
+            vm.ArtikliFilterReset ();
+
+            ArtikliScroll.ScrollToTop ();
+            KategorijeScroll.ScrollToTop ();
         }
 
         private void txtKolicina_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

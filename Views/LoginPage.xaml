@@ -3,152 +3,396 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+        xmlns:svg="http://sharpvectors.codeplex.com/svgc/"
         Loaded="Window_Loaded"
         mc:Ignorable="d"
-        MinWidth="1300" MinHeight="700"
-        xmlns:syncfusionskin ="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
-        xmlns:svg="http://sharpvectors.codeplex.com/svgc/">
+        MinWidth="1300"
+        MinHeight="700">
 
-    <Grid x:Name="MainContent" >
+    <Grid x:Name="MainContent"
+          Background="{DynamicResource GlobalBackgroundColor}">
+
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0.4*"/>
             <ColumnDefinition Width="0.25*"/>
             <ColumnDefinition Width="0.4*"/>
         </Grid.ColumnDefinitions>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
             <RowDefinition Height="0.2*"/>
             <RowDefinition Height="0.6*"/>
             <RowDefinition Height="0.2*"/>
         </Grid.RowDefinitions>
-   
-        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.Row="0"   Grid.ColumnSpan="3">
-            <Button x:Name="CloseButton" Style="{StaticResource CloseAppButtonStyle}"
-              VerticalAlignment="Top"
-                HorizontalAlignment="Right"
-                Padding="0"
-               Margin="1"
-               Click="CloseButton_Click" 
-               />
-          
+
+
+        <!-- =====================================================
+             ZATVARANJE
+             ===================================================== -->
+
+        <Grid Grid.Row="0"
+              Grid.ColumnSpan="3"
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Top">
+
+            <Button x:Name="CloseButton"
+                    Style="{StaticResource CloseAppButtonStyle}"
+                    VerticalAlignment="Top"
+                    HorizontalAlignment="Right"
+                    Padding="0"
+                    Margin="8"
+                    Click="CloseButton_Click"/>
+
         </Grid>
-        <svg:SvgViewbox  Grid.Column="1" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Source="{Binding ImagePathLogo, TargetNullValue={x:Null}}" Stretch="Uniform"  />
-        <Grid  Grid.Row="2" Grid.Column="1" Margin="30">
-            <Grid.Effect>
-                <DropShadowEffect Color="Black"
-                          BlurRadius="29"
-                          ShadowDepth="0"
-                          Opacity="0.3"/>
-            </Grid.Effect>
-            <Border  Background="{Binding BackColor}"
-                CornerRadius="12"
-                Padding="10">       
-                <Grid  Margin="10" HorizontalAlignment="Stretch" >
+
+
+        <!-- =====================================================
+             LOGO
+             ===================================================== -->
+
+        <svg:SvgViewbox Grid.Column="1"
+                        Grid.Row="1"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Center"
+                        Margin="20,5"
+                        Source="{Binding ImagePathLogo, TargetNullValue={x:Null}}"
+                        Stretch="Uniform"/>
+
+
+        <!-- =====================================================
+             LOGIN KARTICA
+             ===================================================== -->
+
+        <Grid Grid.Row="2"
+              Grid.Column="1"
+              Margin="30">
+
+            <Border CornerRadius="16"
+                    Background="{DynamicResource GlobalBackgroundColor}"
+                    BorderBrush="#22000000"
+                    BorderThickness="1"
+                    Padding="12">
+
+                <Border.Effect>
+                    <DropShadowEffect Color="Black"
+                                      BlurRadius="20"
+                                      ShadowDepth="2"
+                                      Opacity="0.18"/>
+                </Border.Effect>
+
+                <Grid Margin="12">
+
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <Label Content="Prijava" Grid.Row="0" HorizontalAlignment="Center"  Margin="20"    FontSize="24" Foreground="{DynamicResource GlobalFontColor}"  />
 
-                    <PasswordBox x:Name="PinEntry" Grid.Row="1"   FontSize="20"   Foreground="{DynamicResource GlobalFontColor}" Padding="5" Margin="25,0,0,10" HorizontalAlignment="Stretch" Height="50"
-                       Background="Transparent"
-                       BorderThickness="0,0,0,0.1"
-                       BorderBrush="{DynamicResource GlobalFontColor}"
-                       CaretBrush="{DynamicResource GlobalFontColor}"
-                       HorizontalContentAlignment="Center"
-                       PreviewKeyDown="PinEntry_KeyDown"  />
 
-                    <Grid  Grid.Row="2"  Margin="0" HorizontalAlignment="Center" SnapsToDevicePixels="False" UseLayoutRounding="True">
+                    <!-- =================================================
+                         NASLOV
+                         ================================================= -->
+
+                    <StackPanel Grid.Row="0"
+                                Margin="0,10,0,12">
+
+                        <TextBlock Text="Prijava"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="24"
+                                   FontWeight="SemiBold"/>
+
+                        <TextBlock Text="Unesite PIN"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,4,0,0"
+                                   Foreground="#888888"
+                                   FontSize="12"/>
+
+                    </StackPanel>
+
+
+                    <!-- =================================================
+                         PIN
+                         ================================================= -->
+
+                    <PasswordBox x:Name="PinEntry" Style="{DynamicResource PasswordBoxCustom}"
+                                 Grid.Row="1"
+                                 FontSize="22"
+                                 FontWeight="Medium"
+                                 Foreground="{DynamicResource GlobalFontColor}"
+                                 Padding="5"
+                                 Margin="25,0,25,12"
+                                 HorizontalAlignment="Stretch"
+                                 Height="48"
+                                 Background="Transparent"
+                                 BorderThickness="0,0,0,1"
+                                 BorderBrush="#777777"
+                                 CaretBrush="{DynamicResource GlobalFontColor}"
+                                 HorizontalContentAlignment="Center"
+                                 VerticalContentAlignment="Center"
+                                 PreviewKeyDown="PinEntry_KeyDown">
+
+                     
+
+                    </PasswordBox>
+
+
+                    <!-- =================================================
+                         NUMERIČKA TASTATURA
+                         ================================================= -->
+
+                    <Grid Grid.Row="2"
+                          Margin="0"
+                          HorizontalAlignment="Center"
+                          SnapsToDevicePixels="False"
+                          UseLayoutRounding="True">
+
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="0.25*" />
-                            <RowDefinition Height="0.25*" />
-                            <RowDefinition Height="0.25*" />
-                            <RowDefinition Height="0.25*" />
+                            <RowDefinition Height="0.25*"/>
+                            <RowDefinition Height="0.25*"/>
+                            <RowDefinition Height="0.25*"/>
+                            <RowDefinition Height="0.25*"/>
                         </Grid.RowDefinitions>
+
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="0.25*" />
-                            <ColumnDefinition Width="0.25*" />
-                            <ColumnDefinition Width="0.25*" />
+                            <ColumnDefinition Width="0.25*"/>
+                            <ColumnDefinition Width="0.25*"/>
+                            <ColumnDefinition Width="0.25*"/>
                         </Grid.ColumnDefinitions>
 
-                        <Button Click="OnNumericButtonClicked" Content="1"   Style="{StaticResource ModernNumericButtonStyle}" Grid.Column="0" Grid.Row="0"  >
+
+                        <!-- 1 -->
+
+                        <Button Grid.Column="0"
+                                Grid.Row="0"
+                                Content="1"
+                                Click="OnNumericButtonClicked"
+                                Style="{StaticResource ModernNumericButtonStyle}">
+
                             <Button.Width>
-                                <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}"/>
+                                <Binding Path="ActualHeight"
+                                         RelativeSource="{RelativeSource Self}"/>
                             </Button.Width>
-                        </Button>
-                        <Button Click="OnNumericButtonClicked" Content="2"   Style="{StaticResource ModernNumericButtonStyle}" Grid.Column="1" Grid.Row="0"  >
-                            <Button.Width>
-                                <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}"/>
-                            </Button.Width>
-                        </Button>
-                        <Button Click="OnNumericButtonClicked" Content="3"  Style="{StaticResource ModernNumericButtonStyle}" Grid.Column="2" Grid.Row="0"  >
-                            <Button.Width>
-                                <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}"/>
-                            </Button.Width>
-                        </Button>
-                        <Button Click="OnNumericButtonClicked" Content="4"  Style="{StaticResource ModernNumericButtonStyle}" Grid.Column="0" Grid.Row="1"  >
-                            <Button.Width>
-                                <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}"/>
-                            </Button.Width>
-                        </Button>
-                        <Button Click="OnNumericButtonClicked" Content="5"   Style="{StaticResource ModernNumericButtonStyle}" Grid.Column="1" Grid.Row="1" >
-                            <Button.Width>
-                                <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}"/>
-                            </Button.Width>
-                        </Button>
-                        <Button Click="OnNumericButtonClicked" Content="6"   Style="{StaticResource ModernNumericButtonStyle}" Grid.Column="2" Grid.Row="1"  >
-                            <Button.Width>
-                                <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}"/>
-                            </Button.Width>
-                        </Button>
-                        <Button Click="OnNumericButtonClicked" Content="7"  Style="{StaticResource ModernNumericButtonStyle}" Grid.Column="0" Grid.Row="2"  >
-                            <Button.Width>
-                                <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}"/>
-                            </Button.Width>
-                        </Button>
-                        <Button Click="OnNumericButtonClicked" Content="8"  Style="{StaticResource ModernNumericButtonStyle}" Grid.Column="1" Grid.Row="2"  >
-                            <Button.Width>
-                                <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}"/>
-                            </Button.Width>
-                        </Button>
-                        <Button Click="OnNumericButtonClicked" Content="9"  Style="{StaticResource ModernNumericButtonStyle}" Grid.Column="2" Grid.Row="2" >
-                            <Button.Width>
-                                <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}"/>
-                            </Button.Width>
-                        </Button>
-                        <Button Click="OnNumericButtonClicked" Content="0"  Style="{StaticResource ModernNumericButtonStyle}" Grid.Column="1" Grid.Row="3" >
-                            <Button.Width>
-                                <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}"/>
-                            </Button.Width>
-                        </Button>
-                        <Button Click="OnClearButtonClicked" Content="C"   Style="{StaticResource CButtonStyle}" Grid.Column="0" Grid.Row="3" Foreground="#F5F5F5" >
-                            <Button.Width>
-                                <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}"/>
-                            </Button.Width>
-                        </Button>
-                        <Button  Click="OnOkButtonClicked" Content="OK"   Style="{StaticResource OKButtonStyle}"  Grid.Column="2" Grid.Row="3"  Foreground="#F5F5F5" >
-                            <Button.Width>
-                                <Binding Path="ActualHeight" RelativeSource="{RelativeSource Self}"/>
-                            </Button.Width>
+
                         </Button>
 
 
+                        <!-- 2 -->
 
+                        <Button Grid.Column="1"
+                                Grid.Row="0"
+                                Content="2"
+                                Click="OnNumericButtonClicked"
+                                Style="{StaticResource ModernNumericButtonStyle}">
+
+                            <Button.Width>
+                                <Binding Path="ActualHeight"
+                                         RelativeSource="{RelativeSource Self}"/>
+                            </Button.Width>
+
+                        </Button>
+
+
+                        <!-- 3 -->
+
+                        <Button Grid.Column="2"
+                                Grid.Row="0"
+                                Content="3"
+                                Click="OnNumericButtonClicked"
+                                Style="{StaticResource ModernNumericButtonStyle}">
+
+                            <Button.Width>
+                                <Binding Path="ActualHeight"
+                                         RelativeSource="{RelativeSource Self}"/>
+                            </Button.Width>
+
+                        </Button>
+
+
+                        <!-- 4 -->
+
+                        <Button Grid.Column="0"
+                                Grid.Row="1"
+                                Content="4"
+                                Click="OnNumericButtonClicked"
+                                Style="{StaticResource ModernNumericButtonStyle}">
+
+                            <Button.Width>
+                                <Binding Path="ActualHeight"
+                                         RelativeSource="{RelativeSource Self}"/>
+                            </Button.Width>
+
+                        </Button>
+
+
+                        <!-- 5 -->
+
+                        <Button Grid.Column="1"
+                                Grid.Row="1"
+                                Content="5"
+                                Click="OnNumericButtonClicked"
+                                Style="{StaticResource ModernNumericButtonStyle}">
+
+                            <Button.Width>
+                                <Binding Path="ActualHeight"
+                                         RelativeSource="{RelativeSource Self}"/>
+                            </Button.Width>
+
+                        </Button>
+
+
+                        <!-- 6 -->
+
+                        <Button Grid.Column="2"
+                                Grid.Row="1"
+                                Content="6"
+                                Click="OnNumericButtonClicked"
+                                Style="{StaticResource ModernNumericButtonStyle}">
+
+                            <Button.Width>
+                                <Binding Path="ActualHeight"
+                                         RelativeSource="{RelativeSource Self}"/>
+                            </Button.Width>
+
+                        </Button>
+
+
+                        <!-- 7 -->
+
+                        <Button Grid.Column="0"
+                                Grid.Row="2"
+                                Content="7"
+                                Click="OnNumericButtonClicked"
+                                Style="{StaticResource ModernNumericButtonStyle}">
+
+                            <Button.Width>
+                                <Binding Path="ActualHeight"
+                                         RelativeSource="{RelativeSource Self}"/>
+                            </Button.Width>
+
+                        </Button>
+
+
+                        <!-- 8 -->
+
+                        <Button Grid.Column="1"
+                                Grid.Row="2"
+                                Content="8"
+                                Click="OnNumericButtonClicked"
+                                Style="{StaticResource ModernNumericButtonStyle}">
+
+                            <Button.Width>
+                                <Binding Path="ActualHeight"
+                                         RelativeSource="{RelativeSource Self}"/>
+                            </Button.Width>
+
+                        </Button>
+
+
+                        <!-- 9 -->
+
+                        <Button Grid.Column="2"
+                                Grid.Row="2"
+                                Content="9"
+                                Click="OnNumericButtonClicked"
+                                Style="{StaticResource ModernNumericButtonStyle}">
+
+                            <Button.Width>
+                                <Binding Path="ActualHeight"
+                                         RelativeSource="{RelativeSource Self}"/>
+                            </Button.Width>
+
+                        </Button>
+
+
+                        <!-- C -->
+
+                        <Button Grid.Column="0"
+                                Grid.Row="3"
+                                Content="C"
+                                Click="OnClearButtonClicked"
+                                Style="{StaticResource CButtonStyle}"
+                                Foreground="#F5F5F5">
+
+                            <Button.Width>
+                                <Binding Path="ActualHeight"
+                                         RelativeSource="{RelativeSource Self}"/>
+                            </Button.Width>
+
+                        </Button>
+
+
+                        <!-- 0 -->
+
+                        <Button Grid.Column="1"
+                                Grid.Row="3"
+                                Content="0"
+                                Click="OnNumericButtonClicked"
+                                Style="{StaticResource ModernNumericButtonStyle}">
+
+                            <Button.Width>
+                                <Binding Path="ActualHeight"
+                                         RelativeSource="{RelativeSource Self}"/>
+                            </Button.Width>
+
+                        </Button>
+
+
+                        <!-- OK -->
+
+                        <Button x:Name="OkButton"
+                                Grid.Column="2"
+                                Grid.Row="3"
+                                Content="OK"
+                                Click="OnOkButtonClicked"
+                                Style="{StaticResource OKButtonStyle}"
+                                Foreground="#F5F5F5">
+
+                            <Button.Width>
+                                <Binding Path="ActualHeight"
+                                         RelativeSource="{RelativeSource Self}"/>
+                            </Button.Width>
+
+                        </Button>
 
                     </Grid>
 
                 </Grid>
 
-
             </Border>
+
         </Grid>
 
 
-        <StackPanel Grid.Column="1" Grid.Row="3" Margin="20">
-            <svg:SvgViewbox   Width="48" Height="48" Source="{Binding ImagePathLogoSmall, TargetNullValue={x:Null}}" Stretch="Uniform"   VerticalAlignment="Center"/>
-            <Label Content="dSoft" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="28" Margin=" 10,-5,10,30"/>
+        <!-- =====================================================
+             DSOFT
+             ===================================================== -->
+
+        <StackPanel Grid.Column="1"
+                    Grid.Row="3"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Margin="20"
+                    Opacity="0.65">
+
+            <svg:SvgViewbox Width="28"
+                            Height="28"
+                            Source="{Binding ImagePathLogoSmall, TargetNullValue={x:Null}}"
+                            Stretch="Uniform"
+                            VerticalAlignment="Center"/>
+
+            <TextBlock Text="dSoft"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       VerticalAlignment="Center"
+                       FontSize="17"
+                       FontWeight="Medium"
+                       Margin="8,0,0,0"/>
+
         </StackPanel>
+
     </Grid>
 
 </UserControl>
+

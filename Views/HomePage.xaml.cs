@@ -237,7 +237,7 @@ namespace Caupo.Views
             {
 
 
-                Debug.WriteLine ("Server je uspješno pokrenut.");
+                Debug.WriteLine ("[SERVER] Server je već aktivan. Generišem QR kod.");
                 imgServer.Source = new BitmapImage (new Uri ("pack://application:,,,/Images/green.png"));
 
 

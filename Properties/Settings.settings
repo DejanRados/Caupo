@@ -18,7 +18,7 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="Tema" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="Tamna" />
     </Setting>
     <Setting Name="BackupUrl" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
@@ -183,6 +183,10 @@
 
     <Setting Name="SrbijaLPFRJid" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
+    </Setting>
+
+    <Setting Name="CashRegisterType" Type="System.String" Scope="User">
+      <Value Profile="Main" />
     </Setting>
   </Settings>
 </SettingsFile>

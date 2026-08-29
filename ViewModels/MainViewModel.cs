@@ -3,199 +3,717 @@ using Caupo.Helpers;
 using Caupo.Properties;
 using Caupo.Views;
 using System.ComponentModel;
+using System.Configuration;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
 using static Caupo.Data.DatabaseTables;
 
+using CaupoLicenseManager = Caupo.Helpers.LicenseManager;
+
 namespace Caupo.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        private object _currentPage;
-        public object CurrentPage
+        // =====================================================
+        // CURRENT PAGE
+        // =====================================================
+
+        private object? _currentPage;
+
+        public object? CurrentPage
         {
             get => _currentPage;
+
             set
             {
-                _currentPage = value;
-                OnPropertyChanged (nameof (CurrentPage));
+                if(ReferenceEquals (
+                    _currentPage,
+                    value))
+                {
+                    return;
+                }
+
+                _currentPage =
+                    value;
+
+                OnPropertyChanged ();
             }
         }
+
+
+        // =====================================================
+        // CONSTRUCTOR
+        // =====================================================
 
         public MainViewModel()
         {
+            Debug.WriteLine (
+                "[MAIN] MainViewModel kreiran.");
 
-            PageNavigator.Navigate = page => CurrentPage = page;
-            Application.Current.Dispatcher.BeginInvoke (new Action (StartApplication));
 
+            Debug.WriteLine (
+                "[SETTINGS] user.config = " +
+                ConfigurationManager
+                    .OpenExeConfiguration (
+                        ConfigurationUserLevel
+                            .PerUserRoamingAndLocal)
+                    .FilePath);
+
+
+            /*
+             * Navigacija se više NE postavlja ovdje.
+             *
+             * PageNavigator.Navigate se konfigurira
+             * samo jednom u App.InitializeNavigation().
+             */
+
+
+            /*
+             * Startup pokrećemo nakon što WPF završi
+             * inicijalno kreiranje MainWindow-a.
+             */
+
+            Application.Current.Dispatcher.BeginInvoke (
+                new Action (
+                    async () =>
+                    {
+                        await StartApplicationAsync ();
+                    }));
         }
 
-        public async Task SetIColors()
+
+        // =====================================================
+        // STARTUP
+        // =====================================================
+
+        private async Task StartApplicationAsync()
         {
-            Debug.WriteLine ("MAINVIEWMODEL ");
-            await Task.Delay (5);
-            string tema = Settings.Default.Tema;
-
-            if(tema == "Tamna")
-            {
-
-                Application.Current.Resources["GlobalFontColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (244, 244, 244));
-                Application.Current.Resources["GlobalBackgroundColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (45, 45, 48));
-                var brushFont = Application.Current.Resources["GlobalFontColor"] as SolidColorBrush;
-                var brushBack = Application.Current.Resources["GlobalBackgroundColor"] as SolidColorBrush;
-                Debug.WriteLine ("Aktivna tema koju vidi viewmodel je : " + tema + " i postavio je GlobalFontColor " + $"#{brushFont.Color.R:X2}{brushFont.Color.G:X2}{brushFont.Color.B:X2}");
-                Debug.WriteLine ("Aktivna tema koju vidi viewmodel je : " + tema + " i postavio je GlobalBackgroundColor " + $"#{brushBack.Color.R:X2}{brushBack.Color.G:X2}{brushBack.Color.B:X2} ");
-            }
-            else
-            {
-                Application.Current.Resources["GlobalFontColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (45, 45, 48));
-                Application.Current.Resources["GlobalBackgroundColor"] = new SolidColorBrush (System.Windows.Media.Color.FromRgb (244, 244, 244));
-                var brush = Application.Current.Resources["GlobalFontColor"] as SolidColorBrush;
-                var brushBack = Application.Current.Resources["GlobalBackgroundColor"] as SolidColorBrush;
-                Debug.WriteLine ("Aktivna tema koju vidi viewmodel je : " + tema + " i postavio je GlobalFontColor " + $"#{brush.Color.R:X2}{brush.Color.G:X2}{brush.Color.B:X2}");
-                Debug.WriteLine ("Aktivna tema koju vidi viewmodel je : " + tema + " i postavio je GlobalBackgroundColor " + $"#{brushBack.Color.R:X2}{brushBack.Color.G:X2}{brushBack.Color.B:X2} ");
-            }
-        }
-
-
-
-        private async void StartApplication()
-        {
-            //Properties.Settings.Default.DbPath = "";
-            //Globals.CurrentDbPath = "";
-            //Settings.Default.Key = "";
-            //Settings.Default.Email = "";
-            //Settings.Default.HardwareFingerprint = "";
-            //Settings.Default.LicenseType = "";
-            //Settings.Default.CompanyName = "";
-            //Settings.Default.ExpirationDate = "";
-            // Settings.Default.LastActivation = "";
-            //Settings.Default.Save ();
-
             try
             {
-                using(var context = new AppDbContext ())
+                Debug.WriteLine (
+                    "[MAIN] Pokrećem inicijalizaciju aplikacije.");
+
+
+                // -------------------------------------------------
+                // 1. DATABASE
+                // -------------------------------------------------
+
+                bool databaseAvailable =
+                    await CheckDatabaseAsync ();
+
+
+                if(!databaseAvailable)
                 {
-                    // Proveri da li se može spojiti na bazu
-                    bool canConnect = context.Database.CanConnect ();
+                    Debug.WriteLine (
+                        "[MAIN] Startup prekinut jer baza nije dostupna.");
 
-                    if(!canConnect)
-                    {
-                        // Ako ne može da se spoji, prikaži grešku
-                        MessageBox.Show (
-                            "Ne mogu se spojiti na bazu podataka!\n" +
-                            "Proverite da li baza postoji na ispravnoj lokaciji.",
-                            "Greška baze",
-                            MessageBoxButton.OK,
-                            MessageBoxImage.Error
-                        );
-
-                        // Možeš i zatvoriti aplikaciju ako je kritično
-                        // Application.Current.Shutdown();
-                    }
-                }
-            }
-            catch(Exception ex)
-            {
-                // Loguj grešku ali ne kreiraj bazu
-                Debug.WriteLine ($"Database connection error: {ex.Message}");
-
-                MessageBox.Show (
-                    $"Greška pri povezivanju sa bazom:\n{ex.Message}",
-                    "Greška baze",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error
-                );
-            }
-
-            await SetIColors ();
-
-
-            // Ovdje izvrši provjeru licence
-            var result = await Helpers.LicenseManager.ValidateOnStartup ();
-
-            if(result != null && result.Success)
-            {
-
-                if(string.IsNullOrEmpty (Properties.Settings.Default.Firma) ||
-                    string.IsNullOrEmpty (Properties.Settings.Default.Adresa) ||
-                    string.IsNullOrEmpty (Properties.Settings.Default.Mjesto) ||
-                    string.IsNullOrEmpty (Properties.Settings.Default.JIB) ||
-                    string.IsNullOrEmpty (Properties.Settings.Default.PDV) ||
-                    string.IsNullOrEmpty (Properties.Settings.Default.ZR) ||
-                    string.IsNullOrEmpty (Properties.Settings.Default.Email))
-                {
-                    // Otvori SettingsPage prvo
-                    Globals.ulogovaniKorisnik = new TblRadnici
-                    {
-                        Radnik = "Admin",
-
-                    };
-                    var page = new SettingsPage ();
-                    PageNavigator.NavigateWithFade (page);
                     return;
                 }
 
 
-                CurrentPage = new Caupo.Views.LoginPage () { DataContext = new LoginPageViewModel () };
+                // -------------------------------------------------
+                // 2. THEME
+                // -------------------------------------------------
+
+                SetColors ();
+
+
+                // -------------------------------------------------
+                // 3. LICENSE
+                // -------------------------------------------------
+
+                Debug.WriteLine (
+                    "[LICENSE] Provjera licence...");
+
+
+                CaupoLicenseManager.ActivationResponse? result =
+                    await CaupoLicenseManager
+                        .ValidateOnStartup ();
+
+
+                // -------------------------------------------------
+                // 4. VALID LICENSE
+                // -------------------------------------------------
+
+                if(result != null &&
+                   result.Success)
+                {
+                    Debug.WriteLine (
+                        $"[LICENSE] Licenca je validna. " +
+                        $"Code={result.Code}");
+
+
+                    HandleValidLicense ();
+
+                    return;
+                }
+
+
+                // -------------------------------------------------
+                // 5. INVALID LICENSE
+                // -------------------------------------------------
+
+                HandleInvalidLicense (
+                    result);
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine (
+                    $"[MAIN] Neočekivana greška u startupu: {ex}");
+
+
+                MessageBox.Show (
+                    "Dogodila se greška prilikom pokretanja aplikacije."
+                    + Environment.NewLine
+                    + Environment.NewLine
+                    + ex.Message,
+                    "Greška",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+
+        // =====================================================
+        // DATABASE
+        // =====================================================
+
+        private async Task<bool> CheckDatabaseAsync()
+        {
+            try
+            {
+                Debug.WriteLine (
+                    "[DB] Provjera veze sa bazom...");
+
+
+                await using var context =
+                    new AppDbContext ();
+
+
+                bool canConnect =
+                    await context.Database
+                        .CanConnectAsync ();
+
+
+                if(canConnect)
+                {
+                    Debug.WriteLine (
+                        "[DB] Veza sa bazom je uspješna.");
+
+                    return true;
+                }
+
+
+                Debug.WriteLine (
+                    "[DB] Nije moguće povezivanje sa bazom.");
+
+
+                MessageBox.Show (
+                    "Ne mogu se spojiti na bazu podataka!"
+                    + Environment.NewLine
+                    + "Provjerite da li je baza dostupna.",
+                    "Greška baze",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+
+
+                return false;
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine (
+                    $"[DB] Greška pri povezivanju: {ex}");
+
+
+                MessageBox.Show (
+                    "Greška pri povezivanju sa bazom:"
+                    + Environment.NewLine
+                    + Environment.NewLine
+                    + ex.Message,
+                    "Greška baze",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+
+
+                return false;
+            }
+        }
+
+
+        // =====================================================
+        // COLORS / THEME
+        // =====================================================
+
+        public void SetColors()
+        {
+            string tema =
+                Settings.Default.Tema
+                ?? string.Empty;
+
+
+            bool darkTheme =
+                string.Equals (
+                    tema,
+                    "Tamna",
+                    StringComparison.OrdinalIgnoreCase);
+
+
+            Color fontColor =
+                darkTheme
+                    ? Color.FromRgb (
+                        244,
+                        244,
+                        244)
+                    : Color.FromRgb (
+                        45,
+                        45,
+                        48);
+
+
+            Color backgroundColor =
+                darkTheme
+                    ? Color.FromRgb (
+                        45,
+                        45,
+                        48)
+                    : Color.FromRgb (
+                        244,
+                        244,
+                        244);
+
+
+            Application.Current.Resources[
+                "GlobalFontColor"] =
+                new SolidColorBrush (
+                    fontColor);
+
+
+            Application.Current.Resources[
+                "GlobalBackgroundColor"] =
+                new SolidColorBrush (
+                    backgroundColor);
+
+
+            Debug.WriteLine (
+                $"[THEME] Tema: {tema}");
+
+
+            Debug.WriteLine (
+                "[THEME] GlobalFontColor = " +
+                $"#{fontColor.R:X2}" +
+                $"{fontColor.G:X2}" +
+                $"{fontColor.B:X2}");
+
+
+            Debug.WriteLine (
+                "[THEME] GlobalBackgroundColor = " +
+                $"#{backgroundColor.R:X2}" +
+                $"{backgroundColor.G:X2}" +
+                $"{backgroundColor.B:X2}");
+        }
+
+
+        // =====================================================
+        // VALID LICENSE
+        // =====================================================
+
+        private void HandleValidLicense()
+        {
+            /*
+             * Ako osnovni podaci firme nisu uneseni,
+             * korisnika šaljemo direktno u SettingsPage.
+             */
+
+            if(!CompanySettingsComplete ())
+            {
+                Debug.WriteLine (
+                    "[MAIN] Podaci firme nisu kompletni. " +
+                    "Otvaram SettingsPage.");
+
+
+                Globals.ulogovaniKorisnik =
+                    new TblRadnici
+                    {
+                        Radnik =
+                            "Admin"
+                    };
+
+
+                var page =
+                    new SettingsPage ();
+
+
+                PageNavigator.NavigateWithFade (
+                    page);
+
+
+                return;
+            }
+
+
+            Debug.WriteLine (
+                "[MAIN] Otvaram LoginPage.");
+
+
+            CurrentPage =
+                new LoginPage ();
+        }
+
+
+        // =====================================================
+        // COMPANY SETTINGS
+        // =====================================================
+
+        private static bool CompanySettingsComplete()
+        {
+            return
+                !string.IsNullOrWhiteSpace (
+                    Settings.Default.Firma)
+
+                &&
+
+                !string.IsNullOrWhiteSpace (
+                    Settings.Default.Adresa)
+
+                &&
+
+                !string.IsNullOrWhiteSpace (
+                    Settings.Default.Mjesto)
+
+                &&
+
+                !string.IsNullOrWhiteSpace (
+                    Settings.Default.JIB)
+
+                &&
+
+                !string.IsNullOrWhiteSpace (
+                    Settings.Default.PDV)
+
+                &&
+
+                !string.IsNullOrWhiteSpace (
+                    Settings.Default.ZR)
+
+                &&
+
+                !string.IsNullOrWhiteSpace (
+                    Settings.Default.Email);
+        }
+
+
+        // =====================================================
+        // INVALID LICENSE
+        // =====================================================
+
+        private void HandleInvalidLicense(
+            CaupoLicenseManager.ActivationResponse? result)
+        {
+            Window? owner =
+                Application.Current.Windows
+                    .OfType<Window> ()
+                    .FirstOrDefault (
+                        w => w.IsActive);
+
+
+            string code =
+                result?.Code
+                ?? CaupoLicenseManager
+                    .CodeValidationError;
+
+
+            string message =
+                result?.Message
+                ?? "Licenca nije validna.";
+
+
+            Debug.WriteLine (
+                $"[LICENSE] Licenca nije validna. " +
+                $"Code={code}, Message={message}");
+
+
+            switch(code)
+            {
+                // =================================================
+                // LICENSE_NOT_ACTIVATED
+                // =================================================
+
+                case CaupoLicenseManager.CodeLicenseNotActivated:
+
+                    ShowLicenseMessage (
+                        owner,
+                        message);
+
+
+                    OpenLicenseActivationPage ();
+
+                    break;
+
+
+                // =================================================
+                // LICENSE_NOT_FOUND
+                // =================================================
+
+                case CaupoLicenseManager.CodeLicenseNotFound:
+
+                    ShowLicenseMessage (
+                        owner,
+                        message);
+
+
+                    OpenLicenseActivationPage ();
+
+                    break;
+
+
+                // =================================================
+                // LICENSE_EXPIRED
+                // =================================================
+
+                case CaupoLicenseManager.CodeLicenseExpired:
+
+                    ShowLicenseMessage (
+                        owner,
+                        message);
+
+
+                    OpenLicensePaymentPage ();
+
+                    break;
+
+
+                // =================================================
+                // LICENSE_INACTIVE
+                // =================================================
+
+                case CaupoLicenseManager.CodeLicenseInactive:
+
+                    ShowLicenseMessage (
+                        owner,
+                        message);
+
+
+                    OpenLicensePaymentPage ();
+
+                    break;
+
+
+                // =================================================
+                // ACTIVATION_LIMIT_REACHED
+                // =================================================
+
+                case CaupoLicenseManager.CodeActivationLimitReached:
+
+                    if(result != null)
+                    {
+                        ShowLicenseMessage (
+                            owner,
+                            BuildActivationLimitMessage (
+                                result));
+                    }
+                    else
+                    {
+                        ShowLicenseMessage (
+                            owner,
+                            message);
+                    }
+
+
+                    OpenLicenseActivationPage ();
+
+                    break;
+
+
+                // =================================================
+                // NETWORK_ERROR
+                // =================================================
+
+                case CaupoLicenseManager.CodeNetworkError:
+
+                    ShowLicenseMessage (
+                        owner,
+                        message);
+
+
+                    OpenLicenseActivationPage ();
+
+                    break;
+
+
+                // =================================================
+                // SERVER_ERROR
+                // =================================================
+
+                case CaupoLicenseManager.CodeServerError:
+
+                    ShowLicenseMessage (
+                        owner,
+                        message);
+
+
+                    OpenLicenseActivationPage ();
+
+                    break;
+
+
+                // =================================================
+                // VALIDATION_ERROR
+                // =================================================
+
+                case CaupoLicenseManager.CodeValidationError:
+
+                    ShowLicenseMessage (
+                        owner,
+                        message);
+
+
+                    OpenLicenseActivationPage ();
+
+                    break;
+
+
+                // =================================================
+                // UNKNOWN
+                // =================================================
+
+                default:
+
+                    Debug.WriteLine (
+                        $"[LICENSE] Nepoznat license code: {code}");
+
+
+                    ShowLicenseMessage (
+                        owner,
+                        message);
+
+
+                    OpenLicenseActivationPage ();
+
+                    break;
+            }
+        }
+
+
+        // =====================================================
+        // OPEN LICENSE ACTIVATION PAGE
+        // =====================================================
+
+        private void OpenLicenseActivationPage()
+        {
+            Debug.WriteLine (
+                "[LICENSE] Otvaram LicenseActivationPage.");
+
+
+            CurrentPage =
+                new LicenseActivationPage ();
+        }
+
+
+        // =====================================================
+        // OPEN LICENSE PAYMENT PAGE
+        // =====================================================
+
+        private void OpenLicensePaymentPage()
+        {
+            Debug.WriteLine (
+                "[LICENSE] Otvaram LicensePaymentPage.");
+
+
+            CurrentPage =
+                new LicensePaymentPage ();
+        }
+
+
+        // =====================================================
+        // ACTIVATION LIMIT MESSAGE
+        // =====================================================
+
+        private static string BuildActivationLimitMessage(
+            CaupoLicenseManager.ActivationResponse result)
+        {
+            string message =
+                result.Message
+                ?? "Dosegnut je maksimalan broj aktiviranih računara.";
+
+
+            if(result.ActiveDevices.HasValue &&
+               result.MaxDevices.HasValue)
+            {
+                return
+                    message
+                    + Environment.NewLine
+                    + Environment.NewLine
+                    + "Aktivirani računari: "
+                    + result.ActiveDevices.Value
+                    + Environment.NewLine
+                    + "Maksimalno dozvoljeno: "
+                    + result.MaxDevices.Value;
+            }
+
+
+            return message;
+        }
+
+
+        // =====================================================
+        // LICENSE MESSAGE
+        // =====================================================
+
+        private static void ShowLicenseMessage(
+            Window? owner,
+            string message)
+        {
+            var myMessageBox =
+                new MyMessageBox ();
+
+
+            if(owner != null)
+            {
+                myMessageBox.Owner =
+                    owner;
+
+
+                myMessageBox.WindowStartupLocation =
+                    WindowStartupLocation.CenterOwner;
             }
             else
             {
-
-                var owner = Application.Current.Windows.OfType<Window> ().FirstOrDefault (w => w.IsActive);
-
-
-
-                switch(result?.Code)
-                {
-                    case "LICENSE_NOT_ACTIVATED":
-                        var myMessageBox = new MyMessageBox
-                        {
-                            Owner = owner,
-                            WindowStartupLocation = WindowStartupLocation.CenterOwner
-                        };
-                        myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                        myMessageBox.MessageTitle.Text = "Obavještenje";
-                        myMessageBox.MessageText.Text = result?.Message ?? "Licenca nije validna";
-                        myMessageBox.ShowDialog ();
-                        CurrentPage = new LicenseActivationPage ();
-                        break;
-
-                    case "LICENSE_EXPIRED":
-                        var myMessageBox2 = new MyMessageBox
-                        {
-                            Owner = owner,
-                            WindowStartupLocation = WindowStartupLocation.CenterOwner
-                        };
-                        myMessageBox2.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                        myMessageBox2.MessageTitle.Text = "Obavještenje";
-                        myMessageBox2.MessageText.Text = result?.Message ?? "Licenca nije validna";
-                        myMessageBox2.ShowDialog ();
-                        CurrentPage = new LicensePaymentPage ();
-                        break;
-
-                    default:
-                        CurrentPage = new LicensePaymentPage ();
-                        break;
-                }
-
-                //CurrentPage = new Caupo.Views.LoginPage () { DataContext = new LoginPageViewModel () };
-                //CurrentPage = new LicenseActivationPage ();
+                myMessageBox.WindowStartupLocation =
+                    WindowStartupLocation.CenterScreen;
             }
+
+
+            myMessageBox.MessageTitle.Text =
+                "Obavještenje";
+
+
+            myMessageBox.MessageText.Text =
+                message;
+
+
+            myMessageBox.ShowDialog ();
         }
 
 
+        // =====================================================
+        // PROPERTY CHANGED
+        // =====================================================
+
+        public event PropertyChangedEventHandler?
+            PropertyChanged;
 
 
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
+        protected void OnPropertyChanged(
+            [CallerMemberName]
+            string? name = null)
         {
-            PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (name));
+            PropertyChanged?.Invoke (
+                this,
+                new PropertyChangedEventArgs (
+                    name));
         }
-
-
     }
 }
+

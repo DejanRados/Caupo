@@ -23,7 +23,7 @@
         <Label x:Name="lblId" Content="********************"  VerticalAlignment="Top"   HorizontalAlignment="Center" Grid.Row="2" MouseDown="lblId_MouseDown" />
         <Label   Content="Licencni ključ"  VerticalAlignment="Bottom"   HorizontalAlignment="Center" Grid.Row="3" FontSize="15"   />
 
-        <TextBox x:Name="txtKey" Grid.Row="4" BorderThickness="0,0,0,1" PreviewTouchDown="TextBox_TouchDown"  MouseDown="txtKey_MouseDown"  BorderBrush="{DynamicResource GlobalFontColor}" Background="Transparent"  Foreground="{DynamicResource GlobalFontColor}" FontSize="14"  VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Height="30"  Width="420"  Margin="0"  />
+        <TextBox x:Name="txtKey" Style="{StaticResource TextBoxCustom}" Grid.Row="4" BorderThickness="0,0,0,1" PreviewTouchDown="TextBox_TouchDown"  MouseDown="txtKey_MouseDown"  BorderBrush="{DynamicResource GlobalFontColor}" Background="Transparent"  Foreground="{DynamicResource GlobalFontColor}" FontSize="14"  VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Height="30"  Width="420"  Margin="0"  />
     
         <StackPanel Orientation="Horizontal" Grid.Row="5" HorizontalAlignment="Center" Height="60">
         <Button x:Name="btnOk"  Content="U redu" Click="btnOk_Click" Width="100" Margin="5" Style="{StaticResource OkButton}" HorizontalAlignment="Right"/>

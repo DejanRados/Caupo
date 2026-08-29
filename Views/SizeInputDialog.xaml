@@ -36,10 +36,10 @@
                     <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"  x:Name="SizeInputTitle" Text="NOVE DIMENZIJE STOLA" HorizontalAlignment="Center" FontSize="20" VerticalAlignment="Center" />
 
                     <Label Grid.Row="1" Grid.Column="0" Content="Širina" HorizontalAlignment="Center" VerticalAlignment="Bottom" />
-                    <TextBox Grid.Row="2" Grid.Column="0" x:Name="InputTextWidth" HorizontalAlignment="Right" GotFocus="TextBox_GotFocus" LostFocus="TextBox_LostFocus" PreviewMouseLeftButtonDown="InputText_PreviewMouseLeftButtonDown"  Text=""  Height="30" Width="100" TextWrapping="Wrap" Background="Transparent"  BorderThickness="0,0,0,1"   TextAlignment="Left" VerticalAlignment="Top"  Padding="2"  />
+                    <TextBox Style="{StaticResource TextBoxCustom}" Grid.Row="2" Grid.Column="0" x:Name="InputTextWidth" HorizontalAlignment="Right" GotFocus="TextBox_GotFocus" LostFocus="TextBox_LostFocus" PreviewMouseLeftButtonDown="InputText_PreviewMouseLeftButtonDown"  Text=""  Height="30" Width="100" TextWrapping="Wrap" Background="Transparent"  BorderThickness="0,0,0,1"   TextAlignment="Left" VerticalAlignment="Top"  Padding="2"  />
 
                     <Label Grid.Row="1" Grid.Column="3" Content="Visina" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
-                    <TextBox Grid.Row="2" Grid.Column="3" HorizontalAlignment="Left" x:Name="InputTextHeight" GotFocus="TextBox_GotFocus" LostFocus="TextBox_LostFocus" PreviewMouseLeftButtonDown="InputText_PreviewMouseLeftButtonDown"  Text=""  Height="30" Width="100" TextWrapping="Wrap" Background="Transparent"  BorderThickness="0,0,0,1"     TextAlignment="Left" VerticalAlignment="Top"  Padding="2"  />
+                    <TextBox Style="{StaticResource TextBoxCustom}" Grid.Row="2" Grid.Column="3" HorizontalAlignment="Left" x:Name="InputTextHeight" GotFocus="TextBox_GotFocus" LostFocus="TextBox_LostFocus" PreviewMouseLeftButtonDown="InputText_PreviewMouseLeftButtonDown"  Text=""  Height="30" Width="100" TextWrapping="Wrap" Background="Transparent"  BorderThickness="0,0,0,1"     TextAlignment="Left" VerticalAlignment="Top"  Padding="2"  />
                 </Grid>
                 <StackPanel Orientation="Horizontal" Grid.Row="4" HorizontalAlignment="Center">
                     <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160" Margin="2" Grid.Column="0">

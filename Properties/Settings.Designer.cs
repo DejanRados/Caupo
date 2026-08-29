@@ -706,5 +706,17 @@ namespace Caupo.Properties {
                 this["SrbijaLPFRJid"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string CashRegisterType {
+            get {
+                return ((string)(this["CashRegisterType"]));
+            }
+            set {
+                this["CashRegisterType"] = value;
+            }
+        }
     }
 }

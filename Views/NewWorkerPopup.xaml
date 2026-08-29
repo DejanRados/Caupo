@@ -13,8 +13,8 @@
         
         mc:Ignorable="d"
         Title="NewWorkerPopup" >
-    <Border      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#44000000">
-        <Border   Height="320" Width="420" CornerRadius="7"   HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0.5" BorderBrush="{DynamicResource GlobalFontColor}">
+    <Border      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#33000000">
+        <Border   Height="320" Width="420" CornerRadius="7"   HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0.5" BorderBrush="{DynamicResource GlobalFontColor}" Background="{DynamicResource GlobalBackgroundColor}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="0.1*"/>
@@ -28,8 +28,8 @@
                 <TextBlock x:Name="PopupTitle" Text="Novi radnik" HorizontalAlignment="Center" Foreground="{DynamicResource GlobalFontColor}" FontSize="20" VerticalAlignment="Center" Grid.Row="1"/>
 
                 <Grid Grid.Row="2" Margin="10,0,10,5">
-                    <TextBox x:Name="txtRadnik" Background="Transparent" Foreground="{DynamicResource GlobalFontColor}" CaretBrush="{DynamicResource GlobalFontColor}"  VerticalAlignment="Bottom"    Margin="30,0,30,0" Padding="5"  BorderThickness="0,0,0,1" BorderBrush="LightGray" />
-                    <TextBlock IsHitTestVisible="False" Text="Ime i prezime radnika...." VerticalAlignment="Top" HorizontalAlignment="Left" Margin="30,0,30,0"  Foreground="DarkGray">
+                    <TextBox x:Name="txtRadnik" Style="{StaticResource TextBoxCustom}" Background="{DynamicResource GlobalBackgroundColor}" Foreground="{DynamicResource GlobalFontColor}" CaretBrush="{DynamicResource GlobalFontColor}"  VerticalAlignment="Bottom"    Margin="30,0,30,0" Padding="5"  BorderThickness="0,0,0,1" BorderBrush="LightGray" />
+                    <TextBlock IsHitTestVisible="False" Text="Ime i prezime radnika...." VerticalAlignment="Top" HorizontalAlignment="Left" Margin="30,0,30,0"  Foreground="DarkGray" >
                         <TextBlock.Style>
                             <Style TargetType="{x:Type TextBlock}">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -44,7 +44,7 @@
                 </Grid>
 
                 <Grid Grid.Row="3" Margin="10,0,10,5">
-                    <TextBox x:Name="txtLozinka" Background="Transparent" Foreground="{DynamicResource GlobalFontColor}" CaretBrush="{DynamicResource GlobalFontColor}"  VerticalAlignment="Bottom"    Margin="30,0,30,0" Padding="5"   BorderThickness="0,0,0,1" BorderBrush="LightGray" />
+                    <TextBox x:Name="txtLozinka" Style="{StaticResource TextBoxCustom}" Background="Transparent" Foreground="{DynamicResource GlobalFontColor}" CaretBrush="{DynamicResource GlobalFontColor}"  VerticalAlignment="Bottom"    Margin="30,0,30,0" Padding="5"   BorderThickness="0,0,0,1" BorderBrush="LightGray" />
                     <TextBlock IsHitTestVisible="False" Text="Lozinka...." VerticalAlignment="Top" HorizontalAlignment="Left" Margin="30,0,30,0" Foreground="DarkGray">
                         <TextBlock.Style>
                             <Style TargetType="{x:Type TextBlock}">

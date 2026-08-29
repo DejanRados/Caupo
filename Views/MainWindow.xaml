@@ -3,21 +3,51 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:Caupo.ViewModels"
         mc:Ignorable="d"
+
+        Title="MainWindow"
+        Height="760"
+        Width="1360"
+
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         WindowState="Maximized"
-        Loaded="Window_Loaded"
-        xmlns:syncfusionskin ="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
-        xmlns:svg="http://sharpvectors.codeplex.com/svgc/"
-        xmlns:vm="clr-namespace:Caupo.ViewModels"
-        Title="MainWindow" Height="760" Width="1360">
+
+        Background="{DynamicResource GlobalBackgroundColor}"
+        Foreground="{DynamicResource GlobalFontColor}"
+
+        Loaded="Window_Loaded">
+
     <Window.DataContext>
         <vm:MainViewModel />
     </Window.DataContext>
-    <Grid>
-        <ContentControl x:Name="MainContent" Content="{Binding CurrentPage}" />
-        <ContentControl x:Name="KeyboardHost"  HorizontalAlignment="Stretch" Background="AliceBlue"   VerticalAlignment="Bottom"     Visibility="Collapsed"/>
+
+    <Grid Background="{DynamicResource GlobalBackgroundColor}">
+
+        <!--
+            Glavni sadržaj aplikacije.
+            Content se mijenja isključivo preko
+            MainViewModel.CurrentPage.
+        -->
+        <ContentControl
+            x:Name="MainContent"
+            Content="{Binding CurrentPage}"
+            Background="{DynamicResource GlobalBackgroundColor}"
+            Foreground="{DynamicResource GlobalFontColor}" />
+
+        <!--
+            Virtualna tastatura.
+            Pozadina prati aktivnu Caupo temu.
+        -->
+        <ContentControl
+            x:Name="KeyboardHost"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Bottom"
+            Background="{DynamicResource GlobalBackgroundColor}"
+            Visibility="Collapsed" />
+
     </Grid>
 
 </Window>
+
