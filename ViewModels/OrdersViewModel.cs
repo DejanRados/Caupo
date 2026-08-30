@@ -7,14 +7,15 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
+using Caupo.Models;
 using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.ViewModels
 {
     public class OrdersViewModel : INotifyPropertyChanged
     {
-        private ObservableCollection<FiskalniRacun.Item> _stavkeRacuna = new ObservableCollection<FiskalniRacun.Item> ();
-        public ObservableCollection<FiskalniRacun.Item> StavkeRacuna
+        private ObservableCollection<RacunStavka> _stavkeRacuna = new ObservableCollection<RacunStavka> ();
+        public ObservableCollection<RacunStavka> StavkeRacuna
         {
             get => _stavkeRacuna;
             set
@@ -155,14 +156,14 @@ namespace Caupo.ViewModels
             _kasaViewModel = kasaViewModel;
             if(kasaViewModel != null)
             {
-                StavkeRacuna = _kasaViewModel.StavkeRacuna ?? new ObservableCollection<FiskalniRacun.Item> ();
+                StavkeRacuna = _kasaViewModel.StavkeRacuna ?? new ObservableCollection<RacunStavka> ();
 
                 Debug.WriteLine (" Prenesene StavkeRacuna iz kase --- " + StavkeRacuna.Count);
             }
             else
             {
 
-                StavkeRacuna = new ObservableCollection<FiskalniRacun.Item> ();
+                StavkeRacuna = new ObservableCollection<RacunStavka> ();
             }
             SetColors ();
 

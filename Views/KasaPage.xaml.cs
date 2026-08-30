@@ -1,17 +1,13 @@
 ﻿
 using Caupo.Data;
 using Caupo.Fiscal;
+using Caupo.Fiscal.Common;
 using Caupo.Helpers;
-using Caupo.Properties;
+using Caupo.Models;
 using Caupo.ViewModels;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.ObjectModel;
-using System.Configuration;
 using System.Diagnostics;
 using System.Globalization;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -19,10 +15,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
-using Tring.Fiscal.Driver;
-using Tring.Fiscal.Driver.Interfaces;
 using static Caupo.Data.DatabaseTables;
-using static Caupo.ViewModels.SettingsViewModel;
 
 
 namespace Caupo.Views
@@ -62,21 +55,20 @@ namespace Caupo.Views
                 ? new BlurEffect { Radius = 8 }
                 : null;
         }
-        private async void KasaWindow_Loaded( object sender,  RoutedEventArgs e)
+        private async void KasaWindow_Loaded(object sender, RoutedEventArgs e)
         {
-                            if(DataContext is not KasaViewModel vm)
-                                return;
+            if(DataContext is not KasaViewModel vm)
+                return;
 
-                            await vm.InitializeAsync ();
+            await vm.InitializeAsync ();
 
-                            ArtikliScroll.ScrollToTop ();
-                            KategorijeScroll.ScrollToTop ();
+            ArtikliScroll.ScrollToTop ();
+            KategorijeScroll.ScrollToTop ();
 
-                            Debug.WriteLine (
-                                "[KASA] KasaPage inicijalizovan.");
-          }
+            Debug.WriteLine (
+                "[KASA] KasaPage inicijalizovan.");
+        }
 
-        private VirtualKeyboard virtualKeyboard;
         private TextBox? FocusedTextBox = null;
 
         public void ReceiveKey(string key)
@@ -231,124 +223,222 @@ namespace Caupo.Views
 
 
 
-        private async void BtnFiskalni_Click(object sender, EventArgs e)
+        private async void BtnFiskalni_Click(
+            object sender,
+            EventArgs e)
         {
-            if(DataContext is KasaViewModel viewModel)
-            {
-                RacunIdikator.Visibility = Visibility.Visible;
+            if(DataContext is not KasaViewModel viewModel)
+                return;
 
+            RacunIdikator.Visibility =
+                Visibility.Visible;
+
+            try
+            {
                 if(viewModel.StavkeRacuna.Count == 0)
+                    return;
+
+                FiscalPaymentType paymentType =
+                    cmbNacinPlacanja.SelectedIndex switch
+                    {
+                        0 => FiscalPaymentType.Cash,
+                        1 => FiscalPaymentType.Card,
+                        2 => FiscalPaymentType.Check,
+                        3 => FiscalPaymentType.WireTransfer,
+
+                        _ => throw new FiscalException (
+                            "Odaberite ispravan način plaćanja.")
+                    };
+
+                FiscalBuyer? buyer = null;
+
+                if(viewModel.SelectedKupac != null)
                 {
-                    RacunIdikator.Visibility = Visibility.Collapsed;
+                    buyer =
+                        new FiscalBuyer
+                        {
+                            Name =
+                                viewModel.SelectedKupac.Kupac,
+
+                            TaxId =
+                                viewModel.SelectedKupac.JIB,
+
+                            Address =
+                                viewModel.SelectedKupac.Adresa,
+
+                            City =
+                                viewModel.SelectedKupac.Mjesto
+                        };
+                }
+
+                var fiscalRequest =
+                    new FiscalRequest
+                    {
+                        Items =
+                            viewModel.StavkeRacuna.ToList (),
+
+                        Buyer =
+                            buyer,
+
+                        Cashier =
+                            new FiscalCashier
+                            {
+                                Id =
+                                    Globals
+                                        .ulogovaniKorisnik
+                                        .IdRadnika,
+
+                                Name =
+                                    Globals
+                                        .ulogovaniKorisnik
+                                        .Radnik,
+
+                                IdentificationNumber =
+                                    Globals
+                                        .ulogovaniKorisnik
+                                        .IB
+                            },
+
+                        PaymentType =
+                            paymentType,
+
+                        TotalAmount =
+                            viewModel.TotalSum,
+
+                        InvoiceType =
+                            "Normal",
+
+                        TransactionType =
+                            "Sale"
+                    };
+
+                IFiscalService fiscalService =
+                    FiscalServiceFactory.Create (
+                        Properties.Settings.Default.Country);
+
+                FiscalResult result =
+                    await fiscalService.IzdajRacunAsync (
+                        fiscalRequest);
+
+                Debug.WriteLine (
+                    $"[FISKALNI] Success={result.Success}, " +
+                    $"Fiscalized={result.Fiscalized}, " +
+                    $"Saved={result.SavedToDatabase}, " +
+                    $"Printed={result.Printed}, " +
+                    $"FiscalNumber={result.FiscalNumber}");
+
+                // Ako račun nije uspješno obrađen i fiskalizacija
+                // nije potvrđena, ostavljamo stavke na kasi za novi pokušaj.
+                if(!result.Success &&
+                   !result.Fiscalized)
+                {
+                    ShowMessage (
+                        "GREŠKA",
+                        result.ErrorMessage
+                        ?? "Račun nije izdan.");
+
                     return;
                 }
 
-                try
+                // Ako je račun fiskalizovan, nikada ga ne ostavljamo
+                // na kasi za ponovno slanje. Isto vrijedi kada regionalni
+                // servis smatra lokalnu obradu uspješnom (npr. naknadna
+                // dostava u Hrvatskoj).
+                viewModel.ClearRacun ();
+
+                string? warning =
+                    BuildFiscalWarning (result);
+
+                if(!string.IsNullOrWhiteSpace (
+                    warning))
                 {
+                    ShowMessage (
+                        "UPOZORENJE",
+                        warning);
+                }
 
-                    FiskalniRacun fiskalniRacun = new FiskalniRacun ();
-                    /**/
-                    int brojracuna;
-                    using(var db = new AppDbContext ())
-                    {
-                        brojracuna = await db.Racuni
-                            .MaxAsync (r => (int?)r.BrojRacuna) ?? 0;  // Ako je tabela prazna, vrati 0
-                    }
+                if(viewModel.IsMultiUser)
+                {
+                    viewModel.IsLoggedIn =
+                        false;
 
-                    if(!Enum.TryParse (Properties.Settings.Default.Country, out Drzava odabranaDrzava))
-                    {
-                        Debug.WriteLine ("[FISKALNI] Nije moguće parsirati odabranu državu. ");
-                        ShowMessage ("GREŠKA", "Niste izabrali region u kome aplikacija radi." + Environment.NewLine + "Ne možete izdavati račune");
-                        return;
-                    }
-
-
-                    bool uspjeh = odabranaDrzava switch
-                    {
-                        Drzava.Hrvatska => await fiskalniRacun.IzdajFiskalniRacunHrvatska (
-                            cmbNacinPlacanja.SelectedIndex,
-                            viewModel.SelectedKupac,
-                            viewModel.TotalSum,
-                            viewModel.StavkeRacuna,
-                            null,
-                            false),
-
-                        Drzava.RepublikaSrpska => await fiskalniRacun.IzdajFiskalniRacun (
-                            "Training", "Sale", null, null,
-                            viewModel.StavkeRacuna,
-                            viewModel.SelectedKupac,
-                            cmbNacinPlacanja.SelectedIndex,
-                            viewModel.TotalSum),
-
-                        Drzava.Srbija => await fiskalniRacun.IzdajFiskalniRacun (
-                            "Training", "Sale", null, null,
-                            viewModel.StavkeRacuna,
-                            viewModel.SelectedKupac,
-                            cmbNacinPlacanja.SelectedIndex,
-                            viewModel.TotalSum),
-
-                        Drzava.FederacijaBiH => await fiskalniRacun.IzdajFiskalniRacunTring (
-                            cmbNacinPlacanja.SelectedIndex,
-                            Globals.ulogovaniKorisnik,
-                            viewModel.StavkeRacuna,
-                            viewModel.SelectedKupac,
-                            brojracuna),
-
-                        _ => false
-                    };
-
-
-
-
-
-
-
-
-                    if(uspjeh)
-                    {
-                       
-                        if(viewModel.IsMultiUser)
-                        {
-                            viewModel.ClearRacun ();
-                            viewModel.IsLoggedIn = false;
-                            await Dispatcher.BeginInvoke (new Action (() =>
+                    await Dispatcher.BeginInvoke (
+                        new Action (
+                            () =>
                             {
-
                                 txtPassword.Focus ();
-                                Keyboard.Focus (txtPassword);
+
+                                Keyboard.Focus (
+                                    txtPassword);
+
                                 txtPassword.SelectAll ();
-                                txtPassword.SelectAll ();
-
-                            }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
-                        }
-                        else
-                        {
-                            viewModel.IsLoggedIn = true;
-                        }
-                        RacunIdikator.Visibility = Visibility.Collapsed;
-
-                    }
-                    else
-                    {
-                        RacunIdikator.Visibility = Visibility.Collapsed;
-                    }
-
-
+                            }),
+                        System.Windows.Threading
+                            .DispatcherPriority
+                            .ApplicationIdle);
                 }
-                catch(Exception ex)
+                else
                 {
-                    RacunIdikator.Visibility = Visibility.Collapsed;
-                    ShowMessage ("Greška", $"Došlo je do greške: {ex.Message}");
+                    viewModel.IsLoggedIn =
+                        true;
                 }
-                finally
-                {
-                    RacunIdikator.Visibility = Visibility.Collapsed;
-                }
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine (
+                    "[FISKALNI] Greška: " +
+                    ex);
+
+                ShowMessage (
+                    "Greška",
+                    $"Došlo je do greške: {ex.Message}");
+            }
+            finally
+            {
+                RacunIdikator.Visibility =
+                    Visibility.Collapsed;
             }
         }
 
 
+        private static string? BuildFiscalWarning(
+            FiscalResult result)
+        {
+            var warnings =
+                new List<string> ();
 
+            if(!result.Fiscalized)
+            {
+                warnings.Add (
+                    "Račun je lokalno obrađen, ali fiskalizacija nije potvrđena.");
+            }
+
+            if(!result.SavedToDatabase)
+            {
+                warnings.Add (
+                    "Račun nije spremljen u lokalnu bazu.");
+            }
+
+            if(!result.Printed)
+            {
+                warnings.Add (
+                    "Račun nije isprintan.");
+            }
+
+            if(!string.IsNullOrWhiteSpace (
+                result.ErrorMessage))
+            {
+                warnings.Add (
+                    result.ErrorMessage);
+            }
+
+            if(warnings.Count == 0)
+                return null;
+
+            return string.Join (
+                Environment.NewLine,
+                warnings.Distinct ());
+        }
 
 
         private void ShowMessage(string title, string message)
@@ -551,59 +641,7 @@ namespace Caupo.Views
             }
             e.Handled = true;
         }
-        string? TaxLabelHr(string ps)
-        {
 
-            string taxeslabel;
-            switch(ps)
-            {
-
-                case "2":
-                    taxeslabel = "\u0415";
-                    break;
-                case "4":
-                    taxeslabel = "\u041A";
-                    break;
-                case "1":
-                    taxeslabel = "\u0410";
-                    break;
-                case "3":
-                    taxeslabel = "\u0408";
-                    break;
-                default:
-                    taxeslabel = "Е";
-                    break;
-            }
-            return taxeslabel;
-
-        }
-
-        string? TaxLabel(string ps)
-        {
-
-            string taxeslabel;
-            switch(ps)
-            {
-
-                case "2":
-                    taxeslabel = "\u0415";
-                    break;
-                case "4":
-                    taxeslabel = "\u041A";
-                    break;
-                case "1":
-                    taxeslabel = "\u0410";
-                    break;
-                case "3":
-                    taxeslabel = "\u0408";
-                    break;
-                default:
-                    taxeslabel = "Е";
-                    break;
-            }
-            return taxeslabel;
-
-        }
 
         private void dugmic_Clicked(
             object sender,
@@ -653,13 +691,16 @@ namespace Caupo.Views
             else
             {
                 var stavka =
-                    new FiskalniRacun.Item
+                    new RacunStavka
                     {
-                        Name = artikl.Artikl,
+                        ArtiklId =
+                            artikl.IdArtikla,
 
-                        Sifra = artikl.Sifra,
+                        Name =
+                            artikl.Artikl,
 
-                        BrojRacuna = 222,
+                        Sifra =
+                            artikl.Sifra,
 
                         Naziv =
                             artikl.ArtiklNormativ,
@@ -674,12 +715,11 @@ namespace Caupo.Views
                             artikl.JedinicaMjere,
 
                         Quantity =
-                            kolicina
+                            kolicina,
+
+                        PoreskaStopa =
+                            artikl.PoreskaStopa
                     };
-
-
-                stavka.Labels.Add (
-                    artikl.PoreskaStopa.ToString ());
 
 
                 vm.DodajStavkuRacuna (
@@ -706,30 +746,10 @@ namespace Caupo.Views
         }
 
 
-        private ScrollViewer GetScrollViewer(ListView listView)
-        {
-            UIElement frameworkElement = listView;
-
-            while(frameworkElement != null)
-            {
-                var child = VisualTreeHelper.GetChild (frameworkElement, 0);
-                var scrollViewer = child as ScrollViewer;
-                if(scrollViewer != null)
-                {
-                    return scrollViewer;
-                }
-                frameworkElement = child as UIElement;
-                if(frameworkElement == null)
-                {
-                    break;
-                }
-            }
-            return null;
-        }
 
         private System.Timers.Timer? _longPressTimer;
         private const int LongPressThreshold = 400; // ms
-        private FiskalniRacun.Item? _pressedItem;
+        private RacunStavka? _pressedItem;
         private DateTime _pressStartTime;
 
 
@@ -775,7 +795,7 @@ namespace Caupo.Views
         }
 
 
-        private FiskalniRacun.Item? GetItemFromTouchOrMouse(object sender, InputEventArgs e)
+        private RacunStavka? GetItemFromTouchOrMouse(object sender, InputEventArgs e)
         {
             if(sender is not DataGrid dg)
                 return null;
@@ -797,7 +817,7 @@ namespace Caupo.Views
 
             // Pronađi ListViewItem roditelja
             var itemContainer = FindAncestor<DataGridRow> (hit);
-            if(itemContainer?.DataContext is FiskalniRacun.Item stavka)
+            if(itemContainer?.DataContext is RacunStavka stavka)
                 return stavka;
 
             return null;
@@ -874,7 +894,7 @@ namespace Caupo.Views
         }
 
 
-        private void StartLongPressTimer(FiskalniRacun.Item stavka)
+        private void StartLongPressTimer(RacunStavka stavka)
         {
             // Stop old timer ako postoji
             if(_longPressTimer != null)
@@ -914,7 +934,7 @@ namespace Caupo.Views
 
 
 
-        private void UnosNote(FiskalniRacun.Item stavka)
+        private void UnosNote(RacunStavka stavka)
         {
             MainContent.Effect = new BlurEffect { Radius = 8 };
             MyInputBox dialog = new MyInputBox ();

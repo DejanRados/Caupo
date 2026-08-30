@@ -781,8 +781,15 @@ namespace Caupo.Data
             [Key]
             [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int IdStope { get; set; }
+
             public decimal? Postotak { get; set; }
+
             public string? Opis { get; set; }
+
+            public string? Oznaka { get; set; }
+
+            public bool Aktivna { get; set; } = true;
+
             public override string ToString()
             {
                 return Opis ?? string.Empty;

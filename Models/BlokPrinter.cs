@@ -19,7 +19,7 @@ namespace Caupo.Models
 
     public class BlokPrinter
     {
-        private List<FiskalniRacun.Item> _stavke;
+        private List<RacunStavka> _stavke;
         private string? _konobar = Globals.ulogovaniKorisnik.Radnik;
         private int _paperWidthMm;
         private int _brojBloka;
@@ -35,7 +35,7 @@ namespace Caupo.Models
         private string _imestola;
 
 
-        public BlokPrinter(List<FiskalniRacun.Item> stavke, string vrstaBloka, string sto, string imestola)
+        public BlokPrinter(List<RacunStavka> stavke, string vrstaBloka, string sto, string imestola)
         {
             _stavke = stavke;
             _paperWidthMm = Convert.ToInt32 (Settings.Default.SirinaTrake);

@@ -463,6 +463,16 @@ namespace Caupo.ViewModels
             set => SetProperty (ref _srbijaConnectionStatus, value);
         }
 
+
+        private ObservableCollection<TblPoreskeStope> _poreskeStope =
+    new ObservableCollection<TblPoreskeStope> ();
+
+        public ObservableCollection<TblPoreskeStope> PoreskeStope
+        {
+            get => _poreskeStope;
+            set => SetProperty (ref _poreskeStope, value);
+        }
+
         #endregion
 
 
@@ -665,6 +675,8 @@ namespace Caupo.ViewModels
 
         public ICommand TestSrbijaPfrCommand { get; }
 
+        public ICommand DobaviSrbijaPoreskeStopeCommand { get; }
+
         public ICommand NewRadnikCommand { get; }
 
         public ICommand UpdateCommand { get; }
@@ -723,6 +735,9 @@ namespace Caupo.ViewModels
             TestSrbijaPfrCommand =
                 new AsyncRelayCommand (TestSrbijaPfrAsync);
 
+            DobaviSrbijaPoreskeStopeCommand =
+                    new AsyncRelayCommand (DobaviSrbijaPoreskeStopeAsync);
+
             NewRadnikCommand =
                 new RelayCommand (OpenNewRadnik);
 
@@ -743,9 +758,369 @@ namespace Caupo.ViewModels
 
 
             _ = LoadRadniciAsync ();
+
+            _ = LoadPoreskeStopeAsync ();
         }
 
         #endregion
+
+
+        private async Task LoadPoreskeStopeAsync()
+        {
+            try
+            {
+                await using var db =
+                    new AppDbContext ();
+
+                var stope =
+    await db.PoreskeStope
+        .AsNoTracking ()
+        .Where (x => x.Aktivna)
+        .OrderBy (x => x.IdStope)
+        .ToListAsync ();
+
+                PoreskeStope =
+                    new ObservableCollection<TblPoreskeStope> (
+                        stope);
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine (
+                    $"[SRBIJA] Greška učitavanja poreskih stopa: {ex}");
+            }
+        }
+
+        private async Task<string> GetSrbijaVPFRStatusBodyAsync()
+        {
+            if(string.IsNullOrWhiteSpace (SrbijaVPFRUrl))
+            {
+                throw new Exception (
+                    "V-PFR URL nije podešen.");
+            }
+
+            if(string.IsNullOrWhiteSpace (SrbijaCertificateName))
+            {
+                throw new Exception (
+                    "Certifikat nije odabran.");
+            }
+
+            if(string.IsNullOrWhiteSpace (SrbijaCertificatePassword))
+            {
+                throw new Exception (
+                    "Zaporka certifikata nije unesena.");
+            }
+
+            if(string.IsNullOrWhiteSpace (SrbijaPAC))
+            {
+                throw new Exception (
+                    "PAC nije unesen.");
+            }
+
+            string certificatePath =
+                Path.Combine (
+                    AppDomain.CurrentDomain.BaseDirectory,
+                    "Certificates",
+                    SrbijaCertificateName);
+
+            if(!File.Exists (certificatePath))
+            {
+                throw new FileNotFoundException (
+                    "Certifikat nije pronađen.",
+                    certificatePath);
+            }
+
+            var certificate =
+                new X509Certificate2 (
+                    certificatePath,
+                    SrbijaCertificatePassword,
+                    X509KeyStorageFlags.MachineKeySet |
+                    X509KeyStorageFlags.Exportable);
+
+            using var handler =
+                new HttpClientHandler ();
+
+            handler.ClientCertificateOptions =
+                ClientCertificateOption.Manual;
+
+            handler.ClientCertificates.Add (
+                certificate);
+
+            handler.UseProxy = false;
+
+            using var client =
+                new HttpClient (handler);
+
+            client.DefaultRequestHeaders.Accept.Clear ();
+
+            client.DefaultRequestHeaders.Accept.Add (
+                new MediaTypeWithQualityHeaderValue (
+                    "application/json"));
+
+            client.DefaultRequestHeaders.Add (
+                "PAC",
+                SrbijaPAC);
+
+            if(!string.IsNullOrWhiteSpace (
+                SrbijaAcceptLanguage))
+            {
+                client.DefaultRequestHeaders.TryAddWithoutValidation (
+                    "Accept-Language",
+                    SrbijaAcceptLanguage);
+            }
+
+            string baseUrl =
+                SrbijaVPFRUrl.TrimEnd ('/');
+
+            string statusUrl;
+
+            if(baseUrl.EndsWith (
+                "/api/v3/status",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                statusUrl = baseUrl;
+            }
+            else
+            {
+                statusUrl =
+                    baseUrl + "/api/v3/status";
+            }
+
+            Debug.WriteLine (
+                $"[SRBIJA VPFR] Status URL: {statusUrl}");
+
+            using HttpResponseMessage response =
+                await client.GetAsync (statusUrl);
+
+            string body =
+                await response.Content
+                    .ReadAsStringAsync ();
+
+            Debug.WriteLine (
+                $"[SRBIJA VPFR] Status HTTP: " +
+                $"{(int)response.StatusCode} " +
+                $"{response.StatusCode}");
+
+            Debug.WriteLine (
+                $"[SRBIJA VPFR] Status response: {body}");
+
+            if(!response.IsSuccessStatusCode)
+            {
+                throw new Exception (
+                    $"V-PFR status greška: " +
+                    $"{(int)response.StatusCode} " +
+                    $"{response.StatusCode}\n{body}");
+            }
+
+            return body;
+        }
+
+        private async Task DobaviSrbijaPoreskeStopeAsync()
+        {
+            SrbijaConnectionStatus =
+                "Dobavljanje poreskih stopa...";
+
+            try
+            {
+                string body =
+                    await GetSrbijaVPFRStatusBodyAsync ();
+
+                using JsonDocument document =
+                    JsonDocument.Parse (body);
+
+                JsonElement root =
+                    document.RootElement;
+
+                if(!root.TryGetProperty (
+                    "currentTaxRates",
+                    out JsonElement currentTaxRates))
+                {
+                    throw new Exception (
+                        "VPFR odgovor ne sadrži currentTaxRates.");
+                }
+
+                if(!currentTaxRates.TryGetProperty (
+                    "taxCategories",
+                    out JsonElement taxCategories))
+                {
+                    throw new Exception (
+                        "VPFR odgovor ne sadrži taxCategories.");
+                }
+
+                var stope =
+                    new List<TblPoreskeStope> ();
+
+                foreach(JsonElement category
+                    in taxCategories.EnumerateArray ())
+                {
+                    string opis =
+                        category.TryGetProperty (
+                            "name",
+                            out JsonElement nameElement)
+                        ? nameElement.GetString () ?? string.Empty
+                        : string.Empty;
+
+                    if(!category.TryGetProperty (
+                        "taxRates",
+                        out JsonElement taxRates))
+                    {
+                        continue;
+                    }
+
+                    foreach(JsonElement taxRate
+                        in taxRates.EnumerateArray ())
+                    {
+                        decimal postotak =
+                            taxRate.GetProperty ("rate")
+                                .GetDecimal ();
+
+                        string oznaka =
+                            taxRate.GetProperty ("label")
+                                .GetString ()
+                            ?? string.Empty;
+
+                        stope.Add (
+                            new TblPoreskeStope
+                            {
+                                Postotak = postotak,
+                                Opis = opis,
+                                Oznaka = oznaka
+                            });
+                    }
+                }
+
+                if(stope.Count == 0)
+                {
+                    throw new Exception (
+                        "VPFR nije vratio nijednu aktivnu poresku stopu.");
+                }
+
+                await SpremiSrbijaPoreskeStopeAsync (
+                    stope);
+
+                await LoadPoreskeStopeAsync ();
+
+                SrbijaConnectionStatus =
+                    $"Poreske stope učitane: {stope.Count}";
+
+                Debug.WriteLine (
+                    $"[SRBIJA] Učitano {stope.Count} poreskih stopa.");
+
+                foreach(var stopa in stope)
+                {
+                    Debug.WriteLine (
+                        $"[SRBIJA] {stopa.Opis} | " +
+                        $"{stopa.Postotak:0.####}% | " +
+                        $"{stopa.Oznaka}");
+                }
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine (
+                    $"[SRBIJA] Greška dobavljanja poreskih stopa: {ex}");
+
+                SrbijaConnectionStatus =
+                    "Greška: " + ex.Message;
+            }
+        }
+
+
+        private async Task SpremiSrbijaPoreskeStopeAsync(
+    List<TblPoreskeStope> noveStope)
+        {
+            if(noveStope == null ||
+               noveStope.Count == 0)
+            {
+                throw new Exception (
+                    "Nema poreskih stopa za spremanje.");
+            }
+
+            await using var db =
+                new AppDbContext ();
+
+            var postojeceStope =
+                await db.PoreskeStope
+                    .ToListAsync ();
+
+            // Sve postojeće prvo označimo kao neaktivne.
+            // One koje VPFR ponovo vrati biće ponovo aktivirane.
+            foreach(var postojeca in postojeceStope)
+            {
+                postojeca.Aktivna = false;
+            }
+
+            foreach(var nova in noveStope)
+            {
+                if(string.IsNullOrWhiteSpace (nova.Oznaka))
+                {
+                    continue;
+                }
+
+                var postojeca =
+                    postojeceStope.FirstOrDefault (
+                        x =>
+                            !string.IsNullOrWhiteSpace (x.Oznaka) &&
+                            string.Equals (
+                                x.Oznaka,
+                                nova.Oznaka,
+                                StringComparison.Ordinal));
+
+                if(postojeca != null)
+                {
+                    // Postoji ista fiskalna oznaka.
+                    // Zadržavamo IdStope.
+                    postojeca.Postotak =
+                        nova.Postotak;
+
+                    postojeca.Opis =
+                        nova.Opis;
+
+                    postojeca.Oznaka =
+                        nova.Oznaka;
+
+                    postojeca.Aktivna =
+                        true;
+
+                    Debug.WriteLine (
+                        $"[SRBIJA] Ažurirana stopa: " +
+                        $"ID={postojeca.IdStope}, " +
+                        $"Oznaka={postojeca.Oznaka}, " +
+                        $"Postotak={postojeca.Postotak}");
+                }
+                else
+                {
+                    // Nova oznaka koju ranije nismo imali.
+                    var novaStopa =
+                        new TblPoreskeStope
+                        {
+                            Postotak =
+                                nova.Postotak,
+
+                            Opis =
+                                nova.Opis,
+
+                            Oznaka =
+                                nova.Oznaka,
+
+                            Aktivna =
+                                true
+                        };
+
+                    db.PoreskeStope.Add (
+                        novaStopa);
+
+                    Debug.WriteLine (
+                        $"[SRBIJA] Dodana nova stopa: " +
+                        $"Oznaka={nova.Oznaka}, " +
+                        $"Postotak={nova.Postotak}");
+                }
+            }
+
+            await db.SaveChangesAsync ();
+
+            Debug.WriteLine (
+                $"[SRBIJA] Sinhronizacija poreskih stopa završena. " +
+                $"Aktivnih sa VPFR-a: {noveStope.Count}");
+        }
 
 
         #region Load settings

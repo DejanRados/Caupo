@@ -15,13 +15,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Cis\**" />
-    <EmbeddedResource Remove="Cis\**" />
-    <None Remove="Cis\**" />
-    <Page Remove="Cis\**" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <Compile Remove="Cis\Fiscalization.Async.cs" />
+    <Compile Remove="Cis\racun_hr.cs" />
+    <Compile Remove="Fiscal\FiskalniRacun.cs" />
+    <Compile Remove="Fiscal\PrintRacunHrvatska.cs" />
+    <Compile Remove="Fiscal\racun_hr.cs" />
     <Compile Remove="Views\LicencePage.xaml.cs" />
   </ItemGroup>
 

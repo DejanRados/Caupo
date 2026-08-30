@@ -1,5 +1,5 @@
 ﻿using Caupo.Data;
-using Caupo.Fiscal;
+using Caupo.Models;
 using Caupo.Properties;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
@@ -44,9 +44,9 @@ namespace Caupo.ViewModels
 
         private decimal _totalSum;
 
-        private ObservableCollection<FiskalniRacun.Item> _stavkeRacuna = [];
+        private ObservableCollection<RacunStavka> _stavkeRacuna = [];
 
-        private FiskalniRacun.Item? _selectedStavka;
+        private RacunStavka? _selectedStavka;
 
         private ObservableCollection<TblKupci> _kupci = [];
         private TblKupci? _selectedKupac;
@@ -271,7 +271,7 @@ namespace Caupo.ViewModels
             }
         }
 
-        public ObservableCollection<FiskalniRacun.Item> StavkeRacuna
+        public ObservableCollection<RacunStavka> StavkeRacuna
         {
             get => _stavkeRacuna;
             set
@@ -292,7 +292,7 @@ namespace Caupo.ViewModels
             }
         }
 
-        public FiskalniRacun.Item? SelectedStavka
+        public RacunStavka? SelectedStavka
         {
             get => _selectedStavka;
             set
@@ -784,7 +784,7 @@ namespace Caupo.ViewModels
         #region RACUN OPERATIONS
 
         public void DodajStavkuRacuna(
-            FiskalniRacun.Item stavka)
+            RacunStavka stavka)
         {
             if(stavka == null)
                 return;
@@ -794,7 +794,7 @@ namespace Caupo.ViewModels
             UpdateTotalSum ();
         }
 
-        public FiskalniRacun.Item? NadjiStavkuZaPovecanje(
+        public RacunStavka? NadjiStavkuZaPovecanje(
             string sifra)
         {
             if(string.IsNullOrWhiteSpace (sifra))
@@ -830,7 +830,7 @@ namespace Caupo.ViewModels
         }
 
         public void UpdateStavkuRacunaPlus(
-            FiskalniRacun.Item stavka,
+            RacunStavka stavka,
             decimal kolicina)
         {
             if(stavka == null ||
@@ -847,7 +847,7 @@ namespace Caupo.ViewModels
         }
 
         public Task UpdateStavkuRacunaMinus(
-            FiskalniRacun.Item stavka,
+            RacunStavka stavka,
             decimal kolicina)
         {
             if(stavka == null ||

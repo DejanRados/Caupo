@@ -401,7 +401,7 @@ namespace Caupo.ViewModels
 
                 using(var db = new AppDbContext ())
                 {
-                    var PS = await db.PoreskeStope.ToListAsync ();
+                    var PS =   await db.PoreskeStope .Where (x => x.Aktivna) .OrderBy (x => x.IdStope).ToListAsync ();
 
                     PoreskeStope.Clear ();
                     foreach(var ps in PS)

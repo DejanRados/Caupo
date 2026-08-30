@@ -64,13 +64,13 @@ namespace Caupo.Server
                     return Error ("Korisnik ne postoji.");
                 Globals.ulogovaniKorisnik = korisnik;
                 // Deserializacija stavki
-                ObservableCollection<FiskalniRacun.Item> stavke;
+                ObservableCollection<RacunStavka> stavke;
                 try
                 {
-                    stavke = JsonSerializer.Deserialize<ObservableCollection<FiskalniRacun.Item>> (
+                    stavke = JsonSerializer.Deserialize<ObservableCollection<RacunStavka>> (
                         stavkeJson,
                         new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-                    ) ?? new ObservableCollection<FiskalniRacun.Item> ();
+                    ) ?? new ObservableCollection<RacunStavka> ();
                 }
                 catch(Exception ex)
                 {
@@ -82,8 +82,8 @@ namespace Caupo.Server
                     return Error ("Lista stavki je prazna.");
 
                 // Grupiranje
-                var stavkeSank = new List<FiskalniRacun.Item> ();
-                var stavkeKuhinja = new List<FiskalniRacun.Item> ();
+                var stavkeSank = new List<RacunStavka> ();
+                var stavkeKuhinja = new List<RacunStavka> ();
 
                 foreach(var stavka in stavke)
                 {
