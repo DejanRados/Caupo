@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Text.Json.Serialization;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -13,18 +14,22 @@ namespace Caupo.Data
 {
     public class DatabaseTables
     {
-        [Table ("tblArtikli")]
+        [Table("tblArtikli")]
         public class TblArtikli : INotifyPropertyChanged
         {
             [Key]
-            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
             public int IdArtikla { get; set; }
+
             public string? Sifra { get; set; }
+
             public string? Artikl { get; set; }
+
             public override string ToString()
             {
                 return Artikl ?? string.Empty;
             }
+
             public int? JedinicaMjere { get; set; }
 
             [NotMapped]
@@ -49,9 +54,13 @@ namespace Caupo.Data
                     };
                 }
             }
+
             public decimal? Cijena { get; set; }
+
             public string? InternaSifra { get; set; }
+
             public int? PoreskaStopa { get; set; }
+
             [NotMapped]
             [JsonIgnore]
             public decimal? PoreskaStopaPostotak
@@ -70,31 +79,27 @@ namespace Caupo.Data
             }
 
             private string? _slika;
+            private ImageSource? _slikaSource;
+            private string? _cachedSlikaPath;
+            private bool _slikaProvjerena;
 
             public string? Slika
             {
                 get => _slika;
                 set
                 {
-                    if(_slika == value)
+                    if (_slika == value)
                         return;
 
                     _slika = value;
-
-                    // Ako se putanja slike promijeni,
-                    // stari cache više nije validan.
                     _slikaSource = null;
                     _cachedSlikaPath = null;
+                    _slikaProvjerena = false;
 
-                    OnPropertyChanged (nameof (Slika));
-                    OnPropertyChanged (nameof (SlikaSource));
+                    OnPropertyChanged(nameof(Slika));
+                    OnPropertyChanged(nameof(SlikaSource));
                 }
             }
-
-
-            private ImageSource? _slikaSource;
-            private string? _cachedSlikaPath;
-
 
             [NotMapped]
             [JsonIgnore]
@@ -102,75 +107,55 @@ namespace Caupo.Data
             {
                 get
                 {
-                    if(string.IsNullOrWhiteSpace (Slika) ||
-                        Slika == "bez_slike")
+                    if (string.IsNullOrWhiteSpace(Slika) || Slika == "bez_slike")
+                        return null;
+
+                    // Ako smo ovu putanju već provjerili, odmah vraćamo
+                    // rezultat bez ponovnog pristupa disku.
+                    if (_slikaProvjerena && string.Equals(_cachedSlikaPath, Slika, StringComparison.OrdinalIgnoreCase))
+                        return _slikaSource;
+
+                    _slikaProvjerena = true;
+                    _cachedSlikaPath = Slika;
+
+                    // Ne pokušavamo BitmapImage ako fajl fizički ne postoji.
+                    if (!File.Exists(Slika))
                     {
+                        _slikaSource = null;
                         return null;
                     }
 
-
-                    // Već učitana ista slika.
-                    if(_slikaSource != null &&
-                        string.Equals (
-                            _cachedSlikaPath,
-                            Slika,
-                            StringComparison.OrdinalIgnoreCase))
-                    {
-                        return _slikaSource;
-                    }
-
-
                     try
                     {
-                        var bitmap =
-                            new BitmapImage ();
+                        var bitmap = new BitmapImage();
 
-                        bitmap.BeginInit ();
+                        bitmap.BeginInit();
+                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                        bitmap.DecodePixelWidth = 50;
+                        bitmap.UriSource = new Uri(Slika, UriKind.Absolute);
+                        bitmap.EndInit();
 
-
-                        bitmap.CacheOption =
-                            BitmapCacheOption.OnLoad;
-
-  
-                        bitmap.DecodePixelWidth = 96;
-
-                        bitmap.UriSource =
-                            new Uri (
-                                Slika,
-                                UriKind.Absolute);
-
-                        bitmap.EndInit ();
-
-                        /*
-                         * BitmapImage je sada immutable.
-                         * Freeze smanjuje WPF overhead i omogućava
-                         * sigurnije korištenje objekta.
-                         */
-                        if(bitmap.CanFreeze)
-                            bitmap.Freeze ();
-
+                        if (bitmap.CanFreeze)
+                            bitmap.Freeze();
 
                         _slikaSource = bitmap;
-                        _cachedSlikaPath = Slika;
 
                         return _slikaSource;
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
-                        Debug.WriteLine (
-                            $"[ARTIKL] Ne mogu učitati sliku '{Slika}': {ex.Message}");
-
+                        Debug.WriteLine($"[ARTIKL] Ne mogu učitati sliku '{Slika}': {ex.Message}");
                         _slikaSource = null;
-                        _cachedSlikaPath = null;
 
                         return null;
                     }
                 }
             }
 
-
             public decimal? Normativ { get; set; }
+
             public int? VrstaArtikla { get; set; }
+
             [NotMapped]
             [JsonIgnore]
             public string? VrstaArtiklaName
@@ -186,15 +171,21 @@ namespace Caupo.Data
                     };
                 }
             }
+
             public int? Kategorija { get; set; }
+
             public int? Pozicija { get; set; }
+
             public string? ArtiklNormativ { get; set; }
+
             public string? PrikazatiNaDispleju { get; set; }
+
             [NotMapped]
             [JsonIgnore]
             public decimal ButtonWidth { get; set; }
 
             private bool _isVisible = true;
+
             [NotMapped]
             [JsonIgnore]
             public bool IsVisible
@@ -202,15 +193,19 @@ namespace Caupo.Data
                 get => _isVisible;
                 set
                 {
+                    if (_isVisible == value)
+                        return;
+
                     _isVisible = value;
-                    OnPropertyChanged (nameof (IsVisible));
+                    OnPropertyChanged(nameof(IsVisible));
                 }
             }
 
             public event PropertyChangedEventHandler? PropertyChanged;
+
             protected void OnPropertyChanged(string propertyName)
             {
-                PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
             }
         }
 

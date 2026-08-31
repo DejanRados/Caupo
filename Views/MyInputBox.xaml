@@ -45,8 +45,8 @@
                     
                     <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center">
                         <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160" Margin="2" Grid.Column="0">
-                            <Button Style="{StaticResource CancelButtonStyle}"   BorderThickness="2" x:Name="CancelButton"  Click="CancelButton_Click"   Width="120"  Margin="5"  Height="50"        Grid.Column="0">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5">
+                            <Button Style="{StaticResource CancelButtonStyle}"   BorderThickness="1" x:Name="CancelButton"  Click="CancelButton_Click"   Width="120"  Margin="5"  Height="50"        Grid.Column="0">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" >
                                     <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="20" Width="20" FontWeight="ExtraLight" Text="&#60039;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     <TextBlock Text="Odustani"  VerticalAlignment="Center"   />
                                 </StackPanel>

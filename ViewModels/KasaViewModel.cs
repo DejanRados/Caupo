@@ -23,8 +23,8 @@ namespace Caupo.ViewModels
         private List<TblArtikli> _sviArtikli = [];
         private List<TblKategorije> _sveKategorije = [];
 
-        private ObservableCollection<TblArtikli> _prikazaniArtikli = [];
-        private ObservableCollection<TblKategorije> _prikazaneKategorije = [];
+        private readonly ObservableCollection<TblArtikli> _prikazaniArtikli = [];
+        private readonly ObservableCollection<TblKategorije> _prikazaneKategorije = [];
 
         private int? _selectedCategoryId;
         private string? _firstLetterFilter;
@@ -66,11 +66,11 @@ namespace Caupo.ViewModels
             get => _fontColor;
             set
             {
-                if(Equals (_fontColor, value))
+                if (Equals(_fontColor, value))
                     return;
 
                 _fontColor = value;
-                OnPropertyChanged (nameof (FontColor));
+                OnPropertyChanged(nameof(FontColor));
             }
         }
 
@@ -79,11 +79,11 @@ namespace Caupo.ViewModels
             get => _backColor;
             set
             {
-                if(Equals (_backColor, value))
+                if (Equals(_backColor, value))
                     return;
 
                 _backColor = value;
-                OnPropertyChanged (nameof (BackColor));
+                OnPropertyChanged(nameof(BackColor));
             }
         }
 
@@ -92,11 +92,11 @@ namespace Caupo.ViewModels
             get => _imagePathPiceButton;
             set
             {
-                if(_imagePathPiceButton == value)
+                if (_imagePathPiceButton == value)
                     return;
 
                 _imagePathPiceButton = value;
-                OnPropertyChanged (nameof (ImagePathPiceButton));
+                OnPropertyChanged(nameof(ImagePathPiceButton));
             }
         }
 
@@ -105,11 +105,11 @@ namespace Caupo.ViewModels
             get => _imagePathHranaButton;
             set
             {
-                if(_imagePathHranaButton == value)
+                if (_imagePathHranaButton == value)
                     return;
 
                 _imagePathHranaButton = value;
-                OnPropertyChanged (nameof (ImagePathHranaButton));
+                OnPropertyChanged(nameof(ImagePathHranaButton));
             }
         }
 
@@ -118,11 +118,11 @@ namespace Caupo.ViewModels
             get => _imagePathOstaloButton;
             set
             {
-                if(_imagePathOstaloButton == value)
+                if (_imagePathOstaloButton == value)
                     return;
 
                 _imagePathOstaloButton = value;
-                OnPropertyChanged (nameof (ImagePathOstaloButton));
+                OnPropertyChanged(nameof(ImagePathOstaloButton));
             }
         }
 
@@ -131,11 +131,11 @@ namespace Caupo.ViewModels
             get => _imagePathPiceSelectedButton;
             set
             {
-                if(_imagePathPiceSelectedButton == value)
+                if (_imagePathPiceSelectedButton == value)
                     return;
 
                 _imagePathPiceSelectedButton = value;
-                OnPropertyChanged (nameof (ImagePathPiceSelectedButton));
+                OnPropertyChanged(nameof(ImagePathPiceSelectedButton));
             }
         }
 
@@ -144,11 +144,11 @@ namespace Caupo.ViewModels
             get => _imagePathHranaSelectedButton;
             set
             {
-                if(_imagePathHranaSelectedButton == value)
+                if (_imagePathHranaSelectedButton == value)
                     return;
 
                 _imagePathHranaSelectedButton = value;
-                OnPropertyChanged (nameof (ImagePathHranaSelectedButton));
+                OnPropertyChanged(nameof(ImagePathHranaSelectedButton));
             }
         }
 
@@ -157,11 +157,11 @@ namespace Caupo.ViewModels
             get => _imagePathOstaloSelectedButton;
             set
             {
-                if(_imagePathOstaloSelectedButton == value)
+                if (_imagePathOstaloSelectedButton == value)
                     return;
 
                 _imagePathOstaloSelectedButton = value;
-                OnPropertyChanged (nameof (ImagePathOstaloSelectedButton));
+                OnPropertyChanged(nameof(ImagePathOstaloSelectedButton));
             }
         }
 
@@ -170,11 +170,11 @@ namespace Caupo.ViewModels
             get => _imagePathCategoryButton;
             set
             {
-                if(_imagePathCategoryButton == value)
+                if (_imagePathCategoryButton == value)
                     return;
 
                 _imagePathCategoryButton = value;
-                OnPropertyChanged (nameof (ImagePathCategoryButton));
+                OnPropertyChanged(nameof(ImagePathCategoryButton));
             }
         }
 
@@ -183,25 +183,9 @@ namespace Caupo.ViewModels
 
         #region ARTIKLI
 
-        public ObservableCollection<TblArtikli> PrikazaniArtikli
-        {
-            get => _prikazaniArtikli;
-            private set
-            {
-                _prikazaniArtikli = value;
-                OnPropertyChanged (nameof (PrikazaniArtikli));
-            }
-        }
+        public ObservableCollection<TblArtikli> PrikazaniArtikli => _prikazaniArtikli;
 
-        public ObservableCollection<TblKategorije> PrikazaneKategorije
-        {
-            get => _prikazaneKategorije;
-            private set
-            {
-                _prikazaneKategorije = value;
-                OnPropertyChanged (nameof (PrikazaneKategorije));
-            }
-        }
+        public ObservableCollection<TblKategorije> PrikazaneKategorije => _prikazaneKategorije;
 
         #endregion
 
@@ -220,20 +204,37 @@ namespace Caupo.ViewModels
             get => _selectedCategory;
             set
             {
-                if(_selectedCategory == value)
+                if (_selectedCategory == value)
                     return;
 
-                _selectedCategory = value;
+                var ukupno = Stopwatch.StartNew();
 
-                // Promjena glavne grupe poništava prethodne filtere.
+                Debug.WriteLine($"[PERF KASA] ===== PROMJENA {_selectedCategory} -> {value} =====");
+
+                _selectedCategory = value;
                 _selectedCategoryId = null;
                 _firstLetterFilter = null;
 
-                OnPropertyChanged (nameof (SelectedCategory));
-                OnPropertyChanged (nameof (SelectedCategoryId));
+                var sw = Stopwatch.StartNew();
 
-                RefreshCategories ();
-                RefreshArticles ();
+                OnPropertyChanged(nameof(SelectedCategory));
+                OnPropertyChanged(nameof(SelectedCategoryId));
+
+                sw.Stop();
+                Debug.WriteLine($"[PERF KASA] PropertyChanged: {sw.Elapsed.TotalMilliseconds:F2} ms");
+
+                sw.Restart();
+                RefreshCategories();
+                sw.Stop();
+                Debug.WriteLine($"[PERF KASA] RefreshCategories: {sw.Elapsed.TotalMilliseconds:F2} ms");
+
+                sw.Restart();
+                RefreshArticles();
+                sw.Stop();
+                Debug.WriteLine($"[PERF KASA] RefreshArticles: {sw.Elapsed.TotalMilliseconds:F2} ms");
+
+                ukupno.Stop();
+                Debug.WriteLine($"[PERF KASA] ViewModel UKUPNO: {ukupno.Elapsed.TotalMilliseconds:F2} ms");
             }
         }
 
@@ -242,14 +243,14 @@ namespace Caupo.ViewModels
             get => _selectedCategoryId;
             set
             {
-                if(_selectedCategoryId == value)
+                if (_selectedCategoryId == value)
                     return;
 
                 _selectedCategoryId = value;
 
-                OnPropertyChanged (nameof (SelectedCategoryId));
+                OnPropertyChanged(nameof(SelectedCategoryId));
 
-                RefreshArticles ();
+                RefreshArticles();
             }
         }
 
@@ -263,11 +264,11 @@ namespace Caupo.ViewModels
             get => _totalSum;
             private set
             {
-                if(_totalSum == value)
+                if (_totalSum == value)
                     return;
 
                 _totalSum = value;
-                OnPropertyChanged (nameof (TotalSum));
+                OnPropertyChanged(nameof(TotalSum));
             }
         }
 
@@ -276,19 +277,19 @@ namespace Caupo.ViewModels
             get => _stavkeRacuna;
             set
             {
-                if(ReferenceEquals (_stavkeRacuna, value))
+                if (ReferenceEquals(_stavkeRacuna, value))
                     return;
 
-                if(_stavkeRacuna != null)
+                if (_stavkeRacuna != null)
                     _stavkeRacuna.CollectionChanged -= StavkeRacuna_CollectionChanged;
 
                 _stavkeRacuna = value ?? [];
 
                 _stavkeRacuna.CollectionChanged += StavkeRacuna_CollectionChanged;
 
-                OnPropertyChanged (nameof (StavkeRacuna));
+                OnPropertyChanged(nameof(StavkeRacuna));
 
-                UpdateTotalSum ();
+                UpdateTotalSum();
             }
         }
 
@@ -297,11 +298,11 @@ namespace Caupo.ViewModels
             get => _selectedStavka;
             set
             {
-                if(ReferenceEquals (_selectedStavka, value))
+                if (ReferenceEquals(_selectedStavka, value))
                     return;
 
                 _selectedStavka = value;
-                OnPropertyChanged (nameof (SelectedStavka));
+                OnPropertyChanged(nameof(SelectedStavka));
             }
         }
 
@@ -309,7 +310,7 @@ namespace Caupo.ViewModels
             object? sender,
             NotifyCollectionChangedEventArgs e)
         {
-            UpdateTotalSum ();
+            UpdateTotalSum();
         }
 
         #endregion
@@ -323,7 +324,7 @@ namespace Caupo.ViewModels
             private set
             {
                 _kupci = value;
-                OnPropertyChanged (nameof (Kupci));
+                OnPropertyChanged(nameof(Kupci));
             }
         }
 
@@ -332,14 +333,14 @@ namespace Caupo.ViewModels
             get => _selectedKupac;
             set
             {
-                if(ReferenceEquals (_selectedKupac, value))
+                if (ReferenceEquals(_selectedKupac, value))
                     return;
 
                 _selectedKupac = value;
 
-                OnPropertyChanged (nameof (SelectedKupac));
+                OnPropertyChanged(nameof(SelectedKupac));
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[KASA] SelectedKupac = {_selectedKupac?.Kupac ?? "(nema)"}");
             }
         }
@@ -354,15 +355,15 @@ namespace Caupo.ViewModels
             get => _isMultiUser;
             set
             {
-                if(_isMultiUser == value)
+                if (_isMultiUser == value)
                     return;
 
                 _isMultiUser = value;
 
-                OnPropertyChanged (nameof (IsMultiUser));
-                OnPropertyChanged (nameof (IsMultiUserVisible));
+                OnPropertyChanged(nameof(IsMultiUser));
+                OnPropertyChanged(nameof(IsMultiUserVisible));
 
-                UpdateMultiUserState ();
+                UpdateMultiUserState();
             }
         }
 
@@ -371,15 +372,15 @@ namespace Caupo.ViewModels
             get => _isLoggedIn;
             set
             {
-                if(_isLoggedIn == value)
+                if (_isLoggedIn == value)
                     return;
 
                 _isLoggedIn = value;
 
-                OnPropertyChanged (nameof (IsLoggedIn));
-                OnPropertyChanged (nameof (IsMultiUserVisible));
+                OnPropertyChanged(nameof(IsLoggedIn));
+                OnPropertyChanged(nameof(IsMultiUserVisible));
 
-                UpdateMultiUserState ();
+                UpdateMultiUserState();
             }
         }
 
@@ -392,15 +393,15 @@ namespace Caupo.ViewModels
 
         private void UpdateMultiUserState()
         {
-            if(IsMultiUserVisible)
+            if (IsMultiUserVisible)
             {
                 pokusaj = 3;
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     "[KASA] Multi-user login aktivan. Pokušaji resetovani na 3.");
             }
 
-            MultiUserVisibilityChanged?.Invoke (IsMultiUserVisible);
+            MultiUserVisibilityChanged?.Invoke(IsMultiUserVisible);
         }
 
         #endregion
@@ -421,31 +422,31 @@ namespace Caupo.ViewModels
 
         public async Task InitializeAsync()
         {
-            if(_initialized)
+            if (_initialized)
                 return;
 
             _initialized = true;
 
             try
             {
-                await SetImage ();
-                await CheckMultiUserAsync ();
+                await SetImage();
+                await CheckMultiUserAsync();
 
-                await LoadArtikliAsync ();
-                await LoadCategoriesAsync ();
-                await LoadKupciAsync ();
+                await LoadArtikliAsync();
+                await LoadCategoriesAsync();
+                await LoadKupciAsync();
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[KASA] Initialize završen. " +
                     $"Artikli={_sviArtikli.Count}, " +
                     $"Kategorije={_sveKategorije.Count}, " +
                     $"Kupci={Kupci.Count}");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _initialized = false;
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     "[KASA] InitializeAsync GREŠKA: " + ex);
             }
         }
@@ -453,14 +454,14 @@ namespace Caupo.ViewModels
         // Ostavljeno radi kompatibilnosti ako se negdje još poziva Start().
         public Task Start()
         {
-            return InitializeAsync ();
+            return InitializeAsync();
         }
 
         public async Task ReloadAsync()
         {
-            await LoadArtikliAsync ();
-            await LoadCategoriesAsync ();
-            await LoadKupciAsync ();
+            await LoadArtikliAsync();
+            await LoadCategoriesAsync();
+            await LoadKupciAsync();
         }
 
         #endregion
@@ -470,7 +471,7 @@ namespace Caupo.ViewModels
 
         public Task CheckMultiUser()
         {
-            return CheckMultiUserAsync ();
+            return CheckMultiUserAsync();
         }
 
         public Task CheckMultiUserAsync()
@@ -480,23 +481,23 @@ namespace Caupo.ViewModels
                 string? multiUser = Settings.Default.MultiUser;
 
                 IsMultiUser =
-                    string.Equals (
+                    string.Equals(
                         multiUser,
                         "DA",
                         StringComparison.OrdinalIgnoreCase);
 
-                if(!IsMultiUser)
+                if (!IsMultiUser)
                     IsLoggedIn = true;
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[KASA] MultiUser = {IsMultiUser}");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 IsMultiUser = false;
                 IsLoggedIn = true;
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     "[KASA] CheckMultiUserAsync: " + ex);
             }
 
@@ -508,12 +509,12 @@ namespace Caupo.ViewModels
             string? tema = Settings.Default.Tema;
 
             bool tamna =
-                string.Equals (
+                string.Equals(
                     tema,
                     "Tamna",
                     StringComparison.OrdinalIgnoreCase);
 
-            if(tamna)
+            if (tamna)
             {
                 ImagePathPiceButton =
                     "pack://application:,,,/Images/Dark/drink.svg";
@@ -537,12 +538,12 @@ namespace Caupo.ViewModels
                     "pack://application:,,,/Images/Dark/category.svg";
 
                 FontColor =
-                    new SolidColorBrush (
-                        Color.FromRgb (212, 212, 212));
+                    new SolidColorBrush(
+                        Color.FromRgb(212, 212, 212));
 
                 BackColor =
-                    new SolidColorBrush (
-                        Color.FromRgb (50, 50, 50));
+                    new SolidColorBrush(
+                        Color.FromRgb(50, 50, 50));
             }
             else
             {
@@ -568,15 +569,15 @@ namespace Caupo.ViewModels
                     "pack://application:,,,/Images/Light/category.svg";
 
                 FontColor =
-                    new SolidColorBrush (
-                        Color.FromRgb (50, 50, 50));
+                    new SolidColorBrush(
+                        Color.FromRgb(50, 50, 50));
 
                 BackColor =
-                    new SolidColorBrush (
-                        Color.FromRgb (212, 212, 212));
+                    new SolidColorBrush(
+                        Color.FromRgb(212, 212, 212));
             }
 
-            if(Application.Current != null &&
+            if (Application.Current != null &&
                 FontColor != null)
             {
                 Application.Current.Resources["GlobalFontColor"] =
@@ -596,22 +597,22 @@ namespace Caupo.ViewModels
             try
             {
                 await using var db =
-                    new AppDbContext ();
+                    new AppDbContext();
 
                 _sviArtikli = await db.Artikli
-                    .AsNoTracking ()
-                    .OrderBy (a => a.VrstaArtikla)
-                    .ThenBy (a => a.Pozicija)
-                    .ToListAsync ();
+                    .AsNoTracking()
+                    .OrderBy(a => a.VrstaArtikla)
+                    .ThenBy(a => a.Pozicija)
+                    .ToListAsync();
 
-                RefreshArticles ();
+                RefreshArticles();
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[KASA] Artikli učitani: {_sviArtikli.Count}");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (
+                Debug.WriteLine(
                     "[KASA] LoadArtikliAsync: " + ex);
             }
         }
@@ -621,22 +622,22 @@ namespace Caupo.ViewModels
             try
             {
                 await using var db =
-                    new AppDbContext ();
+                    new AppDbContext();
 
                 _sveKategorije = await db.Kategorije
-                    .AsNoTracking ()
-                    .OrderBy (k => k.VrstaArtikla)
-                    .ThenBy (k => k.IdKategorije)
-                    .ToListAsync ();
+                    .AsNoTracking()
+                    .OrderBy(k => k.VrstaArtikla)
+                    .ThenBy(k => k.IdKategorije)
+                    .ToListAsync();
 
-                RefreshCategories ();
+                RefreshCategories();
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[KASA] Kategorije učitane: {_sveKategorije.Count}");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (
+                Debug.WriteLine(
                     "[KASA] LoadCategoriesAsync: " + ex);
             }
         }
@@ -646,40 +647,40 @@ namespace Caupo.ViewModels
             try
             {
                 await using var db =
-                    new AppDbContext ();
+                    new AppDbContext();
 
                 var kupci = await db.Kupci
-                    .AsNoTracking ()
-                    .Where (k =>
+                    .AsNoTracking()
+                    .Where(k =>
                         k.Kupac != null &&
                         k.Kupac != "")
-                    .OrderBy (k => k.Kupac)
-                    .ToListAsync ();
+                    .OrderBy(k => k.Kupac)
+                    .ToListAsync();
 
                 Kupci =
-                    new ObservableCollection<TblKupci> (kupci);
+                    new ObservableCollection<TblKupci>(kupci);
 
                 // Standardni POS kupac.
                 SelectedKupac =
-                    Kupci.FirstOrDefault (k =>
-                        string.Equals (
-                            k.Kupac?.Trim (),
+                    Kupci.FirstOrDefault(k =>
+                        string.Equals(
+                            k.Kupac?.Trim(),
                             "Gradjani",
                             StringComparison.OrdinalIgnoreCase))
-                    ?? Kupci.FirstOrDefault ();
+                    ?? Kupci.FirstOrDefault();
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[KASA] Kupci učitani: {Kupci.Count}");
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[KASA] Default kupac: " +
                     $"{SelectedKupac?.Kupac ?? "(nema)"}");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 SelectedKupac = null;
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     "[KASA] LoadKupciAsync: " + ex);
             }
         }
@@ -691,54 +692,38 @@ namespace Caupo.ViewModels
 
         private void RefreshArticles()
         {
-            IEnumerable<TblArtikli> query =
-                _sviArtikli.Where (a =>
-                    a.VrstaArtikla ==
-                    (int)SelectedCategory);
+            IEnumerable<TblArtikli> query = _sviArtikli.Where(a => a.VrstaArtikla == (int)SelectedCategory);
 
-            if(_selectedCategoryId.HasValue)
+            if (_selectedCategoryId.HasValue)
+                query = query.Where(a => a.Kategorija == _selectedCategoryId.Value);
+
+            if (!string.IsNullOrWhiteSpace(_firstLetterFilter))
             {
-                query = query.Where (a =>
-                    a.Kategorija ==
-                    _selectedCategoryId.Value);
-            }
+                string slovo = _firstLetterFilter.Trim();
 
-            if(!string.IsNullOrWhiteSpace (
-                    _firstLetterFilter))
-            {
-                string slovo =
-                    _firstLetterFilter.Trim ();
-
-                query = query.Where (a =>
+                query = query.Where(a =>
                 {
-                    // Piće je ranije koristilo ArtiklNormativ,
-                    // ostalo Artikl.
-                    string naziv =
-                        a.VrstaArtikla == 0
-                            ? a.ArtiklNormativ ?? a.Artikl ?? ""
-                            : a.Artikl ?? a.ArtiklNormativ ?? "";
-
-                    return naziv.StartsWith (
-                        slovo,
-                        StringComparison.CurrentCultureIgnoreCase);
+                    string naziv = a.VrstaArtikla == 0 ? a.ArtiklNormativ ?? a.Artikl ?? "" : a.Artikl ?? a.ArtiklNormativ ?? "";
+                    return naziv.StartsWith(slovo, StringComparison.CurrentCultureIgnoreCase);
                 });
             }
 
-            PrikazaniArtikli =
-                new ObservableCollection<TblArtikli> (
-                    query.OrderBy (a => a.Pozicija));
+            var noviArtikli = query.OrderBy(a => a.Pozicija).ToList();
+
+            PrikazaniArtikli.Clear();
+
+            foreach (var artikl in noviArtikli)
+                PrikazaniArtikli.Add(artikl);
         }
 
         private void RefreshCategories()
         {
-            PrikazaneKategorije =
-                new ObservableCollection<TblKategorije> (
-                    _sveKategorije
-                        .Where (k =>
-                            k.VrstaArtikla ==
-                            (int)SelectedCategory)
-                        .OrderBy (k =>
-                            k.IdKategorije));
+            var noveKategorije = _sveKategorije.Where(k => k.VrstaArtikla == (int)SelectedCategory).OrderBy(k => k.IdKategorije).ToList();
+
+            PrikazaneKategorije.Clear();
+
+            foreach (var kategorija in noveKategorije)
+                PrikazaneKategorije.Add(kategorija);
         }
 
         public void FilterByCategory(
@@ -753,18 +738,18 @@ namespace Caupo.ViewModels
         public void FilterByFirstLetter(
             string firstLetter)
         {
-            if(string.IsNullOrWhiteSpace (firstLetter))
+            if (string.IsNullOrWhiteSpace(firstLetter))
                 return;
 
             _selectedCategoryId = null;
 
             _firstLetterFilter =
-                firstLetter.Trim ();
+                firstLetter.Trim();
 
-            OnPropertyChanged (
-                nameof (SelectedCategoryId));
+            OnPropertyChanged(
+                nameof(SelectedCategoryId));
 
-            RefreshArticles ();
+            RefreshArticles();
         }
 
         public void ArtikliFilterReset()
@@ -772,10 +757,10 @@ namespace Caupo.ViewModels
             _selectedCategoryId = null;
             _firstLetterFilter = null;
 
-            OnPropertyChanged (
-                nameof (SelectedCategoryId));
+            OnPropertyChanged(
+                nameof(SelectedCategoryId));
 
-            RefreshArticles ();
+            RefreshArticles();
         }
 
         #endregion
@@ -786,34 +771,34 @@ namespace Caupo.ViewModels
         public void DodajStavkuRacuna(
             RacunStavka stavka)
         {
-            if(stavka == null)
+            if (stavka == null)
                 return;
 
-            StavkeRacuna.Add (stavka);
+            StavkeRacuna.Add(stavka);
 
-            UpdateTotalSum ();
+            UpdateTotalSum();
         }
 
         public RacunStavka? NadjiStavkuZaPovecanje(
             string sifra)
         {
-            if(string.IsNullOrWhiteSpace (sifra))
+            if (string.IsNullOrWhiteSpace(sifra))
                 return null;
 
             return StavkeRacuna
-                .LastOrDefault (item =>
+                .LastOrDefault(item =>
                     item.Sifra == sifra &&
-                    string.IsNullOrWhiteSpace (
+                    string.IsNullOrWhiteSpace(
                         item.Note));
         }
 
         public bool StavkaPostoji(
             string sifra)
         {
-            if(string.IsNullOrWhiteSpace (sifra))
+            if (string.IsNullOrWhiteSpace(sifra))
                 return false;
 
-            return StavkeRacuna.Any (
+            return StavkeRacuna.Any(
                 item =>
                     item.Sifra == sifra);
         }
@@ -821,8 +806,8 @@ namespace Caupo.ViewModels
         public void UpdateTotalSum()
         {
             TotalSum =
-                Math.Round (
-                    StavkeRacuna.Sum (
+                Math.Round(
+                    StavkeRacuna.Sum(
                         item =>
                             item.TotalAmount ?? 0m),
                     2,
@@ -833,7 +818,7 @@ namespace Caupo.ViewModels
             RacunStavka stavka,
             decimal kolicina)
         {
-            if(stavka == null ||
+            if (stavka == null ||
                 kolicina <= 0)
             {
                 return;
@@ -843,14 +828,14 @@ namespace Caupo.ViewModels
                 (stavka.Quantity ?? 0m) +
                 kolicina;
 
-            UpdateTotalSum ();
+            UpdateTotalSum();
         }
 
         public Task UpdateStavkuRacunaMinus(
             RacunStavka stavka,
             decimal kolicina)
         {
-            if(stavka == null ||
+            if (stavka == null ||
                 kolicina <= 0)
             {
                 return Task.CompletedTask;
@@ -860,11 +845,11 @@ namespace Caupo.ViewModels
                 (stavka.Quantity ?? 0m) -
                 kolicina;
 
-            if(novaKolicina <= 0)
+            if (novaKolicina <= 0)
             {
-                StavkeRacuna.Remove (stavka);
+                StavkeRacuna.Remove(stavka);
 
-                if(ReferenceEquals (
+                if (ReferenceEquals(
                     SelectedStavka,
                     stavka))
                 {
@@ -877,17 +862,17 @@ namespace Caupo.ViewModels
                     novaKolicina;
             }
 
-            UpdateTotalSum ();
+            UpdateTotalSum();
 
             return Task.CompletedTask;
         }
 
         public void ClearRacun()
         {
-            StavkeRacuna.Clear ();
+            StavkeRacuna.Clear();
             SelectedStavka = null;
 
-            UpdateTotalSum ();
+            UpdateTotalSum();
         }
 
         #endregion
@@ -899,29 +884,29 @@ namespace Caupo.ViewModels
         public async Task UpdateArticlePosition(
             TblArtikli artikl)
         {
-            if(artikl == null)
+            if (artikl == null)
                 return;
 
             try
             {
                 await using var db =
-                    new AppDbContext ();
+                    new AppDbContext();
 
                 var existing =
-                    await db.Artikli.FindAsync (
+                    await db.Artikli.FindAsync(
                         artikl.IdArtikla);
 
-                if(existing == null)
+                if (existing == null)
                     return;
 
                 existing.Pozicija =
                     artikl.Pozicija;
 
-                await db.SaveChangesAsync ();
+                await db.SaveChangesAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (
+                Debug.WriteLine(
                     "[KASA] UpdateArticlePosition: " + ex);
             }
         }
@@ -930,7 +915,7 @@ namespace Caupo.ViewModels
             TblArtikli first,
             TblArtikli second)
         {
-            if(first == null ||
+            if (first == null ||
                 second == null ||
                 first.IdArtikla == second.IdArtikla)
             {
@@ -946,17 +931,17 @@ namespace Caupo.ViewModels
                     second.Pozicija;
 
                 await using var db =
-                    new AppDbContext ();
+                    new AppDbContext();
 
                 var firstDb =
-                    await db.Artikli.FindAsync (
+                    await db.Artikli.FindAsync(
                         first.IdArtikla);
 
                 var secondDb =
-                    await db.Artikli.FindAsync (
+                    await db.Artikli.FindAsync(
                         second.IdArtikla);
 
-                if(firstDb == null ||
+                if (firstDb == null ||
                     secondDb == null)
                 {
                     return;
@@ -968,7 +953,7 @@ namespace Caupo.ViewModels
                 secondDb.Pozicija =
                     firstPosition;
 
-                await db.SaveChangesAsync ();
+                await db.SaveChangesAsync();
 
                 first.Pozicija =
                     secondPosition;
@@ -976,11 +961,11 @@ namespace Caupo.ViewModels
                 second.Pozicija =
                     firstPosition;
 
-                RefreshArticles ();
+                RefreshArticles();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (
+                Debug.WriteLine(
                     "[KASA] SwapArticlePositionsAsync: " + ex);
             }
         }
@@ -995,9 +980,9 @@ namespace Caupo.ViewModels
         protected virtual void OnPropertyChanged(
             string propertyName)
         {
-            PropertyChanged?.Invoke (
+            PropertyChanged?.Invoke(
                 this,
-                new PropertyChangedEventArgs (
+                new PropertyChangedEventArgs(
                     propertyName));
         }
 

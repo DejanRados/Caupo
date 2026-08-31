@@ -28,7 +28,7 @@ namespace Caupo.ViewModels
     {
         #region Win32 API - monitori
 
-        [DllImport ("user32.dll")]
+        [DllImport("user32.dll")]
         private static extern bool EnumDisplayMonitors(
             IntPtr hdc,
             IntPtr lprcClip,
@@ -41,19 +41,19 @@ namespace Caupo.ViewModels
             IntPtr lprcMonitor,
             IntPtr dwData);
 
-        [DllImport ("user32.dll", CharSet = CharSet.Auto)]
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern bool GetMonitorInfo(
             IntPtr hMonitor,
             ref MONITORINFOEX lpmi);
 
-        [DllImport ("user32.dll", CharSet = CharSet.Auto)]
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern bool EnumDisplayDevices(
             string? lpDevice,
             uint iDevNum,
             ref DISPLAY_DEVICE lpDisplayDevice,
             uint dwFlags);
 
-        [StructLayout (LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         private struct MONITORINFOEX
         {
             public int cbSize;
@@ -61,11 +61,11 @@ namespace Caupo.ViewModels
             public RECT rcWork;
             public uint dwFlags;
 
-            [MarshalAs (UnmanagedType.ByValTStr, SizeConst = 32)]
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
             public string szDevice;
         }
 
-        [StructLayout (LayoutKind.Sequential)]
+        [StructLayout(LayoutKind.Sequential)]
         private struct RECT
         {
             public int left;
@@ -74,23 +74,23 @@ namespace Caupo.ViewModels
             public int bottom;
         }
 
-        [StructLayout (LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         private struct DISPLAY_DEVICE
         {
             public int cb;
 
-            [MarshalAs (UnmanagedType.ByValTStr, SizeConst = 32)]
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
             public string DeviceName;
 
-            [MarshalAs (UnmanagedType.ByValTStr, SizeConst = 128)]
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
             public string DeviceString;
 
             public uint StateFlags;
 
-            [MarshalAs (UnmanagedType.ByValTStr, SizeConst = 128)]
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
             public string DeviceID;
 
-            [MarshalAs (UnmanagedType.ByValTStr, SizeConst = 128)]
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
             public string DeviceKey;
         }
 
@@ -107,7 +107,7 @@ namespace Caupo.ViewModels
             Srbija
         }
 
-        public Array Drzave => Enum.GetValues (typeof (Drzava));
+        public Array Drzave => Enum.GetValues(typeof(Drzava));
 
         private Drzava _odabranaDrzava;
 
@@ -116,12 +116,12 @@ namespace Caupo.ViewModels
             get => _odabranaDrzava;
             set
             {
-                if(SetProperty (ref _odabranaDrzava, value))
+                if (SetProperty(ref _odabranaDrzava, value))
                 {
-                    OnPropertyChanged (nameof (ShowFBIH));
-                    OnPropertyChanged (nameof (ShowRS));
-                    OnPropertyChanged (nameof (ShowHR));
-                    OnPropertyChanged (nameof (ShowSR));
+                    OnPropertyChanged(nameof(ShowFBIH));
+                    OnPropertyChanged(nameof(ShowRS));
+                    OnPropertyChanged(nameof(ShowHR));
+                    OnPropertyChanged(nameof(ShowSR));
                 }
             }
         }
@@ -147,56 +147,56 @@ namespace Caupo.ViewModels
         public string Firma
         {
             get => _firma;
-            set => SetProperty (ref _firma, value);
+            set => SetProperty(ref _firma, value);
         }
 
         private string _adresa = string.Empty;
         public string Adresa
         {
             get => _adresa;
-            set => SetProperty (ref _adresa, value);
+            set => SetProperty(ref _adresa, value);
         }
 
         private string _mjesto = string.Empty;
         public string Mjesto
         {
             get => _mjesto;
-            set => SetProperty (ref _mjesto, value);
+            set => SetProperty(ref _mjesto, value);
         }
 
         private string _jib = string.Empty;
         public string JIB
         {
             get => _jib;
-            set => SetProperty (ref _jib, value);
+            set => SetProperty(ref _jib, value);
         }
 
         private string _pdv = string.Empty;
         public string PDV
         {
             get => _pdv;
-            set => SetProperty (ref _pdv, value);
+            set => SetProperty(ref _pdv, value);
         }
 
         private string _zr = string.Empty;
         public string ZR
         {
             get => _zr;
-            set => SetProperty (ref _zr, value);
+            set => SetProperty(ref _zr, value);
         }
 
         private string _email = string.Empty;
         public string Email
         {
             get => _email;
-            set => SetProperty (ref _email, value);
+            set => SetProperty(ref _email, value);
         }
 
         private int _pdvKorisnik;
         public int PDVKorisnik
         {
             get => _pdvKorisnik;
-            set => SetProperty (ref _pdvKorisnik, value);
+            set => SetProperty(ref _pdvKorisnik, value);
         }
 
         #endregion
@@ -209,7 +209,7 @@ namespace Caupo.ViewModels
         public string TringServerIpAddress
         {
             get => _tringServerIpAddress;
-            set => SetProperty (ref _tringServerIpAddress, value);
+            set => SetProperty(ref _tringServerIpAddress, value);
         }
 
         #endregion
@@ -222,7 +222,7 @@ namespace Caupo.ViewModels
         public string LPFRIP
         {
             get => _lpfrIP;
-            set => SetProperty (ref _lpfrIP, value);
+            set => SetProperty(ref _lpfrIP, value);
         }
 
         private string _lpfrKey = string.Empty;
@@ -230,7 +230,7 @@ namespace Caupo.ViewModels
         public string LPFRKey
         {
             get => _lpfrKey;
-            set => SetProperty (ref _lpfrKey, value);
+            set => SetProperty(ref _lpfrKey, value);
         }
 
         private string _lpfrPin = string.Empty;
@@ -238,7 +238,7 @@ namespace Caupo.ViewModels
         public string LPFRPin
         {
             get => _lpfrPin;
-            set => SetProperty (ref _lpfrPin, value);
+            set => SetProperty(ref _lpfrPin, value);
         }
 
         private int _externiPrinter;
@@ -246,7 +246,7 @@ namespace Caupo.ViewModels
         public int ExterniPrinter
         {
             get => _externiPrinter;
-            set => SetProperty (ref _externiPrinter, value);
+            set => SetProperty(ref _externiPrinter, value);
         }
 
         private string _sirinaTrake = "80";
@@ -254,7 +254,7 @@ namespace Caupo.ViewModels
         public string SirinaTrake
         {
             get => _sirinaTrake;
-            set => SetProperty (ref _sirinaTrake, value);
+            set => SetProperty(ref _sirinaTrake, value);
         }
 
         #endregion
@@ -267,7 +267,7 @@ namespace Caupo.ViewModels
         public string DemoServerUrl
         {
             get => _demoServerUrl;
-            set => SetProperty (ref _demoServerUrl, value);
+            set => SetProperty(ref _demoServerUrl, value);
         }
 
         private string _productionServerUrl = string.Empty;
@@ -275,7 +275,7 @@ namespace Caupo.ViewModels
         public string ProductionServerUrl
         {
             get => _productionServerUrl;
-            set => SetProperty (ref _productionServerUrl, value);
+            set => SetProperty(ref _productionServerUrl, value);
         }
 
         private string _poslovniProstor = string.Empty;
@@ -283,7 +283,7 @@ namespace Caupo.ViewModels
         public string PoslovniProstor
         {
             get => _poslovniProstor;
-            set => SetProperty (ref _poslovniProstor, value);
+            set => SetProperty(ref _poslovniProstor, value);
         }
 
         private string _naplatniUredjaj = string.Empty;
@@ -291,7 +291,7 @@ namespace Caupo.ViewModels
         public string NaplatniUredjaj
         {
             get => _naplatniUredjaj;
-            set => SetProperty (ref _naplatniUredjaj, value);
+            set => SetProperty(ref _naplatniUredjaj, value);
         }
 
         private int _oznakaSlijednosti;
@@ -299,7 +299,7 @@ namespace Caupo.ViewModels
         public int OznakaSlijednosti
         {
             get => _oznakaSlijednosti;
-            set => SetProperty (ref _oznakaSlijednosti, value);
+            set => SetProperty(ref _oznakaSlijednosti, value);
         }
 
         private int _verzijaAplikacije;
@@ -307,7 +307,7 @@ namespace Caupo.ViewModels
         public int VerzijaAplikacije
         {
             get => _verzijaAplikacije;
-            set => SetProperty (ref _verzijaAplikacije, value);
+            set => SetProperty(ref _verzijaAplikacije, value);
         }
 
         private string _certificateName = string.Empty;
@@ -315,7 +315,7 @@ namespace Caupo.ViewModels
         public string CertificateName
         {
             get => _certificateName;
-            set => SetProperty (ref _certificateName, value);
+            set => SetProperty(ref _certificateName, value);
         }
 
         private string _certificatePassword = string.Empty;
@@ -323,7 +323,7 @@ namespace Caupo.ViewModels
         public string CertificatePassword
         {
             get => _certificatePassword;
-            set => SetProperty (ref _certificatePassword, value);
+            set => SetProperty(ref _certificatePassword, value);
         }
 
         private string _pnpStopa = string.Empty;
@@ -331,7 +331,7 @@ namespace Caupo.ViewModels
         public string PnpStopa
         {
             get => _pnpStopa;
-            set => SetProperty (ref _pnpStopa, value);
+            set => SetProperty(ref _pnpStopa, value);
         }
 
         #endregion
@@ -348,7 +348,7 @@ namespace Caupo.ViewModels
         public string SrbijaPfrType
         {
             get => _srbijaPfrType;
-            set => SetProperty (ref _srbijaPfrType, value);
+            set => SetProperty(ref _srbijaPfrType, value);
         }
 
 
@@ -357,7 +357,7 @@ namespace Caupo.ViewModels
         public string SrbijaEnvironment
         {
             get => _srbijaEnvironment;
-            set => SetProperty (ref _srbijaEnvironment, value);
+            set => SetProperty(ref _srbijaEnvironment, value);
         }
 
 
@@ -371,7 +371,7 @@ namespace Caupo.ViewModels
         public string SrbijaVPFRUrl
         {
             get => _srbijaVPFRUrl;
-            set => SetProperty (ref _srbijaVPFRUrl, value);
+            set => SetProperty(ref _srbijaVPFRUrl, value);
         }
 
 
@@ -380,7 +380,7 @@ namespace Caupo.ViewModels
         public string SrbijaCertificateName
         {
             get => _srbijaCertificateName;
-            set => SetProperty (ref _srbijaCertificateName, value);
+            set => SetProperty(ref _srbijaCertificateName, value);
         }
 
 
@@ -389,7 +389,7 @@ namespace Caupo.ViewModels
         public string SrbijaCertificatePassword
         {
             get => _srbijaCertificatePassword;
-            set => SetProperty (ref _srbijaCertificatePassword, value);
+            set => SetProperty(ref _srbijaCertificatePassword, value);
         }
 
 
@@ -398,7 +398,7 @@ namespace Caupo.ViewModels
         public string SrbijaPAC
         {
             get => _srbijaPAC;
-            set => SetProperty (ref _srbijaPAC, value);
+            set => SetProperty(ref _srbijaPAC, value);
         }
 
 
@@ -407,7 +407,7 @@ namespace Caupo.ViewModels
         public string SrbijaAcceptLanguage
         {
             get => _srbijaAcceptLanguage;
-            set => SetProperty (ref _srbijaAcceptLanguage, value);
+            set => SetProperty(ref _srbijaAcceptLanguage, value);
         }
 
 
@@ -420,7 +420,7 @@ namespace Caupo.ViewModels
         public string SrbijaLPFRToken
         {
             get => _srbijaLPFRToken;
-            set => SetProperty (ref _srbijaLPFRToken, value);
+            set => SetProperty(ref _srbijaLPFRToken, value);
         }
 
 
@@ -429,7 +429,7 @@ namespace Caupo.ViewModels
         public string SrbijaLPFRUrl
         {
             get => _srbijaLPFRUrl;
-            set => SetProperty (ref _srbijaLPFRUrl, value);
+            set => SetProperty(ref _srbijaLPFRUrl, value);
         }
 
 
@@ -438,7 +438,7 @@ namespace Caupo.ViewModels
         public string SrbijaLPFRPin
         {
             get => _srbijaLPFRPin;
-            set => SetProperty (ref _srbijaLPFRPin, value);
+            set => SetProperty(ref _srbijaLPFRPin, value);
         }
 
 
@@ -447,7 +447,7 @@ namespace Caupo.ViewModels
         public string SrbijaLPFRJid
         {
             get => _srbijaLPFRJid;
-            set => SetProperty (ref _srbijaLPFRJid, value);
+            set => SetProperty(ref _srbijaLPFRJid, value);
         }
 
 
@@ -460,17 +460,25 @@ namespace Caupo.ViewModels
         public string SrbijaConnectionStatus
         {
             get => _srbijaConnectionStatus;
-            set => SetProperty (ref _srbijaConnectionStatus, value);
+            set => SetProperty(ref _srbijaConnectionStatus, value);
         }
 
 
         private ObservableCollection<TblPoreskeStope> _poreskeStope =
-    new ObservableCollection<TblPoreskeStope> ();
+    new ObservableCollection<TblPoreskeStope>();
 
         public ObservableCollection<TblPoreskeStope> PoreskeStope
         {
             get => _poreskeStope;
-            set => SetProperty (ref _poreskeStope, value);
+            set => SetProperty(ref _poreskeStope, value);
+        }
+
+        private TblPoreskeStope? _selectedPoreskaStopa;
+
+        public TblPoreskeStope? SelectedPoreskaStopa
+        {
+            get => _selectedPoreskaStopa;
+            set => SetProperty(ref _selectedPoreskaStopa, value);
         }
 
         #endregion
@@ -483,7 +491,7 @@ namespace Caupo.ViewModels
         public string DbPath
         {
             get => _dbPath;
-            set => SetProperty (ref _dbPath, value);
+            set => SetProperty(ref _dbPath, value);
         }
 
         private string _backupUrl = string.Empty;
@@ -491,7 +499,7 @@ namespace Caupo.ViewModels
         public string BackupUrl
         {
             get => _backupUrl;
-            set => SetProperty (ref _backupUrl, value);
+            set => SetProperty(ref _backupUrl, value);
         }
 
         private string _logoUrl = string.Empty;
@@ -499,7 +507,7 @@ namespace Caupo.ViewModels
         public string LogoUrl
         {
             get => _logoUrl;
-            set => SetProperty (ref _logoUrl, value);
+            set => SetProperty(ref _logoUrl, value);
         }
 
         private string _posPrinter = string.Empty;
@@ -507,7 +515,7 @@ namespace Caupo.ViewModels
         public string POSPrinter
         {
             get => _posPrinter;
-            set => SetProperty (ref _posPrinter, value);
+            set => SetProperty(ref _posPrinter, value);
         }
 
         private string _a4Printer = string.Empty;
@@ -515,7 +523,7 @@ namespace Caupo.ViewModels
         public string A4Printer
         {
             get => _a4Printer;
-            set => SetProperty (ref _a4Printer, value);
+            set => SetProperty(ref _a4Printer, value);
         }
 
         private string _kuhinjaPrinter = string.Empty;
@@ -523,7 +531,7 @@ namespace Caupo.ViewModels
         public string KuhinjaPrinter
         {
             get => _kuhinjaPrinter;
-            set => SetProperty (ref _kuhinjaPrinter, value);
+            set => SetProperty(ref _kuhinjaPrinter, value);
         }
 
         private string _sankPrinter = string.Empty;
@@ -531,7 +539,7 @@ namespace Caupo.ViewModels
         public string SankPrinter
         {
             get => _sankPrinter;
-            set => SetProperty (ref _sankPrinter, value);
+            set => SetProperty(ref _sankPrinter, value);
         }
 
         private string _brojKopijaBloka = "1";
@@ -539,7 +547,7 @@ namespace Caupo.ViewModels
         public string BrojKopijaBloka
         {
             get => _brojKopijaBloka;
-            set => SetProperty (ref _brojKopijaBloka, value);
+            set => SetProperty(ref _brojKopijaBloka, value);
         }
 
         private int _prodajaMinus;
@@ -547,7 +555,7 @@ namespace Caupo.ViewModels
         public int ProdajaMinus
         {
             get => _prodajaMinus;
-            set => SetProperty (ref _prodajaMinus, value);
+            set => SetProperty(ref _prodajaMinus, value);
         }
 
         private int _multiUser;
@@ -555,7 +563,7 @@ namespace Caupo.ViewModels
         public int MultiUser
         {
             get => _multiUser;
-            set => SetProperty (ref _multiUser, value);
+            set => SetProperty(ref _multiUser, value);
         }
 
         private int _tema;
@@ -565,8 +573,8 @@ namespace Caupo.ViewModels
             get => _tema;
             set
             {
-                if(SetProperty (ref _tema, value))
-                    ApplySelectedTheme ();
+                if (SetProperty(ref _tema, value))
+                    ApplySelectedTheme();
             }
         }
 
@@ -575,7 +583,7 @@ namespace Caupo.ViewModels
         public string ServerIP
         {
             get => _serverIP;
-            set => SetProperty (ref _serverIP, value);
+            set => SetProperty(ref _serverIP, value);
         }
 
         #endregion
@@ -600,7 +608,7 @@ namespace Caupo.ViewModels
         }
 
         public ObservableCollection<MonitorInfo> Monitors { get; } =
-            new ObservableCollection<MonitorInfo> ();
+            new ObservableCollection<MonitorInfo>();
 
         private MonitorInfo? _selectedMonitor;
 
@@ -609,7 +617,7 @@ namespace Caupo.ViewModels
             get => _selectedMonitor;
             set
             {
-                if(SetProperty (ref _selectedMonitor, value))
+                if (SetProperty(ref _selectedMonitor, value))
                 {
                     DisplayKuhinja = value?.Index ?? 0;
                 }
@@ -621,7 +629,7 @@ namespace Caupo.ViewModels
         public int DisplayKuhinja
         {
             get => _displayKuhinja;
-            set => SetProperty (ref _displayKuhinja, value);
+            set => SetProperty(ref _displayKuhinja, value);
         }
 
         #endregion
@@ -630,12 +638,12 @@ namespace Caupo.ViewModels
         #region Radnici
 
         private ObservableCollection<TblRadnici> _radnici =
-            new ObservableCollection<TblRadnici> ();
+            new ObservableCollection<TblRadnici>();
 
         public ObservableCollection<TblRadnici> Radnici
         {
             get => _radnici;
-            set => SetProperty (ref _radnici, value);
+            set => SetProperty(ref _radnici, value);
         }
 
         private TblRadnici? _selectedRadnik;
@@ -643,7 +651,7 @@ namespace Caupo.ViewModels
         public TblRadnici? SelectedRadnik
         {
             get => _selectedRadnik;
-            set => SetProperty (ref _selectedRadnik, value);
+            set => SetProperty(ref _selectedRadnik, value);
         }
 
         public bool isUpdate = false;
@@ -683,6 +691,12 @@ namespace Caupo.ViewModels
 
         public ICommand DeleteCommand { get; }
 
+        public ICommand NewPoreskaStopaCommand { get; }
+
+        public ICommand UpdatePoreskaStopaCommand { get; }
+
+        public ICommand DeletePoreskaStopaCommand { get; }
+
         #endregion
 
 
@@ -691,189 +705,424 @@ namespace Caupo.ViewModels
         public SettingsViewModel()
         {
             SaveCommand =
-                new AsyncRelayCommand (SaveSettingsAsync);
+                new AsyncRelayCommand(SaveSettingsAsync);
 
             SelectDatabaseCommand =
-                new RelayCommand (SelectDatabase);
+                new RelayCommand(SelectDatabase);
 
             SelectLogoCommand =
-                new RelayCommand (SelectLogo);
+                new RelayCommand(SelectLogo);
 
             SelectBackupCommand =
-                new RelayCommand (SelectBackup);
+                new RelayCommand(SelectBackup);
 
             SelectSankPrinterCommand =
-                new RelayCommand (() =>
-                    SelectPrinter (
+                new RelayCommand(() =>
+                    SelectPrinter(
                         "Odaberite printer za šank",
                         p => SankPrinter = p));
 
             SelectKuhinjaPrinterCommand =
-                new RelayCommand (() =>
-                    SelectPrinter (
+                new RelayCommand(() =>
+                    SelectPrinter(
                         "Odaberite printer za kuhinju",
                         p => KuhinjaPrinter = p));
 
             SelectPOSPrinterCommand =
-                new RelayCommand (() =>
-                    SelectPrinter (
+                new RelayCommand(() =>
+                    SelectPrinter(
                         "Odaberite printer računa",
                         p => POSPrinter = p));
 
             SelectA4PrinterCommand =
-                new RelayCommand (() =>
-                    SelectPrinter (
+                new RelayCommand(() =>
+                    SelectPrinter(
                         "Odaberite A4 printer",
                         p => A4Printer = p));
 
             SelectCroatiaCertificateCommand =
-                new RelayCommand (SelectCroatiaCertificate);
+                new RelayCommand(SelectCroatiaCertificate);
 
             SelectSrbijaCertificateCommand =
-                new RelayCommand (SelectSrbijaCertificate);
+                new RelayCommand(SelectSrbijaCertificate);
 
             TestSrbijaPfrCommand =
-                new AsyncRelayCommand (TestSrbijaPfrAsync);
+                new AsyncRelayCommand(TestSrbijaPfrAsync);
 
             DobaviSrbijaPoreskeStopeCommand =
-                    new AsyncRelayCommand (DobaviSrbijaPoreskeStopeAsync);
+                    new AsyncRelayCommand(DobaviSrbijaPoreskeStopeAsync);
 
             NewRadnikCommand =
-                new RelayCommand (OpenNewRadnik);
+                new RelayCommand(OpenNewRadnik);
 
             UpdateCommand =
-                new AsyncRelayCommand (
-                    async () => await OpenUpdateRadnik (SelectedRadnik));
+                new AsyncRelayCommand(
+                    async () => await OpenUpdateRadnik(SelectedRadnik));
 
             DeleteCommand =
-                new AsyncRelayCommand (
-                    async () => await DeleteRadnik (SelectedRadnik));
+                new AsyncRelayCommand(
+                    async () => await DeleteRadnik(SelectedRadnik));
+
+            NewPoreskaStopaCommand = new RelayCommand(OpenNewPoreskaStopa);
+
+            UpdatePoreskaStopaCommand = new AsyncRelayCommand(async () => await OpenUpdatePoreskaStopa(SelectedPoreskaStopa));
+
+            DeletePoreskaStopaCommand = new AsyncRelayCommand(async () => await DeletePoreskaStopa(SelectedPoreskaStopa));
 
 
-            foreach(var monitor in GetAllMonitors ())
-                Monitors.Add (monitor);
+            foreach (var monitor in GetAllMonitors())
+                Monitors.Add(monitor);
 
 
-            LoadSettingsFromProperties ();
+            LoadSettingsFromProperties();
 
 
-            _ = LoadRadniciAsync ();
+            _ = LoadRadniciAsync();
 
-            _ = LoadPoreskeStopeAsync ();
+            _ = LoadPoreskeStopeAsync();
         }
 
         #endregion
 
+        #region Poreske stope
+
+        public async Task SaveNewPoreskaStopaAsync(string opis, decimal postotak, string oznaka)
+        {
+            try
+            {
+                using var db = new AppDbContext();
+
+                string oznakaTrim = oznaka.Trim();
+
+                bool postoji = await db.PoreskeStope.AnyAsync(x => x.Aktivna && x.Oznaka != null && x.Oznaka.Trim() == oznakaTrim);
+
+                if (postoji)
+                {
+                    ShowError($"Poreska stopa sa oznakom '{oznakaTrim}' već postoji.");
+                    return;
+                }
+
+                var novaStopa = new TblPoreskeStope
+                {
+                    Opis = opis.Trim(),
+                    Postotak = postotak,
+                    Oznaka = oznakaTrim,
+                    Aktivna = true
+                };
+
+                db.PoreskeStope.Add(novaStopa);
+
+                await db.SaveChangesAsync();
+                await LoadPoreskeStopeAsync();
+            }
+            catch (Exception ex)
+            {
+                ShowError("Greška pri dodavanju poreske stope:\n\n" + ex.Message);
+            }
+        }
+
+
+        public async Task UpdatePoreskaStopaAsync(int idStope, string opis, decimal postotak, string oznaka)
+        {
+            try
+            {
+                using var db = new AppDbContext();
+
+                string oznakaTrim = oznaka.Trim().ToUpperInvariant();
+
+                bool postoji = await db.PoreskeStope.AnyAsync(x =>
+                    x.IdStope != idStope &&
+                    x.Aktivna &&
+                    x.Oznaka != null &&
+                    x.Oznaka.Trim().ToUpper() == oznakaTrim);
+
+                if (postoji)
+                {
+                    ShowError($"Poreska stopa sa oznakom '{oznakaTrim}' već postoji.");
+                    return;
+                }
+
+                var postojeca = await db.PoreskeStope.FirstOrDefaultAsync(x => x.IdStope == idStope);
+
+                if (postojeca == null)
+                {
+                    ShowError("Poreska stopa nije pronađena.");
+                    return;
+                }
+
+                postojeca.Opis = opis.Trim();
+                postojeca.Postotak = postotak;
+                postojeca.Oznaka = oznakaTrim;
+                postojeca.Aktivna = true;
+
+                await db.SaveChangesAsync();
+                await LoadPoreskeStopeAsync();
+            }
+            catch (Exception ex)
+            {
+                ShowError("Greška pri izmjeni poreske stope:\n\n" + ex.Message);
+            }
+        }
+
+
+        private void OpenNewPoreskaStopa()
+        {
+            try
+            {
+                var popup =
+                    new NewPoreskaStopaPopup(this);
+
+                popup.isUpdate =
+                    false;
+
+                popup.DataContext =
+                    this;
+
+                popup.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                ShowError(
+                    "Greška pri otvaranju poreske stope:\n\n" +
+                    ex.Message);
+            }
+        }
+
+
+        private async Task OpenUpdatePoreskaStopa(
+            TblPoreskeStope? stopa)
+        {
+            if (stopa == null)
+            {
+                ShowError(
+                    "Odaberite poresku stopu koju želite izmijeniti.");
+
+                return;
+            }
+
+
+            try
+            {
+                var popup =
+                    new NewPoreskaStopaPopup(this);
+
+                popup.isUpdate =
+                    true;
+
+                popup.DataContext =
+                    this;
+
+
+                popup.PopupTitle.Text =
+                    "Izmijeni poresku stopu";
+
+
+                popup.lblid.Content =
+                    stopa.IdStope.ToString();
+
+
+                popup.txtOpis.Text =
+                    stopa.Opis ?? string.Empty;
+
+
+                popup.txtPostotak.Text =
+                    stopa.Postotak?.ToString(
+                        System.Globalization.CultureInfo.CurrentCulture)
+                    ?? string.Empty;
+
+
+                popup.txtOznaka.Text =
+                    stopa.Oznaka ?? string.Empty;
+
+
+                popup.ShowDialog();
+
+                await Task.CompletedTask;
+            }
+            catch (Exception ex)
+            {
+                ShowError(
+                    "Greška pri izmjeni poreske stope:\n\n" +
+                    ex.Message);
+            }
+        }
+
+
+        private async Task DeletePoreskaStopa(
+            TblPoreskeStope? stopa)
+        {
+            if (stopa == null)
+            {
+                ShowError(
+                    "Odaberite poresku stopu koju želite obrisati.");
+
+                return;
+            }
+
+
+            try
+            {
+                var popup =
+                    new YesNoPopup();
+
+
+                popup.MessageTitle.Text =
+                    "Brisanje poreske stope";
+
+
+                popup.MessageText.Text =
+                    $"Želite li obrisati poresku stopu:\n\n" +
+                    $"{stopa.Opis} - {stopa.Postotak:0.##}%?";
+
+
+                popup.ShowDialog();
+
+
+                if (popup.Kliknuo != "Da")
+                    return;
+
+
+                using var db =
+                    new AppDbContext();
+
+
+                var existing =
+                    await db.PoreskeStope
+                        .FirstOrDefaultAsync(
+                            x => x.IdStope ==
+                                 stopa.IdStope);
+
+
+                if (existing == null)
+                    return;
+
+
+                existing.Aktivna = false;
+
+
+                await db.SaveChangesAsync();
+
+                await LoadPoreskeStopeAsync();
+            }
+            catch (Exception ex)
+            {
+                ShowError(
+                    "Greška pri brisanju poreske stope:\n\n" +
+                    ex.Message);
+            }
+        }
+
+        #endregion
 
         private async Task LoadPoreskeStopeAsync()
         {
             try
             {
                 await using var db =
-                    new AppDbContext ();
+                    new AppDbContext();
 
                 var stope =
     await db.PoreskeStope
-        .AsNoTracking ()
-        .Where (x => x.Aktivna)
-        .OrderBy (x => x.IdStope)
-        .ToListAsync ();
+        .AsNoTracking()
+        .Where(x => x.Aktivna)
+        .OrderBy(x => x.IdStope)
+        .ToListAsync();
 
                 PoreskeStope =
-                    new ObservableCollection<TblPoreskeStope> (
+                    new ObservableCollection<TblPoreskeStope>(
                         stope);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA] Greška učitavanja poreskih stopa: {ex}");
             }
         }
 
         private async Task<string> GetSrbijaVPFRStatusBodyAsync()
         {
-            if(string.IsNullOrWhiteSpace (SrbijaVPFRUrl))
+            if (string.IsNullOrWhiteSpace(SrbijaVPFRUrl))
             {
-                throw new Exception (
+                throw new Exception(
                     "V-PFR URL nije podešen.");
             }
 
-            if(string.IsNullOrWhiteSpace (SrbijaCertificateName))
+            if (string.IsNullOrWhiteSpace(SrbijaCertificateName))
             {
-                throw new Exception (
+                throw new Exception(
                     "Certifikat nije odabran.");
             }
 
-            if(string.IsNullOrWhiteSpace (SrbijaCertificatePassword))
+            if (string.IsNullOrWhiteSpace(SrbijaCertificatePassword))
             {
-                throw new Exception (
+                throw new Exception(
                     "Zaporka certifikata nije unesena.");
             }
 
-            if(string.IsNullOrWhiteSpace (SrbijaPAC))
+            if (string.IsNullOrWhiteSpace(SrbijaPAC))
             {
-                throw new Exception (
+                throw new Exception(
                     "PAC nije unesen.");
             }
 
             string certificatePath =
-                Path.Combine (
+                Path.Combine(
                     AppDomain.CurrentDomain.BaseDirectory,
                     "Certificates",
                     SrbijaCertificateName);
 
-            if(!File.Exists (certificatePath))
+            if (!File.Exists(certificatePath))
             {
-                throw new FileNotFoundException (
+                throw new FileNotFoundException(
                     "Certifikat nije pronađen.",
                     certificatePath);
             }
 
             var certificate =
-                new X509Certificate2 (
+                new X509Certificate2(
                     certificatePath,
                     SrbijaCertificatePassword,
                     X509KeyStorageFlags.MachineKeySet |
                     X509KeyStorageFlags.Exportable);
 
             using var handler =
-                new HttpClientHandler ();
+                new HttpClientHandler();
 
             handler.ClientCertificateOptions =
                 ClientCertificateOption.Manual;
 
-            handler.ClientCertificates.Add (
+            handler.ClientCertificates.Add(
                 certificate);
 
             handler.UseProxy = false;
 
             using var client =
-                new HttpClient (handler);
+                new HttpClient(handler);
 
-            client.DefaultRequestHeaders.Accept.Clear ();
+            client.DefaultRequestHeaders.Accept.Clear();
 
-            client.DefaultRequestHeaders.Accept.Add (
-                new MediaTypeWithQualityHeaderValue (
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue(
                     "application/json"));
 
-            client.DefaultRequestHeaders.Add (
+            client.DefaultRequestHeaders.Add(
                 "PAC",
                 SrbijaPAC);
 
-            if(!string.IsNullOrWhiteSpace (
+            if (!string.IsNullOrWhiteSpace(
                 SrbijaAcceptLanguage))
             {
-                client.DefaultRequestHeaders.TryAddWithoutValidation (
+                client.DefaultRequestHeaders.TryAddWithoutValidation(
                     "Accept-Language",
                     SrbijaAcceptLanguage);
             }
 
             string baseUrl =
-                SrbijaVPFRUrl.TrimEnd ('/');
+                SrbijaVPFRUrl.TrimEnd('/');
 
             string statusUrl;
 
-            if(baseUrl.EndsWith (
+            if (baseUrl.EndsWith(
                 "/api/v3/status",
                 StringComparison.OrdinalIgnoreCase))
             {
@@ -885,27 +1134,27 @@ namespace Caupo.ViewModels
                     baseUrl + "/api/v3/status";
             }
 
-            Debug.WriteLine (
+            Debug.WriteLine(
                 $"[SRBIJA VPFR] Status URL: {statusUrl}");
 
             using HttpResponseMessage response =
-                await client.GetAsync (statusUrl);
+                await client.GetAsync(statusUrl);
 
             string body =
                 await response.Content
-                    .ReadAsStringAsync ();
+                    .ReadAsStringAsync();
 
-            Debug.WriteLine (
+            Debug.WriteLine(
                 $"[SRBIJA VPFR] Status HTTP: " +
                 $"{(int)response.StatusCode} " +
                 $"{response.StatusCode}");
 
-            Debug.WriteLine (
+            Debug.WriteLine(
                 $"[SRBIJA VPFR] Status response: {body}");
 
-            if(!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                throw new Exception (
+                throw new Exception(
                     $"V-PFR status greška: " +
                     $"{(int)response.StatusCode} " +
                     $"{response.StatusCode}\n{body}");
@@ -922,63 +1171,63 @@ namespace Caupo.ViewModels
             try
             {
                 string body =
-                    await GetSrbijaVPFRStatusBodyAsync ();
+                    await GetSrbijaVPFRStatusBodyAsync();
 
                 using JsonDocument document =
-                    JsonDocument.Parse (body);
+                    JsonDocument.Parse(body);
 
                 JsonElement root =
                     document.RootElement;
 
-                if(!root.TryGetProperty (
+                if (!root.TryGetProperty(
                     "currentTaxRates",
                     out JsonElement currentTaxRates))
                 {
-                    throw new Exception (
+                    throw new Exception(
                         "VPFR odgovor ne sadrži currentTaxRates.");
                 }
 
-                if(!currentTaxRates.TryGetProperty (
+                if (!currentTaxRates.TryGetProperty(
                     "taxCategories",
                     out JsonElement taxCategories))
                 {
-                    throw new Exception (
+                    throw new Exception(
                         "VPFR odgovor ne sadrži taxCategories.");
                 }
 
                 var stope =
-                    new List<TblPoreskeStope> ();
+                    new List<TblPoreskeStope>();
 
-                foreach(JsonElement category
-                    in taxCategories.EnumerateArray ())
+                foreach (JsonElement category
+                    in taxCategories.EnumerateArray())
                 {
                     string opis =
-                        category.TryGetProperty (
+                        category.TryGetProperty(
                             "name",
                             out JsonElement nameElement)
-                        ? nameElement.GetString () ?? string.Empty
+                        ? nameElement.GetString() ?? string.Empty
                         : string.Empty;
 
-                    if(!category.TryGetProperty (
+                    if (!category.TryGetProperty(
                         "taxRates",
                         out JsonElement taxRates))
                     {
                         continue;
                     }
 
-                    foreach(JsonElement taxRate
-                        in taxRates.EnumerateArray ())
+                    foreach (JsonElement taxRate
+                        in taxRates.EnumerateArray())
                     {
                         decimal postotak =
-                            taxRate.GetProperty ("rate")
-                                .GetDecimal ();
+                            taxRate.GetProperty("rate")
+                                .GetDecimal();
 
                         string oznaka =
-                            taxRate.GetProperty ("label")
-                                .GetString ()
+                            taxRate.GetProperty("label")
+                                .GetString()
                             ?? string.Empty;
 
-                        stope.Add (
+                        stope.Add(
                             new TblPoreskeStope
                             {
                                 Postotak = postotak,
@@ -988,34 +1237,34 @@ namespace Caupo.ViewModels
                     }
                 }
 
-                if(stope.Count == 0)
+                if (stope.Count == 0)
                 {
-                    throw new Exception (
+                    throw new Exception(
                         "VPFR nije vratio nijednu aktivnu poresku stopu.");
                 }
 
-                await SpremiSrbijaPoreskeStopeAsync (
+                await SpremiSrbijaPoreskeStopeAsync(
                     stope);
 
-                await LoadPoreskeStopeAsync ();
+                await LoadPoreskeStopeAsync();
 
                 SrbijaConnectionStatus =
                     $"Poreske stope učitane: {stope.Count}";
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA] Učitano {stope.Count} poreskih stopa.");
 
-                foreach(var stopa in stope)
+                foreach (var stopa in stope)
                 {
-                    Debug.WriteLine (
+                    Debug.WriteLine(
                         $"[SRBIJA] {stopa.Opis} | " +
                         $"{stopa.Postotak:0.####}% | " +
                         $"{stopa.Oznaka}");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA] Greška dobavljanja poreskih stopa: {ex}");
 
                 SrbijaConnectionStatus =
@@ -1027,44 +1276,44 @@ namespace Caupo.ViewModels
         private async Task SpremiSrbijaPoreskeStopeAsync(
     List<TblPoreskeStope> noveStope)
         {
-            if(noveStope == null ||
+            if (noveStope == null ||
                noveStope.Count == 0)
             {
-                throw new Exception (
+                throw new Exception(
                     "Nema poreskih stopa za spremanje.");
             }
 
             await using var db =
-                new AppDbContext ();
+                new AppDbContext();
 
             var postojeceStope =
                 await db.PoreskeStope
-                    .ToListAsync ();
+                    .ToListAsync();
 
             // Sve postojeće prvo označimo kao neaktivne.
             // One koje VPFR ponovo vrati biće ponovo aktivirane.
-            foreach(var postojeca in postojeceStope)
+            foreach (var postojeca in postojeceStope)
             {
                 postojeca.Aktivna = false;
             }
 
-            foreach(var nova in noveStope)
+            foreach (var nova in noveStope)
             {
-                if(string.IsNullOrWhiteSpace (nova.Oznaka))
+                if (string.IsNullOrWhiteSpace(nova.Oznaka))
                 {
                     continue;
                 }
 
                 var postojeca =
-                    postojeceStope.FirstOrDefault (
+                    postojeceStope.FirstOrDefault(
                         x =>
-                            !string.IsNullOrWhiteSpace (x.Oznaka) &&
-                            string.Equals (
+                            !string.IsNullOrWhiteSpace(x.Oznaka) &&
+                            string.Equals(
                                 x.Oznaka,
                                 nova.Oznaka,
                                 StringComparison.Ordinal));
 
-                if(postojeca != null)
+                if (postojeca != null)
                 {
                     // Postoji ista fiskalna oznaka.
                     // Zadržavamo IdStope.
@@ -1080,7 +1329,7 @@ namespace Caupo.ViewModels
                     postojeca.Aktivna =
                         true;
 
-                    Debug.WriteLine (
+                    Debug.WriteLine(
                         $"[SRBIJA] Ažurirana stopa: " +
                         $"ID={postojeca.IdStope}, " +
                         $"Oznaka={postojeca.Oznaka}, " +
@@ -1105,19 +1354,19 @@ namespace Caupo.ViewModels
                                 true
                         };
 
-                    db.PoreskeStope.Add (
+                    db.PoreskeStope.Add(
                         novaStopa);
 
-                    Debug.WriteLine (
+                    Debug.WriteLine(
                         $"[SRBIJA] Dodana nova stopa: " +
                         $"Oznaka={nova.Oznaka}, " +
                         $"Postotak={nova.Postotak}");
                 }
             }
 
-            await db.SaveChangesAsync ();
+            await db.SaveChangesAsync();
 
-            Debug.WriteLine (
+            Debug.WriteLine(
                 $"[SRBIJA] Sinhronizacija poreskih stopa završena. " +
                 $"Aktivnih sa VPFR-a: {noveStope.Count}");
         }
@@ -1136,8 +1385,8 @@ namespace Caupo.ViewModels
                 string savedCountry =
                     Properties.Settings.Default.Country;
 
-                if(!string.IsNullOrWhiteSpace (savedCountry) &&
-                   Enum.TryParse (
+                if (!string.IsNullOrWhiteSpace(savedCountry) &&
+                   Enum.TryParse(
                        savedCountry,
                        out Drzava savedDrzava))
                 {
@@ -1176,7 +1425,7 @@ namespace Caupo.ViewModels
                     Properties.Settings.Default.Email ?? string.Empty;
 
                 PDVKorisnik =
-                    StringToYesNoIndex (
+                    StringToYesNoIndex(
                         Properties.Settings.Default.PDVKorisnik);
 
 
@@ -1207,11 +1456,11 @@ namespace Caupo.ViewModels
                     ?? string.Empty;
 
                 ExterniPrinter =
-                    StringToYesNoIndex (
+                    StringToYesNoIndex(
                         Properties.Settings.Default.ExterniPrinter);
 
                 SirinaTrake =
-                    string.IsNullOrWhiteSpace (
+                    string.IsNullOrWhiteSpace(
                         Properties.Settings.Default.SirinaTrake)
                     ? "80"
                     : Properties.Settings.Default.SirinaTrake;
@@ -1238,12 +1487,12 @@ namespace Caupo.ViewModels
                     ?? string.Empty;
 
                 OznakaSlijednosti =
-                    OznakaSlijednostiToIndex (
+                    OznakaSlijednostiToIndex(
                         Properties.Settings.Default
                             .OznakaSlijednosti);
 
                 VerzijaAplikacije =
-                    VerzijaAplikacijeToIndex (
+                    VerzijaAplikacijeToIndex(
                         Properties.Settings.Default
                             .VerzijaAplikacije);
 
@@ -1265,13 +1514,13 @@ namespace Caupo.ViewModels
                 // =================================================
 
                 SrbijaPfrType =
-                    string.IsNullOrWhiteSpace (
+                    string.IsNullOrWhiteSpace(
                         Properties.Settings.Default.SrbijaPfrType)
                     ? "VPFR"
                     : Properties.Settings.Default.SrbijaPfrType;
 
                 SrbijaEnvironment =
-                    string.IsNullOrWhiteSpace (
+                    string.IsNullOrWhiteSpace(
                         Properties.Settings.Default.SrbijaEnvironment)
                     ? "Sandbox"
                     : Properties.Settings.Default.SrbijaEnvironment;
@@ -1282,7 +1531,7 @@ namespace Caupo.ViewModels
                 // =================================================
 
                 SrbijaVPFRUrl =
-                    string.IsNullOrWhiteSpace (
+                    string.IsNullOrWhiteSpace(
                         Properties.Settings.Default.SrbijaVPFRUrl)
                     ? "https://vsdc.sandbox.suf.purs.gov.rs"
                     : Properties.Settings.Default.SrbijaVPFRUrl;
@@ -1302,7 +1551,7 @@ namespace Caupo.ViewModels
                     ?? string.Empty;
 
                 SrbijaAcceptLanguage =
-                    string.IsNullOrWhiteSpace (
+                    string.IsNullOrWhiteSpace(
                         Properties.Settings.Default
                             .SrbijaAcceptLanguage)
                     ? "en-US"
@@ -1340,7 +1589,7 @@ namespace Caupo.ViewModels
                 // =================================================
 
                 DbPath =
-                    string.IsNullOrWhiteSpace (
+                    string.IsNullOrWhiteSpace(
                         Properties.Settings.Default.DbPath)
                     ? @"C:\DsoftData\sysFormWPF.db"
                     : Properties.Settings.Default.DbPath;
@@ -1370,21 +1619,21 @@ namespace Caupo.ViewModels
                     ?? string.Empty;
 
                 BrojKopijaBloka =
-                    string.IsNullOrWhiteSpace (
+                    string.IsNullOrWhiteSpace(
                         Properties.Settings.Default.BlokKopija)
                     ? "1"
                     : Properties.Settings.Default.BlokKopija;
 
                 ProdajaMinus =
-                    StringToYesNoIndex (
+                    StringToYesNoIndex(
                         Properties.Settings.Default.ProdajaMinus);
 
                 MultiUser =
-                    StringToYesNoIndex (
+                    StringToYesNoIndex(
                         Properties.Settings.Default.MultiUser);
 
                 Tema =
-                    TemaToIndex (
+                    TemaToIndex(
                         Properties.Settings.Default.Tema);
 
                 ServerIP =
@@ -1396,7 +1645,7 @@ namespace Caupo.ViewModels
                 // MONITOR
                 // =================================================
 
-                if(!int.TryParse (
+                if (!int.TryParse(
                     Properties.Settings.Default.DisplayKuhinja,
                     out int monitorIndex))
                 {
@@ -1406,16 +1655,16 @@ namespace Caupo.ViewModels
                 DisplayKuhinja = monitorIndex;
 
                 SelectedMonitor =
-                    Monitors.FirstOrDefault (
+                    Monitors.FirstOrDefault(
                         x => x.Index == monitorIndex)
-                    ?? Monitors.FirstOrDefault ();
+                    ?? Monitors.FirstOrDefault();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[Settings] Greška pri učitavanju: {ex}");
 
-                ShowError (
+                ShowError(
                     "Greška pri učitavanju postavki:\n\n" +
                     ex.Message);
             }
@@ -1428,7 +1677,7 @@ namespace Caupo.ViewModels
 
         private async Task SaveSettingsAsync()
         {
-            if(!ValidateSettings ())
+            if (!ValidateSettings())
                 return;
 
             try
@@ -1438,7 +1687,7 @@ namespace Caupo.ViewModels
                 // =================================================
 
                 Properties.Settings.Default.Country =
-                    OdabranaDrzava.ToString ();
+                    OdabranaDrzava.ToString();
 
 
                 // =================================================
@@ -1446,28 +1695,28 @@ namespace Caupo.ViewModels
                 // =================================================
 
                 Properties.Settings.Default.Firma =
-                    Firma?.Trim () ?? string.Empty;
+                    Firma?.Trim() ?? string.Empty;
 
                 Properties.Settings.Default.Adresa =
-                    Adresa?.Trim () ?? string.Empty;
+                    Adresa?.Trim() ?? string.Empty;
 
                 Properties.Settings.Default.Mjesto =
-                    Mjesto?.Trim () ?? string.Empty;
+                    Mjesto?.Trim() ?? string.Empty;
 
                 Properties.Settings.Default.JIB =
-                    JIB?.Trim () ?? string.Empty;
+                    JIB?.Trim() ?? string.Empty;
 
                 Properties.Settings.Default.PDV =
-                    PDV?.Trim () ?? string.Empty;
+                    PDV?.Trim() ?? string.Empty;
 
                 Properties.Settings.Default.ZR =
-                    ZR?.Trim () ?? string.Empty;
+                    ZR?.Trim() ?? string.Empty;
 
                 Properties.Settings.Default.Email =
-                    Email?.Trim () ?? string.Empty;
+                    Email?.Trim() ?? string.Empty;
 
                 Properties.Settings.Default.PDVKorisnik =
-                    YesNoIndexToString (PDVKorisnik);
+                    YesNoIndexToString(PDVKorisnik);
 
 
                 // =================================================
@@ -1475,7 +1724,7 @@ namespace Caupo.ViewModels
                 // =================================================
 
                 Properties.Settings.Default.TringServerIpAddress =
-                    TringServerIpAddress?.Trim ()
+                    TringServerIpAddress?.Trim()
                     ?? string.Empty;
 
 
@@ -1484,16 +1733,16 @@ namespace Caupo.ViewModels
                 // =================================================
 
                 Properties.Settings.Default.LPFR_IP =
-                    LPFRIP?.Trim () ?? string.Empty;
+                    LPFRIP?.Trim() ?? string.Empty;
 
                 Properties.Settings.Default.LPFR_Key =
-                    LPFRKey?.Trim () ?? string.Empty;
+                    LPFRKey?.Trim() ?? string.Empty;
 
                 Properties.Settings.Default.LPFR_Pin =
-                    LPFRPin?.Trim () ?? string.Empty;
+                    LPFRPin?.Trim() ?? string.Empty;
 
                 Properties.Settings.Default.ExterniPrinter =
-                    YesNoIndexToString (ExterniPrinter);
+                    YesNoIndexToString(ExterniPrinter);
 
                 Properties.Settings.Default.SirinaTrake =
                     SirinaTrake ?? "80";
@@ -1504,19 +1753,19 @@ namespace Caupo.ViewModels
                 // =================================================
 
                 Properties.Settings.Default.DemoServerUrl =
-                    DemoServerUrl?.Trim ()
+                    DemoServerUrl?.Trim()
                     ?? string.Empty;
 
                 Properties.Settings.Default.ProductionSeverUrl =
-                    ProductionServerUrl?.Trim ()
+                    ProductionServerUrl?.Trim()
                     ?? string.Empty;
 
                 Properties.Settings.Default.PoslovniProstor =
-                    PoslovniProstor?.Trim ()
+                    PoslovniProstor?.Trim()
                     ?? string.Empty;
 
                 Properties.Settings.Default.NaplatniUredjaj =
-                    NaplatniUredjaj?.Trim ()
+                    NaplatniUredjaj?.Trim()
                     ?? string.Empty;
 
                 Properties.Settings.Default.OznakaSlijednosti =
@@ -1530,7 +1779,7 @@ namespace Caupo.ViewModels
                         : "Produkcijska";
 
                 Properties.Settings.Default.CerificateName =
-                    CertificateName?.Trim ()
+                    CertificateName?.Trim()
                     ?? string.Empty;
 
                 Properties.Settings.Default.CerificatePassword =
@@ -1538,7 +1787,7 @@ namespace Caupo.ViewModels
                     ?? string.Empty;
 
                 Properties.Settings.Default.PnpStopa =
-                    PnpStopa?.Trim ()
+                    PnpStopa?.Trim()
                     ?? string.Empty;
 
 
@@ -1547,11 +1796,11 @@ namespace Caupo.ViewModels
                 // =================================================
 
                 Properties.Settings.Default.SrbijaPfrType =
-                    SrbijaPfrType?.Trim ()
+                    SrbijaPfrType?.Trim()
                     ?? string.Empty;
 
                 Properties.Settings.Default.SrbijaEnvironment =
-                    SrbijaEnvironment?.Trim ()
+                    SrbijaEnvironment?.Trim()
                     ?? string.Empty;
 
 
@@ -1560,11 +1809,11 @@ namespace Caupo.ViewModels
                 // =================================================
 
                 Properties.Settings.Default.SrbijaVPFRUrl =
-                    SrbijaVPFRUrl?.Trim ()
+                    SrbijaVPFRUrl?.Trim()
                     ?? string.Empty;
 
                 Properties.Settings.Default.SrbijaCertificateName =
-                    SrbijaCertificateName?.Trim ()
+                    SrbijaCertificateName?.Trim()
                     ?? string.Empty;
 
                 Properties.Settings.Default
@@ -1573,11 +1822,11 @@ namespace Caupo.ViewModels
                     ?? string.Empty;
 
                 Properties.Settings.Default.SrbijaPAC =
-                    SrbijaPAC?.Trim ()
+                    SrbijaPAC?.Trim()
                     ?? string.Empty;
 
                 Properties.Settings.Default.SrbijaAcceptLanguage =
-                    SrbijaAcceptLanguage?.Trim ()
+                    SrbijaAcceptLanguage?.Trim()
                     ?? string.Empty;
 
 
@@ -1586,19 +1835,19 @@ namespace Caupo.ViewModels
                 // =================================================
 
                 Properties.Settings.Default.SrbijaLPFRToken =
-                    SrbijaLPFRToken?.Trim ()
+                    SrbijaLPFRToken?.Trim()
                     ?? string.Empty;
 
                 Properties.Settings.Default.SrbijaLPFRUrl =
-                    SrbijaLPFRUrl?.Trim ()
+                    SrbijaLPFRUrl?.Trim()
                     ?? string.Empty;
 
                 Properties.Settings.Default.SrbijaLPFRPin =
-                    SrbijaLPFRPin?.Trim ()
+                    SrbijaLPFRPin?.Trim()
                     ?? string.Empty;
 
                 Properties.Settings.Default.SrbijaLPFRJid =
-                    SrbijaLPFRJid?.Trim ()
+                    SrbijaLPFRJid?.Trim()
                     ?? string.Empty;
 
 
@@ -1606,42 +1855,42 @@ namespace Caupo.ViewModels
                 // APLIKACIJA
                 // =================================================
 
-              //  Properties.Settings.Default.DbPath =
-              //      DbPath?.Trim ()
-              //      ?? string.Empty;
+                //  Properties.Settings.Default.DbPath =
+                //      DbPath?.Trim ()
+                //      ?? string.Empty;
 
                 Properties.Settings.Default.BackupUrl =
-                    BackupUrl?.Trim ()
+                    BackupUrl?.Trim()
                     ?? string.Empty;
 
                 Properties.Settings.Default.LogoUrl =
-                    LogoUrl?.Trim ()
+                    LogoUrl?.Trim()
                     ?? string.Empty;
 
                 Properties.Settings.Default.POSPrinter =
-                    POSPrinter?.Trim ()
+                    POSPrinter?.Trim()
                     ?? string.Empty;
 
                 Properties.Settings.Default.A4Printer =
-                    A4Printer?.Trim ()
+                    A4Printer?.Trim()
                     ?? string.Empty;
 
                 Properties.Settings.Default.KuhinjaPrinter =
-                    KuhinjaPrinter?.Trim ()
+                    KuhinjaPrinter?.Trim()
                     ?? string.Empty;
 
                 Properties.Settings.Default.SankPrinter =
-                    SankPrinter?.Trim ()
+                    SankPrinter?.Trim()
                     ?? string.Empty;
 
                 Properties.Settings.Default.BlokKopija =
                     BrojKopijaBloka ?? "1";
 
                 Properties.Settings.Default.ProdajaMinus =
-                    YesNoIndexToString (ProdajaMinus);
+                    YesNoIndexToString(ProdajaMinus);
 
                 Properties.Settings.Default.MultiUser =
-                    YesNoIndexToString (MultiUser);
+                    YesNoIndexToString(MultiUser);
 
                 Properties.Settings.Default.Tema =
                     Tema == 0
@@ -1649,43 +1898,43 @@ namespace Caupo.ViewModels
                         : "Svijetla";
 
                 Properties.Settings.Default.ServerIP =
-                    ServerIP?.Trim ()
+                    ServerIP?.Trim()
                     ?? string.Empty;
 
                 Properties.Settings.Default.DisplayKuhinja =
                     (SelectedMonitor?.Index ?? 0)
-                    .ToString ();
+                    .ToString();
 
 
                 // =================================================
                 // SPREMANJE
                 // =================================================
 
-                Properties.Settings.Default.Save ();
+                Properties.Settings.Default.Save();
 
                 Globals.CurrentDbPath =
-                    DbPath?.Trim () ?? string.Empty;
+                    DbPath?.Trim() ?? string.Empty;
 
 
-                ShowInfo (
+                ShowInfo(
                     "Podešavanja su spremljena!");
 
 
                 var page = new HomePage
                 {
-                    DataContext = new HomeViewModel ()
+                    DataContext = new HomeViewModel()
                 };
 
-                PageNavigator.NavigateWithFade (page);
+                PageNavigator.NavigateWithFade(page);
 
                 await Task.CompletedTask;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[Settings] Greška pri spremanju: {ex}");
 
-                ShowError (
+                ShowError(
                     "Greška pri spremanju podešavanja:\n\n" +
                     ex.Message);
             }
@@ -1702,41 +1951,41 @@ namespace Caupo.ViewModels
             // FIRMA
             // =================================================
 
-            if(string.IsNullOrWhiteSpace (Firma))
+            if (string.IsNullOrWhiteSpace(Firma))
             {
-                ShowError ("Unesite naziv firme.");
+                ShowError("Unesite naziv firme.");
                 return false;
             }
 
-            if(string.IsNullOrWhiteSpace (Adresa))
+            if (string.IsNullOrWhiteSpace(Adresa))
             {
-                ShowError ("Unesite adresu firme.");
+                ShowError("Unesite adresu firme.");
                 return false;
             }
 
-            if(string.IsNullOrWhiteSpace (Mjesto))
+            if (string.IsNullOrWhiteSpace(Mjesto))
             {
-                ShowError ("Unesite mjesto.");
+                ShowError("Unesite mjesto.");
                 return false;
             }
 
-            if(string.IsNullOrWhiteSpace (JIB))
+            if (string.IsNullOrWhiteSpace(JIB))
             {
-                ShowError ("Unesite JIB/OIB firme.");
+                ShowError("Unesite JIB/OIB firme.");
                 return false;
             }
 
-            if(string.IsNullOrWhiteSpace (Email))
+            if (string.IsNullOrWhiteSpace(Email))
             {
-                ShowError ("Unesite email firme.");
+                ShowError("Unesite email firme.");
                 return false;
             }
 
 
-            if(PDVKorisnik == 1 &&
-               string.IsNullOrWhiteSpace (PDV))
+            if (PDVKorisnik == 1 &&
+               string.IsNullOrWhiteSpace(PDV))
             {
-                ShowError (
+                ShowError(
                     "Unesite PDV broj.");
 
                 return false;
@@ -1747,12 +1996,12 @@ namespace Caupo.ViewModels
             // FEDERACIJA BiH
             // =================================================
 
-            if(OdabranaDrzava == Drzava.FederacijaBiH)
+            if (OdabranaDrzava == Drzava.FederacijaBiH)
             {
-                if(string.IsNullOrWhiteSpace (
+                if (string.IsNullOrWhiteSpace(
                     TringServerIpAddress))
                 {
-                    ShowError (
+                    ShowError(
                         "Unesite IP adresu Tring fiskalnog servera.");
 
                     return false;
@@ -1764,27 +2013,27 @@ namespace Caupo.ViewModels
             // REPUBLIKA SRPSKA
             // =================================================
 
-            if(OdabranaDrzava == Drzava.RepublikaSrpska)
+            if (OdabranaDrzava == Drzava.RepublikaSrpska)
             {
-                if(string.IsNullOrWhiteSpace (LPFRIP))
+                if (string.IsNullOrWhiteSpace(LPFRIP))
                 {
-                    ShowError (
+                    ShowError(
                         "Unesite LPFR IP adresu.");
 
                     return false;
                 }
 
-                if(string.IsNullOrWhiteSpace (LPFRKey))
+                if (string.IsNullOrWhiteSpace(LPFRKey))
                 {
-                    ShowError (
+                    ShowError(
                         "Unesite LPFR API ključ.");
 
                     return false;
                 }
 
-                if(string.IsNullOrWhiteSpace (LPFRPin))
+                if (string.IsNullOrWhiteSpace(LPFRPin))
                 {
-                    ShowError (
+                    ShowError(
                         "Unesite LPFR PIN.");
 
                     return false;
@@ -1796,39 +2045,39 @@ namespace Caupo.ViewModels
             // HRVATSKA
             // =================================================
 
-            if(OdabranaDrzava == Drzava.Hrvatska)
+            if (OdabranaDrzava == Drzava.Hrvatska)
             {
-                if(string.IsNullOrWhiteSpace (
+                if (string.IsNullOrWhiteSpace(
                     PoslovniProstor))
                 {
-                    ShowError (
+                    ShowError(
                         "Unesite oznaku poslovnog prostora.");
 
                     return false;
                 }
 
-                if(string.IsNullOrWhiteSpace (
+                if (string.IsNullOrWhiteSpace(
                     NaplatniUredjaj))
                 {
-                    ShowError (
+                    ShowError(
                         "Unesite oznaku naplatnog uređaja.");
 
                     return false;
                 }
 
-                if(string.IsNullOrWhiteSpace (
+                if (string.IsNullOrWhiteSpace(
                     CertificateName))
                 {
-                    ShowError (
+                    ShowError(
                         "Odaberite certifikat za fiskalizaciju.");
 
                     return false;
                 }
 
-                if(string.IsNullOrWhiteSpace (
+                if (string.IsNullOrWhiteSpace(
                     CertificatePassword))
                 {
-                    ShowError (
+                    ShowError(
                         "Unesite zaporku certifikata.");
 
                     return false;
@@ -1840,21 +2089,21 @@ namespace Caupo.ViewModels
             // SRBIJA
             // =================================================
 
-            if(OdabranaDrzava == Drzava.Srbija)
+            if (OdabranaDrzava == Drzava.Srbija)
             {
-                if(string.IsNullOrWhiteSpace (
+                if (string.IsNullOrWhiteSpace(
                     SrbijaPfrType))
                 {
-                    ShowError (
+                    ShowError(
                         "Odaberite tip PFR-a.");
 
                     return false;
                 }
 
-                if(string.IsNullOrWhiteSpace (
+                if (string.IsNullOrWhiteSpace(
                     SrbijaEnvironment))
                 {
-                    ShowError (
+                    ShowError(
                         "Odaberite PFR okruženje.");
 
                     return false;
@@ -1865,51 +2114,51 @@ namespace Caupo.ViewModels
                 // SRBIJA - VPFR
                 // =================================================
 
-                if(string.Equals (
+                if (string.Equals(
                     SrbijaPfrType,
                     "VPFR",
                     StringComparison.OrdinalIgnoreCase))
                 {
-                    if(string.IsNullOrWhiteSpace (
+                    if (string.IsNullOrWhiteSpace(
                         SrbijaVPFRUrl))
                     {
-                        ShowError (
+                        ShowError(
                             "Unesite V-PFR URL.");
 
                         return false;
                     }
 
-                    if(string.IsNullOrWhiteSpace (
+                    if (string.IsNullOrWhiteSpace(
                         SrbijaCertificateName))
                     {
-                        ShowError (
+                        ShowError(
                             "Odaberite V-PFR certifikat.");
 
                         return false;
                     }
 
-                    if(string.IsNullOrWhiteSpace (
+                    if (string.IsNullOrWhiteSpace(
                         SrbijaCertificatePassword))
                     {
-                        ShowError (
+                        ShowError(
                             "Unesite zaporku V-PFR certifikata.");
 
                         return false;
                     }
 
-                    if(string.IsNullOrWhiteSpace (
+                    if (string.IsNullOrWhiteSpace(
                         SrbijaPAC))
                     {
-                        ShowError (
+                        ShowError(
                             "Unesite PAC za V-PFR.");
 
                         return false;
                     }
 
-                    if(string.IsNullOrWhiteSpace (
+                    if (string.IsNullOrWhiteSpace(
                         SrbijaAcceptLanguage))
                     {
-                        ShowError (
+                        ShowError(
                             "Odaberite jezik komunikacije.");
 
                         return false;
@@ -1921,42 +2170,42 @@ namespace Caupo.ViewModels
                 // SRBIJA - LPFR
                 // =================================================
 
-                else if(string.Equals (
+                else if (string.Equals(
                     SrbijaPfrType,
                     "LPFR",
                     StringComparison.OrdinalIgnoreCase))
                 {
-                    if(string.IsNullOrWhiteSpace (
+                    if (string.IsNullOrWhiteSpace(
                         SrbijaLPFRToken))
                     {
-                        ShowError (
+                        ShowError(
                             "Unesite L-PFR token.");
 
                         return false;
                     }
 
-                    if(string.IsNullOrWhiteSpace (
+                    if (string.IsNullOrWhiteSpace(
                         SrbijaLPFRUrl))
                     {
-                        ShowError (
+                        ShowError(
                             "Unesite L-PFR URL.");
 
                         return false;
                     }
 
-                    if(string.IsNullOrWhiteSpace (
+                    if (string.IsNullOrWhiteSpace(
                         SrbijaLPFRPin))
                     {
-                        ShowError (
+                        ShowError(
                             "Unesite L-PFR PIN.");
 
                         return false;
                     }
 
-                    if(string.IsNullOrWhiteSpace (
+                    if (string.IsNullOrWhiteSpace(
                         SrbijaLPFRJid))
                     {
-                        ShowError (
+                        ShowError(
                             "Unesite L-PFR JID.");
 
                         return false;
@@ -1964,7 +2213,7 @@ namespace Caupo.ViewModels
                 }
                 else
                 {
-                    ShowError (
+                    ShowError(
                         "Nepoznat tip PFR-a.");
 
                     return false;
@@ -1976,35 +2225,35 @@ namespace Caupo.ViewModels
             // APLIKACIJA
             // =================================================
 
-            if(string.IsNullOrWhiteSpace (POSPrinter))
+            if (string.IsNullOrWhiteSpace(POSPrinter))
             {
-                ShowError (
+                ShowError(
                     "Printer za račune je obavezan podatak.\n\n" +
                     "Odaberite printer za račune prije spremanja postavki.");
 
                 return false;
             }
 
-            if(string.IsNullOrWhiteSpace (BackupUrl))
+            if (string.IsNullOrWhiteSpace(BackupUrl))
             {
-                ShowError (
+                ShowError(
                     "Odaberite direktorij za backup.");
 
                 return false;
             }
 
-            if(!Directory.Exists (BackupUrl))
+            if (!Directory.Exists(BackupUrl))
             {
-                ShowError (
+                ShowError(
                     "Direktorij za backup ne postoji.\n\n" +
                     BackupUrl);
 
                 return false;
             }
 
-            if(string.IsNullOrWhiteSpace (DbPath))
+            if (string.IsNullOrWhiteSpace(DbPath))
             {
-                ShowError (
+                ShowError(
                     "Odaberite bazu podataka.");
 
                 return false;
@@ -2032,15 +2281,15 @@ namespace Caupo.ViewModels
                     Multiselect = false
                 };
 
-                if(!string.IsNullOrWhiteSpace (DbPath))
+                if (!string.IsNullOrWhiteSpace(DbPath))
                 {
                     try
                     {
                         string? directory =
-                            Path.GetDirectoryName (DbPath);
+                            Path.GetDirectoryName(DbPath);
 
-                        if(!string.IsNullOrWhiteSpace (directory) &&
-                           Directory.Exists (directory))
+                        if (!string.IsNullOrWhiteSpace(directory) &&
+                           Directory.Exists(directory))
                         {
                             dialog.InitialDirectory =
                                 directory;
@@ -2050,21 +2299,21 @@ namespace Caupo.ViewModels
                     {
                     }
                 }
-                else if(Directory.Exists (@"C:\DsoftData"))
+                else if (Directory.Exists(@"C:\DsoftData"))
                 {
                     dialog.InitialDirectory =
                         @"C:\DsoftData";
                 }
 
-                if(dialog.ShowDialog () == true)
+                if (dialog.ShowDialog() == true)
                 {
                     DbPath =
                         dialog.FileName;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                ShowError (
+                ShowError(
                     "Greška pri izboru baze:\n\n" +
                     ex.Message);
             }
@@ -2084,15 +2333,15 @@ namespace Caupo.ViewModels
                         "Sve datoteke (*.*)|*.*"
                 };
 
-                if(dialog.ShowDialog () == true)
+                if (dialog.ShowDialog() == true)
                 {
                     LogoUrl =
                         dialog.FileName;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                ShowError (
+                ShowError(
                     "Greška pri izboru logoa:\n\n" +
                     ex.Message);
             }
@@ -2110,22 +2359,22 @@ namespace Caupo.ViewModels
                             "Odaberite direktorij za backup"
                     };
 
-                if(!string.IsNullOrWhiteSpace (BackupUrl) &&
-                   Directory.Exists (BackupUrl))
+                if (!string.IsNullOrWhiteSpace(BackupUrl) &&
+                   Directory.Exists(BackupUrl))
                 {
                     dialog.InitialDirectory =
                         BackupUrl;
                 }
 
-                if(dialog.ShowDialog () == true)
+                if (dialog.ShowDialog() == true)
                 {
                     BackupUrl =
                         dialog.FolderName;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                ShowError (
+                ShowError(
                     "Greška pri izboru backup direktorija:\n\n" +
                     ex.Message);
             }
@@ -2143,22 +2392,22 @@ namespace Caupo.ViewModels
             try
             {
                 var printerDialog =
-                    new PrinterDialog ();
+                    new PrinterDialog();
 
                 printerDialog.MessageTitle.Text =
                     title;
 
-                if(printerDialog.ShowDialog () == true &&
-                   !string.IsNullOrWhiteSpace (
+                if (printerDialog.ShowDialog() == true &&
+                   !string.IsNullOrWhiteSpace(
                        printerDialog.SelectedPrinter))
                 {
-                    setPrinter (
+                    setPrinter(
                         printerDialog.SelectedPrinter);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                ShowError (
+                ShowError(
                     "Greška pri izboru printera:\n\n" +
                     ex.Message);
             }
@@ -2171,7 +2420,7 @@ namespace Caupo.ViewModels
 
         private void SelectCroatiaCertificate()
         {
-            SelectAndCopyCertificate (
+            SelectAndCopyCertificate(
                 certificate =>
                     CertificateName = certificate);
         }
@@ -2179,7 +2428,7 @@ namespace Caupo.ViewModels
 
         private void SelectSrbijaCertificate()
         {
-            SelectAndCopyCertificate (
+            SelectAndCopyCertificate(
                 certificate =>
                     SrbijaCertificateName = certificate);
         }
@@ -2202,50 +2451,50 @@ namespace Caupo.ViewModels
                             "Sve datoteke (*.*)|*.*"
                     };
 
-                if(dialog.ShowDialog () != true)
+                if (dialog.ShowDialog() != true)
                     return;
 
 
                 string certificatesFolder =
-                    Path.Combine (
+                    Path.Combine(
                         AppDomain.CurrentDomain.BaseDirectory,
                         "Certificates");
 
 
-                if(!Directory.Exists (certificatesFolder))
+                if (!Directory.Exists(certificatesFolder))
                 {
-                    Directory.CreateDirectory (
+                    Directory.CreateDirectory(
                         certificatesFolder);
                 }
 
 
                 string fileName =
-                    Path.GetFileName (
+                    Path.GetFileName(
                         dialog.FileName);
 
                 string destination =
-                    Path.Combine (
+                    Path.Combine(
                         certificatesFolder,
                         fileName);
 
 
-                if(!string.Equals (
-                    Path.GetFullPath (dialog.FileName),
-                    Path.GetFullPath (destination),
+                if (!string.Equals(
+                    Path.GetFullPath(dialog.FileName),
+                    Path.GetFullPath(destination),
                     StringComparison.OrdinalIgnoreCase))
                 {
-                    File.Copy (
+                    File.Copy(
                         dialog.FileName,
                         destination,
                         true);
                 }
 
 
-                setCertificate (fileName);
+                setCertificate(fileName);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                ShowError (
+                ShowError(
                     "Greška pri izboru certifikata:\n\n" +
                     ex.Message);
             }
@@ -2262,7 +2511,7 @@ namespace Caupo.ViewModels
             // PROVJERA PODATAKA
             // =====================================================
 
-            if(string.IsNullOrWhiteSpace (SrbijaLPFRUrl))
+            if (string.IsNullOrWhiteSpace(SrbijaLPFRUrl))
             {
                 SrbijaConnectionStatus =
                     "L-PFR URL nije unesen.";
@@ -2270,7 +2519,7 @@ namespace Caupo.ViewModels
                 return;
             }
 
-            if(string.IsNullOrWhiteSpace (SrbijaLPFRToken))
+            if (string.IsNullOrWhiteSpace(SrbijaLPFRToken))
             {
                 SrbijaConnectionStatus =
                     "L-PFR token nije unesen.";
@@ -2278,7 +2527,7 @@ namespace Caupo.ViewModels
                 return;
             }
 
-            if(string.IsNullOrWhiteSpace (SrbijaLPFRPin))
+            if (string.IsNullOrWhiteSpace(SrbijaLPFRPin))
             {
                 SrbijaConnectionStatus =
                     "L-PFR PIN nije unesen.";
@@ -2286,7 +2535,7 @@ namespace Caupo.ViewModels
                 return;
             }
 
-            if(string.IsNullOrWhiteSpace (SrbijaLPFRJid))
+            if (string.IsNullOrWhiteSpace(SrbijaLPFRJid))
             {
                 SrbijaConnectionStatus =
                     "L-PFR JID nije unesen.";
@@ -2302,29 +2551,29 @@ namespace Caupo.ViewModels
                 // =====================================================
 
                 string baseUrl =
-                    BuildSrbijaLPFRBaseUrl (
+                    BuildSrbijaLPFRBaseUrl(
                         SrbijaLPFRUrl,
                         SrbijaLPFRToken);
 
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA LPFR] Base URL: {baseUrl}");
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA LPFR] JID: {SrbijaLPFRJid}");
 
 
                 using var client =
                     new HttpClient
                     {
-                        Timeout = TimeSpan.FromSeconds (20)
+                        Timeout = TimeSpan.FromSeconds(20)
                     };
 
 
-                client.DefaultRequestHeaders.Accept.Clear ();
+                client.DefaultRequestHeaders.Accept.Clear();
 
-                client.DefaultRequestHeaders.Accept.Add (
-                    new MediaTypeWithQualityHeaderValue (
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue(
                         "application/json"));
 
 
@@ -2335,7 +2584,7 @@ namespace Caupo.ViewModels
                 string pinUrl = $"{baseUrl}/v3/pin";
 
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA LPFR] PIN URL: {pinUrl}");
 
 
@@ -2345,29 +2594,29 @@ namespace Caupo.ViewModels
                  */
 
                 using var pinContent =
-                    new StringContent (
-                        SrbijaLPFRPin.Trim (),
+                    new StringContent(
+                        SrbijaLPFRPin.Trim(),
                         Encoding.UTF8,
                         "application/json");
 
 
                 using HttpResponseMessage pinResponse =
-                    await client.PostAsync (
+                    await client.PostAsync(
                         pinUrl,
                         pinContent);
 
 
                 string pinResult =
                     (await pinResponse.Content
-                        .ReadAsStringAsync ())
-                    .Trim ()
-                    .Trim ('"');
+                        .ReadAsStringAsync())
+                    .Trim()
+                    .Trim('"');
 
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA LPFR] PIN HTTP: {(int)pinResponse.StatusCode} {pinResponse.StatusCode}");
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA LPFR] PIN response: {pinResult}");
 
 
@@ -2375,7 +2624,7 @@ namespace Caupo.ViewModels
                 // PROVJERA PIN ODGOVORA
                 // =====================================================
 
-                if(!pinResponse.IsSuccessStatusCode)
+                if (!pinResponse.IsSuccessStatusCode)
                 {
                     SrbijaConnectionStatus =
                         $"L-PFR PIN greška - HTTP {(int)pinResponse.StatusCode}: {pinResult}";
@@ -2384,7 +2633,7 @@ namespace Caupo.ViewModels
                 }
 
 
-                if(!string.Equals (
+                if (!string.Equals(
                     pinResult,
                     "0100",
                     StringComparison.OrdinalIgnoreCase))
@@ -2400,31 +2649,31 @@ namespace Caupo.ViewModels
                 // 2. STATUS
                 // =====================================================
 
-                string statusUrl =  $"{baseUrl}/v3/status";
+                string statusUrl = $"{baseUrl}/v3/status";
 
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA LPFR] Status URL: {statusUrl}");
 
 
                 using HttpResponseMessage statusResponse =
-                    await client.GetAsync (
+                    await client.GetAsync(
                         statusUrl);
 
 
                 string statusBody =
                     await statusResponse.Content
-                        .ReadAsStringAsync ();
+                        .ReadAsStringAsync();
 
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA LPFR] Status HTTP: {(int)statusResponse.StatusCode} {statusResponse.StatusCode}");
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA LPFR] Status response: {statusBody}");
 
 
-                if(!statusResponse.IsSuccessStatusCode)
+                if (!statusResponse.IsSuccessStatusCode)
                 {
                     SrbijaConnectionStatus =
                         $"PIN OK, ali status greška - HTTP {(int)statusResponse.StatusCode}";
@@ -2438,19 +2687,19 @@ namespace Caupo.ViewModels
                 // =====================================================
 
                 string? returnedJid =
-                    TryGetSrbijaLPFRJid (
+                    TryGetSrbijaLPFRJid(
                         statusBody);
 
 
-                if(!string.IsNullOrWhiteSpace (returnedJid))
+                if (!string.IsNullOrWhiteSpace(returnedJid))
                 {
-                    Debug.WriteLine (
+                    Debug.WriteLine(
                         $"[SRBIJA LPFR] JID sa servera: {returnedJid}");
 
 
-                    if(!string.Equals (
-                        returnedJid.Trim (),
-                        SrbijaLPFRJid.Trim (),
+                    if (!string.Equals(
+                        returnedJid.Trim(),
+                        SrbijaLPFRJid.Trim(),
                         StringComparison.OrdinalIgnoreCase))
                     {
                         SrbijaConnectionStatus =
@@ -2468,23 +2717,23 @@ namespace Caupo.ViewModels
                 SrbijaConnectionStatus =
                     "L-PFR komunikacija uspješna - PIN OK, status OK.";
             }
-            catch(TaskCanceledException)
+            catch (TaskCanceledException)
             {
                 SrbijaConnectionStatus =
                     "L-PFR ne odgovara - istekao timeout.";
             }
-            catch(HttpRequestException ex)
+            catch (HttpRequestException ex)
             {
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA LPFR] HTTP greška: {ex}");
 
                 SrbijaConnectionStatus =
                     "L-PFR HTTP greška: " +
                     ex.Message;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA LPFR] Greška: {ex}");
 
                 SrbijaConnectionStatus =
@@ -2499,13 +2748,13 @@ namespace Caupo.ViewModels
             string token)
         {
             string cleanUrl =
-                url.Trim ()
-                   .TrimEnd ('/');
+                url.Trim()
+                   .TrimEnd('/');
 
             // Ako URL već završava sa /api,
             // znači da je kompletan sandbox LPFR URL
             // i token je već sadržan u njemu.
-            if(cleanUrl.EndsWith (
+            if (cleanUrl.EndsWith(
                 "/api",
                 StringComparison.OrdinalIgnoreCase))
             {
@@ -2513,14 +2762,14 @@ namespace Caupo.ViewModels
             }
 
             string cleanToken =
-                token?.Trim ()
-                     .Trim ('/')
+                token?.Trim()
+                     .Trim('/')
                 ?? string.Empty;
 
             // Ako je token već dio URL-a,
             // samo dodaj /api ako nedostaje.
-            if(!string.IsNullOrWhiteSpace (cleanToken) &&
-               cleanUrl.Contains (
+            if (!string.IsNullOrWhiteSpace(cleanToken) &&
+               cleanUrl.Contains(
                    "/" + cleanToken,
                    StringComparison.OrdinalIgnoreCase))
             {
@@ -2529,7 +2778,7 @@ namespace Caupo.ViewModels
 
             // Ako korisnik unese samo host,
             // onda sastavi kompletan URL.
-            if(!string.IsNullOrWhiteSpace (cleanToken))
+            if (!string.IsNullOrWhiteSpace(cleanToken))
             {
                 return $"{cleanUrl}/{cleanToken}/api";
             }
@@ -2540,40 +2789,40 @@ namespace Caupo.ViewModels
         private static string? TryGetSrbijaLPFRJid(
     string json)
         {
-            if(string.IsNullOrWhiteSpace (json))
+            if (string.IsNullOrWhiteSpace(json))
                 return null;
 
             try
             {
                 using JsonDocument document =
-                    JsonDocument.Parse (json);
+                    JsonDocument.Parse(json);
 
                 JsonElement root =
                     document.RootElement;
 
 
                 // TaxCore status koristi uid.
-                if(root.TryGetProperty (
+                if (root.TryGetProperty(
                     "uid",
                     out JsonElement uidElement))
                 {
-                    return uidElement.GetString ();
+                    return uidElement.GetString();
                 }
 
 
                 // Ostavljamo podršku i ako neka verzija
                 // vrati jid naziv.
-                if(root.TryGetProperty (
+                if (root.TryGetProperty(
                     "jid",
                     out JsonElement jidElement))
                 {
-                    return jidElement.GetString ();
+                    return jidElement.GetString();
                 }
 
 
                 return null;
             }
-            catch(JsonException)
+            catch (JsonException)
             {
                 return null;
             }
@@ -2585,19 +2834,19 @@ namespace Caupo.ViewModels
 
             try
             {
-                if(string.Equals (
+                if (string.Equals(
                     SrbijaPfrType,
                     "VPFR",
                     StringComparison.OrdinalIgnoreCase))
                 {
-                    await TestSrbijaVPFRAsync ();
+                    await TestSrbijaVPFRAsync();
                 }
-                else if(string.Equals (
+                else if (string.Equals(
                     SrbijaPfrType,
                     "LPFR",
                     StringComparison.OrdinalIgnoreCase))
                 {
-                    await TestSrbijaLPFRAsync ();
+                    await TestSrbijaLPFRAsync();
                 }
                 else
                 {
@@ -2605,9 +2854,9 @@ namespace Caupo.ViewModels
                         "Nepoznat PFR tip.";
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA] PFR test error: {ex}");
 
                 SrbijaConnectionStatus =
@@ -2618,28 +2867,28 @@ namespace Caupo.ViewModels
 
         private async Task TestSrbijaVPFRAsync()
         {
-            if(string.IsNullOrWhiteSpace (SrbijaVPFRUrl))
+            if (string.IsNullOrWhiteSpace(SrbijaVPFRUrl))
             {
                 SrbijaConnectionStatus =
                     "V-PFR URL nije unesen.";
                 return;
             }
 
-            if(string.IsNullOrWhiteSpace (SrbijaCertificateName))
+            if (string.IsNullOrWhiteSpace(SrbijaCertificateName))
             {
                 SrbijaConnectionStatus =
                     "V-PFR certifikat nije odabran.";
                 return;
             }
 
-            if(string.IsNullOrWhiteSpace (SrbijaCertificatePassword))
+            if (string.IsNullOrWhiteSpace(SrbijaCertificatePassword))
             {
                 SrbijaConnectionStatus =
                     "Lozinka V-PFR certifikata nije unesena.";
                 return;
             }
 
-            if(string.IsNullOrWhiteSpace (SrbijaPAC))
+            if (string.IsNullOrWhiteSpace(SrbijaPAC))
             {
                 SrbijaConnectionStatus =
                     "PAC nije unesen.";
@@ -2647,12 +2896,12 @@ namespace Caupo.ViewModels
             }
 
             string certificatePath =
-                Path.Combine (
+                Path.Combine(
                     AppDomain.CurrentDomain.BaseDirectory,
                     "Certificates",
                     SrbijaCertificateName);
 
-            if(!File.Exists (certificatePath))
+            if (!File.Exists(certificatePath))
             {
                 SrbijaConnectionStatus =
                     $"Certifikat nije pronađen: {certificatePath}";
@@ -2666,28 +2915,28 @@ namespace Caupo.ViewModels
                 // =====================================================
 
                 var certificate =
-                    new X509Certificate2 (
+                    new X509Certificate2(
                         certificatePath,
                         SrbijaCertificatePassword,
                         X509KeyStorageFlags.MachineKeySet |
                         X509KeyStorageFlags.Exportable);
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA VPFR] Certifikat: {certificate.Subject}");
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA VPFR] Thumbprint: {certificate.Thumbprint}");
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA VPFR] HasPrivateKey: {certificate.HasPrivateKey}");
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA VPFR] Valid from: {certificate.NotBefore}");
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA VPFR] Valid to: {certificate.NotAfter}");
 
-                if(!certificate.HasPrivateKey)
+                if (!certificate.HasPrivateKey)
                 {
                     SrbijaConnectionStatus =
                         "V-PFR certifikat nema privatni ključ.";
@@ -2700,12 +2949,12 @@ namespace Caupo.ViewModels
                 // =====================================================
 
                 using var handler =
-                    new HttpClientHandler ();
+                    new HttpClientHandler();
 
                 handler.ClientCertificateOptions =
                     ClientCertificateOption.Manual;
 
-                handler.ClientCertificates.Add (
+                handler.ClientCertificates.Add(
                     certificate);
 
                 // Bitno za V-PFR:
@@ -2718,34 +2967,34 @@ namespace Caupo.ViewModels
                 // =====================================================
 
                 using var client =
-                    new HttpClient (handler)
+                    new HttpClient(handler)
                     {
                         Timeout =
-                            TimeSpan.FromSeconds (30)
+                            TimeSpan.FromSeconds(30)
                     };
 
-                client.DefaultRequestHeaders.Accept.Clear ();
+                client.DefaultRequestHeaders.Accept.Clear();
 
-                client.DefaultRequestHeaders.Accept.Add (
-                    new MediaTypeWithQualityHeaderValue (
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue(
                         "application/json"));
 
-                client.DefaultRequestHeaders.Remove ("PAC");
+                client.DefaultRequestHeaders.Remove("PAC");
 
-                client.DefaultRequestHeaders.Add (
+                client.DefaultRequestHeaders.Add(
                     "PAC",
-                    SrbijaPAC.Trim ());
+                    SrbijaPAC.Trim());
 
 
-                if(!string.IsNullOrWhiteSpace (
+                if (!string.IsNullOrWhiteSpace(
                     SrbijaAcceptLanguage))
                 {
                     client.DefaultRequestHeaders
-                        .AcceptLanguage.Clear ();
+                        .AcceptLanguage.Clear();
 
                     client.DefaultRequestHeaders
-                        .AcceptLanguage.Add (
-                            new StringWithQualityHeaderValue (
+                        .AcceptLanguage.Add(
+                            new StringWithQualityHeaderValue(
                                 SrbijaAcceptLanguage));
                 }
 
@@ -2756,10 +3005,10 @@ namespace Caupo.ViewModels
 
                 string statusUrl =
                     SrbijaVPFRUrl
-                        .Trim ()
-                        .TrimEnd ('/');
+                        .Trim()
+                        .TrimEnd('/');
 
-                if(!statusUrl.EndsWith (
+                if (!statusUrl.EndsWith(
                     "/api/v3/status",
                     StringComparison.OrdinalIgnoreCase))
                 {
@@ -2767,7 +3016,7 @@ namespace Caupo.ViewModels
                         "/api/v3/status";
                 }
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA VPFR] Status URL: {statusUrl}");
 
 
@@ -2776,16 +3025,16 @@ namespace Caupo.ViewModels
                 // =====================================================
 
                 using HttpResponseMessage response =
-                    await client.GetAsync (statusUrl);
+                    await client.GetAsync(statusUrl);
 
                 string body =
                     await response.Content
-                        .ReadAsStringAsync ();
+                        .ReadAsStringAsync();
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA VPFR] Status HTTP: {(int)response.StatusCode} {response.StatusCode}");
 
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA VPFR] Status response: {body}");
 
 
@@ -2793,12 +3042,12 @@ namespace Caupo.ViewModels
                 // REZULTAT
                 // =====================================================
 
-                if(response.IsSuccessStatusCode)
+                if (response.IsSuccessStatusCode)
                 {
                     string? uid =
-                        TryGetSrbijaLPFRJid (body);
+                        TryGetSrbijaLPFRJid(body);
 
-                    if(!string.IsNullOrWhiteSpace (uid))
+                    if (!string.IsNullOrWhiteSpace(uid))
                     {
                         SrbijaConnectionStatus =
                             $"V-PFR komunikacija uspješna | JID: {uid}";
@@ -2815,19 +3064,19 @@ namespace Caupo.ViewModels
                         $"V-PFR greška - HTTP {(int)response.StatusCode}: {body}";
                 }
             }
-            catch(HttpRequestException ex)
+            catch (HttpRequestException ex)
             {
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA VPFR] HttpRequestException: {ex}");
 
-                if(ex.InnerException != null)
+                if (ex.InnerException != null)
                 {
-                    Debug.WriteLine (
+                    Debug.WriteLine(
                         $"[SRBIJA VPFR] InnerException: {ex.InnerException}");
 
-                    if(ex.InnerException.InnerException != null)
+                    if (ex.InnerException.InnerException != null)
                     {
-                        Debug.WriteLine (
+                        Debug.WriteLine(
                             $"[SRBIJA VPFR] InnerInnerException: {ex.InnerException.InnerException}");
                     }
                 }
@@ -2836,9 +3085,9 @@ namespace Caupo.ViewModels
                     "V-PFR HTTP greška: " +
                     (ex.InnerException?.Message ?? ex.Message);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[SRBIJA VPFR] Greška: {ex}");
 
                 SrbijaConnectionStatus =
@@ -2855,10 +3104,10 @@ namespace Caupo.ViewModels
             string baseUrl)
         {
             string url =
-                baseUrl.Trim ()
-                    .TrimEnd ('/');
+                baseUrl.Trim()
+                    .TrimEnd('/');
 
-            if(url.EndsWith (
+            if (url.EndsWith(
                 "/api/v3/status",
                 StringComparison.OrdinalIgnoreCase))
             {
@@ -2879,24 +3128,24 @@ namespace Caupo.ViewModels
             try
             {
                 using var db =
-                    new AppDbContext ();
+                    new AppDbContext();
 
                 var lista =
                     await db.Radnici
-                        .AsNoTracking ()
-                        .OrderBy (x => x.IdRadnika)
-                        .ToListAsync ();
+                        .AsNoTracking()
+                        .OrderBy(x => x.IdRadnika)
+                        .ToListAsync();
 
                 Radnici =
-                    new ObservableCollection<TblRadnici> (
+                    new ObservableCollection<TblRadnici>(
                         lista);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[Settings] LoadRadniciAsync: {ex}");
 
-                ShowError (
+                ShowError(
                     "Greška pri učitavanju radnika:\n\n" +
                     ex.Message);
             }
@@ -2909,17 +3158,17 @@ namespace Caupo.ViewModels
             try
             {
                 using var db =
-                    new AppDbContext ();
+                    new AppDbContext();
 
-                db.Radnici.Add (radnik);
+                db.Radnici.Add(radnik);
 
-                await db.SaveChangesAsync ();
+                await db.SaveChangesAsync();
 
-                await LoadRadniciAsync ();
+                await LoadRadniciAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                ShowError (
+                ShowError(
                     "Greška pri dodavanju radnika:\n\n" +
                     ex.Message);
             }
@@ -2932,18 +3181,18 @@ namespace Caupo.ViewModels
             try
             {
                 using var db =
-                    new AppDbContext ();
+                    new AppDbContext();
 
                 var existing =
                     await db.Radnici
-                        .FirstOrDefaultAsync (
+                        .FirstOrDefaultAsync(
                             x =>
                                 x.IdRadnika ==
                                 radnik.IdRadnika);
 
-                if(existing == null)
+                if (existing == null)
                 {
-                    ShowError (
+                    ShowError(
                         "Radnik nije pronađen.");
 
                     return;
@@ -2960,13 +3209,13 @@ namespace Caupo.ViewModels
                     radnik.Dozvole;
 
 
-                await db.SaveChangesAsync ();
+                await db.SaveChangesAsync();
 
-                await LoadRadniciAsync ();
+                await LoadRadniciAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                ShowError (
+                ShowError(
                     "Greška pri izmjeni radnika:\n\n" +
                     ex.Message);
             }
@@ -2978,18 +3227,18 @@ namespace Caupo.ViewModels
             try
             {
                 var popup =
-                    new NewWorkerPopup (this);
+                    new NewWorkerPopup(this);
 
                 popup.isUpdate = false;
 
                 popup.DataContext =
                     this;
 
-                popup.ShowDialog ();
+                popup.ShowDialog();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                ShowError (
+                ShowError(
                     "Greška pri otvaranju novog radnika:\n\n" +
                     ex.Message);
             }
@@ -2999,9 +3248,9 @@ namespace Caupo.ViewModels
         private async Task OpenUpdateRadnik(
             TblRadnici? radnik)
         {
-            if(radnik == null)
+            if (radnik == null)
             {
-                ShowError (
+                ShowError(
                     "Odaberite radnika kojeg želite izmijeniti.");
 
                 return;
@@ -3011,7 +3260,7 @@ namespace Caupo.ViewModels
             try
             {
                 var popup =
-                    new NewWorkerPopup (this);
+                    new NewWorkerPopup(this);
 
                 popup.isUpdate = true;
 
@@ -3024,7 +3273,7 @@ namespace Caupo.ViewModels
 
 
                 popup.lblid.Content =
-                    radnik.IdRadnika.ToString ();
+                    radnik.IdRadnika.ToString();
 
                 popup.txtRadnik.Text =
                     radnik.Radnik ?? string.Empty;
@@ -3033,11 +3282,11 @@ namespace Caupo.ViewModels
                     radnik.Lozinka ?? string.Empty;
 
 
-                foreach(var item in popup.cmbDozvole.Items)
+                foreach (var item in popup.cmbDozvole.Items)
                 {
-                    if(item is ComboBoxItem comboItem &&
-                       string.Equals (
-                           comboItem.Content?.ToString (),
+                    if (item is ComboBoxItem comboItem &&
+                       string.Equals(
+                           comboItem.Content?.ToString(),
                            radnik.Dozvole,
                            StringComparison.OrdinalIgnoreCase))
                     {
@@ -3049,13 +3298,13 @@ namespace Caupo.ViewModels
                 }
 
 
-                popup.ShowDialog ();
+                popup.ShowDialog();
 
                 await Task.CompletedTask;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                ShowError (
+                ShowError(
                     "Greška pri izmjeni radnika:\n\n" +
                     ex.Message);
             }
@@ -3065,9 +3314,9 @@ namespace Caupo.ViewModels
         private async Task DeleteRadnik(
             TblRadnici? radnik)
         {
-            if(radnik == null)
+            if (radnik == null)
             {
-                ShowError (
+                ShowError(
                     "Odaberite radnika kojeg želite obrisati.");
 
                 return;
@@ -3077,7 +3326,7 @@ namespace Caupo.ViewModels
             try
             {
                 var popup =
-                    new YesNoPopup ();
+                    new YesNoPopup();
 
                 popup.MessageTitle.Text =
                     "Brisanje radnika";
@@ -3086,37 +3335,37 @@ namespace Caupo.ViewModels
                     $"Želite li obrisati radnika:\n\n{radnik.Radnik}?";
 
 
-                popup.ShowDialog ();
+                popup.ShowDialog();
 
 
-                if(popup.Kliknuo != "Da")
+                if (popup.Kliknuo != "Da")
                     return;
 
 
                 using var db =
-                    new AppDbContext ();
+                    new AppDbContext();
 
 
                 var existing =
                     await db.Radnici
-                        .FirstOrDefaultAsync (
+                        .FirstOrDefaultAsync(
                             x =>
                                 x.IdRadnika ==
                                 radnik.IdRadnika);
 
-                if(existing == null)
+                if (existing == null)
                     return;
 
 
-                db.Radnici.Remove (existing);
+                db.Radnici.Remove(existing);
 
-                await db.SaveChangesAsync ();
+                await db.SaveChangesAsync();
 
-                await LoadRadniciAsync ();
+                await LoadRadniciAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                ShowError (
+                ShowError(
                     "Greška pri brisanju radnika:\n\n" +
                     ex.Message);
             }
@@ -3130,12 +3379,12 @@ namespace Caupo.ViewModels
         private static List<MonitorInfo> GetAllMonitors()
         {
             var monitors =
-                new List<MonitorInfo> ();
+                new List<MonitorInfo>();
 
             int index = 0;
 
 
-            EnumDisplayMonitors (
+            EnumDisplayMonitors(
                 IntPtr.Zero,
                 IntPtr.Zero,
 
@@ -3146,36 +3395,36 @@ namespace Caupo.ViewModels
                     IntPtr dwData)
                 {
                     var monitorInfo =
-                        new MONITORINFOEX ();
+                        new MONITORINFOEX();
 
                     monitorInfo.cbSize =
-                        Marshal.SizeOf (
-                            typeof (MONITORINFOEX));
+                        Marshal.SizeOf(
+                            typeof(MONITORINFOEX));
 
 
-                    if(GetMonitorInfo (
+                    if (GetMonitorInfo(
                         hMonitor,
                         ref monitorInfo))
                     {
                         var displayDevice =
-                            new DISPLAY_DEVICE ();
+                            new DISPLAY_DEVICE();
 
                         displayDevice.cb =
-                            Marshal.SizeOf (
-                                typeof (DISPLAY_DEVICE));
+                            Marshal.SizeOf(
+                                typeof(DISPLAY_DEVICE));
 
 
                         string displayName =
                             monitorInfo.szDevice;
 
 
-                        if(EnumDisplayDevices (
+                        if (EnumDisplayDevices(
                             monitorInfo.szDevice,
                             0,
                             ref displayDevice,
                             0))
                         {
-                            if(!string.IsNullOrWhiteSpace (
+                            if (!string.IsNullOrWhiteSpace(
                                 displayDevice.DeviceString))
                             {
                                 displayName =
@@ -3184,7 +3433,7 @@ namespace Caupo.ViewModels
                         }
 
 
-                        monitors.Add (
+                        monitors.Add(
                             new MonitorInfo
                             {
                                 Index = index,
@@ -3230,28 +3479,28 @@ namespace Caupo.ViewModels
                 App.CurrentTheme =
                     temaName;
 
-                App.ApplyTheme (
+                App.ApplyTheme(
                     temaName);
 
 
-                if(Application.Current == null)
+                if (Application.Current == null)
                     return;
 
 
-                if(Tema == 0)
+                if (Tema == 0)
                 {
                     Application.Current.Resources[
                         "GlobalFontColor"] =
-                        new SolidColorBrush (
-                            Color.FromRgb (
+                        new SolidColorBrush(
+                            Color.FromRgb(
                                 250,
                                 250,
                                 250));
 
                     Application.Current.Resources[
                         "GlobalBackgroundColor"] =
-                        new SolidColorBrush (
-                            Color.FromRgb (
+                        new SolidColorBrush(
+                            Color.FromRgb(
                                 50,
                                 50,
                                 50));
@@ -3260,24 +3509,24 @@ namespace Caupo.ViewModels
                 {
                     Application.Current.Resources[
                         "GlobalFontColor"] =
-                        new SolidColorBrush (
-                            Color.FromRgb (
+                        new SolidColorBrush(
+                            Color.FromRgb(
                                 32,
                                 33,
                                 36));
 
                     Application.Current.Resources[
                         "GlobalBackgroundColor"] =
-                        new SolidColorBrush (
-                            Color.FromRgb (
+                        new SolidColorBrush(
+                            Color.FromRgb(
                                 250,
                                 250,
                                 250));
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (
+                Debug.WriteLine(
                     $"[Settings] ApplySelectedTheme: {ex}");
             }
         }
@@ -3290,7 +3539,7 @@ namespace Caupo.ViewModels
         private static int StringToYesNoIndex(
             string? value)
         {
-            return string.Equals (
+            return string.Equals(
                 value,
                 "DA",
                 StringComparison.OrdinalIgnoreCase)
@@ -3311,7 +3560,7 @@ namespace Caupo.ViewModels
         private static int TemaToIndex(
             string? value)
         {
-            return string.Equals (
+            return string.Equals(
                 value,
                 "Svijetla",
                 StringComparison.OrdinalIgnoreCase)
@@ -3323,10 +3572,10 @@ namespace Caupo.ViewModels
         private static int OznakaSlijednostiToIndex(
             string? value)
         {
-            if(string.IsNullOrWhiteSpace (value))
+            if (string.IsNullOrWhiteSpace(value))
                 return 0;
 
-            return value.Contains (
+            return value.Contains(
                 "poslov",
                 StringComparison.OrdinalIgnoreCase)
                 ? 1
@@ -3337,10 +3586,10 @@ namespace Caupo.ViewModels
         private static int VerzijaAplikacijeToIndex(
             string? value)
         {
-            if(string.IsNullOrWhiteSpace (value))
+            if (string.IsNullOrWhiteSpace(value))
                 return 0;
 
-            return value.StartsWith (
+            return value.StartsWith(
                 "Prod",
                 StringComparison.OrdinalIgnoreCase)
                 ? 1
@@ -3354,7 +3603,7 @@ namespace Caupo.ViewModels
             try
             {
                 var popup =
-                    new MyMessageBox ();
+                    new MyMessageBox();
 
                 popup.MessageTitle.Text =
                     "Informacija";
@@ -3362,11 +3611,11 @@ namespace Caupo.ViewModels
                 popup.MessageText.Text =
                     message;
 
-                popup.ShowDialog ();
+                popup.ShowDialog();
             }
             catch
             {
-                MessageBox.Show (
+                MessageBox.Show(
                     message,
                     "Informacija",
                     MessageBoxButton.OK,
@@ -3381,7 +3630,7 @@ namespace Caupo.ViewModels
             try
             {
                 var popup =
-                    new MyMessageBox ();
+                    new MyMessageBox();
 
                 popup.MessageTitle.Text =
                     "Greška";
@@ -3389,11 +3638,11 @@ namespace Caupo.ViewModels
                 popup.MessageText.Text =
                     message;
 
-                popup.ShowDialog ();
+                popup.ShowDialog();
             }
             catch
             {
-                MessageBox.Show (
+                MessageBox.Show(
                     message,
                     "Greška",
                     MessageBoxButton.OK,
@@ -3407,7 +3656,7 @@ namespace Caupo.ViewModels
             T value,
             [CallerMemberName] string? propertyName = null)
         {
-            if(EqualityComparer<T>.Default.Equals (
+            if (EqualityComparer<T>.Default.Equals(
                 field,
                 value))
             {
@@ -3416,7 +3665,7 @@ namespace Caupo.ViewModels
 
             field = value;
 
-            OnPropertyChanged (
+            OnPropertyChanged(
                 propertyName);
 
             return true;
@@ -3430,9 +3679,9 @@ namespace Caupo.ViewModels
         protected virtual void OnPropertyChanged(
             [CallerMemberName] string? propertyName = null)
         {
-            PropertyChanged?.Invoke (
+            PropertyChanged?.Invoke(
                 this,
-                new PropertyChangedEventArgs (
+                new PropertyChangedEventArgs(
                     propertyName));
         }
 

@@ -132,7 +132,7 @@
                 </StackPanel>
             </Button>
         </Grid>
-        <Button Style="{StaticResource HomeButtonStyle}"  BorderThickness="2"  x:Name="PodesavanjeButton" Click="PodesavanjeButton_Click"  BorderBrush="#6EC207"  Width="70" Height="70" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5">
+        <Button Style="{StaticResource HomeButtonStyle}"  BorderThickness="2" Padding="0" x:Name="PodesavanjeButton" Click="PodesavanjeButton_Click"  BorderBrush="#6EC207"  Width="70" Height="70" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="25">
             <StackPanel Orientation="Vertical" >
                 <svg:SvgViewbox   Width="35" Height="35" Source="{Binding ImagePathSetupButton, TargetNullValue={x:Null}}"  Stretch="Uniform" Margin="10"/>
   

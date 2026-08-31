@@ -20,7 +20,7 @@
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="55"/>
+            <RowDefinition Height="60"/>
             <RowDefinition Height="0.2*"/>
             <RowDefinition Height="0.6*"/>
             <RowDefinition Height="0.2*"/>
@@ -310,10 +310,11 @@
                         <!-- C -->
 
                         <Button Grid.Column="0"
+                                Background="#66663333"
                                 Grid.Row="3"
                                 Content="C"
                                 Click="OnClearButtonClicked"
-                                Style="{StaticResource CButtonStyle}"
+                                Style="{StaticResource ModernNumericButtonStyle}"
                                 Foreground="#F5F5F5">
 
                             <Button.Width>
@@ -343,11 +344,12 @@
                         <!-- OK -->
 
                         <Button x:Name="OkButton"
+                                Background="#66336633"
                                 Grid.Column="2"
                                 Grid.Row="3"
                                 Content="OK"
                                 Click="OnOkButtonClicked"
-                                Style="{StaticResource OKButtonStyle}"
+                                Style="{StaticResource ModernNumericButtonStyle}"
                                 Foreground="#F5F5F5">
 
                             <Button.Width>

@@ -25,7 +25,7 @@ namespace Caupo.Views
     /// </summary>
     public partial class KasaPage : UserControl, IKeyboardInputReceiver
     {
-
+        private Stopwatch? _categoryRenderStopwatch;
         public KasaPage()
         {
             InitializeComponent ();
@@ -36,6 +36,21 @@ namespace Caupo.Views
             MultiUserGrid.IsVisibleChanged += (s, e) => UpdateBlur ();
         }
 
+
+        private void StartCategoryPerformanceTest(string category)
+        {
+            _categoryRenderStopwatch = Stopwatch.StartNew();
+
+            Debug.WriteLine($"[PERF KASA] Klik: {category}");
+
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                _categoryRenderStopwatch?.Stop();
+
+                Debug.WriteLine($"[PERF KASA] WPF prikaz završen: {_categoryRenderStopwatch?.Elapsed.TotalMilliseconds:F2} ms");
+                Debug.WriteLine("[PERF KASA] ================================================");
+            }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+        }
         private static bool IsInsideScrollBar(DependencyObject? source)
         {
             while(source != null)
@@ -458,6 +473,7 @@ namespace Caupo.Views
         {
             if(DataContext is not KasaViewModel vm)
                 return;
+            StartCategoryPerformanceTest("Piće");
 
             vm.SelectedCategory =
                 KasaViewModel.Category.Pice;
@@ -472,7 +488,7 @@ namespace Caupo.Views
         {
             if(DataContext is not KasaViewModel vm)
                 return;
-
+            StartCategoryPerformanceTest("Hrana");
             vm.SelectedCategory =
                 KasaViewModel.Category.Hrana;
 
@@ -486,7 +502,7 @@ namespace Caupo.Views
         {
             if(DataContext is not KasaViewModel vm)
                 return;
-
+            StartCategoryPerformanceTest("Ostalo");
             vm.SelectedCategory =
                 KasaViewModel.Category.Ostalo;
 

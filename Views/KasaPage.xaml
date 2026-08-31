@@ -264,7 +264,7 @@
                             IsChecked="{Binding SelectedCategory,
                                 Converter={StaticResource CategoryToBoolConverter},
                                 ConverterParameter=Pice,
-                                Mode=TwoWay}">
+                                Mode=OneWay}">
                             <StackPanel
                                 Orientation="Horizontal"
                                 HorizontalAlignment="Center">
@@ -293,7 +293,7 @@
                             IsChecked="{Binding SelectedCategory,
                                 Converter={StaticResource CategoryToBoolConverter},
                                 ConverterParameter=Hrana,
-                                Mode=TwoWay}">
+                                Mode=OneWay}">
                             <StackPanel
                                 Orientation="Horizontal"
                                 HorizontalAlignment="Center">
@@ -322,7 +322,7 @@
                             IsChecked="{Binding SelectedCategory,
                                 Converter={StaticResource CategoryToBoolConverter},
                                 ConverterParameter=Ostalo,
-                                Mode=TwoWay}">
+                                Mode=OneWay}">
                             <StackPanel
                                 Orientation="Horizontal"
                                 HorizontalAlignment="Center">
