@@ -182,22 +182,13 @@ namespace Caupo.Fiscal.Croatia.Helpers
             }
         }
 
-        public static Caupo.Cis.PorezType ToCisTax(
-            CroatiaTaxSummary tax)
+        public static MAES.Fiskal.PorezType ToMaesTax(CroatiaTaxSummary tax)
         {
-            return new Caupo.Cis.PorezType
+            return new MAES.Fiskal.PorezType
             {
-                Stopa = tax.Rate.ToString(
-                    "F2",
-                    CultureInfo.InvariantCulture),
-
-                Osnovica = tax.BaseAmount.ToString(
-                    "F2",
-                    CultureInfo.InvariantCulture),
-
-                Iznos = tax.TaxAmount.ToString(
-                    "F2",
-                    CultureInfo.InvariantCulture)
+                Stopa = tax.Rate.ToString("F2", CultureInfo.InvariantCulture),
+                Osnovica = tax.BaseAmount.ToString("F2", CultureInfo.InvariantCulture),
+                Iznos = tax.TaxAmount.ToString("F2", CultureInfo.InvariantCulture)
             };
         }
     }

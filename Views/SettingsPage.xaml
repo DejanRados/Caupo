@@ -1105,6 +1105,7 @@
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="48"/>
                                     <RowDefinition Height="48"/>
+                                   
                                 </Grid.RowDefinitions>
 
                                 <Label Content="Certifikat" Style="{StaticResource SettingsLabel}" Grid.Row="0" Grid.Column="0"/>
@@ -1155,10 +1156,49 @@
                                          Height="30"
                                          BorderThickness="0,0,0,1"/>
 
+                               
+
                             </Grid>
+                            
 
                         </Border>
+                        <TextBlock Text="Test fiskalizacije" Style="{StaticResource SettingsSectionTitle}"   Margin="9,20,9,4"/>
 
+                        <TextBlock Text="Provjerava odabrano okruženje, URL fiskalnog servera i aplikacijski certifikat."    Style="{StaticResource SettingsSectionDescription}"/>
+
+                        <Border Style="{StaticResource SettingsCard}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="210"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Button Command="{Binding TestCroatiaFiscalizationCommand}"
+             Style="{StaticResource PrimaryButtonStyle}"
+             Width="180"
+             Height="42"
+             HorizontalAlignment="Left"
+             VerticalAlignment="Top">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock FontFamily="Segoe MDL2 Assets"
+                    Text="&#xE73E;"
+                    FontSize="17"
+                    Margin="0,0,7,0"
+                    VerticalAlignment="Center"/>
+
+                                        <TextBlock Text="Testiraj vezu" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+
+                                <TextBlock Grid.Column="1"
+            Text="{Binding CroatiaConnectionStatus}"
+            Foreground="{DynamicResource GlobalFontColor}"
+            Margin="15,2,5,2"
+            FontSize="13"
+            TextWrapping="Wrap"
+            VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
 
                         <!-- PORESKE STOPE -->
 

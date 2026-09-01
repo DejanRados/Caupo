@@ -3,6 +3,7 @@ using Caupo.Helpers;
 using Caupo.Properties;
 using Caupo.Views;
 using CommunityToolkit.Mvvm.Input;
+using MAES.Fiskal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
@@ -334,6 +335,14 @@ namespace Caupo.ViewModels
             set => SetProperty(ref _pnpStopa, value);
         }
 
+        private string _croatiaConnectionStatus = string.Empty;
+
+        public string CroatiaConnectionStatus
+        {
+            get => _croatiaConnectionStatus;
+            set => SetProperty(ref _croatiaConnectionStatus, value);
+        }
+
         #endregion
 
 
@@ -659,6 +668,8 @@ namespace Caupo.ViewModels
         #endregion
 
 
+  
+
         #region Commands
 
         public ICommand SaveCommand { get; }
@@ -697,6 +708,8 @@ namespace Caupo.ViewModels
 
         public ICommand DeletePoreskaStopaCommand { get; }
 
+        public ICommand TestCroatiaFiscalizationCommand { get; }
+
         #endregion
 
 
@@ -704,6 +717,8 @@ namespace Caupo.ViewModels
 
         public SettingsViewModel()
         {
+            Debug.WriteLine(string.Join(", ", Enum.GetNames(typeof(MAES.Fiskal.NacinPlacanjaType))));
+
             SaveCommand =
                 new AsyncRelayCommand(SaveSettingsAsync);
 
@@ -769,6 +784,8 @@ namespace Caupo.ViewModels
 
             DeletePoreskaStopaCommand = new AsyncRelayCommand(async () => await DeletePoreskaStopa(SelectedPoreskaStopa));
 
+            TestCroatiaFiscalizationCommand = new AsyncRelayCommand(TestCroatiaFiscalizationAsync);
+
 
             foreach (var monitor in GetAllMonitors())
                 Monitors.Add(monitor);
@@ -781,6 +798,183 @@ namespace Caupo.ViewModels
 
             _ = LoadPoreskeStopeAsync();
         }
+
+        #endregion
+
+
+        #region Hrvatska test
+
+        #region Hrvatska test
+
+        private async Task TestCroatiaFiscalizationAsync()
+        {
+            CroatiaConnectionStatus = "Provjera hrvatske fiskalizacije...";
+
+            string environmentName = VerzijaAplikacije == 0 ? "Demo" : "Produkcijska";
+            string serverUrl = VerzijaAplikacije == 0 ? DemoServerUrl?.Trim() ?? string.Empty : ProductionServerUrl?.Trim() ?? string.Empty;
+
+            Debug.WriteLine("=======================================================");
+            Debug.WriteLine("[HRVATSKA] TEST FISKALIZACIJE - MAES.Fiskal");
+            Debug.WriteLine($"[HRVATSKA] Okruženje: {environmentName}");
+            Debug.WriteLine($"[HRVATSKA] URL: {serverUrl}");
+            Debug.WriteLine("=======================================================");
+
+            if (string.IsNullOrWhiteSpace(serverUrl))
+            {
+                CroatiaConnectionStatus = $"{environmentName} Server URL nije unesen.";
+                return;
+            }
+
+            if (!Uri.TryCreate(serverUrl, UriKind.Absolute, out Uri? serverUri) || serverUri.Scheme != Uri.UriSchemeHttps)
+            {
+                CroatiaConnectionStatus = $"{environmentName} Server URL nije ispravan.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(CertificateName))
+            {
+                CroatiaConnectionStatus = "Certifikat nije odabran.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(CertificatePassword))
+            {
+                CroatiaConnectionStatus = "Zaporka certifikata nije unesena.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(JIB))
+            {
+                CroatiaConnectionStatus = "OIB firme nije unesen.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(PoslovniProstor))
+            {
+                CroatiaConnectionStatus = "Oznaka poslovnog prostora nije unesena.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(NaplatniUredjaj))
+            {
+                CroatiaConnectionStatus = "Oznaka naplatnog uređaja nije unesena.";
+                return;
+            }
+
+            string certificatePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Certificates", CertificateName);
+
+            if (!File.Exists(certificatePath))
+            {
+                CroatiaConnectionStatus = $"Certifikat nije pronađen: {certificatePath}";
+                return;
+            }
+
+            try
+            {
+                using var certificate = new X509Certificate2(certificatePath, CertificatePassword, X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.Exportable);
+
+                Debug.WriteLine($"[HRVATSKA] Certifikat: {certificate.Subject}");
+                Debug.WriteLine($"[HRVATSKA] Issuer: {certificate.Issuer}");
+                Debug.WriteLine($"[HRVATSKA] Thumbprint: {certificate.Thumbprint}");
+                Debug.WriteLine($"[HRVATSKA] HasPrivateKey: {certificate.HasPrivateKey}");
+                Debug.WriteLine($"[HRVATSKA] Valid from: {certificate.NotBefore}");
+                Debug.WriteLine($"[HRVATSKA] Valid to: {certificate.NotAfter}");
+
+                if (!certificate.HasPrivateKey)
+                {
+                    CroatiaConnectionStatus = "Certifikat nema privatni ključ.";
+                    return;
+                }
+
+                if (DateTime.Now < certificate.NotBefore)
+                {
+                    CroatiaConnectionStatus = $"Certifikat još nije važeći. Vrijedi od {certificate.NotBefore:dd.MM.yyyy HH:mm}.";
+                    return;
+                }
+
+                if (DateTime.Now > certificate.NotAfter)
+                {
+                    CroatiaConnectionStatus = $"Certifikat je istekao {certificate.NotAfter:dd.MM.yyyy HH:mm}.";
+                    return;
+                }
+
+                Debug.WriteLine("[HRVATSKA] Testiram MAES ZKI...");
+
+                DateTime testDateTime = DateTime.Now;
+
+                var testInvoice = new RacunType
+                {
+                    BrRac = new BrojRacunaType
+                    {
+                        BrOznRac = "1",
+                        OznPosPr = PoslovniProstor.Trim(),
+                        OznNapUr = NaplatniUredjaj.Trim()
+                    },
+                    DatVrijeme = testDateTime.ToString("dd.MM.yyyyTHH:mm:ss"),
+                    IznosUkupno = "1.00",
+                    NakDost = false,
+                    Oib = JIB.Trim(),
+                    OibOper = JIB.Trim(),
+                    OznSlijed = OznakaSlijednostiType.N,
+                    USustPdv = PDVKorisnik == 1,
+                    NacinPlac = NacinPlacanjaType.G
+                };
+
+                string testZki = testInvoice.ZKI(certificate);
+
+                if (string.IsNullOrWhiteSpace(testZki))
+                {
+                    CroatiaConnectionStatus = "MAES.Fiskal nije uspio generirati ZKI.";
+                    return;
+                }
+
+                Debug.WriteLine($"[HRVATSKA] MAES ZKI uspješan: {testZki}");
+                Debug.WriteLine("[HRVATSKA] Testiram HTTPS/TLS vezu prema fiskalnom serveru...");
+
+                using var handler = new HttpClientHandler();
+                handler.ClientCertificates.Add(certificate);
+
+                if (VerzijaAplikacije == 0)
+                    handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+
+                using var client = new HttpClient(handler);
+                client.Timeout = TimeSpan.FromSeconds(15);
+
+                using HttpResponseMessage response = await client.GetAsync(serverUrl);
+
+                Debug.WriteLine($"[HRVATSKA] HTTP odgovor: {(int)response.StatusCode} {response.StatusCode}");
+
+                CroatiaConnectionStatus =
+                        $"Hrvatska fiskalizacija — test uspješan.\n" +
+                        $"Okruženje: {environmentName}\n" +
+                        $"Server: dostupan\n" +
+                        $"TLS veza: uspješna\n" +
+                        $"MAES ZKI: uspješno generiran\n" +
+                        $"Certifikat: ispravan, vrijedi do {certificate.NotAfter:dd.MM.yyyy}.";
+            }
+            catch (System.Security.Cryptography.CryptographicException ex)
+            {
+                Debug.WriteLine($"[HRVATSKA] Certifikat error: {ex}");
+                CroatiaConnectionStatus = "Certifikat nije moguće otvoriti.\nProvjerite certifikat i zaporku.";
+            }
+            catch (HttpRequestException ex)
+            {
+                Debug.WriteLine($"[HRVATSKA] HTTP/TLS error: {ex}");
+                CroatiaConnectionStatus = $"Veza prema hrvatskom fiskalnom serveru nije uspjela:\n{ex.Message}";
+            }
+            catch (TaskCanceledException ex)
+            {
+                Debug.WriteLine($"[HRVATSKA] Timeout: {ex}");
+                CroatiaConnectionStatus = "Isteklo je vrijeme čekanja na hrvatski fiskalni server.";
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[HRVATSKA] Test error: {ex}");
+                CroatiaConnectionStatus = $"Test hrvatske fiskalizacije nije uspio:\n{ex.Message}";
+            }
+        }
+
+        #endregion
 
         #endregion
 

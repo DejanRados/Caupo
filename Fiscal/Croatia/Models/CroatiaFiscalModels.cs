@@ -1,4 +1,4 @@
-using Caupo.Cis;
+using MAES.Fiskal;
 
 namespace Caupo.Fiscal.Croatia.Models
 {
@@ -12,31 +12,20 @@ namespace Caupo.Fiscal.Croatia.Models
 
     public sealed class CroatiaBuiltInvoice
     {
-        public RacunType Invoice { get; init; } =
-            new RacunType();
-
+        public RacunType Invoice { get; init; } = new RacunType();
         public int LocalReceiptNumber { get; init; }
-
-        public string ReceiptNumberHr { get; init; } =
-            string.Empty;
-
+        public string ReceiptNumberHr { get; init; } = string.Empty;
         public DateTime IssueDateTime { get; init; }
-
-        public IReadOnlyList<CroatiaTaxSummary> Taxes { get; init; } =
-            Array.Empty<CroatiaTaxSummary>();
-
+        public IReadOnlyList<CroatiaTaxSummary> Taxes { get; init; } = Array.Empty<CroatiaTaxSummary>();
         public decimal TotalAmount { get; init; }
     }
 
     public sealed class CroatiaFiscalizationResponse
     {
         public bool Fiscalized { get; init; }
-
         public string? Jir { get; init; }
         public string? Zki { get; init; }
-
         public string? ErrorMessage { get; init; }
-
         public RacunOdgovor? CisResponse { get; init; }
     }
 }

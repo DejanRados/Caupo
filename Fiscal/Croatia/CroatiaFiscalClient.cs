@@ -1,92 +1,65 @@
-using Caupo.Cis;
 using Caupo.Fiscal.Common;
 using Caupo.Fiscal.Croatia.Models;
+using MAES.Fiskal;
+using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
+using System.ServiceModel.Security;
 
 namespace Caupo.Fiscal.Croatia
 {
-    /// <summary>
-    /// Tanki Caupo adapter prema postojećem Caupo.Cis sloju.
-    /// Ne implementira SOAP/XML potpisivanje ponovo.
-    /// </summary>
     public sealed class CroatiaFiscalClient
     {
         private readonly CroatiaFiscalSettings _settings;
 
-        public CroatiaFiscalClient(
-            CroatiaFiscalSettings settings)
+        public CroatiaFiscalClient(CroatiaFiscalSettings settings)
         {
             _settings = settings;
         }
 
-        public async Task<CroatiaFiscalizationResponse>
-            FiscalizeAsync(
-                CroatiaBuiltInvoice builtInvoice,
-                CancellationToken cancellationToken = default)
+        public async Task<CroatiaFiscalizationResponse> FiscalizeAsync(CroatiaBuiltInvoice builtInvoice, CancellationToken cancellationToken = default)
         {
-            if(builtInvoice == null)
-                throw new ArgumentNullException(
-                    nameof(builtInvoice));
+            if (builtInvoice == null)
+                throw new ArgumentNullException(nameof(builtInvoice));
 
             _settings.Validate();
 
-            using var certificate =
-                new X509Certificate2(
-                    _settings.GetCertificatePath(),
-                    _settings.CertificatePassword,
-                    X509KeyStorageFlags.MachineKeySet |
-                    X509KeyStorageFlags.Exportable);
+            using var certificate = new X509Certificate2(_settings.GetCertificatePath(), _settings.CertificatePassword, X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.Exportable);
 
-            if(!certificate.HasPrivateKey)
-            {
-                throw new FiscalException(
-                    "Hrvatski fiskalni certifikat nema privatni ključ.");
-            }
+            if (!certificate.HasPrivateKey)
+                throw new FiscalException("Hrvatski fiskalni certifikat nema privatni ključ.");
 
-            Fiscalization.GenerateZki(
-                builtInvoice.Invoice,
-                certificate);
-
-            string? zki =
-                builtInvoice.Invoice.ZastKod;
+            string zki = builtInvoice.Invoice.ZKI(certificate);
+            builtInvoice.Invoice.ZastKod = zki;
 
             try
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                RacunOdgovor response =
-                    await Fiscalization.SendInvoiceAsync(
-                        builtInvoice.Invoice,
-                        certificate,
-                        service =>
-                        {
-                            service.Url =
-                                _settings.ServiceUrl;
-                        });
+                ReferenceTypeExtensions.SslCertificateAuthentification = new()
+                {
+                    CertificateValidationMode = X509CertificateValidationMode.ChainTrust,
+                    RevocationMode = X509RevocationMode.Online
+                };
+
+                Debug.WriteLine("[HRVATSKA] MAES koristi ChainTrust + Online revocation provjeru.");
+
+                RacunOdgovor response = await builtInvoice.Invoice.SendAsync(certificate, _settings.ServiceUrl);
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if(response == null)
+                if (response == null)
                 {
                     return new CroatiaFiscalizationResponse
                     {
                         Fiscalized = false,
                         Zki = zki,
-                        ErrorMessage =
-                            "CIS nije vratio odgovor."
+                        ErrorMessage = "CIS nije vratio odgovor."
                     };
                 }
 
-                if(response.Greske != null &&
-                   response.Greske.Length > 0)
+                if (response.Greske != null && response.Greske.Length > 0)
                 {
-                    string error =
-                        string.Join(
-                            Environment.NewLine,
-                            response.Greske.Select(
-                                x =>
-                                    $"({x.SifraGreske}) " +
-                                    $"{x.PorukaGreske}"));
+                    string error = string.Join(Environment.NewLine, response.Greske.Select(x => $"({x.SifraGreske}) {x.PorukaGreske}"));
 
                     return new CroatiaFiscalizationResponse
                     {
@@ -98,15 +71,13 @@ namespace Caupo.Fiscal.Croatia
                     };
                 }
 
-                if(string.IsNullOrWhiteSpace(
-                    response.Jir))
+                if (string.IsNullOrWhiteSpace(response.Jir))
                 {
                     return new CroatiaFiscalizationResponse
                     {
                         Fiscalized = false,
                         Zki = zki,
-                        ErrorMessage =
-                            "CIS odgovor ne sadrži JIR.",
+                        ErrorMessage = "CIS odgovor ne sadrži JIR.",
                         CisResponse = response
                     };
                 }
@@ -119,14 +90,17 @@ namespace Caupo.Fiscal.Croatia
                     CisResponse = response
                 };
             }
-            catch(OperationCanceledException)
+            catch (OperationCanceledException)
             {
                 throw;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                // Za Hrvatsku je važno sačuvati račun i kada
-                // fiskalizacija trenutno nije moguća.
+                Debug.WriteLine("=======================================================");
+                Debug.WriteLine("[HRVATSKA] MAES FISKALIZACIJA ERROR");
+                Debug.WriteLine(ex.ToString());
+                Debug.WriteLine("=======================================================");
+
                 return new CroatiaFiscalizationResponse
                 {
                     Fiscalized = false,
