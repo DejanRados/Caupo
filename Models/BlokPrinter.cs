@@ -1,410 +1,474 @@
 ﻿using Caupo.Data;
-using Caupo.Fiscal;
 using Caupo.Properties;
-
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.IO;
-using System.Text.Json;
 using static Caupo.Data.DatabaseTables;
 using static Caupo.ViewModels.KitchenDisplayViewModel;
 
-
-
 namespace Caupo.Models
 {
-
     public class BlokPrinter
     {
-        private List<RacunStavka> _stavke;
-        private string? _konobar = Globals.ulogovaniKorisnik.Radnik;
-        private int _paperWidthMm;
+        private readonly List<RacunStavka> _stavke;
+        private readonly string? _konobar = Globals.ulogovaniKorisnik.Radnik;
         private int _brojBloka;
-        private string _firma = Settings.Default.Firma;
-        private string _adresa = Settings.Default.Adresa;
-        private string _grad = Settings.Default.Mjesto;
-        private string logoPath = Settings.Default.LogoUrl;
-        private string printerSank = Settings.Default.SankPrinter;
-        private string printerKuhinja = Settings.Default.KuhinjaPrinter;
+        private readonly string _firma = Settings.Default.Firma;
+        private readonly string _adresa = Settings.Default.Adresa;
+        private readonly string _grad = Settings.Default.Mjesto;
+        private readonly string _logoPath = Settings.Default.LogoUrl;
+        private readonly string _printerSank = Settings.Default.SankPrinter;
+        private readonly string _printerKuhinja = Settings.Default.KuhinjaPrinter;
         private Image? _logo;
-        private string _vrstaBloka;
-        private string _sto;
-        private string _imestola;
-
+        private readonly string _vrstaBloka;
+        private readonly string _sto;
+        private readonly string _imestola;
 
         public BlokPrinter(List<RacunStavka> stavke, string vrstaBloka, string sto, string imestola)
         {
             _stavke = stavke;
-            _paperWidthMm = Convert.ToInt32 (Settings.Default.SirinaTrake);
             _vrstaBloka = vrstaBloka;
             _sto = sto;
             _imestola = imestola;
 
+            LoadLogo();
+        }
 
-            if(!string.IsNullOrEmpty (logoPath) && File.Exists (logoPath))
+        private void LoadLogo()
+        {
+            try
             {
-                _logo = Image.FromFile (logoPath);
+                if (string.IsNullOrWhiteSpace(_logoPath) || !File.Exists(_logoPath))
+                    return;
+
+                using var source = Image.FromFile(_logoPath);
+                _logo = new Bitmap(source);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[BLOK] Logo nije moguće učitati: {ex.Message}");
+                _logo = null;
             }
         }
 
-
-        public async Task InsertKuhinja()
+        public async Task<int> InsertKuhinja()
         {
-            using(var db = new AppDbContext ())
+            await using var db = new AppDbContext();
+
+            var novaKuhinja = new TblKuhinja
             {
-                var novaKuhinja = new TblKuhinja
+                Sto = _sto,
+                Datum = DateTime.Now,
+                Radnik = Globals.ulogovaniKorisnik.Radnik,
+                NazivStola = _imestola
+            };
+
+            db.Kuhinja.Add(novaKuhinja);
+            await db.SaveChangesAsync();
+
+            foreach (var item in _stavke)
+            {
+                var kuhinjaStavka = new TblKuhinjaStavke
                 {
-                    Sto = _sto,
-                    Datum = DateTime.Now,
-                    Radnik = Globals.ulogovaniKorisnik.Radnik,
-                    NazivStola = _imestola
+                    Artikl = item.Name,
+                    Sifra = item.Sifra,
+                    Note = item.Note,
+                    Kolicina = item.Quantity ?? 0m,
+                    Cijena = item.UnitPrice ?? 0m,
+                    Zavrseno = "NE",
+                    IdKuhinje = novaKuhinja.IdKuhinje
                 };
-                db.Kuhinja.Add (novaKuhinja);
 
-                foreach(var item in _stavke)
-                {
-                    var kuhinjaStavke = new TblKuhinjaStavke
-                    {
-                        Artikl = item.Name,
-                        Sifra = item.Sifra,
-                        Note = item.Note,
-                        Kolicina = Convert.ToDecimal (item.Quantity),
-                        Cijena = Convert.ToDecimal (item.UnitPrice),
-                        Zavrseno = "NE",
-                        IdKuhinje = await BrojBlokaKuhinjaAsync () + 1
-                    };
-                    db.KuhinjaStavke.Add (kuhinjaStavke);
-                }
-                await db.SaveChangesAsync ();
+                db.KuhinjaStavke.Add(kuhinjaStavka);
             }
 
+            await db.SaveChangesAsync();
+
+            return novaKuhinja.IdKuhinje;
         }
 
-        public async Task InsertSank(int brojbloka)
+        public async Task InsertSank(int brojBloka)
         {
-            using(var db = new AppDbContext ())
+            await using var db = new AppDbContext();
+
+            var noviSank = new TblBrojBlokaSank
             {
-                var noviSank = new TblBrojBlokaSank
-                {
-                    BrojBloka = brojbloka
-                };
-                db.BrojBloka.Add (noviSank);
+                BrojBloka = brojBloka
+            };
 
-
-                await db.SaveChangesAsync ();
-            }
-
-        }
-
-        public async Task<int> BrojBlokaKuhinjaAsync()
-        {
-            using(var db = new AppDbContext ())
-            {
-
-                var lastIdKuhinje = await db.Kuhinja
-                                                  .OrderByDescending (k => k.IdKuhinje)
-                                                  .Select (k => k.IdKuhinje)
-                                                  .FirstOrDefaultAsync ();
-
-                return lastIdKuhinje;
-            }
+            db.BrojBloka.Add(noviSank);
+            await db.SaveChangesAsync();
         }
 
         public async Task<int> BrojBlokaSankAsync()
         {
-            using(var db = new AppDbContext ())
-            {
+            await using var db = new AppDbContext();
 
-                var lastIdSanka = await db.BrojBloka
-                                                  .OrderByDescending (k => k.BrojBloka)
-                                                  .Select (k => k.BrojBloka)
-                                                  .FirstOrDefaultAsync ();
-
-                return lastIdSanka;
-            }
+            return await db.BrojBloka
+                .OrderByDescending(k => k.BrojBloka)
+                .Select(k => k.BrojBloka)
+                .FirstOrDefaultAsync();
         }
 
         public async Task Print()
         {
-            await Task.Delay (1); // samo da ne blokira UI thread
-
             try
             {
-                // odredi printer na osnovu vrste bloka
-                string? printer = _vrstaBloka == "Kuhinja" ? printerKuhinja : printerSank;
+                string? printer = _vrstaBloka == "Kuhinja" ? _printerKuhinja : _printerSank;
 
-                // provjeri da li je printer definisan
-                if(string.IsNullOrWhiteSpace (printer))
+                // =====================================================
+                // KUHINJA
+                // Baza i Kitchen Display rade NEZAVISNO od printera.
+                // =====================================================
+                if (_vrstaBloka == "Kuhinja")
                 {
-                    return; // prekini štampu
-                }
+                    _brojBloka = await InsertKuhinja();
 
-                if(!PrinterSettings.InstalledPrinters.Cast<string> ()
-                        .Any (p => p.Equals (printer, StringComparison.OrdinalIgnoreCase)))
-                {
-                    return;
-                }
-
-                if(_vrstaBloka == "Kuhinja")
-                {
-                    _brojBloka = await BrojBlokaKuhinjaAsync () + 1;
-                    await InsertKuhinja ();
-
-                    var newOrder = new DisplayOrder ();
-                    newOrder.Number = BrojBlokaKuhinjaAsync ().Result;
-                    newOrder.Waiter = _konobar;
-                    newOrder.TableName = _imestola;
-                    newOrder.OrderTime = DateTime.Now;   // <--- ovo je ključno
-                    newOrder.Elapsed = TimeSpan.Zero;
-
-                    await System.Windows.Application.Current.Dispatcher.BeginInvoke (new Action (() =>
+                    var newOrder = new DisplayOrder
                     {
-                        var orderItems = new ObservableCollection<OrderItem> (
-                            _stavke.Select (s => new OrderItem
+                        Number = _brojBloka,
+                        Waiter = _konobar,
+                        TableName = _imestola,
+                        OrderTime = DateTime.Now,
+                        Elapsed = TimeSpan.Zero,
+                        Items = new ObservableCollection<OrderItem>(
+                            _stavke.Select(s => new OrderItem
                             {
                                 Name = s.Name,
                                 Note = s.Note,
                                 Quantity = s.Quantity
-                            })
-                        );
-                        newOrder.Items = orderItems;
-                        App.GlobalKitchenVM.Orders.Add (newOrder);
+                            }))
+                    };
+
+                    await System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        App.GlobalKitchenVM.Orders.Add(newOrder);
                     }));
 
+                    Debug.WriteLine($"[BLOK] Kuhinja spremljena i poslana na display. Broj bloka={_brojBloka}");
+
+                    if (string.IsNullOrWhiteSpace(printer))
+                    {
+                        Debug.WriteLine("[BLOK] Kuhinjski printer nije definisan. Fizička štampa preskočena.");
+                        return;
+                    }
                 }
                 else
                 {
-                    _brojBloka = await BrojBlokaSankAsync () + 1;
-                    await InsertSank (_brojBloka);
+                    // =====================================================
+                    // ŠANK
+                    // Ako nema printera, nema potrebe kreirati fizički blok.
+                    // =====================================================
+                    if (string.IsNullOrWhiteSpace(printer))
+                    {
+                        Debug.WriteLine("[BLOK] Printer za šank nije definisan. Štampa preskočena.");
+                        return;
+                    }
                 }
 
+                // =====================================================
+                // PROVJERA WINDOWS PRINTERA
+                // =====================================================
+                bool printerPostoji = PrinterSettings.InstalledPrinters.Cast<string>().Any(p => p.Equals(printer, StringComparison.OrdinalIgnoreCase));
 
-                // kreiraj dokument
-                PrintDocument printDoc = new PrintDocument
+                if (!printerPostoji)
                 {
-                    PrinterSettings = { PrinterName = printer }
-                };
+                    Debug.WriteLine($"[BLOK] Printer '{printer}' nije pronađen među instaliranim printerima.");
+                    return;
+                }
 
+                // =====================================================
+                // BROJ BLOKA ZA ŠANK
+                // =====================================================
+                if (_vrstaBloka != "Kuhinja")
+                {
+                    _brojBloka = await BrojBlokaSankAsync() + 1;
+                    await InsertSank(_brojBloka);
+                }
+
+                // =====================================================
+                // PRINT DOCUMENT
+                // Širinu papira određuje Windows printer driver.
+                // =====================================================
+                using var printDoc = new PrintDocument();
+
+                printDoc.PrinterSettings.PrinterName = printer;
+                printDoc.DefaultPageSettings.Margins = new Margins(0, 0, 0, 0);
                 printDoc.PrintPage += OnPrintPage;
 
-                // postavi papir i margine
-                int widthHundredthsInch = (int)(_paperWidthMm / 25.4 * 100);
-                PaperSize ps = new PaperSize ("Custom", widthHundredthsInch - 15, 0);
-                printDoc.DefaultPageSettings.PaperSize = ps;
-                printDoc.DefaultPageSettings.Margins = new Margins (5, 5, 5, 5);
+                DebugPrinterSettings(printDoc);
 
-                int brojKopija = GetBrojKopijaBloka ();
-                Debug.WriteLine ("[Blok handler] brojKopija : " + brojKopija);
-                for(int i = 0; i < brojKopija; i++)
-                {
-                    printDoc.Print ();
-                }
+                int brojKopija = GetBrojKopijaBloka();
 
+                Debug.WriteLine($"[BLOK] Printer='{printer}'");
+                Debug.WriteLine($"[BLOK] Vrsta='{_vrstaBloka}'");
+                Debug.WriteLine($"[BLOK] Broj bloka={_brojBloka}");
+                Debug.WriteLine($"[BLOK] Broj kopija={brojKopija}");
 
+                for (int i = 0; i < brojKopija; i++)
+                    printDoc.Print();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                System.Windows.MessageBox.Show (
+                Debug.WriteLine($"[BLOK] GREŠKA: {ex}");
+
+                System.Windows.MessageBox.Show(
                     $"Greška prilikom štampe: {ex.Message}",
                     "Greška",
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Error);
             }
+            finally
+            {
+                _logo?.Dispose();
+                _logo = null;
+            }
+        }
+
+        private static void DebugPrinterSettings(PrintDocument printDoc)
+        {
+            try
+            {
+                var settings = printDoc.DefaultPageSettings;
+
+                Debug.WriteLine("=======================================================");
+                Debug.WriteLine($"[BLOK PRINT] Printer: {printDoc.PrinterSettings.PrinterName}");
+                Debug.WriteLine($"[BLOK PRINT] Default Paper: {settings.PaperSize.PaperName}");
+                Debug.WriteLine($"[BLOK PRINT] Default Paper Width: {settings.PaperSize.Width}");
+                Debug.WriteLine($"[BLOK PRINT] Default Paper Height: {settings.PaperSize.Height}");
+                Debug.WriteLine($"[BLOK PRINT] PrintableArea: {settings.PrintableArea}");
+                Debug.WriteLine($"[BLOK PRINT] HardMarginX: {settings.HardMarginX}");
+                Debug.WriteLine($"[BLOK PRINT] HardMarginY: {settings.HardMarginY}");
+                Debug.WriteLine("=======================================================");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[BLOK PRINT] Debug printer settings greška: {ex.Message}");
+            }
         }
 
         private int GetBrojKopijaBloka()
         {
-            if(!int.TryParse (Properties.Settings.Default.BlokKopija, out int kopije))
-                return 1; // fallback
+            if (!int.TryParse(Settings.Default.BlokKopija, out int kopije))
+                return 1;
 
-            // ograničenje 0–5
-            return Math.Clamp (kopije, 0, 5);
+            return Math.Clamp(kopije, 0, 5);
         }
-        private string Ok(string msg)
-        {
-            return JsonSerializer.Serialize (new
-            {
-                Status = "OK",
-                Data = new
-                {
-                    success = true,
-                    message = msg
-                }
-            });
-        }
+
         private void OnPrintPage(object sender, PrintPageEventArgs e)
         {
+            Graphics? g = e.Graphics;
 
-            if(e.Graphics != null)
+            if (g == null)
+                return;
+
+            using var font = new Font("Consolas", 9f, FontStyle.Regular);
+            using var bold = new Font("Consolas", 10f, FontStyle.Bold);
+
+            // =====================================================
+            // GEOMETRIJA IZ PRINTER DRIVERA
+            // Isto kao na fiskalnom računu.
+            // =====================================================
+            g.TranslateTransform(-e.PageSettings.HardMarginX, -e.PageSettings.HardMarginY);
+
+            float hardLeft = e.PageSettings.PrintableArea.Left;
+            float hardRight = e.PageBounds.Width - e.PageSettings.PrintableArea.Right;
+
+            int sideMargin = (int)Math.Ceiling(Math.Max(hardLeft, hardRight)) + 4;
+            int left = sideMargin;
+            int width = Math.Max(100, e.PageBounds.Width - sideMargin * 2);
+            int right = left + width;
+            int y = (int)Math.Ceiling(e.PageSettings.PrintableArea.Top) + 4;
+
+            int lineHeight = (int)Math.Ceiling(font.GetHeight(g)) + 2;
+
+            Debug.WriteLine("=======================================================");
+            Debug.WriteLine($"[BLOK PRINT PAGE] PageBounds: {e.PageBounds}");
+            Debug.WriteLine($"[BLOK PRINT PAGE] MarginBounds: {e.MarginBounds}");
+            Debug.WriteLine($"[BLOK PRINT PAGE] PrintableArea: {e.PageSettings.PrintableArea}");
+            Debug.WriteLine($"[BLOK PRINT PAGE] HardMarginX: {e.PageSettings.HardMarginX}");
+            Debug.WriteLine($"[BLOK PRINT PAGE] HardMarginY: {e.PageSettings.HardMarginY}");
+            Debug.WriteLine($"[BLOK PRINT LAYOUT] Left={left}");
+            Debug.WriteLine($"[BLOK PRINT LAYOUT] Width={width}");
+            Debug.WriteLine($"[BLOK PRINT LAYOUT] Right={right}");
+            Debug.WriteLine($"[BLOK PRINT LAYOUT] Y={y}");
+            Debug.WriteLine("=======================================================");
+
+            // =====================================================
+            // LOGO
+            // =====================================================
+            if (_logo != null)
             {
-                Graphics g = e.Graphics;
+                int maxLogoHeight = 60;
+                float scale = Math.Min(1f, (float)maxLogoHeight / _logo.Height);
 
-                Font font = new Font ("Consolas", 9);
-                Font bold = new Font ("Consolas", 10, FontStyle.Bold);
-                int y = 0;
-                int lineHeight = (int)font.GetHeight (g) + 2;
-                int pageWidth = e.MarginBounds.Width;
+                int scaledWidth = Math.Max(1, (int)(_logo.Width * scale));
+                int scaledHeight = Math.Max(1, (int)(_logo.Height * scale));
 
-                // LOGO
-                if(_logo != null)
+                if (scaledWidth > width)
                 {
-                    int maxLogoHeight = 60;
+                    scale = (float)width / _logo.Width;
+                    scaledWidth = Math.Max(1, (int)(_logo.Width * scale));
+                    scaledHeight = Math.Max(1, (int)(_logo.Height * scale));
+                }
 
-                    // Izvorišna veličina slike
-                    int originalWidth = _logo.Width;
-                    int originalHeight = _logo.Height;
+                int logoX = left + (width - scaledWidth) / 2;
 
-                    // Skaliraj sliku proporcionalno na max visinu
-                    float scale = (float)maxLogoHeight / originalHeight;
-                    int scaledWidth = (int)(originalWidth * scale);
-                    int scaledHeight = (int)(originalHeight * scale);
-
-                    // Centriraj sliku po širini papira
-                    int x = (pageWidth - scaledWidth) / 2;
-
-                    System.Windows.Application.Current.Dispatcher.Invoke (() =>
-                    {
-
-                        try
-                        {
-                            g.DrawImage (_logo, new Rectangle (x, y, scaledWidth, scaledHeight));
-                        }
-                        catch(Exception ex)
-                        {
-                            Debug.WriteLine ($"Exception type: {ex.GetType ()}");
-                            Debug.WriteLine ($"Message: {ex.Message}");
-                            Debug.WriteLine ($"_logo: {_logo}");
-                            Debug.WriteLine ($"Dimensions: {scaledWidth}x{scaledHeight}");
-                            throw;
-                        }
-
-                    });
+                try
+                {
+                    g.DrawImage(_logo, new Rectangle(logoX, y, scaledWidth, scaledHeight));
                     y += scaledHeight + 5;
                 }
-
-                // Zaglavlje
-                // g.DrawString(_firma, bold, Brushes.Black, 0, y); y += lineHeight;
-                // g.DrawString(_adresa, font, Brushes.Black, 0, y); y += lineHeight;
-                // g.DrawString(_grad, font, Brushes.Black, 0, y); y += lineHeight;
-                // g.DrawString($"Blok: {_brojBloka}", font, Brushes.Black, 0, y); y += lineHeight;
-                // g.DrawString($"Datum: {DateTime.Now:dd.MM.yyyy HH:mm}", font, Brushes.Black, 0, y); y += lineHeight;
-                // g.DrawString($"Konobar: {_konobar}", font, Brushes.Black, 0, y); y += lineHeight + 5;
-
-
-                string[] headerLines = new[]
-                        {
-                        _firma,
-                        _adresa,
-                        _grad,
-                        $"Blok: {_brojBloka}",
-                        $"Datum: {DateTime.Now:dd.MM.yyyy HH:mm}",
-                        $"Konobar: {_konobar}"
-                    };
-
-                foreach(var line in headerLines)
+                catch (Exception ex)
                 {
-                    // Koristi bold za naziv firme, ostalo obični font
-                    var currentFont = line == _firma ? bold : font;
-
-                    // Izračunavanje širine teksta i centriranje
-                    var textSize = g.MeasureString (line, currentFont);
-                    float x = (pageWidth - textSize.Width) / 2;
-
-                    g.DrawString (line, currentFont, Brushes.Black, x, y);
-                    y += lineHeight;
+                    Debug.WriteLine($"[BLOK PRINT] Logo greška: {ex.Message}");
                 }
+            }
 
-                y += 5;
+            // =====================================================
+            // HEADER
+            // =====================================================
+            DrawCentered(g, _firma, bold, left, width, ref y, lineHeight);
+            DrawCentered(g, _adresa, font, left, width, ref y, lineHeight);
+            DrawCentered(g, _grad, font, left, width, ref y, lineHeight);
+            DrawCentered(g, $"Blok: {_brojBloka}", font, left, width, ref y, lineHeight);
+            DrawCentered(g, $"Datum: {DateTime.Now:dd.MM.yyyy HH:mm}", font, left, width, ref y, lineHeight);
+            DrawCentered(g, $"Konobar: {_konobar}", font, left, width, ref y, lineHeight);
 
-                g.DrawLine (Pens.Black, 0, y, pageWidth, y);
-                y += 3;
+            y += 5;
 
-                // Kolone
-                int col1 = 0;
-                int col2 = pageWidth - 120;
-                int col3 = pageWidth - 60;
-                int widthCol2 = 60;
-                int widthCol3 = 60;
+            DrawLine(g, left, width, ref y);
 
-                g.DrawString ("Artikal", bold, Brushes.Black, col1, y);
+            // =====================================================
+            // KOLONE
+            // =====================================================
+            int colArtikl = left;
+            int colKolicinaRight = left + (int)(width * 0.28f);
+            int colCijenaCenter = left + (int)(width * 0.68f);
+            int colIznosRight = right;
 
-                // Centrirani naslovi kolona
-                string col2Title = "Cij.";
-                string col3Title = "Iznos";
-                string col1Title = "Kol.";
+            g.DrawString("Artikal", bold, Brushes.Black, colArtikl, y);
+            y += lineHeight;
 
-                SizeF sizeCol1Title = g.MeasureString (col1Title, bold);
-                SizeF sizeCol2Title = g.MeasureString (col2Title, bold);
-                SizeF sizeCol3Title = g.MeasureString (col3Title, bold);
+            DrawRightAligned(g, "Kol.", bold, colKolicinaRight, y);
+            DrawCenteredAt(g, "Cij.", bold, colCijenaCenter, y);
+            DrawRightAligned(g, "Iznos", bold, colIznosRight, y);
 
-                g.DrawString (col1Title, bold, Brushes.Black, col1 + 60 - sizeCol1Title.Width, y + lineHeight);
-                g.DrawString (col2Title, bold, Brushes.Black, col2 + widthCol2 / 2 - sizeCol2Title.Width / 2, y + lineHeight);
-                g.DrawString (col3Title, bold, Brushes.Black, col3 + widthCol3 / 2 - sizeCol3Title.Width / 2, y + lineHeight);
+            y += lineHeight;
 
-                y += lineHeight * 2;
-                g.DrawLine (Pens.Black, 0, y, pageWidth, y);
-                y += 3;
+            DrawLine(g, left, width, ref y);
 
-                // Stavke
-                foreach(var item in _stavke)
-                {
-                    string naziv = item.Name ?? "";
-                    string kolicina = item.Quantity?.ToString ("0.##") ?? "";
-                    string cijena = item.UnitPrice?.ToString ("0.00") ?? "";
-                    string iznos = item.TotalAmount?.ToString ("0.00") ?? "";
+            // =====================================================
+            // STAVKE
+            // =====================================================
+            foreach (var item in _stavke)
+            {
+                string naziv = item.Name ?? string.Empty;
+                string kolicina = item.Quantity?.ToString("0.##") ?? string.Empty;
+                string cijena = item.UnitPrice?.ToString("0.00") ?? string.Empty;
+                string iznos = item.TotalAmount?.ToString("0.00") ?? string.Empty;
 
-                    g.DrawString (naziv, font, Brushes.Black, col1, y);
-                    y += lineHeight;
+                DrawWrappedText(g, naziv, font, left, width, ref y, lineHeight);
 
-                    // Desno poravnanje vrijednosti
-                    SizeF sizeKolicina = g.MeasureString (kolicina, font);
-                    SizeF sizeCijena = g.MeasureString (cijena, font);
-                    SizeF sizeIznos = g.MeasureString (iznos, font);
+                DrawRightAligned(g, kolicina, font, colKolicinaRight, y);
+                DrawCenteredAt(g, cijena, font, colCijenaCenter, y);
+                DrawRightAligned(g, iznos, font, colIznosRight, y);
 
-                    g.DrawString (kolicina, font, Brushes.Black, col1 + 60 - sizeKolicina.Width, y);
-                    g.DrawString (cijena, font, Brushes.Black, col2 + widthCol2 / 2 - sizeCijena.Width / 2, y);
-                    g.DrawString (iznos, font, Brushes.Black, col3 + widthCol3 / 2 - sizeIznos.Width / 2, y);
-
-                    y += lineHeight;
-
-                    RectangleF rect = new RectangleF (col1, y, pageWidth, 1000); // visina velika da stane više redova
-
-                    // format koji omogućava wrap
-                    StringFormat sf = new StringFormat ();
-                    sf.Alignment = StringAlignment.Near; // lijevo poravnanje
-                    sf.FormatFlags = StringFormatFlags.LineLimit; // ograniči na rectangle
-                    sf.Trimming = StringTrimming.Word; // ne presijecati riječi, nego wrap
-
-                    if(!string.IsNullOrEmpty (item.Note))
-                    {
-                        g.DrawString ("( " + item.Note + ")", font, Brushes.Black, rect, sf);
-
-                        // računa koliko visine tekst zauzima
-                        SizeF textSize = g.MeasureString (item.Note, font, pageWidth);
-                        y += Convert.ToInt32 (textSize.Height) + lineHeight; // pomjeri y ispod teksta
-                    }
-                    g.DrawLine (Pens.Gray, 0, y, pageWidth, y);
-                    y += lineHeight;
-                }
-
-                // Footer
-                y += 5;
-                g.DrawLine (Pens.Black, 0, y, pageWidth, y);
                 y += lineHeight;
 
-                // TOTAL suma
-                decimal total = _stavke.Sum (s => (s.UnitPrice ?? 0) * (s.Quantity ?? 0));
+                if (!string.IsNullOrWhiteSpace(item.Note))
+                {
+                    string note = $"( {item.Note} )";
 
-                string totalStr = $"Ukupno: {total:0.00} KM";
-                SizeF sizeTotal = g.MeasureString (totalStr, bold);
-                g.DrawString (totalStr, bold, Brushes.Black, pageWidth - sizeTotal.Width - 5, y);
+                    using var sf = new StringFormat
+                    {
+                        Alignment = StringAlignment.Near,
+                        FormatFlags = StringFormatFlags.LineLimit,
+                        Trimming = StringTrimming.Word
+                    };
 
+                    SizeF noteSize = g.MeasureString(note, font, width);
+                    var noteRect = new RectangleF(left, y, width, Math.Max(noteSize.Height + 4, lineHeight));
+
+                    g.DrawString(note, font, Brushes.Black, noteRect, sf);
+
+                    y += (int)Math.Ceiling(noteSize.Height) + 3;
+                }
+
+                using var separatorPen = new Pen(Color.Gray);
+                g.DrawLine(separatorPen, left, y, right, y);
+                y += lineHeight;
             }
+
+            // =====================================================
+            // TOTAL
+            // =====================================================
+            y += 5;
+
+            DrawLine(g, left, width, ref y);
+
+            decimal total = _stavke.Sum(s => (s.UnitPrice ?? 0m) * (s.Quantity ?? 0m));
+            string totalStr = $"Ukupno: {total:0.00} KM";
+
+            DrawRightAligned(g, totalStr, bold, right, y);
+
+            y += lineHeight + 5;
+
+            e.HasMorePages = false;
         }
 
-    }
+        private static void DrawCentered(Graphics g, string? text, Font font, int left, int width, ref int y, int lineHeight)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return;
 
+            SizeF size = g.MeasureString(text, font);
+            float x = left + (width - size.Width) / 2f;
+
+            g.DrawString(text, font, Brushes.Black, x, y);
+            y += lineHeight;
+        }
+
+        private static void DrawCenteredAt(Graphics g, string text, Font font, float centerX, float y)
+        {
+            SizeF size = g.MeasureString(text, font);
+            g.DrawString(text, font, Brushes.Black, centerX - size.Width / 2f, y);
+        }
+
+        private static void DrawRightAligned(Graphics g, string text, Font font, float right, float y)
+        {
+            SizeF size = g.MeasureString(text, font);
+            g.DrawString(text, font, Brushes.Black, right - size.Width, y);
+        }
+
+        private static void DrawWrappedText(Graphics g, string text, Font font, int left, int width, ref int y, int lineHeight)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return;
+
+            SizeF size = g.MeasureString(text, font, width);
+
+            using var sf = new StringFormat
+            {
+                Alignment = StringAlignment.Near,
+                FormatFlags = StringFormatFlags.LineLimit,
+                Trimming = StringTrimming.Word
+            };
+
+            var rect = new RectangleF(left, y, width, Math.Max(size.Height + 2, lineHeight));
+
+            g.DrawString(text, font, Brushes.Black, rect, sf);
+
+            y += Math.Max(lineHeight, (int)Math.Ceiling(size.Height));
+        }
+
+        private static void DrawLine(Graphics g, int left, int width, ref int y)
+        {
+            g.DrawLine(Pens.Black, left, y, left + width, y);
+            y += 4;
+        }
+    }
 }

@@ -1,4 +1,5 @@
 using Caupo.Fiscal.Common;
+using Caupo.Fiscal.RepublikaSrpska.Helpers;
 using Caupo.Fiscal.RS.Helpers;
 using Caupo.Fiscal.RS.Models;
 using Caupo.Models;

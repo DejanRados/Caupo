@@ -1,28 +1,22 @@
 using Caupo.Fiscal.Common;
 
-namespace Caupo.Fiscal.RS.Helpers
+namespace Caupo.Fiscal.RepublikaSrpska.Helpers
 {
     public static class RsTaxMapper
     {
-        /// <summary>
-        /// Čuva postojeće mapiranje Caupo -> RS LPFR:
-        /// lokalni ID poreske stope se šalje kao fiskalna labela.
-        /// Ovo je ista vrijednost koju je stari FiskalniRacun.Item
-        /// slao kroz Labels[0].
-        /// </summary>
-        public static string ToFiscalLabel(
-            int? localTaxRateId)
+        public static string ToFiscalLabel(int? localTaxRateId)
         {
-            if(!localTaxRateId.HasValue ||
-               localTaxRateId.Value <= 0)
-            {
-                throw new FiscalException(
-                    "Stavka nema ispravnu poresku stopu " +
-                    "za Republiku Srpsku.");
-            }
+            if (!localTaxRateId.HasValue || localTaxRateId.Value <= 0)
+                throw new FiscalException("Stavka nema ispravnu poresku stopu za Republiku Srpsku.");
 
-            return localTaxRateId.Value.ToString(
-                System.Globalization.CultureInfo.InvariantCulture);
+            return localTaxRateId.Value switch
+            {
+                1 => "\u0410", // А
+                2 => "\u0415", // Е
+                3 => "\u0408", // Ј
+                4 => "\u041A", // К
+                _ => throw new FiscalException($"Nepoznata poreska stopa za Republiku Srpsku: {localTaxRateId.Value}")
+            };
         }
     }
 }

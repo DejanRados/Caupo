@@ -234,33 +234,26 @@ namespace Caupo.Fiscal.Serbia
                 "PAC",
                 _settings.Pac);
 
-            if(!string.IsNullOrWhiteSpace(
-                _settings.AcceptLanguage))
-            {
-                client.DefaultRequestHeaders
-                    .AcceptLanguage
-                    .Add(
-                        new StringWithQualityHeaderValue(
-                            _settings.AcceptLanguage));
-            }
+            string language = string.IsNullOrWhiteSpace(_settings.AcceptLanguage) ? "sr-Cyrl-RS" : _settings.AcceptLanguage.Trim();
+            client.DefaultRequestHeaders.AcceptLanguage.Clear();
+            client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue(language));
 
             return client;
         }
 
         private HttpClient CreateLpfrClient()
         {
-            var client =
-                new HttpClient
-                {
-                    Timeout =
-                        TimeSpan.FromSeconds(30)
-                };
+            var client = new HttpClient
+            {
+                Timeout = TimeSpan.FromSeconds(30)
+            };
 
             client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            client.DefaultRequestHeaders.Accept.Add(
-                new MediaTypeWithQualityHeaderValue(
-                    "application/json"));
+            string language = string.IsNullOrWhiteSpace(_settings.AcceptLanguage) ? "sr-Cyrl-RS" : _settings.AcceptLanguage.Trim();
+            client.DefaultRequestHeaders.AcceptLanguage.Clear();
+            client.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue(language));
 
             return client;
         }

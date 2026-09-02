@@ -188,5 +188,9 @@
     <Setting Name="CashRegisterType" Type="System.String" Scope="User">
       <Value Profile="Main" />
     </Setting>
+
+    <Setting Name="FooterRacuna" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

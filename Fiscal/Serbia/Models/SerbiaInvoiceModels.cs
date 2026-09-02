@@ -110,8 +110,10 @@ namespace Caupo.Fiscal.Serbia.Models
         [JsonPropertyName("verificationUrl")]
         public string? VerificationUrl { get; init; }
 
+    
+
         [JsonPropertyName("verificationQRCode")]
-        public string? VerificationQrCode { get; init; }
+        public string? VerificationQRCode { get; set; }
 
         [JsonExtensionData]
         public Dictionary<string, JsonElement>? AdditionalData { get; init; }

@@ -663,6 +663,20 @@ namespace Caupo.ViewModels
             set => SetProperty(ref _selectedRadnik, value);
         }
 
+        private string _footerRacuna = string.Empty;
+        public string FooterRacuna
+        {
+            get => _footerRacuna;
+            set
+            {
+                if (_footerRacuna == value)
+                    return;
+
+                _footerRacuna = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool isUpdate = false;
 
         #endregion
@@ -1834,6 +1848,7 @@ namespace Caupo.ViewModels
                     Properties.Settings.Default.ServerIP
                     ?? string.Empty;
 
+                FooterRacuna = Properties.Settings.Default.FooterRacuna;
 
                 // =================================================
                 // MONITOR
@@ -2099,7 +2114,7 @@ namespace Caupo.ViewModels
                     (SelectedMonitor?.Index ?? 0)
                     .ToString();
 
-
+                Properties.Settings.Default.FooterRacuna = FooterRacuna;
                 // =================================================
                 // SPREMANJE
                 // =================================================

@@ -718,5 +718,17 @@ namespace Caupo.Properties {
                 this["CashRegisterType"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string FooterRacuna {
+            get {
+                return ((string)(this["FooterRacuna"]));
+            }
+            set {
+                this["FooterRacuna"] = value;
+            }
+        }
     }
 }

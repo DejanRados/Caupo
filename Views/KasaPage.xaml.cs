@@ -355,6 +355,10 @@ namespace Caupo.Views
                     return;
                 }
 
+                // Blokovi za kuhinju i šank printaju se tek nakon
+                // uspješnog spremanja fiskalnog računa u bazu.
+                if (result.SavedToDatabase)
+                    await PrintajBlokoveAsync(viewModel.StavkeRacuna);
                 // Ako je račun fiskalizovan, nikada ga ne ostavljamo
                 // na kasi za ponovno slanje. Isto vrijedi kada regionalni
                 // servis smatra lokalnu obradu uspješnom (npr. naknadna
@@ -415,6 +419,24 @@ namespace Caupo.Views
             }
         }
 
+        private async Task PrintajBlokoveAsync(IEnumerable<RacunStavka> stavke)
+        {
+            var sankStavke = stavke.Where(s => s.Proizvod == 0 && s.Printed != "DA").ToList();
+            var kuhinjaStavke = stavke.Where(s => s.Proizvod == 1 && s.Printed != "DA").ToList();
+
+            if (kuhinjaStavke.Any())
+            {
+                var printer = new BlokPrinter(kuhinjaStavke, "Kuhinja", "Kasa", "Kasa");
+                await printer.Print();
+            }
+
+            if (sankStavke.Any())
+            {
+                var printer = new BlokPrinter(sankStavke, "Sank", "Kasa", "Kasa");
+                await printer.Print();
+            }
+        }
+        
 
         private static string? BuildFiscalWarning(
             FiscalResult result)

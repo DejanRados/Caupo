@@ -27,6 +27,7 @@
     <None Remove="Data\sysFormWPF.db" />
     <None Remove="Images\caupodark.svg" />
     <None Remove="Images\caupolight.svg" />
+    <None Remove="Images\caupologo.png" />
     <None Remove="Images\Dark\analiza.png" />
     <None Remove="Images\Dark\another.svg" />
     <None Remove="Images\Dark\aplikacija.png" />
@@ -270,6 +271,7 @@
     </Resource>
     <Resource Include="Images\caupodark.svg" />
     <Resource Include="Images\caupolight.svg" />
+    <Resource Include="Images\caupologo.png" />
     <Resource Include="Images\Dark\another.svg">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>

@@ -1686,6 +1686,40 @@
 
                         <Separator Margin="9,18"/>
 
+                        <!-- ISPIS RAČUNA -->
+
+                        <TextBlock Text="Ispis fiskalnog računa" Style="{StaticResource SettingsSectionTitle}"/>
+                        <TextBlock Text="Odaberite da li se fiskalni račun štampa na eksternom POS printeru." Style="{StaticResource SettingsSectionDescription}"/>
+
+                        <Border Style="{StaticResource SettingsCard}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="210"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="48"/>
+                                    <RowDefinition Height="48"/>
+                                </Grid.RowDefinitions>
+
+                                <Label Content="Eksterni printer" Style="{StaticResource SettingsLabel}" Grid.Row="0" Grid.Column="0"/>
+
+                                <ComboBox x:Name="cmbSrbijaExterniPrinter" SelectedIndex="{Binding ExterniPrinter, Mode=TwoWay}" Foreground="{DynamicResource GlobalFontColor}" Grid.Row="0" Grid.Column="1" Margin="9" Width="150" Height="32" HorizontalAlignment="Left" VerticalContentAlignment="Center">
+                                    <ComboBoxItem Content="NE"/>
+                                    <ComboBoxItem Content="DA"/>
+                                </ComboBox>
+
+                                <Label Content="Širina trake" Style="{StaticResource SettingsLabel}" Grid.Row="1" Grid.Column="0"/>
+
+                                <ComboBox x:Name="cmbSrbijaSirinaTrake" SelectedValue="{Binding SirinaTrake, Mode=TwoWay}" SelectedValuePath="Content" Foreground="{DynamicResource GlobalFontColor}" Grid.Row="1" Grid.Column="1" Margin="9" Width="150" Height="32" HorizontalAlignment="Left" VerticalContentAlignment="Center">
+                                    <ComboBoxItem Content="57"/>
+                                    <ComboBoxItem Content="80"/>
+                                </ComboBox>
+                            </Grid>
+                        </Border>
+                        
+
 
                         <!-- PROVJERA KOMUNIKACIJE -->
 
@@ -2107,7 +2141,21 @@
                         </Border>
 
                         <Separator Margin="9,18"/>
+                        <TextBlock Text="Footer računa" Style="{StaticResource SettingsSectionTitle}" Margin="9,20,9,4"/>
+                        <TextBlock Text="Tekst koji će se ispisati na dnu fiskalnog računa." Style="{StaticResource SettingsSectionDescription}"/>
 
+                        <Border Style="{StaticResource SettingsCard}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="160"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Label Content="Tekst footera:" Style="{StaticResource SettingsLabel}" VerticalAlignment="Top"/>
+
+                                <TextBox Style="{DynamicResource TextBoxCustom}" Grid.Column="1" Text="{Binding FooterRacuna, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MinHeight="90" MaxHeight="180" Padding="8"/>
+                            </Grid>
+                        </Border>
 
                         <!-- PRINTERI -->
 
