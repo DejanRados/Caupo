@@ -1,5 +1,6 @@
 using Caupo.Fiscal.Common;
 using Caupo.Fiscal.Federation.Models;
+using Caupo.Services;
 using System.Diagnostics;
 
 namespace Caupo.Fiscal.Federation
@@ -109,26 +110,35 @@ namespace Caupo.Fiscal.Federation
 
             try
             {
-                await repository.SaveAsync(
-                    request,
-                    builtInvoice,
-                    fiscalResponse,
-                    cancellationToken);
-
+                await FiscalDatabaseRetry.ExecuteAsync(() => repository.SaveAsync(request, builtInvoice, fiscalResponse, cancellationToken), cancellationToken);
                 saved = true;
+                DatabaseBackupService.StartBackup(Globals.CurrentDbPath);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine(
-                    "[FEDERACIJA/TRING] DB greška poslije fiskalizacije: " +
-                    ex);
+                Debug.WriteLine("[FEDERACIJA/TRING] DB upis nije uspio ni nakon 3 pokušaja: " + ex);
 
-                error =
-                    AppendError(
-                        error,
-                        "Račun je fiskalizovan, ali nije spremljen " +
-                        "u bazu: " +
-                        ex.Message);
+                bool restored = await DatabaseBackupService.RestoreLatestBackupAsync(Globals.CurrentDbPath, cancellationToken);
+
+                if (restored)
+                {
+                    try
+                    {
+                        await repository.SaveAsync(request, builtInvoice, fiscalResponse, cancellationToken);
+                        saved = true;
+                        DatabaseBackupService.StartBackup(Globals.CurrentDbPath);
+                        Debug.WriteLine("[FEDERACIJA/TRING] Baza vraćena iz backupa i račun uspješno lokalno spremljen.");
+                    }
+                    catch (Exception retryEx)
+                    {
+                        Debug.WriteLine("[FEDERACIJA/TRING] DB upis nije uspio ni nakon restorea: " + retryEx);
+                        error = AppendError(error, "Račun je fiskalizovan, baza je vraćena iz backupa, ali račun nije moguće spremiti u lokalnu bazu: " + retryEx.Message);
+                    }
+                }
+                else
+                {
+                    error = AppendError(error, "Račun je fiskalizovan, ali nije spremljen u lokalnu bazu. Automatski restore backupa nije uspio.");
+                }
             }
 
             // VAŽNO:

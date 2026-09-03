@@ -102,6 +102,7 @@ namespace Caupo.Models
 
         public int? PoreskaStopa { get; set; }
 
+        public bool PorezNaPotrosnju { get; set; } = false;
 
         // ============================================================
         // JEDINICA MJERE

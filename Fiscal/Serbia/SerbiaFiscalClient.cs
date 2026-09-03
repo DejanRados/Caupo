@@ -63,82 +63,116 @@ namespace Caupo.Fiscal.Serbia
             return ParseTaxRates(body);
         }
 
-        public async Task<SerbiaInvoiceResponse>
-            IssueInvoiceAsync(
-                SerbiaInvoiceRequest invoice,
-                CancellationToken cancellationToken = default)
+        public async Task<SerbiaInvoiceResponse> IssueInvoiceAsync(SerbiaInvoiceRequest invoice, string requestId, CancellationToken cancellationToken = default)
         {
-            using HttpClient client =
-                await CreateClientAsync(cancellationToken);
+            using HttpClient client = await CreateClientAsync(cancellationToken);
 
-            string invoiceUrl =
-                BuildInvoiceUrl();
+            string invoiceUrl = BuildInvoiceUrl();
+            string json = JsonSerializer.Serialize(invoice, JsonOptions);
 
-            string json =
-                JsonSerializer.Serialize(
-                    invoice,
-                    JsonOptions);
-
-            Debug.WriteLine(
-                "[SRBIJA] Invoice request:");
-
+            Debug.WriteLine("[SRBIJA] Invoice request:");
+            Debug.WriteLine($"[SRBIJA] RequestId: {requestId}");
             Debug.WriteLine(json);
 
-            using var content =
-                new StringContent(
-                    json,
-                    Encoding.UTF8,
-                    "application/json");
+            using var content = new StringContent(json, Encoding.UTF8, "application/json");
+            using var request = new HttpRequestMessage(HttpMethod.Post, invoiceUrl);
 
-            using HttpResponseMessage response =
-                await client.PostAsync(
-                    invoiceUrl,
-                    content,
-                    cancellationToken);
+            request.Headers.Add("RequestId", requestId);
+            request.Content = content;
 
-            string body =
-                await response.Content.ReadAsStringAsync(
-                    cancellationToken);
-
-            Debug.WriteLine(
-                $"[SRBIJA] Invoice HTTP: " +
-                $"{(int)response.StatusCode} {response.StatusCode}");
-
-            Debug.WriteLine(
-                $"[SRBIJA] Invoice response: {body}");
-
-            if(!response.IsSuccessStatusCode)
-            {
-                throw new FiscalException(
-                    $"Srbija fiskalizacija nije uspjela. " +
-                    $"HTTP {(int)response.StatusCode}: {body}");
-            }
-
-            SerbiaInvoiceResponse? result;
+            HttpResponseMessage response;
 
             try
             {
-                result =
-                    JsonSerializer.Deserialize<SerbiaInvoiceResponse>(
-                        body,
-                        JsonOptions);
+                response = await client.SendAsync(request, cancellationToken);
             }
-            catch(JsonException ex)
+            catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
             {
-                throw new FiscalException(
-                    "Srbija PFR je vratio neispravan JSON odgovor.",
+                Debug.WriteLine($"[SRBIJA] POST timeout. Pokrećem recovery za RequestId={requestId}");
+                return await RecoverInvoiceAsync(requestId, cancellationToken);
+            }
+            catch (HttpRequestException ex)
+            {
+                Debug.WriteLine($"[SRBIJA] POST komunikacijska greška: {ex}");
+                return await RecoverInvoiceAsync(requestId, cancellationToken);
+            }
+
+            using (response)
+            {
+                string body;
+
+                try
+                {
+                    body = await response.Content.ReadAsStringAsync(cancellationToken);
+                }
+                catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+                {
+                    Debug.WriteLine($"[SRBIJA] Odgovor nije pročitan. Pokrećem recovery za RequestId={requestId}");
+                    return await RecoverInvoiceAsync(requestId, cancellationToken);
+                }
+                catch (HttpRequestException ex)
+                {
+                    Debug.WriteLine($"[SRBIJA] Greška čitanja odgovora: {ex}");
+                    return await RecoverInvoiceAsync(requestId, cancellationToken);
+                }
+
+                Debug.WriteLine($"[SRBIJA] Invoice HTTP: {(int)response.StatusCode} {response.StatusCode}");
+                Debug.WriteLine($"[SRBIJA] Invoice response: {body}");
+
+                if (!response.IsSuccessStatusCode)
+                    throw new FiscalException($"Srbija fiskalizacija nije uspjela. HTTP {(int)response.StatusCode}: {body}");
+
+                try
+                {
+                    SerbiaInvoiceResponse? result = JsonSerializer.Deserialize<SerbiaInvoiceResponse>(body, JsonOptions);
+
+                    if (result == null)
+                        return await RecoverInvoiceAsync(requestId, cancellationToken);
+
+                    result.RawJson = body;
+                    return result;
+                }
+                catch (JsonException ex)
+                {
+                    Debug.WriteLine($"[SRBIJA] Neispravan JSON nakon uspješnog HTTP odgovora: {ex}");
+                    return await RecoverInvoiceAsync(requestId, cancellationToken);
+                }
+            }
+        }
+
+        private async Task<SerbiaInvoiceResponse> RecoverInvoiceAsync(string requestId, CancellationToken cancellationToken)
+        {
+            try
+            {
+                SerbiaInvoiceResponse? recovered = await GetLastSignedInvoiceAsync(requestId, cancellationToken);
+
+                if (recovered != null)
+                {
+                    Debug.WriteLine($"[SRBIJA] Recovery USPJEŠAN. RequestId={requestId}, InvoiceNumber={recovered.InvoiceNumber}");
+                    return recovered;
+                }
+
+                Debug.WriteLine($"[SRBIJA] Recovery nije pronašao račun. RequestId={requestId}");
+
+                throw new FiscalException("PFR nije pronašao fiskalizovan račun za prethodno poslani zahtjev. Račun nije potvrđen kao fiskalizovan.");
+            }
+            catch (FiscalException)
+            {
+                throw;
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[SRBIJA] Recovery NIJE USPIO. RequestId={requestId}: {ex}");
+
+                throw new FiscalOutcomeUnknownException(
+                    "Zahtjev je poslan PFR-u, ali nije moguće utvrditi da li je račun fiskalizovan. Račun se ne smije ponovo slati dok se njegov status ne provjeri.",
+                    requestId,
                     ex);
             }
-
-            if(result == null)
-            {
-                throw new FiscalException(
-                    "Srbija PFR nije vratio podatke računa.");
-            }
-
-            result.RawJson = body;
-
-            return result;
         }
 
         private async Task<HttpClient> CreateClientAsync(
@@ -520,5 +554,38 @@ namespace Caupo.Fiscal.Serbia
 
             return result;
         }
+
+
+        private async Task<SerbiaInvoiceResponse?> GetLastSignedInvoiceAsync(string requestId, CancellationToken cancellationToken)
+        {
+            using HttpClient client = await CreateClientAsync(cancellationToken);
+
+            string url = BuildInvoiceUrl() + "/" + Uri.EscapeDataString(requestId);
+
+            Debug.WriteLine($"[SRBIJA] Recovery RequestId: {requestId}");
+            Debug.WriteLine($"[SRBIJA] Recovery URL: {url}");
+
+            using HttpResponseMessage response = await client.GetAsync(url, cancellationToken);
+            string body = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            Debug.WriteLine($"[SRBIJA] Recovery HTTP: {(int)response.StatusCode} {response.StatusCode}");
+            Debug.WriteLine($"[SRBIJA] Recovery response: {body}");
+
+            if (!response.IsSuccessStatusCode)
+                throw new HttpRequestException($"Recovery HTTP {(int)response.StatusCode}: {body}");
+
+            if (string.IsNullOrWhiteSpace(body) || string.Equals(body.Trim(), "null", StringComparison.OrdinalIgnoreCase))
+                return null;
+
+            SerbiaInvoiceResponse? result = JsonSerializer.Deserialize<SerbiaInvoiceResponse>(body, JsonOptions);
+
+            if (result == null)
+                return null;
+
+            result.RawJson = body;
+            return result;
+        }
+        
+        
     }
 }

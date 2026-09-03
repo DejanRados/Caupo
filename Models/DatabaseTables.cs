@@ -61,6 +61,8 @@ namespace Caupo.Data
 
             public int? PoreskaStopa { get; set; }
 
+            public bool PorezNaPotrosnju { get; set; } = false;
+
             [NotMapped]
             [JsonIgnore]
             public decimal? PoreskaStopaPostotak
@@ -841,6 +843,10 @@ namespace Caupo.Data
                 }
             }
             public int? PoreskaStopa { get; set; }
+
+
+            public bool PorezNaPotrosnju { get; set; } = false;
+
             [NotMapped]
             [JsonIgnore]
             public decimal? PoreskaStopaPostotak
@@ -898,6 +904,7 @@ namespace Caupo.Data
             public DateTime Datum { get; set; }
             public string? Kupac { get; set; }
             public int NacinPlacanja { get; set; }
+            public decimal? PorezNaPotrosnjuStopa { get; set; }
 
             [NotMapped]
             [JsonIgnore]
@@ -937,6 +944,9 @@ namespace Caupo.Data
             }
             [NotMapped]
             public bool IsReklamiran => Reklamiran == "DA";
+            public string? BrojRefundRacuna { get; set; }
+            public DateTime? DatumRefundRacuna { get; set; }
+
             public string? Fakturisan { get; set; } = "NE";
 
             public string? Jir { get; set; } 

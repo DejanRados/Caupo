@@ -8,6 +8,7 @@ namespace Caupo.Fiscal.Federation
 {
     public sealed class FederationReceiptRepository
     {
+
         public async Task<int> GetNextLocalReceiptNumberAsync(
             CancellationToken cancellationToken = default)
         {

@@ -26,6 +26,7 @@ namespace Caupo.Views
     public partial class KasaPage : UserControl, IKeyboardInputReceiver
     {
         private Stopwatch? _categoryRenderStopwatch;
+        private bool _isFiscalizing = false;
         public KasaPage()
         {
             InitializeComponent ();
@@ -242,7 +243,13 @@ namespace Caupo.Views
             object sender,
             EventArgs e)
         {
-            if(DataContext is not KasaViewModel viewModel)
+            if (_isFiscalizing)
+            {
+                Debug.WriteLine("[FISKALNI] Fiskalizacija je već u toku. Dodatni klik ignorisan.");
+                return;
+            }
+
+            if (DataContext is not KasaViewModel viewModel)
                 return;
 
             RacunIdikator.Visibility =
@@ -252,6 +259,12 @@ namespace Caupo.Views
             {
                 if(viewModel.StavkeRacuna.Count == 0)
                     return;
+
+                _isFiscalizing = true;
+                btnFiskalni.IsEnabled = false;
+                RacunIdikator.Visibility = Visibility.Visible;
+
+
 
                 FiscalPaymentType paymentType =
                     cmbNacinPlacanja.SelectedIndex switch
@@ -342,9 +355,14 @@ namespace Caupo.Views
                     $"Printed={result.Printed}, " +
                     $"FiscalNumber={result.FiscalNumber}");
 
+                if (result.FiscalizationStatus == FiscalizationStatus.Unknown)
+                {
+                    ShowMessage("STATUS RAČUNA NIJE POZNAT", result.ErrorMessage ?? "Nije moguće utvrditi da li je račun fiskalizovan.");
+                    return;
+                }
                 // Ako račun nije uspješno obrađen i fiskalizacija
                 // nije potvrđena, ostavljamo stavke na kasi za novi pokušaj.
-                if(!result.Success &&
+                if (!result.Success &&
                    !result.Fiscalized)
                 {
                     ShowMessage (
@@ -414,8 +432,9 @@ namespace Caupo.Views
             }
             finally
             {
-                RacunIdikator.Visibility =
-                    Visibility.Collapsed;
+                _isFiscalizing = false;
+                btnFiskalni.IsEnabled = true;
+                RacunIdikator.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -728,36 +747,19 @@ namespace Caupo.Views
             }
             else
             {
-                var stavka =
-                    new RacunStavka
-                    {
-                        ArtiklId =
-                            artikl.IdArtikla,
-
-                        Name =
-                            artikl.Artikl,
-
-                        Sifra =
-                            artikl.Sifra,
-
-                        Naziv =
-                            artikl.ArtiklNormativ,
-
-                        UnitPrice =
-                            artikl.Cijena,
-
-                        Proizvod =
-                            artikl.VrstaArtikla,
-
-                        JedinicaMjere =
-                            artikl.JedinicaMjere,
-
-                        Quantity =
-                            kolicina,
-
-                        PoreskaStopa =
-                            artikl.PoreskaStopa
-                    };
+                var stavka = new RacunStavka
+                {
+                    ArtiklId = artikl.IdArtikla,
+                    Name = artikl.Artikl,
+                    Sifra = artikl.Sifra,
+                    Naziv = artikl.ArtiklNormativ,
+                    UnitPrice = artikl.Cijena,
+                    Proizvod = artikl.VrstaArtikla,
+                    JedinicaMjere = artikl.JedinicaMjere,
+                    Quantity = kolicina,
+                    PoreskaStopa = artikl.PoreskaStopa,
+                    PorezNaPotrosnju = artikl.PorezNaPotrosnju
+                };
 
 
                 vm.DodajStavkuRacuna (

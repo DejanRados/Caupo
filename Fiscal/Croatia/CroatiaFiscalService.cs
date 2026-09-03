@@ -1,5 +1,6 @@
 using Caupo.Fiscal.Common;
 using Caupo.Fiscal.Croatia.Models;
+using Caupo.Services;
 using System.Diagnostics;
 
 namespace Caupo.Fiscal.Croatia
@@ -118,28 +119,38 @@ namespace Caupo.Fiscal.Croatia
 
             try
             {
-                await repository.SaveAsync(
-                    request,
-                    builtInvoice,
-                    fiscalization,
-                    cancellationToken);
-
+                await FiscalDatabaseRetry.ExecuteAsync(() => repository.SaveAsync(request, builtInvoice, fiscalization, cancellationToken), cancellationToken);
                 saved = true;
+                DatabaseBackupService.StartBackup(Globals.CurrentDbPath);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine(
-                    "[HR] DB greška poslije fiskalizacije: " +
-                    ex);
+                Debug.WriteLine("[HR] DB upis nije uspio ni nakon 3 pokušaja: " + ex);
 
-                postError =
-                    AppendError(
-                        postError,
-                        "Račun nije spremljen u bazu: " +
-                        ex.Message);
+                bool restored = await DatabaseBackupService.RestoreLatestBackupAsync(Globals.CurrentDbPath, cancellationToken);
+
+                if (restored)
+                {
+                    try
+                    {
+                        await repository.SaveAsync(request, builtInvoice, fiscalization, cancellationToken);
+                        saved = true;
+                        DatabaseBackupService.StartBackup(Globals.CurrentDbPath);
+                        Debug.WriteLine("[HR] Baza vraćena iz backupa i račun uspješno lokalno spremljen.");
+                    }
+                    catch (Exception retryEx)
+                    {
+                        Debug.WriteLine("[HR] DB upis nije uspio ni nakon restorea: " + retryEx);
+                        postError = AppendError(postError, "Račun je fiskalizovan, baza je vraćena iz backupa, ali račun nije moguće spremiti u lokalnu bazu: " + retryEx.Message);
+                    }
+                }
+                else
+                {
+                    postError = AppendError(postError, "Račun je fiskalizovan, ali nije spremljen u lokalnu bazu. Automatski restore backupa nije uspio.");
+                }
             }
 
-            if(saved)
+            if (saved)
             {
                 try
                 {
@@ -180,30 +191,15 @@ namespace Caupo.Fiscal.Croatia
             // Fiscalized posebno govori da li je CIS već dodijelio JIR.
             return new FiscalResult
             {
-                Success = saved,
-                Fiscalized =
-                    fiscalization.Fiscalized,
-
-                SavedToDatabase =
-                    saved,
-
-                Printed =
-                    printed,
-
-                LocalReceiptNumber =
-                    localReceiptNumber,
-
-                ReceiptNumber =
-                    builtInvoice.ReceiptNumberHr,
-
-                FiscalNumber =
-                    fiscalization.Jir,
-
-                FiscalDateTime =
-                    builtInvoice.IssueDateTime,
-
-                ErrorMessage =
-                    postError
+                Success = fiscalization.Fiscalized || saved,
+                Fiscalized = fiscalization.Fiscalized,
+                SavedToDatabase = saved,
+                Printed = printed,
+                LocalReceiptNumber = localReceiptNumber,
+                ReceiptNumber = builtInvoice.ReceiptNumberHr,
+                FiscalNumber = fiscalization.Jir,
+                FiscalDateTime = builtInvoice.IssueDateTime,
+                ErrorMessage = postError
             };
         }
 

@@ -70,6 +70,16 @@ namespace Caupo.Fiscal.Croatia
             }
         }
 
+        public async Task<bool> ReprintAsync(FiscalRequest request, CroatiaBuiltInvoice builtInvoice, CroatiaFiscalizationResponse fiscalization, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            Debug.WriteLine($"[HR REPRINT] Ponovna štampa računa {builtInvoice.ReceiptNumberHr}");
+
+            return await PrintAsync(request, builtInvoice, fiscalization, cancellationToken);
+        }
+
+
         private static async Task<Dictionary<int, decimal?>> LoadTaxRatesAsync(CancellationToken cancellationToken)
         {
             try

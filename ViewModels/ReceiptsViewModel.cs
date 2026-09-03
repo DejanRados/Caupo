@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using Caupo.Fiscal.Croatia;
+using Caupo.Fiscal.Croatia.Helpers;
+using Caupo.Fiscal.Croatia.Models;
 using System.Runtime.CompilerServices;
 using static Caupo.Data.DatabaseTables;
 
@@ -17,19 +20,10 @@ namespace Caupo.ViewModels
         // RAČUNI
         // ============================================================
 
-        public ObservableCollection<TblRacuni> Receipts { get; set; } =
-            new ObservableCollection<TblRacuni> ();
+        public ObservableCollection<TblRacuni> Receipts { get; } = new();
+        public ObservableCollection<TblRacunStavka> ReceiptItems { get; } = new();
 
-        public ObservableCollection<TblRacunStavka> ReceiptItems { get; set; } =
-            new ObservableCollection<TblRacunStavka> ();
-
-
-        // ============================================================
-        // NEUTRALNE STAVKE ZA FISKALIZACIJU
-        // ============================================================
-
-        private ObservableCollection<RacunStavka> _stavkeRacuna =
-            new ObservableCollection<RacunStavka> ();
+        private ObservableCollection<RacunStavka> _stavkeRacuna = new();
 
         public ObservableCollection<RacunStavka> StavkeRacuna
         {
@@ -37,10 +31,9 @@ namespace Caupo.ViewModels
             set
             {
                 _stavkeRacuna = value;
-                OnPropertyChanged (nameof (StavkeRacuna));
+                OnPropertyChanged();
             }
         }
-
 
         // ============================================================
         // ODABRANI RAČUN
@@ -53,21 +46,84 @@ namespace Caupo.ViewModels
             get => _selectedReceipt;
             set
             {
-                if(_selectedReceipt != value)
-                {
-                    _selectedReceipt = value;
-                    OnPropertyChanged (nameof (SelectedReceipt));
-                }
+                if (_selectedReceipt == value)
+                    return;
+
+                _selectedReceipt = value;
+
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CanReprint));
+                OnPropertyChanged(nameof(CanIssueCopy));
+                OnPropertyChanged(nameof(CanRefund));
+                OnPropertyChanged(nameof(CanFiscalizeLater));
             }
         }
 
+        // ============================================================
+        // DOZVOLJENE OPERACIJE
+        // ============================================================
+
+        private string Country => Properties.Settings.Default.Country ?? string.Empty;
+
+        private bool IsCroatia => string.Equals(Country, "Hrvatska", StringComparison.OrdinalIgnoreCase);
+        private bool IsSerbia => string.Equals(Country, "Srbija", StringComparison.OrdinalIgnoreCase);
+        private bool IsRs => string.Equals(Country, "RepublikaSrpska", StringComparison.OrdinalIgnoreCase);
+        private bool IsFederation => string.Equals(Country, "FederacijaBiH", StringComparison.OrdinalIgnoreCase);
+
+        private bool IsFiscalized => string.Equals(SelectedReceipt?.Fiskalizovan, "DA", StringComparison.OrdinalIgnoreCase);
+        private bool IsRefunded => string.Equals(SelectedReceipt?.Reklamiran, "DA", StringComparison.OrdinalIgnoreCase);
+
+        public bool CanReprint
+        {
+            get
+            {
+                if (SelectedReceipt == null || !IsFiscalized)
+                    return false;
+
+                return IsCroatia || IsSerbia || IsRs;
+            }
+        }
+
+        public bool CanIssueCopy
+        {
+            get
+            {
+                if (SelectedReceipt == null || !IsFiscalized)
+                    return false;
+
+                return IsSerbia || IsRs;
+            }
+        }
+
+        public bool CanRefund
+        {
+            get
+            {
+                if (SelectedReceipt == null || !IsFiscalized || IsRefunded)
+                    return false;
+
+                return true;
+            }
+        }
+
+        public bool CanFiscalizeLater
+        {
+            get
+            {
+                if (SelectedReceipt == null)
+                    return false;
+
+                return IsCroatia && !IsFiscalized;
+            }
+        }
+
+       
 
         // ============================================================
         // FILTER
         // ============================================================
 
-        private ObservableCollection<TblRacuni> _receiptsFilter =
-            new ObservableCollection<TblRacuni> ();
+        private ObservableCollection<TblRacuni> _receiptsFilter = new();
 
         public ObservableCollection<TblRacuni> ReceiptsFilter
         {
@@ -75,10 +131,9 @@ namespace Caupo.ViewModels
             set
             {
                 _receiptsFilter = value;
-                OnPropertyChanged (nameof (ReceiptsFilter));
+                OnPropertyChanged();
             }
         }
-
 
         private string? _searchText;
 
@@ -87,20 +142,15 @@ namespace Caupo.ViewModels
             get => _searchText;
             set
             {
-                if(_searchText != value)
-                {
-                    _searchText = value;
+                if (_searchText == value)
+                    return;
 
-                    OnPropertyChanged (nameof (SearchText));
+                _searchText = value;
+                OnPropertyChanged();
 
-                    Debug.WriteLine (
-                        $"SearchText changed to: {_searchText}");
-
-                    FilterItems (_searchText);
-                }
+                FilterItems(_searchText);
             }
         }
-
 
         // ============================================================
         // IZNOS RAČUNA
@@ -113,11 +163,13 @@ namespace Caupo.ViewModels
             get => _iznosRacuna;
             set
             {
+                if (_iznosRacuna == value)
+                    return;
+
                 _iznosRacuna = value;
-                OnPropertyChanged (nameof (IznosRacuna));
+                OnPropertyChanged();
             }
         }
-
 
         // ============================================================
         // CONSTRUCTOR
@@ -125,296 +177,255 @@ namespace Caupo.ViewModels
 
         public ReceiptsViewModel()
         {
-            _ = Start ();
+            _ = Start();
         }
-
 
         private async Task Start()
         {
-            await LoadReceiptsAsync (null);
+            await LoadReceiptsAsync(null);
         }
-
-
-        // ============================================================
-        // UČITAVANJE STAVKI RAČUNA
-        // ============================================================
-
-        public async Task LoadReceiptItems(
-            TblRacuni? selectedRacun)
-        {
-            if(selectedRacun == null)
-            {
-                ReceiptItems.Clear ();
-                StavkeRacuna.Clear ();
-                IznosRacuna = 0m;
-
-                return;
-            }
-
-            try
-            {
-                using var db =
-                    new AppDbContext ();
-
-                IznosRacuna = 0m;
-
-
-                var receiptItemsFromDb =
-                    await db.RacunStavka
-                        .Where (
-                            a =>
-                                a.BrojRacuna ==
-                                selectedRacun.BrojRacuna)
-                        .OrderBy (
-                            a =>
-                                a.IdStavke)
-                        .ToListAsync ();
-
-
-                var tempReceiptItems =
-                    new List<TblRacunStavka> ();
-
-                var tempStavkeRacuna =
-                    new List<RacunStavka> ();
-
-
-                foreach(var ri in receiptItemsFromDb)
-                {
-                    tempReceiptItems.Add (
-                        ri);
-
-                    IznosRacuna +=
-                        ri.Iznos;
-
-
-                    var stavka =
-                        new RacunStavka
-                        {
-                            Name =
-                                ri.ArtiklNormativ,
-
-                            Sifra =
-                                ri.Sifra,
-
-                            BrojRacuna =
-                                ri.BrojRacuna,
-
-                            Naziv =
-                                ri.Artikl,
-
-                            UnitPrice =
-                                ri.Cijena,
-
-                            Proizvod =
-                                ri.VrstaArtikla,
-
-                            JedinicaMjere =
-                                ri.JedinicaMjere,
-
-                            Quantity =
-                                ri.Kolicina,
-
-                            // Neutralni lokalni ID poreske stope.
-                            // Nema više Labels / TaxLabel.
-                            PoreskaStopa =
-                                ri.PoreskaStopa
-                        };
-
-
-                    tempStavkeRacuna.Add (
-                        stavka);
-                }
-
-
-                ReceiptItems.Clear ();
-
-                foreach(var item in
-                        tempReceiptItems)
-                {
-                    ReceiptItems.Add (
-                        item);
-                }
-
-
-                StavkeRacuna.Clear ();
-
-                foreach(var item in
-                        tempStavkeRacuna)
-                {
-                    StavkeRacuna.Add (
-                        item);
-                }
-            }
-            catch(Exception ex)
-            {
-                Debug.WriteLine (
-                    "[RECEIPTS] LoadReceiptItems greška:");
-
-                Debug.WriteLine (
-                    ex);
-            }
-        }
-
 
         // ============================================================
         // UČITAVANJE RAČUNA
         // ============================================================
 
-        public async Task LoadReceiptsAsync(
-            TblRacuni? selected)
+        public async Task LoadReceiptsAsync(TblRacuni? selected)
         {
-            Debug.WriteLine (
-                "=== LoadReceiptsAsync START ===");
+            try
+            {
+                await using var db = new AppDbContext();
+
+                var receipts = await db.Racuni.AsNoTracking().OrderByDescending(x => x.BrojRacuna).ToListAsync();
+                var workers = await db.Radnici.AsNoTracking().ToDictionaryAsync(x => x.IdRadnika, x => x.Radnik ?? string.Empty);
+
+                foreach (var receipt in receipts)
+                {
+                    if (int.TryParse(receipt.Radnik, out int workerId) && workers.TryGetValue(workerId, out string? workerName))
+                        receipt.RadnikName = workerName;
+                    else
+                        receipt.RadnikName = receipt.Radnik ?? string.Empty;
+                }
+
+                Receipts.Clear();
+
+                foreach (var receipt in receipts)
+                    Receipts.Add(receipt);
+
+                ApplyFilter();
+
+                if (selected != null)
+                    SelectedReceipt = Receipts.FirstOrDefault(x => x.BrojRacuna == selected.BrojRacuna);
+                else
+                    SelectedReceipt = ReceiptsFilter.FirstOrDefault();
+
+                await LoadReceiptItems(SelectedReceipt);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[RECEIPTS] Greška učitavanja računa: " + ex);
+
+                Receipts.Clear();
+                ReceiptsFilter.Clear();
+                SelectedReceipt = null;
+
+                await LoadReceiptItems(null);
+            }
+        }
+
+        // ============================================================
+        // UČITAVANJE STAVKI
+        // ============================================================
+
+        public async Task LoadReceiptItems(TblRacuni? selectedReceipt)
+        {
+            ReceiptItems.Clear();
+            StavkeRacuna.Clear();
+            IznosRacuna = 0m;
+
+            if (selectedReceipt == null)
+                return;
 
             try
             {
-                using var db =
-                    new AppDbContext ();
+                await using var db = new AppDbContext();
 
+                var items = await db.RacunStavka.AsNoTracking()
+                    .Where(x => x.BrojRacuna == selectedReceipt.BrojRacuna)
+                    .OrderBy(x => x.IdStavke)
+                    .ToListAsync();
 
-                var receipts =
-                    await db.Racuni
-                        .ToListAsync ();
+                decimal total = 0m;
 
-
-                Receipts.Clear ();
-                ReceiptsFilter.Clear ();
-
-
-                foreach(var receipt in receipts)
+                foreach (var item in items)
                 {
-                    if(int.TryParse (
-                        receipt.Radnik,
-                        out int id))
+                    ReceiptItems.Add(item);
+
+                    total += item.Iznos ?? 0m;
+
+                    StavkeRacuna.Add(new RacunStavka
                     {
-                        var radnik =
-                            await db.Radnici
-                                .FirstOrDefaultAsync (
-                                    x =>
-                                        x.IdRadnika == id);
-
-                        receipt.RadnikName =
-                            radnik?.Radnik
-                            ?? string.Empty;
-                    }
-
-
-                    Receipts.Add (
-                        receipt);
-
-                    ReceiptsFilter.Add (
-                        receipt);
+                        Name = item.ArtiklNormativ,
+                        Sifra = item.Sifra,
+                        BrojRacuna = item.BrojRacuna,
+                        Naziv = item.Artikl,
+                        UnitPrice = item.Cijena,
+                        Proizvod = item.VrstaArtikla,
+                        JedinicaMjere = item.JedinicaMjere,
+                        Quantity = item.Kolicina,
+                        PoreskaStopa = item.PoreskaStopa,
+                        PorezNaPotrosnju = item.PorezNaPotrosnju
+                    });
                 }
 
-
-                if(selected != null)
-                {
-                    SelectedReceipt =
-                        Receipts.FirstOrDefault (
-                            r =>
-                                r.BrojRacuna ==
-                                selected.BrojRacuna)
-                        ?? selected;
-                }
-                else
-                {
-                    SelectedReceipt =
-                        ReceiptsFilter.FirstOrDefault ();
-                }
-
-
-                await LoadReceiptItems (
-                    SelectedReceipt);
+                IznosRacuna = total;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (
-                    "EXCEPTION u LoadReceiptsAsync:");
+                Debug.WriteLine("[RECEIPTS] Greška učitavanja stavki: " + ex);
 
-                Debug.WriteLine (
-                    ex);
+                ReceiptItems.Clear();
+                StavkeRacuna.Clear();
+                IznosRacuna = 0m;
             }
-
-            Debug.WriteLine (
-                "=== LoadReceiptsAsync END ===");
         }
-
 
         // ============================================================
         // FILTER
         // ============================================================
 
-        public void FilterItems(
-            string? searchText)
+        public void FilterItems(string? searchText)
         {
-            string lowerSearch =
-                (searchText ?? string.Empty)
-                    .ToLower ();
-
-
-            var filtered =
-                Receipts
-                    .Where (
-                        a =>
-                            a.BrojRacuna
-                                .ToString ()
-                                .ToLower ()
-                                .Contains (lowerSearch)
-
-                            ||
-
-                            a.Datum
-                                .ToString ("dd.MM.yyyy")
-                                .ToLower ()
-                                .Contains (lowerSearch)
-
-                            ||
-
-                            (a.BrojFiskalnogRacuna
-                                ?? string.Empty)
-                                .ToLower ()
-                                .Contains (lowerSearch)
-
-                            ||
-
-                            (a.Kupac
-                                ?? string.Empty)
-                                .ToLower ()
-                                .Contains (lowerSearch))
-                    .ToList ();
-
-
-            ReceiptsFilter =
-                new ObservableCollection<TblRacuni> (
-                    filtered);
+            _searchText = searchText;
+            ApplyFilter();
         }
 
+        private void ApplyFilter()
+        {
+            string search = (_searchText ?? string.Empty).Trim();
+
+            IEnumerable<TblRacuni> query = Receipts;
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(x =>
+                    x.BrojRacuna.ToString().Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    x.Datum.ToString("dd.MM.yyyy").Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    (x.BrojFiskalnogRacuna ?? string.Empty).Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    (x.Kupac ?? string.Empty).Contains(search, StringComparison.OrdinalIgnoreCase));
+            }
+
+            ReceiptsFilter = new ObservableCollection<TblRacuni>(query);
+        }
 
         // ============================================================
-        // KOPIJA RAČUNA
+        // PONOVNA ŠTAMPA
+        // ============================================================
+
+        public async Task<FiscalResult> PonovoStampajAsync()
+        {
+            try
+            {
+                if (SelectedReceipt == null)
+                    return FiscalResult.Failed("Nije odabran račun.");
+
+                if (!IsFiscalized)
+                    return FiscalResult.Failed("Račun nije fiskalizovan.");
+
+                if (StavkeRacuna.Count == 0)
+                    return FiscalResult.Failed("Odabrani račun nema stavki.");
+
+                if (!IsCroatia)
+                    return FiscalResult.Failed("Ponovna štampa trenutno je dostupna samo za Hrvatsku.");
+
+                if (string.IsNullOrWhiteSpace(SelectedReceipt.BrojRacunaHr))
+                    return FiscalResult.Failed("Odabrani račun nema spremljen hrvatski broj računa.");
+
+                FiscalPaymentType paymentType = MapPaymentType(SelectedReceipt.NacinPlacanja);
+
+                FiscalRequest request = new FiscalRequest
+                {
+                    Items = StavkeRacuna.ToList(),
+                    Cashier = new FiscalCashier
+                    {
+                        Name = SelectedReceipt.RadnikName ?? SelectedReceipt.Radnik ?? string.Empty
+                    },
+                    PaymentType = paymentType,
+                    TotalAmount = SelectedReceipt.Iznos ?? IznosRacuna ?? 0m,
+                    InvoiceType = "Normal",
+                    TransactionType = "Sale"
+                };
+
+                CroatiaFiscalSettings settings = CroatiaFiscalSettings.FromProperties();
+
+                var taxCalculator = new CroatiaTaxCalculator(settings);
+
+                decimal pnpRate = SelectedReceipt.PorezNaPotrosnjuStopa ?? 0m;
+
+                IReadOnlyList<CroatiaTaxSummary> taxes = await taxCalculator.CalculateAsync(
+                    StavkeRacuna.ToList(),
+                    pnpRate);
+
+                var builtInvoice = new CroatiaBuiltInvoice
+                {
+                    LocalReceiptNumber = SelectedReceipt.BrojRacuna,
+                    ReceiptNumberHr = SelectedReceipt.BrojRacunaHr,
+                    IssueDateTime = SelectedReceipt.Datum,
+                    Taxes = taxes,
+                    TotalAmount = SelectedReceipt.Iznos ?? IznosRacuna ?? 0m
+                };
+
+                var fiscalization = new CroatiaFiscalizationResponse
+                {
+                    Fiscalized = true,
+                    Jir = SelectedReceipt.Jir,
+                    Zki = SelectedReceipt.Zki
+                };
+
+                var printer = new CroatiaReceiptPrinter(settings);
+
+                bool printed = await printer.ReprintAsync(
+                    request,
+                    builtInvoice,
+                    fiscalization);
+
+                if (!printed)
+                    return FiscalResult.Failed("Ponovna štampa računa nije uspjela.");
+
+                Debug.WriteLine($"[HR REPRINT] Račun {SelectedReceipt.BrojRacunaHr} uspješno ponovo isprintan.");
+
+                return new FiscalResult
+                {
+                    Success = true,
+                    Fiscalized = true,
+                    SavedToDatabase = true,
+                    Printed = true,
+                    FiscalNumber = SelectedReceipt.BrojRacunaHr
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[HR REPRINT] Greška: " + ex);
+                return FiscalResult.Failed(ex.Message);
+            }
+        }
+
+        // ============================================================
+        // FISKALNA KOPIJA
         // ============================================================
 
         public async Task<FiscalResult> IzdajKopijuAsync()
         {
-            if(SelectedReceipt == null)
-            {
-                return FiscalResult.Failed (
-                    "Nije odabran račun.");
-            }
+            if (SelectedReceipt == null)
+                return FiscalResult.Failed("Nije odabran račun.");
 
+            if (!CanIssueCopy)
+                return FiscalResult.Failed("Fiskalna kopija nije dostupna za odabrani račun.");
 
-            if(StavkeRacuna.Count == 0)
-            {
-                return FiscalResult.Failed (
-                    "Odabrani račun nema stavki.");
-            }
+            if (StavkeRacuna.Count == 0)
+                return FiscalResult.Failed("Odabrani račun nema stavki.");
 
-
-            return await IzdajPostojeciRacunAsync (
-                invoiceType: "Copy",
-                transactionType: "Sale");
+            return await IzdajPostojeciRacunAsync("Copy", "Sale");
         }
-
 
         // ============================================================
         // STORNO / REFUND
@@ -422,248 +433,135 @@ namespace Caupo.ViewModels
 
         public async Task<FiscalResult> StornirajRacunAsync()
         {
-            if(SelectedReceipt == null)
-            {
-                return FiscalResult.Failed (
-                    "Nije odabran račun.");
-            }
+            if (SelectedReceipt == null)
+                return FiscalResult.Failed("Nije odabran račun.");
 
+            if (!CanRefund)
+                return FiscalResult.Failed("Odabrani račun nije moguće stornirati.");
 
-            if(StavkeRacuna.Count == 0)
-            {
-                return FiscalResult.Failed (
-                    "Odabrani račun nema stavki.");
-            }
+            if (StavkeRacuna.Count == 0)
+                return FiscalResult.Failed("Odabrani račun nema stavki.");
 
-
-            return await IzdajPostojeciRacunAsync (
-                invoiceType: "Training",
-                transactionType: "Refund");
+            /*
+             * Ovo je privremeno zadržan postojeći put.
+             * U sljedećem koraku Refund razdvajamo po državi.
+             */
+            return await IzdajPostojeciRacunAsync("Training", "Refund");
         }
 
+        // ============================================================
+        // HRVATSKA - NAKNADNA FISKALIZACIJA
+        // ============================================================
+
+        public Task<FiscalResult> NaknadnoFiskalizujAsync()
+        {
+            if (SelectedReceipt == null)
+                return Task.FromResult(FiscalResult.Failed("Nije odabran račun."));
+
+            if (!IsCroatia)
+                return Task.FromResult(FiscalResult.Failed("Naknadna fiskalizacija dostupna je samo za Hrvatsku."));
+
+            if (IsFiscalized)
+                return Task.FromResult(FiscalResult.Failed("Odabrani račun je već fiskalizovan."));
+
+            if (StavkeRacuna.Count == 0)
+                return Task.FromResult(FiscalResult.Failed("Odabrani račun nema stavki."));
+
+            return Task.FromResult(FiscalResult.Failed("Naknadna fiskalizacija Hrvatske još nije povezana sa novim fiscal servisom."));
+        }
 
         // ============================================================
-        // ZAJEDNIČKI COPY / REFUND
+        // POSTOJEĆI FISKALNI DOKUMENT
+        // PRIVREMENO: COPY / REFUND
         // ============================================================
 
-        private async Task<FiscalResult> IzdajPostojeciRacunAsync(
-            string invoiceType,
-            string transactionType)
+        private async Task<FiscalResult> IzdajPostojeciRacunAsync(string invoiceType, string transactionType)
         {
             try
             {
-                if(SelectedReceipt == null)
-                {
-                    return FiscalResult.Failed (
-                        "Nije odabran račun.");
-                }
-
+                if (SelectedReceipt == null)
+                    return FiscalResult.Failed("Nije odabran račun.");
 
                 TblKupci? kupac = null;
 
-
-                if(!string.IsNullOrWhiteSpace (
-                    SelectedReceipt.Kupac))
+                if (!string.IsNullOrWhiteSpace(SelectedReceipt.Kupac) && !string.Equals(SelectedReceipt.Kupac, "Gradjani", StringComparison.OrdinalIgnoreCase))
                 {
-                    using var db =
-                        new AppDbContext ();
-
-                    string nazivKupca =
-                        SelectedReceipt.Kupac;
-
-
-                    kupac =
-                        await db.Kupci
-                            .FirstOrDefaultAsync (
-                                k =>
-                                    k.Kupac ==
-                                    nazivKupca);
+                    await using var db = new AppDbContext();
+                    string nazivKupca = SelectedReceipt.Kupac;
+                    kupac = await db.Kupci.AsNoTracking().FirstOrDefaultAsync(x => x.Kupac == nazivKupca);
                 }
 
+                FiscalBuyer? fiscalBuyer = null;
 
-                FiscalBuyer? fiscalBuyer =
-                    null;
-
-
-                if(kupac != null)
+                if (kupac != null)
                 {
-                    fiscalBuyer =
-                        new FiscalBuyer
-                        {
-                            Name =
-                                kupac.Kupac,
-
-                            TaxId =
-                                kupac.JIB,
-
-                            Address =
-                                kupac.Adresa,
-
-                            City =
-                                kupac.Mjesto
-                        };
-                }
-
-
-                FiscalPaymentType paymentType =
-                    MapPaymentType (
-                        SelectedReceipt.NacinPlacanja);
-
-
-                var request =
-                    new FiscalRequest
+                    fiscalBuyer = new FiscalBuyer
                     {
-                        Items =
-                            StavkeRacuna.ToList (),
-
-                        Buyer =
-                            fiscalBuyer,
-
-                        Cashier =
-                            new FiscalCashier
-                            {
-                                Id =
-                                    Globals
-                                        .ulogovaniKorisnik
-                                        .IdRadnika,
-
-                                Name =
-                                    Globals
-                                        .ulogovaniKorisnik
-                                        .Radnik,
-
-                                IdentificationNumber =
-                                    Globals
-                                        .ulogovaniKorisnik
-                                        .IB
-                            },
-
-                        PaymentType =
-                            paymentType,
-
-                        TotalAmount =
-                            IznosRacuna ?? 0m,
-
-                        InvoiceType =
-                            invoiceType,
-
-                        TransactionType =
-                            transactionType,
-
-                        ReferentDocumentNumber =
-                            SelectedReceipt
-                                .BrojFiskalnogRacuna,
-
-                        ReferentDocumentDateTime =
-                            SelectedReceipt
-                                .Datum
+                        Name = kupac.Kupac,
+                        TaxId = kupac.JIB,
+                        Address = kupac.Adresa,
+                        City = kupac.Mjesto
                     };
+                }
 
+                FiscalRequest request = new FiscalRequest
+                {
+                    Items = StavkeRacuna.ToList(),
+                    Buyer = fiscalBuyer,
+                    Cashier = new FiscalCashier
+                    {
+                        Id = Globals.ulogovaniKorisnik.IdRadnika,
+                        Name = Globals.ulogovaniKorisnik.Radnik,
+                        IdentificationNumber = Globals.ulogovaniKorisnik.IB
+                    },
+                    PaymentType = MapPaymentType(SelectedReceipt.NacinPlacanja),
+                    TotalAmount = IznosRacuna ?? 0m,
+                    InvoiceType = invoiceType,
+                    TransactionType = transactionType,
+                    ReferentDocumentNumber = SelectedReceipt.BrojFiskalnogRacuna,
+                    ReferentDocumentDateTime = SelectedReceipt.Datum
+                };
 
-                IFiscalService fiscalService =
-                    FiscalServiceFactory.Create (
-                        Properties.Settings
-                            .Default.Country);
+                IFiscalService fiscalService = FiscalServiceFactory.Create(Properties.Settings.Default.Country);
+                FiscalResult result = await fiscalService.IzdajRacunAsync(request);
 
-
-                FiscalResult result =
-                    await fiscalService
-                        .IzdajRacunAsync (
-                            request);
-
-
-                Debug.WriteLine (
-                    $"[RECEIPTS FISCAL] " +
-                    $"InvoiceType={invoiceType}, " +
-                    $"TransactionType={transactionType}, " +
-                    $"Success={result.Success}, " +
-                    $"Fiscalized={result.Fiscalized}, " +
-                    $"Saved={result.SavedToDatabase}, " +
-                    $"Printed={result.Printed}, " +
-                    $"FiscalNumber={result.FiscalNumber}");
-
+                Debug.WriteLine($"[RECEIPTS FISCAL] InvoiceType={invoiceType}, TransactionType={transactionType}, Success={result.Success}, Fiscalized={result.Fiscalized}, Saved={result.SavedToDatabase}, Printed={result.Printed}, FiscalNumber={result.FiscalNumber}");
 
                 return result;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (
-                    "[RECEIPTS FISCAL] Greška:");
-
-                Debug.WriteLine (
-                    ex);
-
-
-                return FiscalResult.Failed (
-                    ex.Message);
+                Debug.WriteLine("[RECEIPTS FISCAL] Greška: " + ex);
+                return FiscalResult.Failed(ex.Message);
             }
         }
-
 
         // ============================================================
         // NAČIN PLAĆANJA
         // ============================================================
 
-        private static FiscalPaymentType MapPaymentType(
-            int? paymentType)
+        private static FiscalPaymentType MapPaymentType(int? paymentType)
         {
             return paymentType switch
             {
-                0 =>
-                    FiscalPaymentType.Cash,
-
-                1 =>
-                    FiscalPaymentType.Card,
-
-                2 =>
-                    FiscalPaymentType.Check,
-
-                3 =>
-                    FiscalPaymentType.WireTransfer,
-
-                4 =>
-                    FiscalPaymentType.Other,
-
-                _ =>
-                    throw new FiscalException (
-                        $"Nepoznat način plaćanja: {paymentType}.")
+                0 => FiscalPaymentType.Cash,
+                1 => FiscalPaymentType.Card,
+                2 => FiscalPaymentType.Check,
+                3 => FiscalPaymentType.WireTransfer,
+                4 => FiscalPaymentType.Other,
+                _ => throw new FiscalException($"Nepoznat način plaćanja: {paymentType}.")
             };
         }
-
-
-        // ============================================================
-        // ERROR EVENT
-        // ============================================================
-
-        public event EventHandler<string?>?
-            ErrorOccurred;
-
-
-        protected virtual void OnErrorOccurred(
-            string? message)
-        {
-            ErrorOccurred?.Invoke (
-                this,
-                message);
-        }
-
 
         // ============================================================
         // PROPERTY CHANGED
         // ============================================================
 
-        public event PropertyChangedEventHandler?
-            PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-
-        protected virtual void OnPropertyChanged(
-            [CallerMemberName]
-            string? propertyName = null)
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
-            PropertyChanged?.Invoke (
-                this,
-                new PropertyChangedEventArgs (
-                    propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

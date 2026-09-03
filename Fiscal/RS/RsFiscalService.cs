@@ -1,5 +1,6 @@
 using Caupo.Fiscal.Common;
 using Caupo.Fiscal.RS.Models;
+using Caupo.Services;
 using System.Diagnostics;
 
 namespace Caupo.Fiscal.RS
@@ -105,43 +106,64 @@ namespace Caupo.Fiscal.RS
 
             try
             {
-                if(string.Equals(
-                    request.InvoiceType,
-                    "Copy",
-                    StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(request.InvoiceType, "Copy", StringComparison.OrdinalIgnoreCase))
                 {
                     saved = true;
                 }
-                else if(request.IsRefund)
+                else if (request.IsRefund)
                 {
-                    saved =
-                        await repository
-                            .MarkRefundedAsync(
-                                request.ReferentDocumentNumber
-                                ?? string.Empty,
-                                cancellationToken);
+                    saved = await FiscalDatabaseRetry.ExecuteAsync(() => repository.MarkRefundedAsync(request.ReferentDocumentNumber ?? string.Empty, cancellationToken), cancellationToken);
+
+                    if (saved)
+                        DatabaseBackupService.StartBackup(Globals.CurrentDbPath);
                 }
                 else
                 {
-                    await repository.SaveAsync(
-                        request,
-                        builtInvoice,
-                        fiscalResponse,
-                        cancellationToken);
-
+                    await FiscalDatabaseRetry.ExecuteAsync(() => repository.SaveAsync(request, builtInvoice, fiscalResponse, cancellationToken), cancellationToken);
                     saved = true;
+                    DatabaseBackupService.StartBackup(Globals.CurrentDbPath);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine(
-                    "[RS/DB] Greška nakon fiskalizacije: " +
-                    ex);
+                Debug.WriteLine("[RS/DB] DB obrada nije uspjela ni nakon 3 pokušaja: " + ex);
 
-                error =
-                    "Račun je fiskalizovan, ali obrada baze " +
-                    "nije uspjela: " +
-                    ex.Message;
+                bool restored = await DatabaseBackupService.RestoreLatestBackupAsync(Globals.CurrentDbPath, cancellationToken);
+
+                if (restored)
+                {
+                    try
+                    {
+                        if (request.IsRefund)
+                        {
+                            saved = await repository.MarkRefundedAsync(request.ReferentDocumentNumber ?? string.Empty, cancellationToken);
+                        }
+                        else
+                        {
+                            await repository.SaveAsync(request, builtInvoice, fiscalResponse, cancellationToken);
+                            saved = true;
+                        }
+
+                        if (saved)
+                        {
+                            DatabaseBackupService.StartBackup(Globals.CurrentDbPath);
+                            Debug.WriteLine("[RS/DB] Baza vraćena iz backupa i DB obrada uspješno završena.");
+                        }
+                        else
+                        {
+                            error = "Račun je fiskalizovan i baza je vraćena iz backupa, ali lokalna DB obrada nije uspjela.";
+                        }
+                    }
+                    catch (Exception retryEx)
+                    {
+                        Debug.WriteLine("[RS/DB] DB obrada nije uspjela ni nakon restorea: " + retryEx);
+                        error = "Račun je fiskalizovan, baza je vraćena iz backupa, ali lokalna DB obrada nije uspjela: " + retryEx.Message;
+                    }
+                }
+                else
+                {
+                    error = "Račun je fiskalizovan, ali lokalna DB obrada nije uspjela. Automatski restore backupa nije uspio.";
+                }
             }
 
             try

@@ -129,5 +129,45 @@ namespace Caupo.Fiscal.Serbia
                 throw;
             }
         }
+
+        public async Task MarkRefundedAsync(
+        FiscalRequest request,
+        SerbiaInvoiceResponse response,
+        CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(request.ReferentDocumentNumber))
+                throw new FiscalException("Refund nema referentni broj originalnog fiskalnog računa.");
+
+            await using var db = new AppDbContext();
+
+            await using var transaction =
+                await db.Database.BeginTransactionAsync(cancellationToken);
+
+            try
+            {
+                var racun = await db.Racuni
+                    .FirstOrDefaultAsync(
+                        x => x.BrojFiskalnogRacuna == request.ReferentDocumentNumber,
+                        cancellationToken);
+
+                if (racun == null)
+                    throw new FiscalException(
+                        $"Originalni račun {request.ReferentDocumentNumber} nije pronađen u lokalnoj bazi.");
+
+                racun.Reklamiran = "DA";
+                racun.BrojRefundRacuna = response.InvoiceNumber;
+                racun.DatumRefundRacuna = response.SdcDateTime?.LocalDateTime ?? DateTime.Now;
+
+                await db.SaveChangesAsync(cancellationToken);
+
+                await transaction.CommitAsync(cancellationToken);
+            }
+            catch
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
+            }
+        }
+
     }
 }

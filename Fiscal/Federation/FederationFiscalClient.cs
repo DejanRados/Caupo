@@ -38,6 +38,10 @@ namespace Caupo.Fiscal.Federation
 
                 Debug.WriteLine(
                     "[FEDERACIJA/TRING] Printer uspješno inicijalizovan.");
+                Debug.WriteLine($"[FEDERACIJA/TRING] IP={_settings.ServerIpAddress}");
+                Debug.WriteLine($"[FEDERACIJA/TRING] Port={_settings.ServerPort}");
+                Debug.WriteLine($"[FEDERACIJA/TRING] PrinterIndex={_settings.PrinterIndex}");
+                Debug.WriteLine($"[FEDERACIJA/TRING] PrinterPassword={_settings.PrinterPassword}");
             }
             catch(Exception ex)
             {
@@ -68,7 +72,23 @@ namespace Caupo.Fiscal.Federation
                     };
                 }
 
-                if(response.VrstaOdgovora ==
+                Debug.WriteLine($"[FEDERACIJA/TRING] Vrsta odgovora: {response.VrstaOdgovora}");
+                Debug.WriteLine($"[FEDERACIJA/TRING] Broj zahtjeva: {response.BrojZahtjeva}");
+
+
+                if (response.Odgovori != null)
+                {
+                    Debug.WriteLine("[FEDERACIJA/TRING] Sadržaj odgovora:");
+
+                    foreach (var odgovor in response.Odgovori)
+                        Debug.WriteLine($"[FEDERACIJA/TRING] {odgovor.Naziv}: {odgovor.Vrijednost}");
+                }
+                else
+                {
+                    Debug.WriteLine("[FEDERACIJA/TRING] Odgovori = NULL");
+                }
+
+                if (response.VrstaOdgovora ==
                    TringVrsteOdgovora.Greska)
                 {
                     string error =

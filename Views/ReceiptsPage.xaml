@@ -46,6 +46,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160"  Margin="2" Grid.Column="0">
                     <Button Style="{StaticResource PrimaryButtonStyle}"  Margin="5"  x:Name="BtnStorno" Click="BtnStorno_Click"    Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"   >
@@ -56,10 +57,18 @@
                     </Button>
                 </Viewbox>
                 <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160"  Margin="2" Grid.Column="1">
-                    <Button Style="{StaticResource PrimaryButtonStyle}"   Margin="5"     x:Name="BtnDuplicate"  Click="BtnDuplicate_Click"   Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"    >
+                    <Button Style="{StaticResource PrimaryButtonStyle}" IsEnabled="{Binding CanIssueCopy}"  Margin="5"     x:Name="BtnDuplicate"  Click="BtnDuplicate_Click"   Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"    >
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" >
                             <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="0,0,10,0" FontSize="32"  FontWeight="ExtraLight" Text="&#xEA95;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                             <TextBlock Text="Duplikat "  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
+                        </StackPanel>
+                    </Button>
+                </Viewbox>
+                <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160" Margin="2" Grid.Column="2">
+                    <Button Style="{StaticResource PrimaryButtonStyle}" IsEnabled="{Binding CanReprint}" Margin="5" x:Name="BtnReprint" Click="BtnReprint_Click" Width="120" Height="50" Foreground="{DynamicResource GlobalFontColor}">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="0,0,10,0" FontSize="28" FontWeight="ExtraLight" Text="&#xE749;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            <TextBlock Text="Ponovi ispis" VerticalAlignment="Center" Foreground="{DynamicResource GlobalFontColor}"/>
                         </StackPanel>
                     </Button>
                 </Viewbox>

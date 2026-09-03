@@ -11,6 +11,7 @@ namespace Caupo.Fiscal.Common
         public bool SavedToDatabase { get; init; }
         public bool Printed { get; init; }
 
+        public FiscalizationStatus FiscalizationStatus { get; init; } = FiscalizationStatus.NotFiscalized;
         public int? LocalReceiptNumber { get; init; }
 
         public string? ReceiptNumber { get; init; }

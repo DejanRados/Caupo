@@ -34,7 +34,7 @@ namespace Caupo
         // SERVICES
         // =====================================================
 
-        private DatabaseBackupService? _backupService;
+        //private DatabaseBackupService? _backupService;
 
         private CaupoDiscoveryService? _discoveryService;
 
@@ -1036,13 +1036,13 @@ namespace Caupo
                 }
 
 
-                _backupService =
-                    new DatabaseBackupService (
-                        dbPath,
-                        backupPath);
+            //    _backupService =
+            //       new DatabaseBackupService (
+            //            dbPath,
+            //           backupPath);
 
 
-                _backupService.Start ();
+             //   _backupService.Start ();
 
 
                 Debug.WriteLine (
@@ -1256,11 +1256,10 @@ namespace Caupo
 
             try
             {
-                _backupService?.Dispose ();
+               // _backupService?.Dispose ();
 
 
-                _backupService =
-                    null;
+              //  _backupService = null;
             }
             catch(Exception ex)
             {
