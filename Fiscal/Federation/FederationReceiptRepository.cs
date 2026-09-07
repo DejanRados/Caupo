@@ -141,5 +141,53 @@ namespace Caupo.Fiscal.Federation
                 throw;
             }
         }
+
+        public async Task<bool> MarkRefundedAsync(FiscalRequest request, FederationFiscalResponse fiscalResponse, CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
+            if (string.IsNullOrWhiteSpace(request.ReferentDocumentNumber))
+                throw new FiscalException("Nije zadan broj originalnog fiskalnog računa.");
+
+            if (string.IsNullOrWhiteSpace(fiscalResponse.FiscalReceiptNumber))
+                throw new FiscalException("Tring nije vratio broj reklamiranog fiskalnog računa.");
+
+            await using var db = new AppDbContext();
+
+            var receipt = await db.Racuni
+                .FirstOrDefaultAsync(
+                    x => x.BrojFiskalnogRacuna == request.ReferentDocumentNumber,
+                    cancellationToken);
+
+            if (receipt == null)
+                throw new FiscalException(
+                    $"Originalni račun sa fiskalnim brojem '{request.ReferentDocumentNumber}' nije pronađen.");
+
+            receipt.Reklamiran = "DA";
+            receipt.BrojRefundRacuna = fiscalResponse.FiscalReceiptNumber;
+            receipt.DatumRefundRacuna = DateTime.Now;
+
+            await db.SaveChangesAsync(cancellationToken);
+
+            return true;
+        }
+
+        public async Task<int> GetLocalReceiptNumberByFiscalNumberAsync(string fiscalReceiptNumber, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(fiscalReceiptNumber))
+                throw new FiscalException("Broj originalnog fiskalnog računa nije zadan.");
+
+            await using var db = new AppDbContext();
+
+            var receipt = await db.Racuni
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.BrojFiskalnogRacuna == fiscalReceiptNumber, cancellationToken);
+
+            if (receipt == null)
+                throw new FiscalException($"Originalni račun sa fiskalnim brojem '{fiscalReceiptNumber}' nije pronađen.");
+
+            return receipt.BrojRacuna;
+        }
     }
 }

@@ -23,14 +23,48 @@ namespace Caupo.Fiscal.Croatia
 
             _settings.Validate();
 
-            using var certificate = new X509Certificate2(_settings.GetCertificatePath(), _settings.CertificatePassword, X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.Exportable);
-
-            if (!certificate.HasPrivateKey)
-                throw new FiscalException("Hrvatski fiskalni certifikat nema privatni ključ.");
+            using var certificate = CreateCertificate();
 
             string zki = builtInvoice.Invoice.ZKI(certificate);
             builtInvoice.Invoice.ZastKod = zki;
+            builtInvoice.Invoice.NakDost = false;
 
+            return await SendAsync(builtInvoice, certificate, zki, cancellationToken);
+        }
+
+        public async Task<CroatiaFiscalizationResponse> FiscalizeSubsequentlyAsync(CroatiaBuiltInvoice builtInvoice, string originalZki, CancellationToken cancellationToken = default)
+        {
+            if (builtInvoice == null)
+                throw new ArgumentNullException(nameof(builtInvoice));
+
+            if (string.IsNullOrWhiteSpace(originalZki))
+                throw new FiscalException("Originalni račun nema ZKI.");
+
+            _settings.Validate();
+
+            using var certificate = CreateCertificate();
+
+            builtInvoice.Invoice.ZastKod = originalZki;
+            builtInvoice.Invoice.NakDost = true;
+
+            return await SendAsync(builtInvoice, certificate, originalZki, cancellationToken);
+        }
+
+        private X509Certificate2 CreateCertificate()
+        {
+            var certificate = new X509Certificate2(_settings.GetCertificatePath(), _settings.CertificatePassword, X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.Exportable);
+
+            if (!certificate.HasPrivateKey)
+            {
+                certificate.Dispose();
+                throw new FiscalException("Hrvatski fiskalni certifikat nema privatni ključ.");
+            }
+
+            return certificate;
+        }
+
+        private async Task<CroatiaFiscalizationResponse> SendAsync(CroatiaBuiltInvoice builtInvoice, X509Certificate2 certificate, string zki, CancellationToken cancellationToken)
+        {
             try
             {
                 cancellationToken.ThrowIfCancellationRequested();

@@ -161,5 +161,210 @@ namespace Caupo.Fiscal.Federation
                 };
             }
         }
+
+        public FederationFiscalResponse PrintDuplicate(string fiscalReceiptNumber)
+        {
+            if (string.IsNullOrWhiteSpace(fiscalReceiptNumber))
+                throw new ArgumentException("Broj fiskalnog računa nije zadan.", nameof(fiscalReceiptNumber));
+
+            _settings.Validate();
+
+            var printer = new TringFiskalniPrinter();
+
+            try
+            {
+                printer.Inicijalizacija(
+                    _settings.ServerIpAddress,
+                    _settings.ServerPort,
+                    _settings.PrinterIndex,
+                    _settings.PrinterPassword);
+
+                Debug.WriteLine("[FEDERACIJA/TRING] Štampanje duplikata fiskalnog računa: " + fiscalReceiptNumber);
+            }
+            catch (Exception ex)
+            {
+                return new FederationFiscalResponse
+                {
+                    Fiscalized = false,
+                    Printed = false,
+                    ErrorMessage = "Ne može se povezati na Tring fiskalni server: " + ex.Message
+                };
+            }
+
+            try
+            {
+                if (!int.TryParse(fiscalReceiptNumber, out int receiptNumber))
+                {
+                    return new FederationFiscalResponse
+                    {
+                        Fiscalized = false,
+                        Printed = false,
+                        ErrorMessage = "Neispravan broj fiskalnog računa: " + fiscalReceiptNumber
+                    };
+                }
+
+                TringKasaOdgovor response = printer.StampatiDuplikatFiskalnogRacuna(receiptNumber);
+
+                if (response == null)
+                {
+                    return new FederationFiscalResponse
+                    {
+                        Fiscalized = false,
+                        Printed = false,
+                        ErrorMessage = "Tring fiskalni printer nije vratio odgovor."
+                    };
+                }
+
+                Debug.WriteLine($"[FEDERACIJA/TRING] Duplikat - vrsta odgovora: {response.VrstaOdgovora}");
+                Debug.WriteLine($"[FEDERACIJA/TRING] Duplikat - broj zahtjeva: {response.BrojZahtjeva}");
+
+                if (response.Odgovori != null)
+                {
+                    foreach (var odgovor in response.Odgovori)
+                        Debug.WriteLine($"[FEDERACIJA/TRING] {odgovor.Naziv}: {odgovor.Vrijednost}");
+                }
+
+                if (response.VrstaOdgovora == TringVrsteOdgovora.Greska)
+                {
+                    string error = response.Odgovori == null
+                        ? "Tring fiskalni printer je vratio grešku pri štampanju duplikata."
+                        : string.Join(Environment.NewLine, response.Odgovori.Select(x => $"{x.Naziv}: {x.Vrijednost}"));
+
+                    return new FederationFiscalResponse
+                    {
+                        Fiscalized = false,
+                        Printed = false,
+                        ErrorMessage = error,
+                        RawResponse = response
+                    };
+                }
+
+                return new FederationFiscalResponse
+                {
+                    Fiscalized = true,
+                    Printed = true,
+                    FiscalReceiptNumber = fiscalReceiptNumber,
+                    RawResponse = response
+                };
+            }
+            catch (Exception ex)
+            {
+                return new FederationFiscalResponse
+                {
+                    Fiscalized = false,
+                    Printed = false,
+                    ErrorMessage = ex.Message
+                };
+            }
+        }
+
+        public FederationFiscalResponse IssueRefund(FederationBuiltInvoice builtInvoice)
+        {
+            if (builtInvoice == null)
+                throw new ArgumentNullException(nameof(builtInvoice));
+
+            _settings.Validate();
+
+            var printer = new TringFiskalniPrinter();
+
+            try
+            {
+                printer.Inicijalizacija(
+                    _settings.ServerIpAddress,
+                    _settings.ServerPort,
+                    _settings.PrinterIndex,
+                    _settings.PrinterPassword);
+
+                Debug.WriteLine("[FEDERACIJA/TRING] Printer uspješno inicijalizovan za reklamaciju.");
+            }
+            catch (Exception ex)
+            {
+                return new FederationFiscalResponse
+                {
+                    Fiscalized = false,
+                    Printed = false,
+                    ErrorMessage = "Ne može se povezati na Tring fiskalni server: " + ex.Message
+                };
+            }
+
+            try
+            {
+                TringKasaOdgovor response = printer.StampatiReklamiraniRacun(builtInvoice.Invoice);
+
+                if (response == null)
+                {
+                    return new FederationFiscalResponse
+                    {
+                        Fiscalized = false,
+                        Printed = false,
+                        ErrorMessage = "Tring fiskalni printer nije vratio odgovor."
+                    };
+                }
+
+                Debug.WriteLine($"[FEDERACIJA/TRING REFUND] Vrsta odgovora: {response.VrstaOdgovora}");
+                Debug.WriteLine($"[FEDERACIJA/TRING REFUND] Broj zahtjeva: {response.BrojZahtjeva}");
+
+                if (response.Odgovori != null)
+                {
+                    Debug.WriteLine("[FEDERACIJA/TRING REFUND] Sadržaj odgovora:");
+
+                    foreach (var odgovor in response.Odgovori)
+                        Debug.WriteLine($"[FEDERACIJA/TRING REFUND] {odgovor.Naziv}: {odgovor.Vrijednost}");
+                }
+
+                if (response.VrstaOdgovora == TringVrsteOdgovora.Greska)
+                {
+                    string error = response.Odgovori == null
+                        ? "Tring fiskalni printer je vratio grešku pri reklamaciji računa."
+                        : string.Join(Environment.NewLine, response.Odgovori.Select(x => $"{x.Naziv}: {x.Vrijednost}"));
+
+                    Debug.WriteLine("[FEDERACIJA/TRING REFUND] GREŠKA:" + Environment.NewLine + error);
+
+                    return new FederationFiscalResponse
+                    {
+                        Fiscalized = false,
+                        Printed = false,
+                        ErrorMessage = error,
+                        RawResponse = response
+                    };
+                }
+
+                string? fiscalNumber = response.Odgovori?
+                    .FirstOrDefault(x => x.Naziv == "BrojFiskalnogRacuna")
+                    ?.Vrijednost
+                    ?.ToString();
+
+                if (string.IsNullOrWhiteSpace(fiscalNumber))
+                {
+                    return new FederationFiscalResponse
+                    {
+                        Fiscalized = false,
+                        Printed = true,
+                        ErrorMessage = "Tring je vratio OK odgovor za reklamaciju, ali broj reklamiranog fiskalnog računa nije pronađen u odgovoru.",
+                        RawResponse = response
+                    };
+                }
+
+                Debug.WriteLine("[FEDERACIJA/TRING REFUND] Broj reklamiranog fiskalnog računa: " + fiscalNumber);
+
+                return new FederationFiscalResponse
+                {
+                    Fiscalized = true,
+                    Printed = true,
+                    FiscalReceiptNumber = fiscalNumber,
+                    RawResponse = response
+                };
+            }
+            catch (Exception ex)
+            {
+                return new FederationFiscalResponse
+                {
+                    Fiscalized = false,
+                    Printed = false,
+                    ErrorMessage = ex.Message
+                };
+            }
+        }
+
     }
 }

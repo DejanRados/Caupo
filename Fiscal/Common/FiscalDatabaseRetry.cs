@@ -37,5 +37,17 @@ namespace Caupo.Fiscal.Common
 
             throw new InvalidOperationException("DB upis nije završen.");
         }
+
+        public static async Task ExecuteAsync(Func<Task> operation, CancellationToken cancellationToken = default)
+        {
+            if (operation == null)
+                throw new ArgumentNullException(nameof(operation));
+
+            await ExecuteAsync(async () =>
+            {
+                await operation();
+                return true;
+            }, cancellationToken);
+        }
     }
 }

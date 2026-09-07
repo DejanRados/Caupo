@@ -7,7 +7,9 @@ namespace Caupo.Fiscal.Serbia
 {
     public sealed class SerbiaFiscalService : IFiscalService
     {
-        public async Task<FiscalResult> IzdajRacunAsync(FiscalRequest request, CancellationToken cancellationToken = default)
+        public async Task<FiscalResult> IzdajRacunAsync(
+            FiscalRequest request,
+            CancellationToken cancellationToken = default)
         {
             if (request == null)
                 throw new ArgumentNullException(nameof(request));
@@ -23,33 +25,37 @@ namespace Caupo.Fiscal.Serbia
 
                 var client = new SerbiaFiscalClient(settings);
                 var taxMapper = new SerbiaTaxMapper();
-                var builder = new SerbiaInvoiceBuilder(taxMapper);
+                var builder = new SerbiaInvoiceBuilder(taxMapper, settings);
                 var repository = new SerbiaReceiptRepository();
                 var printer = new SerbiaReceiptPrinter();
 
-                // Uzimamo aktivne oznake direktno od PFR-a.
-                // Tako Srbija modul ne zavisi od hardkodiranih A/B/C/... oznaka.
                 var activeRates = await client.GetCurrentTaxRatesAsync(cancellationToken);
 
                 int localReceiptNumber = await repository.GetNextLocalReceiptNumberAsync(cancellationToken);
 
-                var invoice = await builder.BuildAsync(request, localReceiptNumber, activeRates, cancellationToken);
+                var invoice = await builder.BuildAsync(
+                    request,
+                    localReceiptNumber,
+                    activeRates,
+                    cancellationToken);
 
                 string requestId = Guid.NewGuid().ToString("N");
 
-                var response = await client.IssueInvoiceAsync(invoice, requestId, cancellationToken);
+                var response = await client.IssueInvoiceAsync(
+                    invoice,
+                    requestId,
+                    cancellationToken);
 
-                // Copy/Duplicate je novi fiskalni dokument na PFR-u,
-                // ali NIJE novi prodajni račun u lokalnoj Caupo bazi.
-                bool isCopy = string.Equals(request.InvoiceType, "Copy", StringComparison.OrdinalIgnoreCase);
+                bool isCopy = string.Equals(
+                    request.InvoiceType,
+                    "Copy",
+                    StringComparison.OrdinalIgnoreCase);
 
-                // Refund je novi fiskalni dokument na PFR-u,
-                // ali ne kreira novi prodajni račun u lokalnoj Caupo bazi.
-                bool isRefund = string.Equals(request.TransactionType, "Refund", StringComparison.OrdinalIgnoreCase);
+                bool isRefund = string.Equals(
+                    request.TransactionType,
+                    "Refund",
+                    StringComparison.OrdinalIgnoreCase);
 
-                // Od ovog trenutka dokument JE fiskalizovan.
-                // Greška baze ili printera više nikada ne smije
-                // uzrokovati automatsko ponovno slanje istog dokumenta.
                 bool savedToDatabase = isCopy;
                 bool printed = false;
                 string? postFiscalError = null;
@@ -57,7 +63,8 @@ namespace Caupo.Fiscal.Serbia
 
                 if (isCopy)
                 {
-                    Debug.WriteLine($"[SRBIJA COPY] Fiskalni duplikat izdat. Novi lokalni račun se ne kreira. FiscalNumber={response.InvoiceNumber}");
+                    Debug.WriteLine(
+                        $"[SRBIJA COPY] Fiskalni duplikat izdat. Novi lokalni račun se ne kreira. FiscalNumber={response.InvoiceNumber}");
                 }
                 else
                 {
@@ -65,21 +72,33 @@ namespace Caupo.Fiscal.Serbia
                     {
                         if (isRefund)
                         {
-                            await FiscalDatabaseRetry.ExecuteAsync(async () =>
-                            {
-                                await repository.MarkRefundedAsync(request, response, cancellationToken);
-                                return true;
-                            }, cancellationToken);
+                            await FiscalDatabaseRetry.ExecuteAsync(
+                                async () =>
+                                {
+                                    await repository.MarkRefundedAsync(
+                                        request,
+                                        response,
+                                        cancellationToken);
+
+                                    return true;
+                                },
+                                cancellationToken);
 
                             savedToDatabase = true;
 
-                            Debug.WriteLine($"[SRBIJA REFUND] Originalni račun označen kao reklamiran. RefundFiscalNumber={response.InvoiceNumber}");
+                            Debug.WriteLine(
+                                $"[SRBIJA REFUND] Originalni račun označen kao reklamiran. RefundFiscalNumber={response.InvoiceNumber}");
                         }
                         else
                         {
-                            savedLocalReceiptNumber = await FiscalDatabaseRetry.ExecuteAsync(
-                                () => repository.SaveAsync(request, response, cancellationToken),
-                                cancellationToken);
+                            savedLocalReceiptNumber =
+                                await FiscalDatabaseRetry.ExecuteAsync(
+                                    () => repository.SaveAsync(
+                                        request,
+                                        invoice,
+                                        response,
+                                        cancellationToken),
+                                    cancellationToken);
 
                             savedToDatabase = true;
                         }
@@ -90,7 +109,10 @@ namespace Caupo.Fiscal.Serbia
                     {
                         Debug.WriteLine("[SRBIJA] DB upis nije uspio ni nakon 3 pokušaja: " + ex);
 
-                        bool restored = await DatabaseBackupService.RestoreLatestBackupAsync(Globals.CurrentDbPath, cancellationToken);
+                        bool restored =
+                            await DatabaseBackupService.RestoreLatestBackupAsync(
+                                Globals.CurrentDbPath,
+                                cancellationToken);
 
                         if (restored)
                         {
@@ -98,19 +120,29 @@ namespace Caupo.Fiscal.Serbia
                             {
                                 if (isRefund)
                                 {
-                                    await repository.MarkRefundedAsync(request, response, cancellationToken);
+                                    await repository.MarkRefundedAsync(
+                                        request,
+                                        response,
+                                        cancellationToken);
 
                                     savedToDatabase = true;
 
-                                    Debug.WriteLine("[SRBIJA REFUND] Baza vraćena iz backupa i Refund uspješno lokalno spremljen.");
+                                    Debug.WriteLine(
+                                        "[SRBIJA REFUND] Baza vraćena iz backupa i Refund uspješno lokalno spremljen.");
                                 }
                                 else
                                 {
-                                    savedLocalReceiptNumber = await repository.SaveAsync(request, response, cancellationToken);
+                                    savedLocalReceiptNumber =
+                                        await repository.SaveAsync(
+                                            request,
+                                            invoice,
+                                            response,
+                                            cancellationToken);
 
                                     savedToDatabase = true;
 
-                                    Debug.WriteLine("[SRBIJA] Baza vraćena iz backupa i račun uspješno lokalno spremljen.");
+                                    Debug.WriteLine(
+                                        "[SRBIJA] Baza vraćena iz backupa i račun uspješno lokalno spremljen.");
                                 }
 
                                 DatabaseBackupService.StartBackup(Globals.CurrentDbPath);
@@ -135,15 +167,24 @@ namespace Caupo.Fiscal.Serbia
 
                 try
                 {
-                    printed = await printer.PrintAsync(response, cancellationToken);
+                    printed = await printer.PrintAsync(
+                        response,
+                        cancellationToken);
 
                     if (!printed)
-                        postFiscalError = AppendError(postFiscalError, "Račun je fiskalizovan, ali nije odštampan.");
+                    {
+                        postFiscalError = AppendError(
+                            postFiscalError,
+                            "Račun je fiskalizovan, ali nije odštampan.");
+                    }
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine("[SRBIJA] Print greška nakon fiskalizacije: " + ex);
-                    postFiscalError = AppendError(postFiscalError, "Račun je fiskalizovan, ali štampanje nije uspjelo: " + ex.Message);
+
+                    postFiscalError = AppendError(
+                        postFiscalError,
+                        "Račun je fiskalizovan, ali štampanje nije uspjelo: " + ex.Message);
                 }
 
                 return new FiscalResult
@@ -163,7 +204,9 @@ namespace Caupo.Fiscal.Serbia
             }
             catch (FiscalOutcomeUnknownException ex)
             {
-                Debug.WriteLine($"[SRBIJA] NEPOZNAT ISHOD FISKALIZACIJE. RequestId={ex.RequestId}");
+                Debug.WriteLine(
+                    $"[SRBIJA] NEPOZNAT ISHOD FISKALIZACIJE. RequestId={ex.RequestId}");
+
                 Debug.WriteLine(ex);
 
                 return new FiscalResult
@@ -184,6 +227,7 @@ namespace Caupo.Fiscal.Serbia
             catch (Exception ex)
             {
                 Debug.WriteLine("[SRBIJA] Fiskalizacija greška: " + ex);
+
                 return FiscalResult.Failed(ex.Message);
             }
         }

@@ -3,6 +3,7 @@ using Caupo.Models;
 using Caupo.Properties;
 using Caupo.Services;
 using Caupo.ViewModels;
+using Caupo.Fiscal.Croatia;
 using Syncfusion.SfSkinManager;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -35,6 +36,8 @@ namespace Caupo
         // =====================================================
 
         //private DatabaseBackupService? _backupService;
+       
+        private CroatiaSubsequentFiscalizationWorker? _croatiaFiscalWorker;
 
         private CaupoDiscoveryService? _discoveryService;
 
@@ -364,8 +367,48 @@ namespace Caupo
             // =================================================
 
             InitializeBackup ();
+
+            // =================================================
+            // 11. HRVATSKA - NAKNADNA FISKALIZACIJA
+            // =================================================
+
+            InitializeCroatiaFiscalWorker();
         }
 
+
+        // =====================================================
+        // HRVATSKA - NAKNADNA FISKALIZACIJA
+        // =====================================================
+
+        private void InitializeCroatiaFiscalWorker()
+        {
+            if (!string.Equals(Settings.Default.Country, "Hrvatska", StringComparison.OrdinalIgnoreCase))
+            {
+                Debug.WriteLine("[HR] Naknadna fiskalizacija se ne pokreće - država nije Hrvatska.");
+                return;
+            }
+
+            if (!CashRegisterConfigurationService.IsMainCashRegister)
+            {
+                Debug.WriteLine("[HR] Dodatna kasa - worker naknadne fiskalizacije se ne pokreće.");
+                return;
+            }
+
+            try
+            {
+                _croatiaFiscalWorker = new CroatiaSubsequentFiscalizationWorker();
+                _croatiaFiscalWorker.Start();
+
+                Debug.WriteLine("[HR] Worker naknadne fiskalizacije pokrenut.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[HR] Greška pri pokretanju workera naknadne fiskalizacije: " + ex);
+
+                _croatiaFiscalWorker?.Dispose();
+                _croatiaFiscalWorker = null;
+            }
+        }
 
         // =====================================================
         // GLAVNA KASA - NETWORK SHARE
@@ -1247,6 +1290,26 @@ namespace Caupo
             {
                 Debug.WriteLine (
                     $"[DISCOVERY] Dispose error: {ex}");
+            }
+
+            // =================================================
+            // HRVATSKA - NAKNADNA FISKALIZACIJA
+            // =================================================
+
+            try
+            {
+                if (_croatiaFiscalWorker != null)
+                {
+                    Debug.WriteLine("[HR] Gasim worker naknadne fiskalizacije.");
+
+                    _croatiaFiscalWorker.StopAsync().GetAwaiter().GetResult();
+                    _croatiaFiscalWorker.Dispose();
+                    _croatiaFiscalWorker = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[HR] Worker dispose error: " + ex);
             }
 
 

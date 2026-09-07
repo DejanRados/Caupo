@@ -4,6 +4,7 @@
     {
         NotFiscalized,
         Fiscalized,
-        Unknown
+        Unknown,
+        Impossible
     }
 }

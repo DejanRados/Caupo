@@ -3,6 +3,7 @@ using Caupo.Fiscal.Croatia.Helpers;
 using Caupo.Fiscal.Croatia.Models;
 using MAES.Fiskal;
 using System.Globalization;
+using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.Fiscal.Croatia
 {
@@ -71,6 +72,76 @@ namespace Caupo.Fiscal.Croatia
                 IssueDateTime = issueDateTime,
                 Taxes = taxes,
                 TotalAmount = request.TotalAmount
+            };
+        }
+
+        public async Task<CroatiaBuiltInvoice> BuildSubsequentAsync(TblRacuni receipt, IReadOnlyList<TblRacunStavka> items, CancellationToken cancellationToken = default)
+        {
+            if (receipt == null)
+                throw new ArgumentNullException(nameof(receipt));
+
+            if (items == null || items.Count == 0)
+                throw new FiscalException("Račun nema spremljenih stavki.");
+
+            if (string.IsNullOrWhiteSpace(receipt.BrojRacunaHr))
+                throw new FiscalException("Račun nema hrvatski broj računa.");
+
+            if (string.IsNullOrWhiteSpace(receipt.Zki))
+                throw new FiscalException("Račun nema originalni ZKI.");
+
+            if (string.IsNullOrWhiteSpace(receipt.Radnik))
+                throw new FiscalException("Račun nema OIB operatera.");
+
+            string[] numberParts = receipt.BrojRacunaHr.Split('/');
+
+            if (numberParts.Length != 3 || string.IsNullOrWhiteSpace(numberParts[0]) || string.IsNullOrWhiteSpace(numberParts[1]) || string.IsNullOrWhiteSpace(numberParts[2]))
+                throw new FiscalException($"Neispravan hrvatski broj računa: {receipt.BrojRacunaHr}");
+
+            decimal pnpRate = receipt.PorezNaPotrosnjuStopa ?? 0m;
+
+            var taxes = await _taxCalculator.CalculateFromStoredItemsAsync(items, pnpRate, cancellationToken);
+
+            var vat = taxes.Where(x => !x.IsConsumptionTax).Select(CroatiaTaxCalculator.ToMaesTax).ToArray();
+            var consumptionTax = taxes.Where(x => x.IsConsumptionTax).Select(CroatiaTaxCalculator.ToMaesTax).ToArray();
+
+            OznakaSlijednostiType sequence =
+                string.Equals(_settings.SequenceSetting, "Poslovni prostor", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(_settings.SequenceSetting, "Na nivou poslovnog prostora", StringComparison.OrdinalIgnoreCase)
+                    ? OznakaSlijednostiType.P
+                    : OznakaSlijednostiType.N;
+
+            decimal totalAmount = items.Sum(x => (x.Kolicina ?? 0m) * (x.Cijena ?? 0m));
+
+            var invoice = new RacunType
+            {
+                BrRac = new BrojRacunaType
+                {
+                    BrOznRac = numberParts[0],
+                    OznPosPr = numberParts[1],
+                    OznNapUr = numberParts[2]
+                },
+
+                DatVrijeme = receipt.Datum.ToString(DateFormatLong, CultureInfo.InvariantCulture),
+                IznosUkupno = totalAmount.ToString("F2", CultureInfo.InvariantCulture),
+                NakDost = true,
+                Oib = _settings.Oib,
+                OibOper = receipt.Radnik,
+                OznSlijed = sequence,
+                Pdv = vat.Length > 0 ? vat : null,
+                Pnp = consumptionTax.Length > 0 ? consumptionTax : null,
+                USustPdv = _settings.IsVatRegistered,
+                NacinPlac = CroatiaPaymentMapper.ToMaes((FiscalPaymentType)receipt.NacinPlacanja),
+                ZastKod = receipt.Zki
+            };
+
+            return new CroatiaBuiltInvoice
+            {
+                Invoice = invoice,
+                LocalReceiptNumber = receipt.BrojRacuna,
+                ReceiptNumberHr = receipt.BrojRacunaHr,
+                IssueDateTime = receipt.Datum,
+                Taxes = taxes,
+                TotalAmount = totalAmount
             };
         }
     }

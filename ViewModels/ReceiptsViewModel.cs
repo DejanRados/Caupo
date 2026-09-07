@@ -1,14 +1,21 @@
 ﻿using Caupo.Data;
 using Caupo.Fiscal;
 using Caupo.Fiscal.Common;
+using Caupo.Fiscal.Croatia;
+using Caupo.Fiscal.Croatia.Helpers;
+using Caupo.Fiscal.Croatia.Models;
+using Caupo.Fiscal.Federation;
+using Caupo.Fiscal.Federation.Models;
+using Caupo.Fiscal.RepublikaSrpska.Helpers;
+using Caupo.Fiscal.RS;
+using Caupo.Fiscal.RS.Models;
+using Caupo.Fiscal.Serbia;
+using Caupo.Fiscal.Serbia.Models;
 using Caupo.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using Caupo.Fiscal.Croatia;
-using Caupo.Fiscal.Croatia.Helpers;
-using Caupo.Fiscal.Croatia.Models;
 using System.Runtime.CompilerServices;
 using static Caupo.Data.DatabaseTables;
 
@@ -60,7 +67,7 @@ namespace Caupo.ViewModels
         }
 
         // ============================================================
-        // DOZVOLJENE OPERACIJE
+        // DRŽAVA / NAČIN ŠTAMPE
         // ============================================================
 
         private string Country => Properties.Settings.Default.Country ?? string.Empty;
@@ -70,8 +77,19 @@ namespace Caupo.ViewModels
         private bool IsRs => string.Equals(Country, "RepublikaSrpska", StringComparison.OrdinalIgnoreCase);
         private bool IsFederation => string.Equals(Country, "FederacijaBiH", StringComparison.OrdinalIgnoreCase);
 
-        private bool IsFiscalized => string.Equals(SelectedReceipt?.Fiskalizovan, "DA", StringComparison.OrdinalIgnoreCase);
-        private bool IsRefunded => string.Equals(SelectedReceipt?.Reklamiran, "DA", StringComparison.OrdinalIgnoreCase);
+        private bool UsesExternalPrinter =>
+            string.Equals(Properties.Settings.Default.ExterniPrinter, "DA", StringComparison.OrdinalIgnoreCase);
+
+        private bool IsFiscalized =>
+            string.Equals(SelectedReceipt?.Fiskalizovan, "DA", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(SelectedReceipt?.Fiskalizovan, FiscalizationStatus.Fiscalized.ToString(), StringComparison.OrdinalIgnoreCase);
+
+        private bool IsRefunded =>
+            string.Equals(SelectedReceipt?.Reklamiran, "DA", StringComparison.OrdinalIgnoreCase);
+
+        // ============================================================
+        // DOZVOLJENE OPERACIJE
+        // ============================================================
 
         public bool CanReprint
         {
@@ -80,7 +98,10 @@ namespace Caupo.ViewModels
                 if (SelectedReceipt == null || !IsFiscalized)
                     return false;
 
-                return IsCroatia || IsSerbia || IsRs;
+                if (IsSerbia || IsRs)
+                    return UsesExternalPrinter;
+
+                return IsCroatia;
             }
         }
 
@@ -91,7 +112,7 @@ namespace Caupo.ViewModels
                 if (SelectedReceipt == null || !IsFiscalized)
                     return false;
 
-                return IsSerbia || IsRs;
+                return IsSerbia || IsRs || IsFederation;
             }
         }
 
@@ -116,8 +137,6 @@ namespace Caupo.ViewModels
                 return IsCroatia && !IsFiscalized;
             }
         }
-
-       
 
         // ============================================================
         // FILTER
@@ -195,15 +214,26 @@ namespace Caupo.ViewModels
             {
                 await using var db = new AppDbContext();
 
-                var receipts = await db.Racuni.AsNoTracking().OrderByDescending(x => x.BrojRacuna).ToListAsync();
-                var workers = await db.Radnici.AsNoTracking().ToDictionaryAsync(x => x.IdRadnika, x => x.Radnik ?? string.Empty);
+                var receipts = await db.Racuni
+                    .AsNoTracking()
+                    .OrderByDescending(x => x.BrojRacuna)
+                    .ToListAsync();
+
+                var workers = await db.Radnici
+                    .AsNoTracking()
+                    .ToDictionaryAsync(x => x.IdRadnika, x => x.Radnik ?? string.Empty);
 
                 foreach (var receipt in receipts)
                 {
-                    if (int.TryParse(receipt.Radnik, out int workerId) && workers.TryGetValue(workerId, out string? workerName))
+                    if (int.TryParse(receipt.Radnik, out int workerId) &&
+                        workers.TryGetValue(workerId, out string? workerName))
+                    {
                         receipt.RadnikName = workerName;
+                    }
                     else
+                    {
                         receipt.RadnikName = receipt.Radnik ?? string.Empty;
+                    }
                 }
 
                 Receipts.Clear();
@@ -249,7 +279,8 @@ namespace Caupo.ViewModels
             {
                 await using var db = new AppDbContext();
 
-                var items = await db.RacunStavka.AsNoTracking()
+                var items = await db.RacunStavka
+                    .AsNoTracking()
                     .Where(x => x.BrojRacuna == selectedReceipt.BrojRacuna)
                     .OrderBy(x => x.IdStavke)
                     .ToListAsync();
@@ -334,79 +365,304 @@ namespace Caupo.ViewModels
                 if (StavkeRacuna.Count == 0)
                     return FiscalResult.Failed("Odabrani račun nema stavki.");
 
-                if (!IsCroatia)
-                    return FiscalResult.Failed("Ponovna štampa trenutno je dostupna samo za Hrvatsku.");
+                if (IsCroatia)
+                    return await PonovoStampajHrvatskaAsync();
 
-                if (string.IsNullOrWhiteSpace(SelectedReceipt.BrojRacunaHr))
-                    return FiscalResult.Failed("Odabrani račun nema spremljen hrvatski broj računa.");
-
-                FiscalPaymentType paymentType = MapPaymentType(SelectedReceipt.NacinPlacanja);
-
-                FiscalRequest request = new FiscalRequest
+                if (IsSerbia)
                 {
-                    Items = StavkeRacuna.ToList(),
-                    Cashier = new FiscalCashier
-                    {
-                        Name = SelectedReceipt.RadnikName ?? SelectedReceipt.Radnik ?? string.Empty
-                    },
-                    PaymentType = paymentType,
-                    TotalAmount = SelectedReceipt.Iznos ?? IznosRacuna ?? 0m,
-                    InvoiceType = "Normal",
-                    TransactionType = "Sale"
-                };
+                    if (!UsesExternalPrinter)
+                        return FiscalResult.Failed("Ponovni ispis nije dostupan kada L-PFR štampa fiskalni račun. Koristite fiskalnu kopiju računa.");
 
-                CroatiaFiscalSettings settings = CroatiaFiscalSettings.FromProperties();
+                    return await PonovoStampajSrbijaAsync();
+                }
 
-                var taxCalculator = new CroatiaTaxCalculator(settings);
-
-                decimal pnpRate = SelectedReceipt.PorezNaPotrosnjuStopa ?? 0m;
-
-                IReadOnlyList<CroatiaTaxSummary> taxes = await taxCalculator.CalculateAsync(
-                    StavkeRacuna.ToList(),
-                    pnpRate);
-
-                var builtInvoice = new CroatiaBuiltInvoice
+                if (IsRs)
                 {
-                    LocalReceiptNumber = SelectedReceipt.BrojRacuna,
-                    ReceiptNumberHr = SelectedReceipt.BrojRacunaHr,
-                    IssueDateTime = SelectedReceipt.Datum,
-                    Taxes = taxes,
-                    TotalAmount = SelectedReceipt.Iznos ?? IznosRacuna ?? 0m
-                };
+                    if (!UsesExternalPrinter)
+                        return FiscalResult.Failed("Ponovni ispis nije dostupan kada LPFR štampa fiskalni račun. Koristite fiskalnu kopiju računa.");
 
-                var fiscalization = new CroatiaFiscalizationResponse
-                {
-                    Fiscalized = true,
-                    Jir = SelectedReceipt.Jir,
-                    Zki = SelectedReceipt.Zki
-                };
+                    return await PonovoStampajRsAsync();
+                }
 
-                var printer = new CroatiaReceiptPrinter(settings);
-
-                bool printed = await printer.ReprintAsync(
-                    request,
-                    builtInvoice,
-                    fiscalization);
-
-                if (!printed)
-                    return FiscalResult.Failed("Ponovna štampa računa nije uspjela.");
-
-                Debug.WriteLine($"[HR REPRINT] Račun {SelectedReceipt.BrojRacunaHr} uspješno ponovo isprintan.");
-
-                return new FiscalResult
-                {
-                    Success = true,
-                    Fiscalized = true,
-                    SavedToDatabase = true,
-                    Printed = true,
-                    FiscalNumber = SelectedReceipt.BrojRacunaHr
-                };
+                return FiscalResult.Failed("Ponovna štampa trenutno nije dostupna za odabranu državu.");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("[HR REPRINT] Greška: " + ex);
+                Debug.WriteLine("[REPRINT] Greška: " + ex);
                 return FiscalResult.Failed(ex.Message);
             }
+        }
+
+        // ============================================================
+        // PONOVNA ŠTAMPA - HRVATSKA
+        // ============================================================
+
+        private async Task<FiscalResult> PonovoStampajHrvatskaAsync()
+        {
+            if (SelectedReceipt == null)
+                return FiscalResult.Failed("Nije odabran račun.");
+
+            if (string.IsNullOrWhiteSpace(SelectedReceipt.BrojRacunaHr))
+                return FiscalResult.Failed("Odabrani račun nema spremljen hrvatski broj računa.");
+
+            FiscalPaymentType paymentType = MapPaymentType(SelectedReceipt.NacinPlacanja);
+
+            FiscalRequest request = new FiscalRequest
+            {
+                Items = StavkeRacuna.ToList(),
+                Cashier = new FiscalCashier
+                {
+                    Name = SelectedReceipt.RadnikName ?? SelectedReceipt.Radnik ?? string.Empty
+                },
+                PaymentType = paymentType,
+                TotalAmount = SelectedReceipt.Iznos ?? IznosRacuna ?? 0m,
+                InvoiceType = "Normal",
+                TransactionType = "Sale"
+            };
+
+            CroatiaFiscalSettings settings = CroatiaFiscalSettings.FromProperties();
+
+            var taxCalculator = new CroatiaTaxCalculator(settings);
+
+            decimal pnpRate = SelectedReceipt.PorezNaPotrosnjuStopa ?? 0m;
+
+            IReadOnlyList<CroatiaTaxSummary> taxes = await taxCalculator.CalculateAsync(
+                StavkeRacuna.ToList(),
+                pnpRate);
+
+            var builtInvoice = new CroatiaBuiltInvoice
+            {
+                LocalReceiptNumber = SelectedReceipt.BrojRacuna,
+                ReceiptNumberHr = SelectedReceipt.BrojRacunaHr,
+                IssueDateTime = SelectedReceipt.Datum,
+                Taxes = taxes,
+                TotalAmount = SelectedReceipt.Iznos ?? IznosRacuna ?? 0m
+            };
+
+            var fiscalization = new CroatiaFiscalizationResponse
+            {
+                Fiscalized = true,
+                Jir = SelectedReceipt.Jir,
+                Zki = SelectedReceipt.Zki
+            };
+
+            var printer = new CroatiaReceiptPrinter(settings);
+
+            bool printed = await printer.ReprintAsync(
+                request,
+                builtInvoice,
+                fiscalization);
+
+            if (!printed)
+                return FiscalResult.Failed("Ponovna štampa računa nije uspjela.");
+
+            Debug.WriteLine($"[HR REPRINT] Račun {SelectedReceipt.BrojRacunaHr} uspješno ponovo isprintan.");
+
+            return new FiscalResult
+            {
+                Success = true,
+                Fiscalized = true,
+                SavedToDatabase = true,
+                Printed = true,
+                FiscalNumber = SelectedReceipt.BrojRacunaHr
+            };
+        }
+
+        // ============================================================
+        // PONOVNA ŠTAMPA - SRBIJA
+        // ============================================================
+
+        private async Task<FiscalResult> PonovoStampajSrbijaAsync()
+        {
+            if (SelectedReceipt == null)
+                return FiscalResult.Failed("Nije odabran račun.");
+
+            if (!UsesExternalPrinter)
+                return FiscalResult.Failed("Ponovni ispis nije dostupan kada L-PFR štampa fiskalni račun. Koristite fiskalnu kopiju računa.");
+
+            if (SelectedReceipt.DatumFiskalnogDokumenta == null)
+                return FiscalResult.Failed("Odabrani račun nema spremljen datum fiskalnog dokumenta.");
+
+            if (string.IsNullOrWhiteSpace(SelectedReceipt.BrojFiskalnogRacuna))
+                return FiscalResult.Failed("Odabrani račun nema spremljen PFR broj računa.");
+
+            if (string.IsNullOrWhiteSpace(SelectedReceipt.BrojacFiskalnogRacuna))
+                return FiscalResult.Failed("Odabrani račun nema spremljen brojač fiskalnog računa.");
+
+            if (string.IsNullOrWhiteSpace(SelectedReceipt.FiskalniVerificationUrl))
+                return FiscalResult.Failed("Odabrani račun nema spremljen Verification URL.");
+
+            await using var db = new AppDbContext();
+
+            var poreskeStope = await db.PoreskeStope
+                .AsNoTracking()
+                .ToListAsync();
+
+            var reprintItems = new List<SerbiaReceiptReprintItem>();
+
+            foreach (var item in StavkeRacuna)
+            {
+                var poreskaStopa = poreskeStope.FirstOrDefault(x => x.IdStope == item.PoreskaStopa);
+
+                if (poreskaStopa == null)
+                    return FiscalResult.Failed($"Poreska stopa za artikal '{item.Naziv ?? item.Name}' nije pronađena.");
+
+                reprintItems.Add(new SerbiaReceiptReprintItem
+                {
+                    Name = item.Naziv ?? item.Name ?? string.Empty,
+                    Quantity = item.Quantity ?? 0m,
+                    UnitPrice = item.UnitPrice ?? 0m,
+                    TaxLabel = poreskaStopa.Oznaka ?? string.Empty,
+                    TaxName = poreskaStopa.Opis ?? string.Empty,
+                    TaxRate = poreskaStopa.Postotak ?? 0m
+                });
+            }
+
+            var data = new SerbiaReceiptReprintData
+            {
+                LocalReceiptNumber = SelectedReceipt.BrojRacuna,
+                EsirDateTime = SelectedReceipt.DatumFiskalnogDokumenta.Value,
+                PfrDateTime = SelectedReceipt.Datum,
+                FiscalNumber = SelectedReceipt.BrojFiskalnogRacuna,
+                InvoiceCounter = SelectedReceipt.BrojacFiskalnogRacuna,
+                VerificationUrl = SelectedReceipt.FiskalniVerificationUrl,
+                Cashier = SelectedReceipt.RadnikName ?? SelectedReceipt.Radnik ?? string.Empty,
+                PaymentType = MapPaymentType(SelectedReceipt.NacinPlacanja),
+                TotalAmount = SelectedReceipt.Iznos ?? IznosRacuna ?? 0m,
+                Items = reprintItems
+            };
+
+            var printer = new SerbiaReceiptPrinter();
+
+            bool printed = await printer.ReprintAsync(data);
+
+            if (!printed)
+                return FiscalResult.Failed("Ponovna štampa srpskog fiskalnog računa nije uspjela.");
+
+            Debug.WriteLine(
+                $"[SR REPRINT] Račun {SelectedReceipt.BrojRacuna}, PFR={SelectedReceipt.BrojFiskalnogRacuna} uspješno ponovo isprintan.");
+
+            return new FiscalResult
+            {
+                Success = true,
+                Fiscalized = true,
+                FiscalizationStatus = FiscalizationStatus.Fiscalized,
+                SavedToDatabase = true,
+                Printed = true,
+                LocalReceiptNumber = SelectedReceipt.BrojRacuna,
+                ReceiptNumber = SelectedReceipt.BrojFiskalnogRacuna,
+                FiscalNumber = SelectedReceipt.BrojFiskalnogRacuna,
+                FiscalDateTime = SelectedReceipt.Datum
+            };
+        }
+
+        // ============================================================
+        // PONOVNA ŠTAMPA - REPUBLIKA SRPSKA
+        // ============================================================
+
+        private async Task<FiscalResult> PonovoStampajRsAsync()
+        {
+            if (SelectedReceipt == null)
+                return FiscalResult.Failed("Nije odabran račun.");
+
+            RsFiscalSettings settings = RsFiscalSettings.FromProperties();
+
+            if (!settings.ExternalPrinter)
+                return FiscalResult.Failed("Ponovni ispis nije dostupan kada LPFR štampa fiskalni račun. Koristite fiskalnu kopiju računa.");
+
+            if (SelectedReceipt.DatumFiskalnogDokumenta == null)
+                return FiscalResult.Failed("Odabrani račun nema spremljen datum fiskalnog dokumenta.");
+
+            if (string.IsNullOrWhiteSpace(SelectedReceipt.BrojFiskalnogRacuna))
+                return FiscalResult.Failed("Odabrani račun nema spremljen PFR broj računa.");
+
+            if (string.IsNullOrWhiteSpace(SelectedReceipt.BrojacFiskalnogRacuna))
+                return FiscalResult.Failed("Odabrani račun nema spremljen brojač fiskalnog računa.");
+
+            if (string.IsNullOrWhiteSpace(SelectedReceipt.FiskalniVerificationUrl))
+                return FiscalResult.Failed("Odabrani račun nema spremljen Verification URL.");
+
+            await using var db = new AppDbContext();
+
+            var poreskeStope = await db.PoreskeStope
+                .AsNoTracking()
+                .ToListAsync();
+
+            var reprintItems = new List<RsReceiptReprintItem>();
+
+            foreach (var item in StavkeRacuna)
+            {
+                if (!item.PoreskaStopa.HasValue)
+                    return FiscalResult.Failed($"Artikal '{item.Naziv ?? item.Name}' nema poresku stopu.");
+
+                var poreskaStopa = poreskeStope.FirstOrDefault(x => x.IdStope == item.PoreskaStopa);
+
+                if (poreskaStopa == null)
+                    return FiscalResult.Failed($"Poreska stopa za artikal '{item.Naziv ?? item.Name}' nije pronađena.");
+
+                string taxLabel;
+
+                try
+                {
+                    taxLabel = RsTaxMapper.ToFiscalLabel(item.PoreskaStopa);
+                }
+                catch (Exception ex)
+                {
+                    return FiscalResult.Failed($"Neispravna poreska stopa za artikal '{item.Naziv ?? item.Name}': {ex.Message}");
+                }
+
+                decimal quantity = item.Quantity ?? 0m;
+                decimal unitPrice = item.UnitPrice ?? 0m;
+
+                reprintItems.Add(new RsReceiptReprintItem
+                {
+                    Name = item.Naziv ?? item.Name ?? string.Empty,
+                    Quantity = quantity,
+                    UnitPrice = unitPrice,
+                    TotalAmount = Math.Round(quantity * unitPrice, 2, MidpointRounding.AwayFromZero),
+                    TaxRateId = item.PoreskaStopa,
+                    TaxLabel = taxLabel,
+                    TaxName = poreskaStopa.Opis ?? string.Empty,
+                    TaxRate = poreskaStopa.Postotak ?? 0m
+                });
+            }
+
+            var data = new RsReceiptReprintData
+            {
+                LocalReceiptNumber = SelectedReceipt.BrojRacuna,
+                EsirDateTime = SelectedReceipt.DatumFiskalnogDokumenta.Value,
+                PfrDateTime = SelectedReceipt.Datum,
+                FiscalReceiptNumber = SelectedReceipt.BrojFiskalnogRacuna,
+                TotalCounter = SelectedReceipt.BrojacFiskalnogRacuna,
+                VerificationUrl = SelectedReceipt.FiskalniVerificationUrl,
+                Cashier = SelectedReceipt.RadnikName ?? SelectedReceipt.Radnik ?? string.Empty,
+                PaymentType = MapPaymentType(SelectedReceipt.NacinPlacanja),
+                TotalAmount = SelectedReceipt.Iznos ?? IznosRacuna ?? 0m,
+                Items = reprintItems
+            };
+
+            var printer = new RsReceiptPrinter(settings);
+
+            bool printed = printer.Reprint(data);
+
+            if (!printed)
+                return FiscalResult.Failed("Ponovna štampa fiskalnog računa Republike Srpske nije uspjela.");
+
+            Debug.WriteLine(
+                $"[RS REPRINT] Račun {SelectedReceipt.BrojRacuna}, PFR={SelectedReceipt.BrojFiskalnogRacuna} uspješno ponovo isprintan.");
+
+            return new FiscalResult
+            {
+                Success = true,
+                Fiscalized = true,
+                FiscalizationStatus = FiscalizationStatus.Fiscalized,
+                SavedToDatabase = true,
+                Printed = true,
+                LocalReceiptNumber = SelectedReceipt.BrojRacuna,
+                ReceiptNumber = SelectedReceipt.BrojFiskalnogRacuna,
+                FiscalNumber = SelectedReceipt.BrojFiskalnogRacuna,
+                FiscalDateTime = SelectedReceipt.Datum
+            };
         }
 
         // ============================================================
@@ -421,10 +677,56 @@ namespace Caupo.ViewModels
             if (!CanIssueCopy)
                 return FiscalResult.Failed("Fiskalna kopija nije dostupna za odabrani račun.");
 
+            if (string.IsNullOrWhiteSpace(SelectedReceipt.BrojFiskalnogRacuna))
+                return FiscalResult.Failed("Odabrani račun nema broj fiskalnog računa.");
+
+            if (IsFederation)
+                return IzdajKopijuFederacija();
+
             if (StavkeRacuna.Count == 0)
                 return FiscalResult.Failed("Odabrani račun nema stavki.");
 
             return await IzdajPostojeciRacunAsync("Copy", "Sale");
+        }
+
+        private FiscalResult IzdajKopijuFederacija()
+        {
+            try
+            {
+                if (SelectedReceipt == null)
+                    return FiscalResult.Failed("Nije odabran račun.");
+
+                if (string.IsNullOrWhiteSpace(SelectedReceipt.BrojFiskalnogRacuna))
+                    return FiscalResult.Failed("Odabrani račun nema broj fiskalnog računa.");
+
+                FederationFiscalSettings settings = FederationFiscalSettings.FromProperties();
+                var client = new FederationFiscalClient(settings);
+
+                FederationFiscalResponse response = client.PrintDuplicate(SelectedReceipt.BrojFiskalnogRacuna);
+
+                if (!response.Fiscalized || !response.Printed)
+                    return FiscalResult.Failed(response.ErrorMessage ?? "Štampanje kopije fiskalnog računa nije uspjelo.");
+
+                Debug.WriteLine($"[FEDERACIJA/TRING COPY] Fiskalni račun {SelectedReceipt.BrojFiskalnogRacuna} uspješno kopiran.");
+
+                return new FiscalResult
+                {
+                    Success = true,
+                    Fiscalized = true,
+                    FiscalizationStatus = FiscalizationStatus.Fiscalized,
+                    SavedToDatabase = true,
+                    Printed = true,
+                    LocalReceiptNumber = SelectedReceipt.BrojRacuna,
+                    ReceiptNumber = SelectedReceipt.BrojFiskalnogRacuna,
+                    FiscalNumber = SelectedReceipt.BrojFiskalnogRacuna,
+                    FiscalDateTime = SelectedReceipt.Datum
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[FEDERACIJA/TRING COPY] Greška: " + ex);
+                return FiscalResult.Failed(ex.Message);
+            }
         }
 
         // ============================================================
@@ -442,11 +744,10 @@ namespace Caupo.ViewModels
             if (StavkeRacuna.Count == 0)
                 return FiscalResult.Failed("Odabrani račun nema stavki.");
 
-            /*
-             * Ovo je privremeno zadržan postojeći put.
-             * U sljedećem koraku Refund razdvajamo po državi.
-             */
-            return await IzdajPostojeciRacunAsync("Training", "Refund");
+            if (string.IsNullOrWhiteSpace(SelectedReceipt.BrojFiskalnogRacuna))
+                return FiscalResult.Failed("Odabrani račun nema broj fiskalnog računa.");
+
+            return await IzdajPostojeciRacunAsync("Normal", "Refund");
         }
 
         // ============================================================
@@ -484,11 +785,16 @@ namespace Caupo.ViewModels
 
                 TblKupci? kupac = null;
 
-                if (!string.IsNullOrWhiteSpace(SelectedReceipt.Kupac) && !string.Equals(SelectedReceipt.Kupac, "Gradjani", StringComparison.OrdinalIgnoreCase))
+                if (!string.IsNullOrWhiteSpace(SelectedReceipt.Kupac) &&
+                    !string.Equals(SelectedReceipt.Kupac, "Gradjani", StringComparison.OrdinalIgnoreCase))
                 {
                     await using var db = new AppDbContext();
+
                     string nazivKupca = SelectedReceipt.Kupac;
-                    kupac = await db.Kupci.AsNoTracking().FirstOrDefaultAsync(x => x.Kupac == nazivKupca);
+
+                    kupac = await db.Kupci
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(x => x.Kupac == nazivKupca);
                 }
 
                 FiscalBuyer? fiscalBuyer = null;
@@ -523,9 +829,11 @@ namespace Caupo.ViewModels
                 };
 
                 IFiscalService fiscalService = FiscalServiceFactory.Create(Properties.Settings.Default.Country);
+
                 FiscalResult result = await fiscalService.IzdajRacunAsync(request);
 
-                Debug.WriteLine($"[RECEIPTS FISCAL] InvoiceType={invoiceType}, TransactionType={transactionType}, Success={result.Success}, Fiscalized={result.Fiscalized}, Saved={result.SavedToDatabase}, Printed={result.Printed}, FiscalNumber={result.FiscalNumber}");
+                Debug.WriteLine(
+                    $"[RECEIPTS FISCAL] InvoiceType={invoiceType}, TransactionType={transactionType}, Success={result.Success}, Fiscalized={result.Fiscalized}, Saved={result.SavedToDatabase}, Printed={result.Printed}, FiscalNumber={result.FiscalNumber}");
 
                 return result;
             }

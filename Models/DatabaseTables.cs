@@ -902,6 +902,7 @@ namespace Caupo.Data
             [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
             public int BrojRacuna { get; set; }
             public DateTime Datum { get; set; }
+            public DateTime? DatumFiskalnogDokumenta { get; set; }
             public string? Kupac { get; set; }
             public int NacinPlacanja { get; set; }
             public decimal? PorezNaPotrosnjuStopa { get; set; }
@@ -952,6 +953,9 @@ namespace Caupo.Data
             public string? Jir { get; set; } 
             public string? Zki { get; set; }
             public string? BrojRacunaHr { get; set; }
+
+            public string? BrojacFiskalnogRacuna { get; set; }
+            public string? FiskalniVerificationUrl { get; set; }
             [NotMapped]
             [JsonIgnore]
             public decimal? Iznos { get; set; }

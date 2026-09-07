@@ -98,6 +98,75 @@ namespace Caupo.Fiscal.Croatia.Helpers
                 .ToList();
         }
 
+        public async Task<IReadOnlyList<CroatiaTaxSummary>> CalculateFromStoredItemsAsync(IReadOnlyList<TblRacunStavka> items, decimal pnpRate, CancellationToken cancellationToken = default)
+        {
+            if (items == null || items.Count == 0)
+                return Array.Empty<CroatiaTaxSummary>();
+
+            await using var db = new AppDbContext();
+
+            var taxRates = await db.Set<TblPoreskeStope>()
+                .AsNoTracking()
+                .ToDictionaryAsync(x => x.IdStope, x => x.Postotak ?? 0m, cancellationToken);
+
+            var totals = new Dictionary<(decimal Rate, bool IsConsumptionTax), (decimal BaseAmount, decimal TaxAmount)>();
+
+            foreach (var item in items)
+            {
+                decimal quantity = item.Kolicina ?? 0m;
+                decimal unitPrice = item.Cijena ?? 0m;
+
+                if (quantity <= 0m)
+                    throw new FiscalException($"Neispravna količina za stavku '{item.Artikl}'.");
+
+                if (unitPrice < 0m)
+                    throw new FiscalException($"Neispravna cijena za stavku '{item.Artikl}'.");
+
+                decimal vatRate = 0m;
+
+                if (item.PoreskaStopa.HasValue)
+                {
+                    if (!taxRates.TryGetValue(item.PoreskaStopa.Value, out vatRate))
+                        throw new FiscalException($"Poreska stopa ID {item.PoreskaStopa.Value} za stavku '{item.Artikl}' nije pronađena u bazi.");
+                }
+
+                decimal itemPnpRate = item.PorezNaPotrosnju ? pnpRate : 0m;
+                decimal combinedRate = vatRate + itemPnpRate;
+
+                decimal taxPerUnit = combinedRate > 0m
+                    ? Math.Round(unitPrice * (combinedRate / (100m + combinedRate)), 2, MidpointRounding.AwayFromZero)
+                    : 0m;
+
+                decimal basePerUnit = unitPrice - taxPerUnit;
+
+                decimal vatPerUnit = combinedRate > 0m
+                    ? Math.Round(taxPerUnit * (vatRate / combinedRate), 2, MidpointRounding.AwayFromZero)
+                    : 0m;
+
+                decimal pnpPerUnit = combinedRate > 0m
+                    ? Math.Round(taxPerUnit * (itemPnpRate / combinedRate), 2, MidpointRounding.AwayFromZero)
+                    : 0m;
+
+                Add(totals, vatRate, false, basePerUnit * quantity, vatPerUnit * quantity);
+
+                if (itemPnpRate > 0m)
+                    Add(totals, itemPnpRate, true, basePerUnit * quantity, pnpPerUnit * quantity);
+            }
+
+            return totals
+                .Where(x => x.Value.BaseAmount != 0m || x.Value.TaxAmount != 0m)
+                .OrderBy(x => x.Key.IsConsumptionTax)
+                .ThenBy(x => x.Key.Rate)
+                .Select(x => new CroatiaTaxSummary
+                {
+                    Rate = x.Key.Rate,
+                    IsConsumptionTax = x.Key.IsConsumptionTax,
+                    BaseAmount = Math.Round(x.Value.BaseAmount, 2, MidpointRounding.AwayFromZero),
+                    TaxAmount = Math.Round(x.Value.TaxAmount, 2, MidpointRounding.AwayFromZero)
+                })
+                .ToList();
+        }
+
         private static void Add(
             IDictionary<
                 (decimal Rate, bool IsConsumptionTax),

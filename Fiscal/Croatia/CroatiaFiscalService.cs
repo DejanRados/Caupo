@@ -203,6 +203,113 @@ namespace Caupo.Fiscal.Croatia
             };
         }
 
+        public async Task<CroatiaFiscalizationResponse> FiscalizeSubsequentlyAsync(int localReceiptNumber, CancellationToken cancellationToken = default)
+        {
+            var settings = CroatiaFiscalSettings.FromProperties();
+            settings.Validate();
+
+            var repository = new CroatiaReceiptRepository();
+            var builder = new CroatiaInvoiceBuilder(settings);
+            var client = new CroatiaFiscalClient(settings);
+
+            var (receipt, items) = await repository.GetForSubsequentFiscalizationAsync(localReceiptNumber, cancellationToken);
+
+            CroatiaBuiltInvoice builtInvoice = await builder.BuildSubsequentAsync(receipt, items, cancellationToken);
+
+            await repository.MarkFiscalizationAttemptAsync(localReceiptNumber, cancellationToken);
+
+            CroatiaFiscalizationResponse fiscalization;
+
+            try
+            {
+                fiscalization = await client.FiscalizeSubsequentlyAsync(builtInvoice, receipt.Zki!, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[HR] Naknadna fiskalizacija nije uspjela: " + ex);
+
+                return new CroatiaFiscalizationResponse
+                {
+                    Fiscalized = false,
+                    Zki = receipt.Zki,
+                    ErrorMessage = ex.Message
+                };
+            }
+
+            if (!fiscalization.Fiscalized || string.IsNullOrWhiteSpace(fiscalization.Jir))
+                return fiscalization;
+
+            try
+            {
+                await FiscalDatabaseRetry.ExecuteAsync(
+                    () => repository.MarkFiscalizedAsync(localReceiptNumber, fiscalization.Jir, receipt.Zki!, cancellationToken),
+                    cancellationToken);
+
+                DatabaseBackupService.StartBackup(Globals.CurrentDbPath);
+
+                Debug.WriteLine($"[HR] Račun {receipt.BrojRacunaHr} uspješno naknadno fiskalizovan. JIR: {fiscalization.Jir}");
+
+                return fiscalization;
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[HR] JIR je primljen, ali DB update nije uspio ni nakon ponovljenih pokušaja: " + ex);
+
+                bool restored;
+
+                try
+                {
+                    restored = await DatabaseBackupService.RestoreLatestBackupAsync(Globals.CurrentDbPath, cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception restoreEx)
+                {
+                    throw new FiscalDatabaseFatalException(
+                        $"CIS je fiskalizovao račun {receipt.BrojRacunaHr} i vratio JIR {fiscalization.Jir}, ali lokalni DB upis nije uspio, a nije uspio ni restore backupa. Potrebna je intervencija podrške.",
+                        restoreEx);
+                }
+
+                if (!restored)
+                {
+                    throw new FiscalDatabaseFatalException(
+                        $"CIS je fiskalizovao račun {receipt.BrojRacunaHr} i vratio JIR {fiscalization.Jir}, ali lokalni DB upis nije uspio i nije moguće vratiti ispravan backup. Potrebna je intervencija podrške.",
+                        ex);
+                }
+
+                try
+                {
+                    await repository.MarkFiscalizedAsync(localReceiptNumber, fiscalization.Jir, receipt.Zki!, cancellationToken);
+
+                    DatabaseBackupService.StartBackup(Globals.CurrentDbPath);
+
+                    Debug.WriteLine($"[HR] Baza vraćena iz backupa i JIR {fiscalization.Jir} uspješno spremljen za račun {receipt.BrojRacunaHr}.");
+
+                    return fiscalization;
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception retryEx)
+                {
+                    throw new FiscalDatabaseFatalException(
+                        $"CIS je fiskalizovao račun {receipt.BrojRacunaHr} i vratio JIR {fiscalization.Jir}, ali JIR nije moguće spremiti u lokalnu bazu ni nakon vraćanja ispravnog backupa. Daljnji rad Caupa nije siguran i potrebna je intervencija podrške.",
+                        retryEx);
+                }
+            }
+        }
+
         private static string AppendError(
             string? current,
             string next)
