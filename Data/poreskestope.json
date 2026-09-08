@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "updated": "2026-09-08",
+  "countries": {
+    "Hrvatska": {
+      "rates": [
+        {
+          "opis": "PDV 0%",
+          "postotak": 0,
+          "oznaka": "0"
+        },
+        {
+          "opis": "PDV 5%",
+          "postotak": 5,
+          "oznaka": "5"
+        },
+        {
+          "opis": "PDV 13%",
+          "postotak": 13,
+          "oznaka": "13"
+        },
+        {
+          "opis": "PDV 25%",
+          "postotak": 25,
+          "oznaka": "25"
+        }
+      ]
+    },
+    "FederacijaBiH": {
+      "rates": [
+        {
+          "opis": "Korisnik nije u PDV-u za sve artikle",
+          "postotak": 0,
+          "oznaka": "A"
+        },
+        {
+          "opis": "Korisnik je u PDV-u za sve artikle",
+          "postotak": 17,
+          "oznaka": "E"
+        },
+        {
+          "opis": "Posebna poreska stopa, trenutno se ne koristi",
+          "postotak": 0,
+          "oznaka": "J"
+        },
+        {
+          "opis": "Korisnik u PDV-u, artikl oslobođen PDV-a",
+          "postotak": 0,
+          "oznaka": "K"
+        }
+      ]
+    },
+    "RepublikaSrpska": {
+      "rates": [
+        {
+          "opis": "Korisnik nije u PDV-u za sve artikle",
+          "postotak": 0,
+          "oznaka": "A"
+        },
+        {
+          "opis": "Korisnik je u PDV-u za sve artikle",
+          "postotak": 17,
+          "oznaka": "E"
+        },
+        {
+          "opis": "Posebna poreska stopa, trenutno se ne koristi",
+          "postotak": 0,
+          "oznaka": "J"
+        },
+        {
+          "opis": "Korisnik u PDV-u, artikl oslobođen PDV-a",
+          "postotak": 0,
+          "oznaka": "K"
+        }
+      ]
+    },
+    "Srbija": {
+      "rates": [
+        {
+          "opis": "Opšta stopa PDV-a",
+          "postotak": 20,
+          "oznaka": "Ђ"
+        },
+        {
+          "opis": "Posebna stopa PDV-a",
+          "postotak": 10,
+          "oznaka": "Е"
+        },
+        {
+          "opis": "Oslobođeno PDV-a",
+          "postotak": 0,
+          "oznaka": "А"
+        },
+        {
+          "opis": "Van sistema PDV-a",
+          "postotak": 0,
+          "oznaka": "Г"
+        }
+      ]
+    }
+  }
+}

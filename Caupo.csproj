@@ -24,6 +24,7 @@
   <ItemGroup>
     <None Remove="Assets\Fonts\codicon.ttf" />
     <None Remove="Assets\Fonts\password.ttf" />
+    <None Remove="Data\poreskestope.json" />
     <None Remove="Data\sysFormWPF.db" />
     <None Remove="Images\caupodark.svg" />
     <None Remove="Images\caupolight.svg" />
@@ -223,6 +224,9 @@
 
   <ItemGroup>
     <Content Include="caupoicon.ico" />
+    <Content Include="Data\poreskestope.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Data\sysFormWPF.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

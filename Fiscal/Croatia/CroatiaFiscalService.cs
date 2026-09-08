@@ -8,114 +8,97 @@ namespace Caupo.Fiscal.Croatia
     public sealed class CroatiaFiscalService :
         IFiscalService
     {
-        public async Task<FiscalResult> IzdajRacunAsync(
-            FiscalRequest request,
-            CancellationToken cancellationToken = default)
+        public async Task<FiscalResult> IzdajRacunAsync(FiscalRequest request, CancellationToken cancellationToken = default)
         {
-            if(request == null)
-                throw new ArgumentNullException(
-                    nameof(request));
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
 
-            if(request.Items == null ||
-               request.Items.Count == 0)
-            {
-                return FiscalResult.Failed(
-                    "Račun nema stavki.");
-            }
+            if (request.Items == null || request.Items.Count == 0)
+                return FiscalResult.Failed("Račun nema stavki.");
 
-            var settings =
-                CroatiaFiscalSettings
-                    .FromProperties();
+            var settings = CroatiaFiscalSettings.FromProperties();
 
             try
             {
                 settings.Validate();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return FiscalResult.Failed(
-                    ex.Message);
+                return FiscalResult.Failed(ex.Message);
             }
 
-            var repository =
-                new CroatiaReceiptRepository();
-
-            var builder =
-                new CroatiaInvoiceBuilder(
-                    settings);
-
-            var client =
-                new CroatiaFiscalClient(
-                    settings);
-
-            var printer =
-                new CroatiaReceiptPrinter(
-                    settings);
+            var repository = new CroatiaReceiptRepository();
+            var builder = new CroatiaInvoiceBuilder(settings);
+            var client = new CroatiaFiscalClient(settings);
+            var printer = new CroatiaReceiptPrinter(settings);
 
             int localReceiptNumber;
 
             try
             {
-                localReceiptNumber =
-                    await repository
-                        .GetNextLocalReceiptNumberAsync(
-                            cancellationToken);
+                localReceiptNumber = await repository.GetNextLocalReceiptNumberAsync(cancellationToken);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return FiscalResult.Failed(
-                    "Nije moguće odrediti broj računa: " +
-                    ex.Message);
+                return FiscalResult.Failed("Nije moguće odrediti broj računa: " + ex.Message);
             }
 
             CroatiaBuiltInvoice builtInvoice;
 
             try
             {
-                builtInvoice =
-                    await builder.BuildAsync(
-                        request,
-                        localReceiptNumber,
-                        cancellationToken);
+                builtInvoice = await builder.BuildAsync(request, localReceiptNumber, cancellationToken);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return FiscalResult.Failed(
-                    "Greška pri pripremi hrvatskog računa: " +
-                    ex.Message);
+                return FiscalResult.Failed("Greška pri pripremi hrvatskog računa: " + ex.Message);
             }
 
             CroatiaFiscalizationResponse fiscalization;
 
             try
             {
-                fiscalization =
-                    await client.FiscalizeAsync(
-                        builtInvoice,
-                        cancellationToken);
+                fiscalization = await client.FiscalizeAsync(builtInvoice, cancellationToken);
             }
-            catch(OperationCanceledException)
+            catch (OperationCanceledException)
             {
                 throw;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                fiscalization =
-                    new CroatiaFiscalizationResponse
-                    {
-                        Fiscalized = false,
-                        Zki =
-                            builtInvoice.Invoice.ZastKod,
-                        ErrorMessage =
-                            ex.Message
-                    };
+                fiscalization = new CroatiaFiscalizationResponse
+                {
+                    Fiscalized = false,
+                    Zki = builtInvoice.Invoice.ZastKod,
+                    ErrorMessage = ex.Message
+                };
+            }
+
+            // CIS je račun primio i eksplicitno ga odbio.
+            // Takav račun NE spremamo, NE printamo i NE šaljemo na NakDost.
+            // Kasa mora ostati otvorena kako bi korisnik otklonio razlog greške
+            // i ponovo pokušao fiskalizaciju.
+            if (fiscalization.CisRejected)
+            {
+                Debug.WriteLine($"[HR] CIS je odbio račun {builtInvoice.ReceiptNumberHr}: {fiscalization.ErrorMessage}");
+
+                return new FiscalResult
+                {
+                    Success = false,
+                    Fiscalized = false,
+                    SavedToDatabase = false,
+                    Printed = false,
+                    LocalReceiptNumber = localReceiptNumber,
+                    ReceiptNumber = builtInvoice.ReceiptNumberHr,
+                    FiscalNumber = null,
+                    FiscalDateTime = builtInvoice.IssueDateTime,
+                    ErrorMessage = fiscalization.ErrorMessage
+                };
             }
 
             bool saved = false;
             bool printed = false;
-
-            string? postError =
-                fiscalization.ErrorMessage;
+            string? postError = fiscalization.ErrorMessage;
 
             try
             {
@@ -154,40 +137,22 @@ namespace Caupo.Fiscal.Croatia
             {
                 try
                 {
-                    printed =
-                        await printer.PrintAsync(
-                            request,
-                            builtInvoice,
-                            fiscalization,
-                            cancellationToken);
+                    printed = await printer.PrintAsync(request, builtInvoice, fiscalization, cancellationToken);
 
-                    if(!printed)
-                    {
-                        postError =
-                            AppendError(
-                                postError,
-                                "Račun nije isprintan.");
-                    }
+                    if (!printed)
+                        postError = AppendError(postError, "Račun nije isprintan.");
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    Debug.WriteLine(
-                        "[HR] Print greška: " +
-                        ex);
-
-                    postError =
-                        AppendError(
-                            postError,
-                            "Greška pri printanju: " +
-                            ex.Message);
+                    Debug.WriteLine("[HR] Print greška: " + ex);
+                    postError = AppendError(postError, "Greška pri printanju: " + ex.Message);
                 }
             }
 
-            // Za Hrvatsku račun se mora sačuvati i kada CIS
-            // trenutno nije dostupan, kako bi se kasnije mogao
-            // poslati naknadnom dostavom.
+            // Ako CIS trenutno nije dostupan, račun se lokalno sprema kao
+            // NotFiscalized i kasnije automatski šalje kroz NakDost.
             //
-            // Success ovdje znači da je lokalno izdavanje završeno.
+            // Success znači da je lokalno izdavanje završeno.
             // Fiscalized posebno govori da li je CIS već dodijelio JIR.
             return new FiscalResult
             {

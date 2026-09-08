@@ -1,6 +1,7 @@
 ﻿using Caupo.Data;
 using Caupo.Helpers;
 using Caupo.Properties;
+using Caupo.Services;
 using Caupo.Views;
 using CommunityToolkit.Mvvm.Input;
 using MAES.Fiskal;
@@ -123,6 +124,12 @@ namespace Caupo.ViewModels
                     OnPropertyChanged(nameof(ShowRS));
                     OnPropertyChanged(nameof(ShowHR));
                     OnPropertyChanged(nameof(ShowSR));
+
+                    if (_settingsLoaded)
+                    {
+                        _regionPromijenjen = true;
+                        _ = PreviewPoreskeStopeAsync(value);
+                    }
                 }
             }
         }
@@ -681,8 +688,9 @@ namespace Caupo.ViewModels
 
         #endregion
 
+        private bool _settingsLoaded;
+        private bool _regionPromijenjen;
 
-  
 
         #region Commands
 
@@ -806,7 +814,7 @@ namespace Caupo.ViewModels
 
 
             LoadSettingsFromProperties();
-
+            _settingsLoaded = true;
 
             _ = LoadRadniciAsync();
 
@@ -1220,30 +1228,120 @@ namespace Caupo.ViewModels
             }
         }
 
+        private async Task SyncPoreskeStopeFromJsonAsync(Drzava drzava)
+        {
+            try
+            {
+                var jsonStope = await TaxRatesJsonService.GetRatesAsync(drzava.ToString());
+
+                if (jsonStope.Count == 0)
+                    throw new Exception($"JSON ne sadrži poreske stope za {drzava}.");
+
+                await using var db = new AppDbContext();
+
+                var postojeceStope = await db.PoreskeStope.ToListAsync();
+
+                // Prvo deaktiviramo sve postojeće stope.
+                // Ništa ne brišemo jer artikli mogu referencirati IdStope.
+                foreach (var stopa in postojeceStope)
+                    stopa.Aktivna = false;
+
+                foreach (var jsonStopa in jsonStope)
+                {
+                    string oznaka = jsonStopa.Oznaka.Trim();
+
+                    var postojeca = postojeceStope.FirstOrDefault(x =>
+                        !string.IsNullOrWhiteSpace(x.Oznaka) &&
+                        string.Equals(x.Oznaka.Trim(), oznaka, StringComparison.Ordinal));
+
+                    if (postojeca != null)
+                    {
+                        postojeca.Opis = jsonStopa.Opis.Trim();
+                        postojeca.Postotak = jsonStopa.Postotak;
+                        postojeca.Oznaka = oznaka;
+                        postojeca.Aktivna = true;
+
+                        Debug.WriteLine($"[PORESKE STOPE] Aktivirana postojeća: ID={postojeca.IdStope}, Oznaka={oznaka}, Stopa={jsonStopa.Postotak}%");
+                    }
+                    else
+                    {
+                        var nova = new TblPoreskeStope
+                        {
+                            Opis = jsonStopa.Opis.Trim(),
+                            Postotak = jsonStopa.Postotak,
+                            Oznaka = oznaka,
+                            Aktivna = true
+                        };
+
+                        db.PoreskeStope.Add(nova);
+
+                        Debug.WriteLine($"[PORESKE STOPE] Dodajem novu: Oznaka={oznaka}, Stopa={jsonStopa.Postotak}%");
+                    }
+                }
+
+                await db.SaveChangesAsync();
+                await LoadPoreskeStopeAsync();
+
+                Debug.WriteLine($"[PORESKE STOPE] {drzava}: spremljeno {jsonStope.Count} stopa u bazu.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[PORESKE STOPE] Greška JSON sinhronizacije za {drzava}: {ex}");
+                ShowError("Greška pri spremanju poreskih stopa:\n\n" + ex.Message);
+                throw;
+            }
+        }
+
+        private async Task PreviewPoreskeStopeAsync(Drzava drzava)
+        {
+            try
+            {
+                var jsonStope = await TaxRatesJsonService.GetRatesAsync(drzava.ToString());
+
+                PoreskeStope = new ObservableCollection<TblPoreskeStope>(
+                    jsonStope.Select(x => new TblPoreskeStope
+                    {
+                        Opis = x.Opis,
+                        Postotak = x.Postotak,
+                        Oznaka = x.Oznaka,
+                        Aktivna = true
+                    }));
+
+                SelectedPoreskaStopa = null;
+
+                Debug.WriteLine($"[PORESKE STOPE] Prikaz za {drzava}: {jsonStope.Count} stopa.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[PORESKE STOPE] Greška prikaza za {drzava}: {ex}");
+                ShowError("Greška pri učitavanju poreskih stopa:\n\n" + ex.Message);
+            }
+        }
         #endregion
 
         private async Task LoadPoreskeStopeAsync()
         {
             try
             {
-                await using var db =
-                    new AppDbContext();
+                await using var db = new AppDbContext();
 
-                var stope =
-    await db.PoreskeStope
-        .AsNoTracking()
-        .Where(x => x.Aktivna)
-        .OrderBy(x => x.IdStope)
-        .ToListAsync();
+                var stope = await db.PoreskeStope
+                    .AsNoTracking()
+                    .Where(x => x.Aktivna)
+                    .OrderBy(x => x.IdStope)
+                    .ToListAsync();
 
-                PoreskeStope =
-                    new ObservableCollection<TblPoreskeStope>(
-                        stope);
+                if (stope.Count > 0)
+                {
+                    PoreskeStope = new ObservableCollection<TblPoreskeStope>(stope);
+                    return;
+                }
+
+                await PreviewPoreskeStopeAsync(OdabranaDrzava);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(
-                    $"[SRBIJA] Greška učitavanja poreskih stopa: {ex}");
+                Debug.WriteLine($"[PORESKE STOPE] Greška učitavanja poreskih stopa: {ex}");
             }
         }
 
@@ -1891,243 +1989,120 @@ namespace Caupo.ViewModels
 
             try
             {
+               
+
+                await using (var db = new AppDbContext())
+                {
+                    bool imaAktivnihPoreskihStopa = await db.PoreskeStope.AnyAsync(x => x.Aktivna);
+
+                    if (_regionPromijenjen || !imaAktivnihPoreskihStopa)
+                        await SyncPoreskeStopeFromJsonAsync(OdabranaDrzava);
+                }
+
                 // =================================================
                 // DRŽAVA
                 // =================================================
 
-                Properties.Settings.Default.Country =
-                    OdabranaDrzava.ToString();
-
+                Properties.Settings.Default.Country = OdabranaDrzava.ToString();
 
                 // =================================================
                 // FIRMA
                 // =================================================
 
-                Properties.Settings.Default.Firma =
-                    Firma?.Trim() ?? string.Empty;
-
-                Properties.Settings.Default.Adresa =
-                    Adresa?.Trim() ?? string.Empty;
-
-                Properties.Settings.Default.Mjesto =
-                    Mjesto?.Trim() ?? string.Empty;
-
-                Properties.Settings.Default.JIB =
-                    JIB?.Trim() ?? string.Empty;
-
-                Properties.Settings.Default.PDV =
-                    PDV?.Trim() ?? string.Empty;
-
-                Properties.Settings.Default.ZR =
-                    ZR?.Trim() ?? string.Empty;
-
-                Properties.Settings.Default.Email =
-                    Email?.Trim() ?? string.Empty;
-
-                Properties.Settings.Default.PDVKorisnik =
-                    YesNoIndexToString(PDVKorisnik);
-
+                Properties.Settings.Default.Firma = Firma?.Trim() ?? string.Empty;
+                Properties.Settings.Default.Adresa = Adresa?.Trim() ?? string.Empty;
+                Properties.Settings.Default.Mjesto = Mjesto?.Trim() ?? string.Empty;
+                Properties.Settings.Default.JIB = JIB?.Trim() ?? string.Empty;
+                Properties.Settings.Default.PDV = PDV?.Trim() ?? string.Empty;
+                Properties.Settings.Default.ZR = ZR?.Trim() ?? string.Empty;
+                Properties.Settings.Default.Email = Email?.Trim() ?? string.Empty;
+                Properties.Settings.Default.PDVKorisnik = YesNoIndexToString(PDVKorisnik);
 
                 // =================================================
                 // FEDERACIJA BiH
                 // =================================================
 
-                Properties.Settings.Default.TringServerIpAddress =
-                    TringServerIpAddress?.Trim()
-                    ?? string.Empty;
-
+                Properties.Settings.Default.TringServerIpAddress = TringServerIpAddress?.Trim() ?? string.Empty;
 
                 // =================================================
                 // REPUBLIKA SRPSKA
                 // =================================================
 
-                Properties.Settings.Default.LPFR_IP =
-                    LPFRIP?.Trim() ?? string.Empty;
-
-                Properties.Settings.Default.LPFR_Key =
-                    LPFRKey?.Trim() ?? string.Empty;
-
-                Properties.Settings.Default.LPFR_Pin =
-                    LPFRPin?.Trim() ?? string.Empty;
-
-                Properties.Settings.Default.ExterniPrinter =
-                    YesNoIndexToString(ExterniPrinter);
-
-                Properties.Settings.Default.SirinaTrake =
-                    SirinaTrake ?? "80";
-
+                Properties.Settings.Default.LPFR_IP = LPFRIP?.Trim() ?? string.Empty;
+                Properties.Settings.Default.LPFR_Key = LPFRKey?.Trim() ?? string.Empty;
+                Properties.Settings.Default.LPFR_Pin = LPFRPin?.Trim() ?? string.Empty;
+                Properties.Settings.Default.ExterniPrinter = YesNoIndexToString(ExterniPrinter);
+                Properties.Settings.Default.SirinaTrake = SirinaTrake ?? "80";
 
                 // =================================================
                 // HRVATSKA
                 // =================================================
 
-                Properties.Settings.Default.DemoServerUrl =
-                    DemoServerUrl?.Trim()
-                    ?? string.Empty;
-
-                Properties.Settings.Default.ProductionSeverUrl =
-                    ProductionServerUrl?.Trim()
-                    ?? string.Empty;
-
-                Properties.Settings.Default.PoslovniProstor =
-                    PoslovniProstor?.Trim()
-                    ?? string.Empty;
-
-                Properties.Settings.Default.NaplatniUredjaj =
-                    NaplatniUredjaj?.Trim()
-                    ?? string.Empty;
-
-                Properties.Settings.Default.OznakaSlijednosti =
-                    OznakaSlijednosti == 0
-                        ? "Naplatni uređaj"
-                        : "Poslovni prostor";
-
-                Properties.Settings.Default.VerzijaAplikacije =
-                    VerzijaAplikacije == 0
-                        ? "Demo"
-                        : "Produkcijska";
-
-                Properties.Settings.Default.CerificateName =
-                    CertificateName?.Trim()
-                    ?? string.Empty;
-
-                Properties.Settings.Default.CerificatePassword =
-                    CertificatePassword
-                    ?? string.Empty;
-
-                Properties.Settings.Default.PnpStopa =
-                    PnpStopa?.Trim()
-                    ?? string.Empty;
-
+                Properties.Settings.Default.DemoServerUrl = DemoServerUrl?.Trim() ?? string.Empty;
+                Properties.Settings.Default.ProductionSeverUrl = ProductionServerUrl?.Trim() ?? string.Empty;
+                Properties.Settings.Default.PoslovniProstor = PoslovniProstor?.Trim() ?? string.Empty;
+                Properties.Settings.Default.NaplatniUredjaj = NaplatniUredjaj?.Trim() ?? string.Empty;
+                Properties.Settings.Default.OznakaSlijednosti = OznakaSlijednosti == 0 ? "Naplatni uređaj" : "Poslovni prostor";
+                Properties.Settings.Default.VerzijaAplikacije = VerzijaAplikacije == 0 ? "Demo" : "Produkcijska";
+                Properties.Settings.Default.CerificateName = CertificateName?.Trim() ?? string.Empty;
+                Properties.Settings.Default.CerificatePassword = CertificatePassword ?? string.Empty;
+                Properties.Settings.Default.PnpStopa = PnpStopa?.Trim() ?? string.Empty;
 
                 // =================================================
                 // SRBIJA - OPŠTE
                 // =================================================
 
-                Properties.Settings.Default.SrbijaPfrType =
-                    SrbijaPfrType?.Trim()
-                    ?? string.Empty;
-
-                Properties.Settings.Default.SrbijaEnvironment =
-                    SrbijaEnvironment?.Trim()
-                    ?? string.Empty;
-
+                Properties.Settings.Default.SrbijaPfrType = SrbijaPfrType?.Trim() ?? string.Empty;
+                Properties.Settings.Default.SrbijaEnvironment = SrbijaEnvironment?.Trim() ?? string.Empty;
 
                 // =================================================
                 // SRBIJA - VPFR
                 // =================================================
 
-                Properties.Settings.Default.SrbijaVPFRUrl =
-                    SrbijaVPFRUrl?.Trim()
-                    ?? string.Empty;
-
-                Properties.Settings.Default.SrbijaCertificateName =
-                    SrbijaCertificateName?.Trim()
-                    ?? string.Empty;
-
-                Properties.Settings.Default
-                    .SrbijaCertificatePassword =
-                    SrbijaCertificatePassword
-                    ?? string.Empty;
-
-                Properties.Settings.Default.SrbijaPAC =
-                    SrbijaPAC?.Trim()
-                    ?? string.Empty;
-
-                Properties.Settings.Default.SrbijaAcceptLanguage =
-                    SrbijaAcceptLanguage?.Trim()
-                    ?? string.Empty;
-
+                Properties.Settings.Default.SrbijaVPFRUrl = SrbijaVPFRUrl?.Trim() ?? string.Empty;
+                Properties.Settings.Default.SrbijaCertificateName = SrbijaCertificateName?.Trim() ?? string.Empty;
+                Properties.Settings.Default.SrbijaCertificatePassword = SrbijaCertificatePassword ?? string.Empty;
+                Properties.Settings.Default.SrbijaPAC = SrbijaPAC?.Trim() ?? string.Empty;
+                Properties.Settings.Default.SrbijaAcceptLanguage = SrbijaAcceptLanguage?.Trim() ?? string.Empty;
 
                 // =================================================
                 // SRBIJA - LPFR
                 // =================================================
 
-                Properties.Settings.Default.SrbijaLPFRToken =
-                    SrbijaLPFRToken?.Trim()
-                    ?? string.Empty;
-
-                Properties.Settings.Default.SrbijaLPFRUrl =
-                    SrbijaLPFRUrl?.Trim()
-                    ?? string.Empty;
-
-                Properties.Settings.Default.SrbijaLPFRPin =
-                    SrbijaLPFRPin?.Trim()
-                    ?? string.Empty;
-
-                Properties.Settings.Default.SrbijaLPFRJid =
-                    SrbijaLPFRJid?.Trim()
-                    ?? string.Empty;
-
+                Properties.Settings.Default.SrbijaLPFRToken = SrbijaLPFRToken?.Trim() ?? string.Empty;
+                Properties.Settings.Default.SrbijaLPFRUrl = SrbijaLPFRUrl?.Trim() ?? string.Empty;
+                Properties.Settings.Default.SrbijaLPFRPin = SrbijaLPFRPin?.Trim() ?? string.Empty;
+                Properties.Settings.Default.SrbijaLPFRJid = SrbijaLPFRJid?.Trim() ?? string.Empty;
 
                 // =================================================
                 // APLIKACIJA
                 // =================================================
 
-                //  Properties.Settings.Default.DbPath =
-                //      DbPath?.Trim ()
-                //      ?? string.Empty;
+                // Properties.Settings.Default.DbPath = DbPath?.Trim() ?? string.Empty;
 
-                Properties.Settings.Default.BackupUrl =
-                    BackupUrl?.Trim()
-                    ?? string.Empty;
-
-                Properties.Settings.Default.LogoUrl =
-                    LogoUrl?.Trim()
-                    ?? string.Empty;
-
-                Properties.Settings.Default.POSPrinter =
-                    POSPrinter?.Trim()
-                    ?? string.Empty;
-
-                Properties.Settings.Default.A4Printer =
-                    A4Printer?.Trim()
-                    ?? string.Empty;
-
-                Properties.Settings.Default.KuhinjaPrinter =
-                    KuhinjaPrinter?.Trim()
-                    ?? string.Empty;
-
-                Properties.Settings.Default.SankPrinter =
-                    SankPrinter?.Trim()
-                    ?? string.Empty;
-
-                Properties.Settings.Default.BlokKopija =
-                    BrojKopijaBloka ?? "1";
-
-                Properties.Settings.Default.ProdajaMinus =
-                    YesNoIndexToString(ProdajaMinus);
-
-                Properties.Settings.Default.MultiUser =
-                    YesNoIndexToString(MultiUser);
-
-                Properties.Settings.Default.Tema =
-                    Tema == 0
-                        ? "Tamna"
-                        : "Svijetla";
-
-                Properties.Settings.Default.ServerIP =
-                    ServerIP?.Trim()
-                    ?? string.Empty;
-
-                Properties.Settings.Default.DisplayKuhinja =
-                    (SelectedMonitor?.Index ?? 0)
-                    .ToString();
-
+                Properties.Settings.Default.BackupUrl = BackupUrl?.Trim() ?? string.Empty;
+                Properties.Settings.Default.LogoUrl = LogoUrl?.Trim() ?? string.Empty;
+                Properties.Settings.Default.POSPrinter = POSPrinter?.Trim() ?? string.Empty;
+                Properties.Settings.Default.A4Printer = A4Printer?.Trim() ?? string.Empty;
+                Properties.Settings.Default.KuhinjaPrinter = KuhinjaPrinter?.Trim() ?? string.Empty;
+                Properties.Settings.Default.SankPrinter = SankPrinter?.Trim() ?? string.Empty;
+                Properties.Settings.Default.BlokKopija = BrojKopijaBloka ?? "1";
+                Properties.Settings.Default.ProdajaMinus = YesNoIndexToString(ProdajaMinus);
+                Properties.Settings.Default.MultiUser = YesNoIndexToString(MultiUser);
+                Properties.Settings.Default.Tema = Tema == 0 ? "Tamna" : "Svijetla";
+                Properties.Settings.Default.ServerIP = ServerIP?.Trim() ?? string.Empty;
+                Properties.Settings.Default.DisplayKuhinja = (SelectedMonitor?.Index ?? 0).ToString();
                 Properties.Settings.Default.FooterRacuna = FooterRacuna;
+
                 // =================================================
                 // SPREMANJE
                 // =================================================
 
                 Properties.Settings.Default.Save();
 
-                Globals.CurrentDbPath =
-                    DbPath?.Trim() ?? string.Empty;
+                Globals.CurrentDbPath = DbPath?.Trim() ?? string.Empty;
 
-
-                ShowInfo(
-                    "Podešavanja su spremljena!");
-
+                ShowInfo("Podešavanja su spremljena!");
 
                 var page = new HomePage
                 {
@@ -2135,17 +2110,12 @@ namespace Caupo.ViewModels
                 };
 
                 PageNavigator.NavigateWithFade(page);
-
                 await Task.CompletedTask;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(
-                    $"[Settings] Greška pri spremanju: {ex}");
-
-                ShowError(
-                    "Greška pri spremanju podešavanja:\n\n" +
-                    ex.Message);
+                Debug.WriteLine($"[Settings] Greška pri spremanju: {ex}");
+                ShowError("Greška pri spremanju podešavanja:\n\n" + ex.Message);
             }
         }
 

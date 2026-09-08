@@ -26,6 +26,7 @@ namespace Caupo.Fiscal.Croatia.Models
         public string? Jir { get; init; }
         public string? Zki { get; init; }
         public string? ErrorMessage { get; init; }
+        public bool CisRejected { get; init; }
         public RacunOdgovor? CisResponse { get; init; }
     }
 }

@@ -211,6 +211,22 @@ namespace Caupo.Data
             }
         }
 
+        [Table("tblAuditLog")]
+        public class TblAuditLog
+        {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            public int Id { get; set; }
+
+            public DateTime Datum { get; set; }
+            public string Dogadjaj { get; set; } = string.Empty;
+            public string? Detalji { get; set; }
+            public int? IdRadnika { get; set; }
+            public string? Radnik { get; set; }
+            public int? BrojRacuna { get; set; }
+        }
+
+
         [Table ("tblBrojBlokaSank")]
         public class TblBrojBlokaSank
         {

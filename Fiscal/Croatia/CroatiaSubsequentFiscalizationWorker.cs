@@ -1,18 +1,39 @@
-﻿using Caupo.Fiscal.Common;
+﻿using Caupo.Data;
+using Caupo.Fiscal.Common;
 using Caupo.Fiscal.Croatia.Models;
+using Caupo.Services;
+using Caupo.Views;
 using System.Diagnostics;
 using System.Windows;
+using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.Fiscal.Croatia
 {
     public sealed class CroatiaSubsequentFiscalizationWorker : IDisposable
     {
-        private static readonly TimeSpan CheckInterval = TimeSpan.FromMinutes(5);
+        /// <summary>
+        /// Interval check for subsequent fiscalization.
+        /// </summary>
+        // private static readonly TimeSpan CheckInterval = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan CheckInterval = TimeSpan.FromSeconds(30);
         private static readonly TimeSpan RetryInterval = TimeSpan.FromMinutes(10);
 
+        //private static readonly TimeSpan WarningAge = TimeSpan.FromHours(24);
+        //private static readonly TimeSpan CriticalWarningAge = TimeSpan.FromHours(36);
+        //private static readonly TimeSpan CriticalWarningRepeatInterval = TimeSpan.FromHours(2);
+
+        private static readonly TimeSpan WarningAge = TimeSpan.FromMinutes(2);
+        private static readonly TimeSpan CriticalWarningAge = TimeSpan.FromMinutes(3);
+        private static readonly TimeSpan CriticalWarningRepeatInterval = TimeSpan.FromMinutes(2);
+
         private readonly SemaphoreSlim _runLock = new(1, 1);
+
         private CancellationTokenSource? _cts;
         private Task? _workerTask;
+
+        private bool _warning24Shown;
+        private DateTime? _lastCriticalWarningAt;
+        private bool _criticalPopupOpen;
 
         public bool IsRunning => _workerTask != null && !_workerTask.IsCompleted;
 
@@ -77,6 +98,8 @@ namespace Caupo.Fiscal.Croatia
 
                 var receipts = await repository.GetNotFiscalizedAsync(cancellationToken);
 
+                CheckFiscalizationWarnings(receipts);
+
                 foreach (var receipt in receipts)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -139,6 +162,128 @@ namespace Caupo.Fiscal.Croatia
             finally
             {
                 _runLock.Release();
+            }
+        }
+
+        private void CheckFiscalizationWarnings(IReadOnlyList<TblRacuni> receipts)
+        {
+            DateTime now = DateTime.Now;
+
+            var overdue = receipts
+                .Where(x => now - x.Datum >= WarningAge)
+                .OrderBy(x => x.Datum)
+                .ToList();
+
+            if (overdue.Count == 0)
+            {
+                _warning24Shown = false;
+                _lastCriticalWarningAt = null;
+                return;
+            }
+
+            TblRacuni oldest = overdue[0];
+            TimeSpan age = now - oldest.Datum;
+
+            if (age < CriticalWarningAge)
+            {
+                if (_warning24Shown)
+                    return;
+
+                _warning24Shown = true;
+
+                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    MessageBox.Show(
+                        $"Postoji {overdue.Count} račun(a) koji još nisu fiskalizovani u CIS-u.\n\n" +
+                        $"Najstariji račun: {oldest.BrojRacunaHr}\n" +
+                        $"Vrijeme izdavanja: {oldest.Datum:dd.MM.yyyy. HH:mm}\n\n" +
+                        "Caupo automatski nastavlja naknadnu fiskalizaciju.\n\n" +
+                        "Provjerite internet vezu i fiskalnu konfiguraciju.",
+                        "Caupo - naknadna fiskalizacija",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                }));
+
+                return;
+            }
+
+            if (_criticalPopupOpen)
+                return;
+
+            if (_lastCriticalWarningAt.HasValue &&
+                now - _lastCriticalWarningAt.Value < CriticalWarningRepeatInterval)
+                return;
+
+            _lastCriticalWarningAt = now;
+
+            Application.Current.Dispatcher.BeginInvoke(new Action(async () =>
+            {
+                await ShowCriticalWarningAsync(oldest, overdue.Count, age);
+            }));
+        }
+
+        private async Task ShowCriticalWarningAsync(TblRacuni oldest, int count, TimeSpan age)
+        {
+            if (_criticalPopupOpen)
+                return;
+
+            _criticalPopupOpen = true;
+
+            try
+            {
+                try
+                {
+                    await AuditLogService.WriteAsync(
+                        "HR_NAKDOST_WARNING_SHOWN",
+                        $"Nefiskalizovanih računa: {count}. Najstariji račun {oldest.BrojRacunaHr}, starost {(int)age.TotalHours} sati.",
+                        brojRacuna: oldest.BrojRacuna);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("[HR] Nije moguće zapisati audit za prikaz upozorenja: " + ex);
+                }
+
+                string warningText =
+                    $"{count} račun(a) još nisu fiskalizovani u CIS-u.\n\n" +
+                    $"Najstariji račun: {oldest.BrojRacunaHr}\n" +
+                    $"Vrijeme izdavanja: {oldest.Datum:dd.MM.yyyy. HH:mm}\n" +
+                    $"Proteklo vrijeme: {(int)age.TotalHours} sati\n\n" +
+                    "Caupo i dalje automatski pokušava naknadnu fiskalizaciju.\n\n" +
+                    "Za uklanjanje ovog upozorenja potrebna je šifra ovlaštenog radnika.";
+
+                var popup = new CroatiaFiscalWarningPopup(warningText);
+
+                if (Application.Current.MainWindow != null)
+                    popup.Owner = Application.Current.MainWindow;
+
+                bool? confirmed = popup.ShowDialog();
+
+                if (confirmed == true && popup.ConfirmedWorker != null)
+                {
+                    TblRadnici worker = popup.ConfirmedWorker;
+
+                    try
+                    {
+                        await AuditLogService.WriteAsync(
+                            "HR_NAKDOST_WARNING_ACK",
+                            $"Potvrđeno upozorenje za {count} nefiskalizovanih računa. Najstariji račun {oldest.BrojRacunaHr}.",
+                            worker.IdRadnika,
+                            worker.Radnik,
+                            oldest.BrojRacuna);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("[HR] Nije moguće zapisati audit potvrde upozorenja: " + ex);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[HR] Greška fiskalnog upozorenja: " + ex);
+            }
+            finally
+            {
+                _criticalPopupOpen = false;
             }
         }
 

@@ -3,6 +3,7 @@ using Caupo.Fiscal.Croatia.Models;
 using MAES.Fiskal;
 using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
+using System.ServiceModel;
 using System.ServiceModel.Security;
 
 namespace Caupo.Fiscal.Croatia
@@ -98,6 +99,7 @@ namespace Caupo.Fiscal.Croatia
                     return new CroatiaFiscalizationResponse
                     {
                         Fiscalized = false,
+                        CisRejected = true,
                         Jir = response.Jir,
                         Zki = zki,
                         ErrorMessage = error,
@@ -128,12 +130,9 @@ namespace Caupo.Fiscal.Croatia
             {
                 throw;
             }
-            catch (Exception ex)
+            catch (EndpointNotFoundException ex)
             {
-                Debug.WriteLine("=======================================================");
-                Debug.WriteLine("[HRVATSKA] MAES FISKALIZACIJA ERROR");
-                Debug.WriteLine(ex.ToString());
-                Debug.WriteLine("=======================================================");
+                LogFiscalizationError(ex);
 
                 return new CroatiaFiscalizationResponse
                 {
@@ -142,6 +141,38 @@ namespace Caupo.Fiscal.Croatia
                     ErrorMessage = ex.Message
                 };
             }
+            catch (TimeoutException ex)
+            {
+                LogFiscalizationError(ex);
+
+                return new CroatiaFiscalizationResponse
+                {
+                    Fiscalized = false,
+                    Zki = zki,
+                    ErrorMessage = ex.Message
+                };
+            }
+            catch (Exception ex)
+            {
+                LogFiscalizationError(ex);
+
+                return new CroatiaFiscalizationResponse
+                {
+                    Fiscalized = false,
+                    CisRejected = true,
+                    Zki = zki,
+                    ErrorMessage = ex.Message
+                };
+            }
         }
+
+        private static void LogFiscalizationError(Exception ex)
+        {
+            Debug.WriteLine("=======================================================");
+            Debug.WriteLine("[HRVATSKA] MAES FISKALIZACIJA ERROR");
+            Debug.WriteLine(ex.ToString());
+            Debug.WriteLine("=======================================================");
+        }
+
     }
 }

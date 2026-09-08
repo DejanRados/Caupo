@@ -246,6 +246,8 @@ namespace Caupo.Data
         // TABLES
         // =========================================================
 
+        public DbSet<TblAuditLog> AuditLog { get; set; }
+
         public DbSet<TblRadnici> Radnici { get; set; }
 
         public DbSet<TblArtikli> Artikli { get; set; }
