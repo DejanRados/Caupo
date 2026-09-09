@@ -12,11 +12,13 @@ using Caupo.Fiscal.RS.Models;
 using Caupo.Fiscal.Serbia;
 using Caupo.Fiscal.Serbia.Models;
 using Caupo.Models;
+using Caupo.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.ViewModels
@@ -63,6 +65,7 @@ namespace Caupo.ViewModels
                 OnPropertyChanged(nameof(CanIssueCopy));
                 OnPropertyChanged(nameof(CanRefund));
                 OnPropertyChanged(nameof(CanFiscalizeLater));
+                OnPropertyChanged(nameof(CanMarkImpossible));
             }
         }
 
@@ -134,7 +137,26 @@ namespace Caupo.ViewModels
                 if (SelectedReceipt == null)
                     return false;
 
-                return IsCroatia && !IsFiscalized;
+                return IsCroatia &&
+                       string.Equals(
+                           SelectedReceipt.Fiskalizovan,
+                           FiscalizationStatus.NotFiscalized.ToString(),
+                           StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
+        public bool CanMarkImpossible
+        {
+            get
+            {
+                if (SelectedReceipt == null)
+                    return false;
+
+                return IsCroatia &&
+                       string.Equals(
+                           SelectedReceipt.Fiskalizovan,
+                           FiscalizationStatus.NotFiscalized.ToString(),
+                           StringComparison.OrdinalIgnoreCase);
             }
         }
 
@@ -221,19 +243,18 @@ namespace Caupo.ViewModels
 
                 var workers = await db.Radnici
                     .AsNoTracking()
-                    .ToDictionaryAsync(x => x.IdRadnika, x => x.Radnik ?? string.Empty);
+                    .ToListAsync();
 
                 foreach (var receipt in receipts)
                 {
-                    if (int.TryParse(receipt.Radnik, out int workerId) &&
-                        workers.TryGetValue(workerId, out string? workerName))
-                    {
-                        receipt.RadnikName = workerName;
-                    }
-                    else
+                    if (!int.TryParse(receipt.Radnik, out int workerId))
                     {
                         receipt.RadnikName = receipt.Radnik ?? string.Empty;
+                        continue;
                     }
+
+                    var worker = workers.FirstOrDefault(x => x.IdRadnika == workerId);
+                    receipt.RadnikName = worker?.Radnik ?? receipt.Radnik ?? string.Empty;
                 }
 
                 Receipts.Clear();
@@ -754,21 +775,109 @@ namespace Caupo.ViewModels
         // HRVATSKA - NAKNADNA FISKALIZACIJA
         // ============================================================
 
-        public Task<FiscalResult> NaknadnoFiskalizujAsync()
+        public async Task<FiscalResult> NaknadnoFiskalizujAsync()
         {
-            if (SelectedReceipt == null)
-                return Task.FromResult(FiscalResult.Failed("Nije odabran račun."));
+            try
+            {
+                if (SelectedReceipt == null)
+                    return FiscalResult.Failed("Nije odabran račun.");
 
-            if (!IsCroatia)
-                return Task.FromResult(FiscalResult.Failed("Naknadna fiskalizacija dostupna je samo za Hrvatsku."));
+                if (!IsCroatia)
+                    return FiscalResult.Failed("Naknadna fiskalizacija dostupna je samo za Hrvatsku.");
 
-            if (IsFiscalized)
-                return Task.FromResult(FiscalResult.Failed("Odabrani račun je već fiskalizovan."));
+                if (IsFiscalized)
+                    return FiscalResult.Failed("Odabrani račun je već fiskalizovan.");
 
-            if (StavkeRacuna.Count == 0)
-                return Task.FromResult(FiscalResult.Failed("Odabrani račun nema stavki."));
+                if (StavkeRacuna.Count == 0)
+                    return FiscalResult.Failed("Odabrani račun nema stavki.");
 
-            return Task.FromResult(FiscalResult.Failed("Naknadna fiskalizacija Hrvatske još nije povezana sa novim fiscal servisom."));
+                int localReceiptNumber = SelectedReceipt.BrojRacuna;
+
+                if (Application.Current is not App app || app.CroatiaFiscalWorker == null)
+                    return FiscalResult.Failed("Servis naknadne fiskalizacije nije pokrenut.");
+
+                CroatiaFiscalizationResponse response = await app.CroatiaFiscalWorker.FiscalizeManuallyAsync(localReceiptNumber);
+
+                if (!response.Fiscalized || string.IsNullOrWhiteSpace(response.Jir))
+                    return FiscalResult.Failed(response.ErrorMessage ?? "CIS nije potvrdio fiskalizaciju računa.");
+
+                return new FiscalResult
+                {
+                    Success = true,
+                    Fiscalized = true,
+                    FiscalizationStatus = FiscalizationStatus.Fiscalized,
+                    SavedToDatabase = true,
+                    Printed = false,
+                    LocalReceiptNumber = localReceiptNumber,
+                    ReceiptNumber = SelectedReceipt.BrojRacunaHr,
+                    FiscalNumber = response.Jir,
+                    FiscalDateTime = DateTime.Now
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[HR MANUAL FISCALIZATION] Greška: " + ex);
+                return FiscalResult.Failed(ex.Message);
+            }
+        }
+        // ============================================================
+        // HRVATSKA - Prestanak naknadne fiskalizacije (Impossible)
+        // ============================================================
+        public async Task<FiscalResult> MarkImpossibleAsync(TblRadnici confirmedWorker)
+        {
+            try
+            {
+                if (SelectedReceipt == null)
+                    return FiscalResult.Failed("Nije odabran račun.");
+
+                if (!IsCroatia)
+                    return FiscalResult.Failed("Ova opcija dostupna je samo za Hrvatsku.");
+
+                if (confirmedWorker == null ||
+                    !string.Equals(confirmedWorker.Dozvole, "Administrator", StringComparison.OrdinalIgnoreCase))
+                {
+                    return FiscalResult.Failed("Za ovu akciju potrebna je administratorska autorizacija.");
+                }
+
+                if (!string.Equals(
+                        SelectedReceipt.Fiskalizovan,
+                        FiscalizationStatus.NotFiscalized.ToString(),
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return FiscalResult.Failed("Račun više nije na čekanju za fiskalizaciju.");
+                }
+
+                if (Application.Current is not App app || app.CroatiaFiscalWorker == null)
+                    return FiscalResult.Failed("Servis naknadne fiskalizacije nije pokrenut.");
+
+                int localReceiptNumber = SelectedReceipt.BrojRacuna;
+                string? receiptNumber = SelectedReceipt.BrojRacunaHr;
+
+                await app.CroatiaFiscalWorker.MarkImpossibleManuallyAsync(localReceiptNumber);
+
+                await AuditLogService.WriteAsync(
+                    dogadjaj: "HR_FISCALIZATION_IMPOSSIBLE",
+                    detalji: "Prekinuti dalji pokušaji naknadne fiskalizacije.",
+                    idRadnika: confirmedWorker.IdRadnika,
+                    radnik: confirmedWorker.Radnik,
+                    brojRacuna: localReceiptNumber);
+
+                return new FiscalResult
+                {
+                    Success = true,
+                    Fiscalized = false,
+                    FiscalizationStatus = FiscalizationStatus.Impossible,
+                    SavedToDatabase = true,
+                    Printed = false,
+                    LocalReceiptNumber = localReceiptNumber,
+                    ReceiptNumber = receiptNumber
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[HR IMPOSSIBLE] Greška: " + ex);
+                return FiscalResult.Failed(ex.Message);
+            }
         }
 
         // ============================================================

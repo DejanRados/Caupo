@@ -46,11 +46,7 @@ namespace Caupo.Fiscal.Federation
                         : request.Buyer.Name
                             ?? "Gradjani";
 
-                // Stari Tring tok spremao je ID radnika u polje Radnik.
-                string cashier =
-                    request.Cashier.Id?.ToString()
-                    ?? request.Cashier.Name
-                    ?? string.Empty;
+               
 
                 var receipt =
                     new TblRacuni
@@ -68,8 +64,7 @@ namespace Caupo.Fiscal.Federation
                             fiscalResponse
                                 .FiscalReceiptNumber,
 
-                        Radnik =
-                            cashier,
+                        Radnik = request.Cashier.Id.Value.ToString(),
 
                         Fiskalizovan =
                             fiscalResponse.Fiscalized

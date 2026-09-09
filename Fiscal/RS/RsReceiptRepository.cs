@@ -33,9 +33,7 @@ namespace Caupo.Fiscal.RS
                     ? "Gradjani"
                     : request.Buyer.Name ?? "Gradjani";
 
-                string cashier = request.Cashier.Id?.ToString()
-                    ?? request.Cashier.Name
-                    ?? string.Empty;
+               
 
                 var receipt = new TblRacuni
                 {
@@ -49,11 +47,8 @@ namespace Caupo.Fiscal.RS
                     BrojFiskalnogRacuna = fiscalResponse.FiscalReceiptNumber,
                     BrojacFiskalnogRacuna = fiscalResponse.TotalCounter,
                     FiskalniVerificationUrl = fiscalResponse.VerificationUrl,
-
-                    Radnik = cashier,
-
+                    Radnik = request.Cashier.Id.Value.ToString(),
                     Fiskalizovan = fiscalResponse.Fiscalized ? "DA" : "NE",
-
                     Iznos = request.TotalAmount
                 };
 

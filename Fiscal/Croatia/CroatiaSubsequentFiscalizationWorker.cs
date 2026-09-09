@@ -14,17 +14,13 @@ namespace Caupo.Fiscal.Croatia
         /// <summary>
         /// Interval check for subsequent fiscalization.
         /// </summary>
-        // private static readonly TimeSpan CheckInterval = TimeSpan.FromMinutes(5);
-        private static readonly TimeSpan CheckInterval = TimeSpan.FromSeconds(30);
+        private static readonly TimeSpan CheckInterval = TimeSpan.FromMinutes(5);
         private static readonly TimeSpan RetryInterval = TimeSpan.FromMinutes(10);
+        private static readonly TimeSpan WarningAge = TimeSpan.FromHours(24);
+        private static readonly TimeSpan CriticalWarningAge = TimeSpan.FromHours(36);
+        private static readonly TimeSpan CriticalWarningRepeatInterval = TimeSpan.FromHours(2);
 
-        //private static readonly TimeSpan WarningAge = TimeSpan.FromHours(24);
-        //private static readonly TimeSpan CriticalWarningAge = TimeSpan.FromHours(36);
-        //private static readonly TimeSpan CriticalWarningRepeatInterval = TimeSpan.FromHours(2);
-
-        private static readonly TimeSpan WarningAge = TimeSpan.FromMinutes(2);
-        private static readonly TimeSpan CriticalWarningAge = TimeSpan.FromMinutes(3);
-        private static readonly TimeSpan CriticalWarningRepeatInterval = TimeSpan.FromMinutes(2);
+  
 
         private readonly SemaphoreSlim _runLock = new(1, 1);
 
@@ -34,6 +30,7 @@ namespace Caupo.Fiscal.Croatia
         private bool _warning24Shown;
         private DateTime? _lastCriticalWarningAt;
         private bool _criticalPopupOpen;
+        private CroatiaFiscalWarningPopup? _criticalPopup;
 
         public bool IsRunning => _workerTask != null && !_workerTask.IsCompleted;
 
@@ -145,6 +142,9 @@ namespace Caupo.Fiscal.Croatia
                     if (result.Fiscalized && !string.IsNullOrWhiteSpace(result.Jir))
                     {
                         Debug.WriteLine($"[HR] Račun {receipt.BrojRacunaHr} naknadno fiskalizovan. JIR: {result.Jir}");
+
+                        await CloseCriticalPopupIfResolvedAsync(repository, cancellationToken);
+
                         continue;
                     }
 
@@ -252,8 +252,9 @@ namespace Caupo.Fiscal.Croatia
                     "Za uklanjanje ovog upozorenja potrebna je šifra ovlaštenog radnika.";
 
                 var popup = new CroatiaFiscalWarningPopup(warningText);
+                _criticalPopup = popup;
 
-                if (Application.Current.MainWindow != null)
+                if (Application.Current.MainWindow?.IsVisible == true)
                     popup.Owner = Application.Current.MainWindow;
 
                 bool? confirmed = popup.ShowDialog();
@@ -283,8 +284,33 @@ namespace Caupo.Fiscal.Croatia
             }
             finally
             {
+                _criticalPopup = null;
                 _criticalPopupOpen = false;
             }
+        }
+
+        private async Task CloseCriticalPopupIfResolvedAsync(CroatiaReceiptRepository repository, CancellationToken cancellationToken)
+        {
+            if (!_criticalPopupOpen)
+                return;
+
+            var remainingReceipts = await repository.GetNotFiscalizedAsync(cancellationToken);
+            DateTime now = DateTime.Now;
+
+            bool criticalProblemStillExists = remainingReceipts.Any(x => now - x.Datum >= CriticalWarningAge);
+
+            if (criticalProblemStillExists)
+                return;
+
+            await Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                if (_criticalPopup == null || !_criticalPopup.IsVisible)
+                    return;
+
+                Debug.WriteLine("[HR] Kritično upozorenje se automatski zatvara jer više nema kritičnih nefiskalizovanih računa.");
+
+                _criticalPopup.CloseAutomatically();
+            });
         }
 
         private static bool ShouldRetry(DateTime? lastAttempt)
@@ -293,6 +319,46 @@ namespace Caupo.Fiscal.Croatia
                 return true;
 
             return DateTime.Now - lastAttempt.Value >= RetryInterval;
+        }
+
+        public async Task<CroatiaFiscalizationResponse> FiscalizeManuallyAsync(int localReceiptNumber, CancellationToken cancellationToken = default)
+        {
+            await _runLock.WaitAsync(cancellationToken);
+
+            try
+            {
+                Debug.WriteLine($"[HR] Worker pauziran zbog manuelne fiskalizacije računa {localReceiptNumber}.");
+
+                var service = new CroatiaFiscalService();
+
+                return await service.FiscalizeSubsequentlyAsync(localReceiptNumber, cancellationToken);
+            }
+            finally
+            {
+                _runLock.Release();
+
+                Debug.WriteLine($"[HR] Worker nastavljen nakon manuelne fiskalizacije računa {localReceiptNumber}.");
+            }
+        }
+
+        public async Task MarkImpossibleManuallyAsync(int localReceiptNumber, CancellationToken cancellationToken = default)
+        {
+            await _runLock.WaitAsync(cancellationToken);
+
+            try
+            {
+                Debug.WriteLine($"[HR] Worker pauziran zbog označavanja računa {localReceiptNumber} kao Impossible.");
+
+                var repository = new CroatiaReceiptRepository();
+
+                await repository.MarkImpossibleAsync(localReceiptNumber, cancellationToken);
+            }
+            finally
+            {
+                _runLock.Release();
+
+                Debug.WriteLine($"[HR] Worker nastavljen nakon označavanja računa {localReceiptNumber} kao Impossible.");
+            }
         }
 
         public void Dispose()

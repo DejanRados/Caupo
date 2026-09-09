@@ -25,7 +25,7 @@ namespace Caupo.Fiscal.Croatia
             try
             {
                 string buyerName = request.Buyer == null || request.Buyer.IsCitizen ? "Gradjani" : request.Buyer.Name ?? "Gradjani";
-                string cashierOib = request.Cashier.IdentificationNumber ?? string.Empty;
+                
 
                 decimal pnpRate = builtInvoice.Taxes
                     .Where(x => x.IsConsumptionTax)
@@ -38,8 +38,8 @@ namespace Caupo.Fiscal.Croatia
                     Datum = builtInvoice.IssueDateTime,
                     DatumFiskalnogDokumenta = null,
                     NacinPlacanja = (int)request.PaymentType,
-                    BrojFiskalnogRacuna = builtInvoice.LocalReceiptNumber.ToString(),
-                    Radnik = cashierOib,
+                    BrojFiskalnogRacuna = builtInvoice.ReceiptNumberHr,
+                    Radnik = request.Cashier.Id.Value.ToString(),
                     Fiskalizovan = fiscalization.Fiscalized ? FiscalizationStatus.Fiscalized.ToString() : FiscalizationStatus.NotFiscalized.ToString(),
                     Jir = fiscalization.Jir,
                     Zki = fiscalization.Zki,
@@ -126,6 +126,23 @@ namespace Caupo.Fiscal.Croatia
             await db.SaveChangesAsync(cancellationToken);
         }
 
+        public async Task MarkImpossibleAsync(int localReceiptNumber, CancellationToken cancellationToken = default)
+        {
+            await using var db = new AppDbContext();
+
+            var receipt = await db.Racuni.FirstOrDefaultAsync(x => x.BrojRacuna == localReceiptNumber, cancellationToken);
+
+            if (receipt == null)
+                throw new FiscalException($"Račun {localReceiptNumber} nije pronađen.");
+
+            if (!string.Equals(receipt.Fiskalizovan, FiscalizationStatus.NotFiscalized.ToString(), StringComparison.OrdinalIgnoreCase))
+                throw new FiscalException($"Račun {localReceiptNumber} nije u statusu NotFiscalized.");
+
+            receipt.Fiskalizovan = FiscalizationStatus.Impossible.ToString();
+
+            await db.SaveChangesAsync(cancellationToken);
+        }
+
         public async Task<(TblRacuni Receipt, List<TblRacunStavka> Items)> GetForSubsequentFiscalizationAsync(int localReceiptNumber, CancellationToken cancellationToken = default)
         {
             await using var db = new AppDbContext();
@@ -147,7 +164,7 @@ namespace Caupo.Fiscal.Croatia
                 throw new FiscalException($"Račun {localReceiptNumber} nema ZKI.");
 
             if (string.IsNullOrWhiteSpace(receipt.Radnik))
-                throw new FiscalException($"Račun {localReceiptNumber} nema OIB operatera.");
+                throw new FiscalException($"Račun {localReceiptNumber} nema spremljenog radnika.");
 
             var items = await db.RacunStavka
                 .AsNoTracking()

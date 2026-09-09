@@ -31,13 +31,16 @@ namespace Caupo
          = Settings.Default.Tema;
 
 
+       
+
         // =====================================================
         // SERVICES
         // =====================================================
 
         //private DatabaseBackupService? _backupService;
-       
+
         private CroatiaSubsequentFiscalizationWorker? _croatiaFiscalWorker;
+        public CroatiaSubsequentFiscalizationWorker? CroatiaFiscalWorker => _croatiaFiscalWorker;
 
         private CaupoDiscoveryService? _discoveryService;
 

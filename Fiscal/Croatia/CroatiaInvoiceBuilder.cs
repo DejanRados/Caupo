@@ -1,3 +1,6 @@
+using Caupo.Data;
+using static Caupo.Data.DatabaseTables;
+using Microsoft.EntityFrameworkCore;
 using Caupo.Fiscal.Common;
 using Caupo.Fiscal.Croatia.Helpers;
 using Caupo.Fiscal.Croatia.Models;
@@ -90,7 +93,22 @@ namespace Caupo.Fiscal.Croatia
                 throw new FiscalException("Račun nema originalni ZKI.");
 
             if (string.IsNullOrWhiteSpace(receipt.Radnik))
-                throw new FiscalException("Račun nema OIB operatera.");
+                throw new FiscalException("Račun nema spremljenog radnika.");
+
+            if (!int.TryParse(receipt.Radnik, out int workerId))
+                throw new FiscalException($"Neispravan ID radnika na računu {receipt.BrojRacuna}.");
+
+            await using var db = new AppDbContext();
+
+            TblRadnici? worker = await db.Radnici
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.IdRadnika == workerId, cancellationToken);
+
+            if (worker == null)
+                throw new FiscalException($"Radnik sa ID-em {workerId} nije pronađen.");
+
+            if (string.IsNullOrWhiteSpace(worker.IB))
+                throw new FiscalException($"Radnik {worker.Radnik} nema upisan OIB.");
 
             string[] numberParts = receipt.BrojRacunaHr.Split('/');
 
@@ -125,7 +143,7 @@ namespace Caupo.Fiscal.Croatia
                 IznosUkupno = totalAmount.ToString("F2", CultureInfo.InvariantCulture),
                 NakDost = true,
                 Oib = _settings.Oib,
-                OibOper = receipt.Radnik,
+                OibOper = worker.IB,
                 OznSlijed = sequence,
                 Pdv = vat.Length > 0 ? vat : null,
                 Pnp = consumptionTax.Length > 0 ? consumptionTax : null,

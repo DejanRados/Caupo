@@ -4,39 +4,114 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Caupo.Views"
-          AllowsTransparency="True"
+        AllowsTransparency="True"
         Background="Transparent"
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         mc:Ignorable="d"
-        Title="MyMessageBox" >
-    <Grid >
-        <Border      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#33000000">
-            <Border   Height="255" Width="420" CornerRadius="7"   HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0.5" BorderBrush="{DynamicResource GlobalFontColor}" Background="{DynamicResource GlobalBackgroundColor}">
-                <Grid >
+        Title="MyMessageBox">
+
+    <Grid>
+
+        <Border HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Background="#33000000">
+
+            <Border Height="320"
+                    Width="420"
+                    CornerRadius="7"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    BorderThickness="0.5"
+                    BorderBrush="{DynamicResource GlobalFontColor}"
+                    Background="{DynamicResource GlobalBackgroundColor}">
+
+                <Grid>
+
                     <Grid.RowDefinitions>
                         <RowDefinition Height="80"/>
-                        <RowDefinition Height="95"/>
+                        <RowDefinition Height="*"/>
                         <RowDefinition Height="80"/>
                     </Grid.RowDefinitions>
-                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Foreground="{DynamicResource GlobalFontColor}" Margin="5" FontSize="48"  FontWeight="ExtraLight" Text="&#xEA74;" Width="48" Height="48" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="0"/>
 
+                    <!-- Ikona -->
+                    <TextBlock Grid.Row="0"
+                               FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               Margin="5"
+                               FontSize="48"
+                               FontWeight="ExtraLight"
+                               Text="&#xEA74;"
+                               Width="48"
+                               Height="48"
+                               HorizontalAlignment="Left"
+                               VerticalAlignment="Center"/>
 
-                    <TextBlock x:Name="MessageTitle" Foreground="{DynamicResource GlobalFontColor}" Text="Message Title" HorizontalAlignment="Center" FontSize="20" VerticalAlignment="Center" Grid.Row="0" Margin="0,0,0,0"/>
+                    <!-- Naslov -->
+                    <TextBlock Grid.Row="0"
+                               x:Name="MessageTitle"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               Text="Message Title"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               FontSize="20"/>
 
-                    <TextBlock x:Name="MessageText" Foreground="{DynamicResource GlobalFontColor}" Text="This is a custom alert message."  FontWeight="ExtraLight" HorizontalAlignment="Stretch" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Top" Margin="20" Grid.Row="1"/>
-                    <Button Style="{StaticResource PrimaryButtonStyle}"   Margin="10" x:Name="OkButton"  Padding="5"   HorizontalAlignment="Center" Width="150"   Height="50"      Click="OKButton_Click" Grid.Row="2"  >
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock FontFamily="Segoe MDL2 Assets"  Margin="5" FontSize="20"  FontWeight="ExtraLight" Text="&#xE73E;"  HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource GlobalFontColor}" />
-                            <TextBlock Text="U redu"  VerticalAlignment="Center" Foreground="{DynamicResource GlobalFontColor}" />
+                    <!-- Poruka -->
+                    <ScrollViewer Grid.Row="1"
+                                  Margin="20,10"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  CanContentScroll="True">
+
+                        <TextBlock x:Name="MessageText"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   Text="This is a custom alert message."
+                                   FontWeight="ExtraLight"
+                                   TextWrapping="Wrap"
+                                   TextAlignment="Center"
+                                   HorizontalAlignment="Stretch"
+                                   VerticalAlignment="Top"/>
+                    </ScrollViewer>
+
+                    <!-- OK -->
+                    <Button Grid.Row="2"
+                            x:Name="OkButton"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            Margin="10"
+                            Padding="5"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Width="150"
+                            Height="50"
+                            Click="OKButton_Click">
+
+                        <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+
+                            <TextBlock FontFamily="Segoe MDL2 Assets"
+                                       Margin="5"
+                                       FontSize="20"
+                                       FontWeight="ExtraLight"
+                                       Text="&#xE73E;"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource GlobalFontColor}"/>
+
+                            <TextBlock Text="U redu"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource GlobalFontColor}"/>
+
                         </StackPanel>
+
                     </Button>
 
                 </Grid>
 
             </Border>
+
         </Border>
+
     </Grid>
 
 </Window>

@@ -37,7 +37,7 @@ namespace Caupo.Fiscal.Serbia
                     BrojFiskalnogRacuna = response.InvoiceNumber,
                     BrojacFiskalnogRacuna = response.InvoiceCounter,
                     FiskalniVerificationUrl = response.VerificationUrl,
-                    Radnik = request.Cashier.Id?.ToString(),
+                    Radnik = request.Cashier.Id.Value.ToString(),
                     Fiskalizovan = "DA",
                     Iznos = request.TotalAmount
                 };

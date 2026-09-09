@@ -211,6 +211,105 @@ namespace Caupo.Views
         }
 
         // ============================================================
+        // FISKALIZUJ NAKNADNO
+        // ============================================================
+        private async void BtnFiscalizeNow_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is not ReceiptsViewModel viewModel)
+                return;
+
+            if (viewModel.SelectedReceipt == null)
+            {
+                ShowMessage("GREŠKA", "Nije odabran račun.");
+                return;
+            }
+
+            TblRacuni selectedItem = viewModel.SelectedReceipt;
+
+            try
+            {
+                BtnFiscalizeNow.IsEnabled = false;
+
+                FiscalResult result = await viewModel.NaknadnoFiskalizujAsync();
+
+                Debug.WriteLine($"[HR MANUAL FISCALIZATION] Success={result.Success}, Fiscalized={result.Fiscalized}, Saved={result.SavedToDatabase}, FiscalNumber={result.FiscalNumber}");
+
+                if (!result.Success || !result.Fiscalized)
+                {
+                    ShowMessage(
+                        "NAKNADNA FISKALIZACIJA",
+                        result.ErrorMessage ??
+                        "Račun trenutno nije fiskalizovan.\n\nCaupo će automatski nastaviti pokušavati.");
+
+                    return;
+                }
+
+                await viewModel.LoadReceiptsAsync(selectedItem);
+
+                if (viewModel.SelectedReceipt != null)
+                    ListaRacuna.ScrollIntoView(viewModel.SelectedReceipt);
+
+                ShowMessage(
+                    "NAKNADNA FISKALIZACIJA",
+                    $"Račun je uspješno fiskalizovan.\n\nJIR:\n{result.FiscalNumber}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[HR MANUAL FISCALIZATION] Greška: " + ex);
+                ShowMessage("GREŠKA", ex.Message);
+            }
+            finally
+            {
+                BtnFiscalizeNow.IsEnabled = viewModel.CanFiscalizeLater;
+            }
+        }
+
+        // ============================================================
+        // Prekini naknadnu fiskalizaciju (Mark Impossible)
+        // ============================================================
+
+        private async void BtnMarkImpossible_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is not ReceiptsViewModel viewModel)
+                return;
+
+            if (!viewModel.CanMarkImpossible)
+            {
+                ShowMessage("Fiskalizacija računa", "Odabrani račun nije moguće ukloniti iz naknadne fiskalizacije.");
+                return;
+            }
+
+            var popup = new CroatiaImpossiblePopup
+            {
+                Owner = Window.GetWindow(this)
+            };
+
+            bool? result = popup.ShowDialog();
+
+            if (result != true || popup.ConfirmedWorker == null)
+                return;
+
+            var selectedReceipt = viewModel.SelectedReceipt;
+            FiscalResult fiscalResult = await viewModel.MarkImpossibleAsync(popup.ConfirmedWorker);
+
+            if (!fiscalResult.Success)
+            {
+                ShowMessage("Fiskalizacija računa", fiscalResult.ErrorMessage ?? "Promjena statusa računa nije uspjela.");
+                return;
+            }
+
+            ShowMessage(
+                "Fiskalizacija računa",
+                "Dalji pokušaji fiskalizacije ovog računa su prekinuti.");
+
+           
+
+           
+
+            await viewModel.LoadReceiptsAsync(selectedReceipt);
+        }
+
+        // ============================================================
         // MESSAGE BOX
         // ============================================================
 

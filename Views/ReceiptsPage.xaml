@@ -1,313 +1,956 @@
 ﻿<UserControl x:Class="Caupo.Views.ReceiptsPage"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:system="clr-namespace:System;assembly=mscorlib"
-        xmlns:local="clr-namespace:Caupo.ViewModels"
-        xmlns:loc="clr-namespace:Caupo.Helpers"
-         xmlns:syncfusionskin ="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF" 
-         xmlns:svg="http://sharpvectors.codeplex.com/svgc/" xmlns:Caupo="clr-namespace:Caupo"
-        mc:Ignorable="d"
-        UseLayoutRounding="True">
-  
-      
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             xmlns:local="clr-namespace:Caupo.ViewModels"
+             xmlns:loc="clr-namespace:Caupo.Helpers"
+             xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+             xmlns:svg="http://sharpvectors.codeplex.com/svgc/"
+             xmlns:Caupo="clr-namespace:Caupo"
+             mc:Ignorable="d"
+             UseLayoutRounding="True">
 
-    <Grid>
-        <!-- Header -->
-        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="55" Background="#323232" >
+    <UserControl.Resources>
+
+        <!-- ===================================================== -->
+        <!-- RECEIPTS - ZAJEDNIČKI STILOVI                         -->
+        <!-- ===================================================== -->
+
+        <Style x:Key="ReceiptsSectionTitle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="FontSize" Value="19"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style x:Key="ReceiptsSectionDescription" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Opacity" Value="0.65"/>
+        </Style>
+
+        <Style x:Key="ReceiptsCard" TargetType="Border">
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+
+        <Style x:Key="ReceiptDetailLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Opacity" Value="0.62"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="ReceiptDetailValue" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+    </UserControl.Resources>
+
+
+    <Grid x:Name="MainContent"
+          Background="{DynamicResource GlobalBackgroundColor}">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="55"/>
+            <RowDefinition Height="82"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+
+        <!-- ===================================================== -->
+        <!-- HEADER                                                -->
+        <!-- ===================================================== -->
+
+        <Grid Grid.Row="0"
+              Height="55"
+              Background="#323232">
+
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="0.2*"/>
             </Grid.ColumnDefinitions>
-            <Image Source="pack://application:,,,/Images/dsoftlogosmall.png" Width="50" Height="50" Grid.Column="0" HorizontalAlignment="Left" Margin="20,0,0,0"/>
-            <Label x:Name="lblApp" Content="Caupo - Računi" Foreground="#fafafa" FontSize="25" Grid.Column="0" HorizontalAlignment="Center"  VerticalAlignment="Center"/>
-            <Label x:Name="lblUlogovaniKorisnik" Content="Ime i prezime" Foreground="#fafafa" FontSize="16" Grid.Column="1" HorizontalAlignment="Right"  VerticalAlignment="Center"/>
-            <Button x:Name="CloseButton" Style="{StaticResource CloseButtonStyle}"  VerticalAlignment="Top" HorizontalAlignment="Right" Padding="0" Margin="1" Click="CloseButton_Click" Grid.Column="2" />
+
+            <Image Source="pack://application:,,,/Images/dsoftlogosmall.png"
+                   Width="50"
+                   Height="50"
+                   Grid.Column="0"
+                   HorizontalAlignment="Left"
+                   Margin="20,0,0,0"/>
+
+            <Label x:Name="lblApp"
+                   Content="Caupo - Računi"
+                   Foreground="#fafafa"
+                   FontSize="25"
+                   Grid.Column="0"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"/>
+
+            <Label x:Name="lblUlogovaniKorisnik"
+                   Content="Ime i prezime"
+                   Foreground="#fafafa"
+                   FontSize="15"
+                   Grid.Column="1"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Center"/>
+
+            <Button x:Name="CloseButton"
+                    Style="{StaticResource CloseButtonStyle}"
+                    Grid.Column="2"
+                    VerticalAlignment="Top"
+                    HorizontalAlignment="Right"
+                    Padding="0"
+                    Margin="1"
+                    Click="CloseButton_Click"/>
+
         </Grid>
 
-        <!-- Glavni grid -->
-        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+        <!-- ===================================================== -->
+        <!-- GORNJA TRAKA                                          -->
+        <!-- ===================================================== -->
+
+        <Grid Grid.Row="1"
+              Margin="24,12,24,8">
+
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.6*"/>
-                <ColumnDefinition Width="0.4*"/>
-
+                <ColumnDefinition Width="350"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="0.20*"/>
-                <RowDefinition Height="0.35*"/>
-                <RowDefinition Height="0.5*"/>
-            </Grid.RowDefinitions>
 
 
-           
-            <Grid  Grid.Row="0" Grid.Column="5" Grid.ColumnSpan="2" Margin="10,60,60,0" HorizontalAlignment="Right" VerticalAlignment="Center">
+            <!-- ================================================= -->
+            <!-- PRETRAGA                                          -->
+            <!-- ================================================= -->
+
+            <Grid Grid.Column="0">
+
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="48"/>
+                    <ColumnDefinition Width="48"/>
                 </Grid.ColumnDefinitions>
-                <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160"  Margin="2" Grid.Column="0">
-                    <Button Style="{StaticResource PrimaryButtonStyle}"  Margin="5"  x:Name="BtnStorno" Click="BtnStorno_Click"    Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"   >
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="0,0,10,0" FontSize="28"  FontWeight="ExtraLight" Text="&#xEABF;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                            <TextBlock Text="Storno"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
-                        </StackPanel>
-                    </Button>
-                </Viewbox>
-                <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160"  Margin="2" Grid.Column="1">
-                    <Button Style="{StaticResource PrimaryButtonStyle}" IsEnabled="{Binding CanIssueCopy}"  Margin="5"     x:Name="BtnDuplicate"  Click="BtnDuplicate_Click"   Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"    >
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" >
-                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="0,0,10,0" FontSize="32"  FontWeight="ExtraLight" Text="&#xEA95;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                            <TextBlock Text="Duplikat "  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
-                        </StackPanel>
-                    </Button>
-                </Viewbox>
-                <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160" Margin="2" Grid.Column="2">
-                    <Button Style="{StaticResource PrimaryButtonStyle}" IsEnabled="{Binding CanReprint}" Margin="5" x:Name="BtnReprint" Click="BtnReprint_Click" Width="120" Height="50" Foreground="{DynamicResource GlobalFontColor}">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="0,0,10,0" FontSize="28" FontWeight="ExtraLight" Text="&#xE749;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                            <TextBlock Text="Ponovi ispis" VerticalAlignment="Center" Foreground="{DynamicResource GlobalFontColor}"/>
-                        </StackPanel>
-                    </Button>
-                </Viewbox>
 
-            </Grid>
-   
-            <!--  Search TextBox -->
-            <StackPanel Orientation="Horizontal" Grid.Row="0"  Grid.Column="0" Margin="30,60,0,0"  >
-                <Border Padding="5" Width="300" Height="50" HorizontalAlignment="Left"  BorderThickness="2" Background="Transparent"  BorderBrush="#774A6FA5" CornerRadius="15" >
-                    <DockPanel Grid.Row="1" Grid.Column="1" Margin="1" >
-                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60013;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBox x:Name="SearchTextBox" Style="{StaticResource TextBoxCustom}" CaretBrush="{DynamicResource GlobalFontColor}"  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Foreground="{DynamicResource GlobalFontColor}"  FontSize="16" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Background="Transparent" BorderBrush="Transparent" Padding="5" >
+                <Border Grid.Column="0"
+                        Height="48"
+                        Margin="0,0,8,0"
+                        Padding="5"
+                        BorderThickness="1"
+                        BorderBrush="#3F3F46"
+                        CornerRadius="6"
+                        Background="Transparent">
 
-                    </TextBox>
-                </DockPanel>
+                    <DockPanel>
+
+                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                   FontSize="22"
+                                   Width="34"
+                                   FontWeight="ExtraLight"
+                                   Text="&#60013;"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   Opacity="0.65"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBox x:Name="SearchTextBox"
+                                 Style="{StaticResource TextBoxCustom}"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 Foreground="{DynamicResource GlobalFontColor}"
+                                 CaretBrush="{DynamicResource GlobalFontColor}"
+                                 Background="Transparent"
+                                 BorderBrush="Transparent"
+                                 BorderThickness="0"
+                                 FontSize="15"
+                                 Padding="5,0"
+                                 VerticalContentAlignment="Center"/>
+
+                    </DockPanel>
+
                 </Border>
 
-                <Button Style="{StaticResource SecondaryButtonStyle}" x:Name="BtnFirst" Click="BtnFirst_Click"   Width="50" Height="50" VerticalAlignment="Center"   Grid.Column="0" HorizontalAlignment="Center" ToolTip="Prvi artikl" Margin="10,0,0,0">
-                    <TextBlock 
-                       FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
-                       FontSize="24"
-                       FontWeight="ExtraLight"
-                       Text="&#60271;" 
-                       Foreground="{DynamicResource GlobalFontColor}"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"/>
-                </Button>
-                <Button Style="{StaticResource SecondaryButtonStyle}"  x:Name="BtnLast" Click="BtnLast_Click" Width="50" Height="50" Padding="0"  VerticalAlignment="Center"  Grid.Column="2" ToolTip="Naredni artikl" Margin="10,0,0,0" >
-                    <TextBlock 
-                      FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
-                      FontSize="24"
-                      FontWeight="ExtraLight"
-                      Text="&#60272;" 
-                      Foreground="{DynamicResource GlobalFontColor}"
-                      HorizontalAlignment="Center"
-                      VerticalAlignment="Center"/>
+                <Button x:Name="BtnFirst"
+                        Grid.Column="1"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Width="42"
+                        Height="48"
+                        Padding="0"
+                        Click="BtnFirst_Click"
+                        ToolTip="Prvi račun">
+
+                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                               FontSize="22"
+                               FontWeight="ExtraLight"
+                               Text="&#60271;"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+
                 </Button>
 
+                <Button x:Name="BtnLast"
+                        Grid.Column="2"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Width="42"
+                        Height="48"
+                        Padding="0"
+                        HorizontalAlignment="Right"
+                        Click="BtnLast_Click"
+                        ToolTip="Posljednji račun">
 
-            </StackPanel>
-          
-            <Border Grid.Row="1"  Grid.Column="0" BorderThickness="1" BorderBrush="{DynamicResource GlobalFontColor}" Margin="30,10" MaxWidth="500" MinWidth="400" CornerRadius="10" HorizontalAlignment="Left">
-                <Grid DataContext="{Binding SelectedReceipt}" Margin="30">
+                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                               FontSize="22"
+                               FontWeight="ExtraLight"
+                               Text="&#60272;"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+
+                </Button>
+
+            </Grid>
+
+
+            <!-- ================================================= -->
+            <!-- AKCIJE                                            -->
+            <!-- ================================================= -->
+
+            <Grid Grid.Column="2"
+                  HorizontalAlignment="Right">
+
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="100"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="125"/>
+                    <ColumnDefinition Width="125"/>
+                    <ColumnDefinition Width="145"/>
                 </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-             
-                <!-- Row 0 -->
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="Broj:"/>
-                    <TextBlock Grid.Row="0" Grid.Column="1"  Text="{Binding BrojRacuna}" FontSize="16" TextAlignment="Left" Margin="10,0"/>
 
-                <!-- Row 1 -->
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="Datum:"/>
-                    <TextBlock Grid.Row="1" Grid.Column="1"  Text="{Binding Datum, StringFormat=dd.MM.yyyy}" TextAlignment="Left" Margin="10,0"/>
 
-                <!-- Row 2 -->
-                <TextBlock Grid.Row="2" Grid.Column="0" Text="Kupac:"/>
-                    <TextBlock Grid.Row="2" Grid.Column="1"  Text="{Binding Kupac}" TextAlignment="Left" Margin="10,0"/>
+                <!-- STORNO -->
 
-                <!-- Row 3 -->
-                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Način plaćanja:" />
-                    <TextBlock Grid.Row="3" Grid.Column="1"     Text="{Binding NacinPlacanjaName, StringFormat=N2}" TextAlignment="Left" Margin="10,0"/>
+                <Button x:Name="BtnStorno"
+                        Grid.Column="0"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Height="48"
+                        Margin="3"
+                        Foreground="{DynamicResource GlobalFontColor}"
+                        Click="BtnStorno_Click">
 
-                <!-- Row 4 -->
-                <TextBlock Grid.Row="4" Grid.Column="0" Text="Izdao:"/>
-                    <TextBlock Grid.Row="4" Grid.Column="1"  Text="{Binding RadnikName}" TextAlignment="Left" Margin="10,0"/>
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center">
 
-                <!-- Row 5 -->
-                <TextBlock Grid.Row="5" Grid.Column="0" Text="Broj fis. računa:"/>
-                    <TextBlock Grid.Row="5" Grid.Column="1"  Text="{Binding BrojFiskalnogRacuna}" TextAlignment="Left" Margin="10,0"/>
+                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                   Text="&#xEABF;"
+                                   FontSize="21"
+                                   Margin="0,0,7,0"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
 
-              
-            </Grid>
-            </Border>
-          
-            <DataGrid x:Name="ListaRacuna" VerticalAlignment="Top" HorizontalAlignment="Left"
-                          Grid.Row="2"  Grid.Column="0" Margin="30,0,0,30"
-                          MaxWidth="950" MaxHeight="800"
-                          SelectionChanged="ListaRacuna_SelectionChanged" 
-                          GridLinesVisibility="None"
-                          ItemsSource="{Binding ReceiptsFilter}"
-                          SelectedItem="{Binding SelectedReceipt, Mode=TwoWay}" 
-                          AutoGenerateColumns="False"
-                          HeadersVisibility="Column"
-                          CanUserAddRows="False"
-                          CanUserResizeRows="False"
-                          CanUserSortColumns="False"
-                          RowHeight="35"
-                          HorizontalScrollBarVisibility="Disabled"
-                          Background="Transparent"
-                          BorderThickness="0"
-                          ClipToBounds="True"
-                          RowStyle="{StaticResource ReklamiranDataGridRowStyle}"
-                          BorderBrush="{DynamicResource GlobalFontColor}"
-                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                          SelectionMode="Single">
-                
-               
+                        <TextBlock Text="Storno"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
 
-       
-              
-                <DataGrid.Resources>
-                        <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
-                    </DataGrid.Resources>
-                    <DataGrid.Columns>
+                    </StackPanel>
 
-                        <DataGridTemplateColumn Header="Broj računa" Width="100" >
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding BrojRacuna}" TextWrapping="Wrap" HorizontalAlignment="Center"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
+                </Button>
 
-                        <DataGridTemplateColumn Header="Br. fis. računa" Width="1.5*" >
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding BrojFiskalnogRacuna}"   TextAlignment="Left"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
 
-                        <DataGridTemplateColumn Header="Datum" Width="*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Datum, StringFormat={}{0:dd.MM.yyyy HH:mm}}" 
-                           TextAlignment="Center"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
+                <!-- DUPLIKAT -->
 
-                        <DataGridTemplateColumn Header="Način plaćanja" Width="*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding NacinPlacanjaName}"
-          TextAlignment="Center"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
+                <Button x:Name="BtnDuplicate"
+                        Grid.Column="1"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Height="48"
+                        Margin="3"
+                        IsEnabled="{Binding CanIssueCopy}"
+                        Click="BtnDuplicate_Click">
 
-                        <DataGridTemplateColumn Header="Radnik" Width="*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding RadnikName}"
-                           TextAlignment="Right"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center">
 
-                        <DataGridTemplateColumn Header="Kupac" Width="*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Kupac}"
-                                   TextAlignment="Right" Padding="10"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
+                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                   Text="&#xEA95;"
+                                   FontSize="22"
+                                   Margin="0,0,7,0"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
 
-                    </DataGrid.Columns>
-                </DataGrid>
-      
-            <Grid Grid.Row="1" Grid.Column="1" Grid.RowSpan="2"  VerticalAlignment="Top" Margin="0,0,0,100" >
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <DataGrid x:Name="ListaStavki" Margin="20,0" VerticalAlignment="Top" Grid.Row="0"
-                          GridLinesVisibility="None"
-                          ItemsSource="{Binding ReceiptItems}"
-                          SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-                          AutoGenerateColumns="False"
-                          HeadersVisibility="Column"
-                          CanUserAddRows="False"
-                          CanUserResizeRows="False"
-                          CanUserSortColumns="False"
-                          RowHeight="35"
-                          HorizontalScrollBarVisibility="Disabled"
-                          Background="Transparent"
-                          BorderThickness="0"
-                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                          SelectionMode="Single">
-                  
-                  
-                    <DataGrid.Resources>
-                        <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
-                    </DataGrid.Resources>
-                    <DataGrid.Columns>
+                        <TextBlock Text="Duplikat"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
 
-                        <DataGridTemplateColumn Header="Artikl" Width="2*" >
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding ArtiklNormativ}" TextWrapping="Wrap"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
+                    </StackPanel>
 
-                        <DataGridTemplateColumn Header="Kol" Width="*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Kolicina, StringFormat={}{0:0.00}}" 
-                               TextAlignment="Right"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
+                </Button>
 
-                        <DataGridTemplateColumn Header="Cijena" Width="*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Cijena, StringFormat={}{0:0.00}}" 
-                               TextAlignment="Right"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
 
-                        <DataGridTemplateColumn Header="Iznos" Width="*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding BrojRacuna, StringFormat={}{0:0.00}}" 
-                               TextAlignment="Center"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
+                <!-- PONOVI ISPIS -->
 
-                    </DataGrid.Columns>
-                </DataGrid>
+                <Button x:Name="BtnReprint"
+                        Grid.Column="2"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Height="48"
+                        Margin="3"
+                        IsEnabled="{Binding CanReprint}"
+                        Click="BtnReprint_Click">
 
-                <Label Grid.Row="1" Grid.Column="1" HorizontalContentAlignment="Right"  ContentStringFormat="IZNOS:   {0:0.00}" FontSize="24" Margin="00,15,50,0" Foreground="{DynamicResource GlobalFontColor}" Content="{Binding IznosRacuna}"/>
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center">
+
+                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                   Text="&#xEB37;"
+                                   FontSize="21"
+                                   Margin="0,0,7,0"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Text="Ponovi&#x0A;ispis"
+                                   TextAlignment="Center"
+                                   LineHeight="13"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
+
+                    </StackPanel>
+
+                </Button>
+
+
+                <!-- FISKALIZUJ -->
+
+                <Button x:Name="BtnFiscalizeNow"
+                        Grid.Column="3"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Height="48"
+                        Margin="3"
+                        IsEnabled="{Binding CanFiscalizeLater}"
+                        Click="BtnFiscalizeNow_Click">
+
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center">
+
+                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                   Text="&#xEB2C;"
+                                   FontSize="21"
+                                   Margin="0,0,7,0"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Text="Fiskalizuj"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
+
+                    </StackPanel>
+
+                </Button>
+
+
+                <!-- PREKINI -->
+
+                <Button x:Name="BtnMarkImpossible"
+                        Grid.Column="4"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Height="48"
+                        Margin="3"
+                        IsEnabled="{Binding CanMarkImpossible}"
+                        Click="BtnMarkImpossible_Click">
+
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center">
+
+                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                   Text="&#xEA76;"
+                                   FontSize="21"
+                                   Margin="0,0,7,0"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Text="Prekini&#x0A;fiskalizaciju"
+                                   TextAlignment="Center"
+                                   LineHeight="13"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
+
+                    </StackPanel>
+
+                </Button>
+
             </Grid>
 
-      
         </Grid>
+
+
+        <!-- ===================================================== -->
+        <!-- GLAVNI SADRŽAJ                                        -->
+        <!-- ===================================================== -->
+
+        <Grid Grid.Row="2"
+              Margin="24,4,24,22">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="315"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="1.35*"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="0.85*"/>
+            </Grid.ColumnDefinitions>
+
+
+            <!-- ================================================= -->
+            <!-- KARTICA RAČUNA                                    -->
+            <!-- ================================================= -->
+
+            <Border Grid.Column="0"
+                    Style="{StaticResource ReceiptsCard}"
+                    Padding="18">
+
+                <Grid DataContext="{Binding SelectedReceipt}">
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="18"/>
+                        <RowDefinition Height="44"/>
+                        <RowDefinition Height="44"/>
+                        <RowDefinition Height="44"/>
+                        <RowDefinition Height="44"/>
+                        <RowDefinition Height="44"/>
+                        <RowDefinition Height="44"/>
+                        <RowDefinition Height="44"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+
+                    <!-- NASLOV -->
+
+                    <StackPanel Grid.Row="0">
+
+                        <TextBlock Text="Odabrani račun"
+                                   Style="{StaticResource ReceiptsSectionTitle}"/>
+
+                        <TextBlock Text="Detalji računa"
+                                   Style="{StaticResource ReceiptsSectionDescription}"
+                                   Margin="0,3,0,0"/>
+
+                    </StackPanel>
+
+
+                    <!-- BROJ -->
+
+                    <Grid Grid.Row="2">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="115"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Broj računa"
+                                   Style="{StaticResource ReceiptDetailLabel}"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding BrojRacuna}"
+                                   Style="{StaticResource ReceiptDetailValue}"/>
+
+                    </Grid>
+
+
+                    <!-- DATUM -->
+
+                    <Grid Grid.Row="3">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="115"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Datum"
+                                   Style="{StaticResource ReceiptDetailLabel}"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding Datum, StringFormat={}{0:dd.MM.yyyy HH:mm}}"
+                                   Style="{StaticResource ReceiptDetailValue}"/>
+
+                    </Grid>
+
+
+                    <!-- KUPAC -->
+
+                    <Grid Grid.Row="4">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="115"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Kupac"
+                                   Style="{StaticResource ReceiptDetailLabel}"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding Kupac}"
+                                   Style="{StaticResource ReceiptDetailValue}"/>
+
+                    </Grid>
+
+
+                    <!-- PLAĆANJE -->
+
+                    <Grid Grid.Row="5">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="115"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Plaćanje"
+                                   Style="{StaticResource ReceiptDetailLabel}"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding NacinPlacanjaName}"
+                                   Style="{StaticResource ReceiptDetailValue}"/>
+
+                    </Grid>
+
+
+                    <!-- RADNIK -->
+
+                    <Grid Grid.Row="6">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="115"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Izdao"
+                                   Style="{StaticResource ReceiptDetailLabel}"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding RadnikName}"
+                                   Style="{StaticResource ReceiptDetailValue}"/>
+
+                    </Grid>
+
+
+                    <!-- FISKALNI BROJ -->
+
+                    <Grid Grid.Row="7">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="115"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Fiskalni broj"
+                                   Style="{StaticResource ReceiptDetailLabel}"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding BrojFiskalnogRacuna}"
+                                   Style="{StaticResource ReceiptDetailValue}"
+                                   TextWrapping="Wrap"/>
+
+                    </Grid>
+
+
+                    <!-- STATUS -->
+
+                    <Grid Grid.Row="8">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="115"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Fiskalizovan"
+                                   Style="{StaticResource ReceiptDetailLabel}"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding Fiskalizovan}"
+                                   Style="{StaticResource ReceiptDetailValue}"/>
+
+                    </Grid>
+
+                </Grid>
+
+            </Border>
+
+
+            <!-- ================================================= -->
+            <!-- LISTA RAČUNA                                      -->
+            <!-- ================================================= -->
+
+            <Border Grid.Column="2"
+                    Style="{StaticResource ReceiptsCard}">
+
+                <Grid>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="60"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+
+                    <!-- NASLOV -->
+
+                    <Grid Grid.Row="0"
+                          Margin="16,0">
+
+                        <StackPanel VerticalAlignment="Center">
+
+                            <TextBlock Text="Računi"
+                                       Style="{StaticResource ReceiptsSectionTitle}"/>
+
+                            <TextBlock Text="Pregled izdanih računa"
+                                       Style="{StaticResource ReceiptsSectionDescription}"
+                                       Margin="0,2,0,0"/>
+
+                        </StackPanel>
+
+                    </Grid>
+
+
+                    <!-- VAŽNO:
+                         Ne postavljamo lokalni Cell/Header stil.
+                         Koriste se tvoji globalni Caupo DataGrid stilovi. -->
+
+                    <DataGrid x:Name="ListaRacuna"
+                              Grid.Row="1"
+                              ItemsSource="{Binding ReceiptsFilter}"
+                              SelectedItem="{Binding SelectedReceipt, Mode=TwoWay}"
+                              SelectionChanged="ListaRacuna_SelectionChanged"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              HeadersVisibility="Column"
+                              CanUserAddRows="False"
+                              CanUserResizeRows="False"
+                              CanUserSortColumns="False"
+                              GridLinesVisibility="None"
+                              RowHeight="35"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              BorderBrush="{DynamicResource GlobalFontColor}"
+                              Foreground="{DynamicResource GlobalFontColor}"
+                              HorizontalScrollBarVisibility="Disabled"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              SelectionMode="Single"
+                              ClipToBounds="True"
+                              RowStyle="{StaticResource ReklamiranDataGridRowStyle}">
+
+                        <DataGrid.Resources>
+
+                            <Style TargetType="ScrollBar"
+                                   BasedOn="{StaticResource WideVerticalScrollBar}"/>
+
+                        </DataGrid.Resources>
+
+                        <DataGrid.Columns>
+
+
+                            <DataGridTemplateColumn Header="Broj"
+                                                    Width="65">
+
+                                <DataGridTemplateColumn.CellTemplate>
+
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding BrojRacuna}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+
+                                    </DataTemplate>
+
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+
+                            <DataGridTemplateColumn Header="Fiskalni broj"
+                                                    Width="1.5*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding BrojFiskalnogRacuna}"
+                                                   TextAlignment="Left"
+                                                   TextTrimming="CharacterEllipsis"/>
+
+                                    </DataTemplate>
+
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+
+                            <DataGridTemplateColumn Header="Datum"
+                                                    Width="1.1*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding Datum, StringFormat={}{0:dd.MM.yyyy HH:mm}}"
+                                                   TextAlignment="Center"/>
+
+                                    </DataTemplate>
+
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+
+                            <DataGridTemplateColumn Header="Plaćanje"
+                                                    Width="0.9*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding NacinPlacanjaName}"
+                                                   TextAlignment="Center"/>
+
+                                    </DataTemplate>
+
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+
+                            <DataGridTemplateColumn Header="Radnik"
+                                                    Width="1*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding RadnikName}"
+                                                   TextAlignment="Right"/>
+
+                                    </DataTemplate>
+
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+
+                            <DataGridTemplateColumn Header="Kupac"
+                                                    Width="1*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding Kupac}"
+                                                   TextAlignment="Right"
+                                                   Padding="10"/>
+
+                                    </DataTemplate>
+
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                        </DataGrid.Columns>
+
+                    </DataGrid>
+
+                </Grid>
+
+            </Border>
+
+
+            <!-- ================================================= -->
+            <!-- STAVKE RAČUNA                                     -->
+            <!-- ================================================= -->
+
+            <Border Grid.Column="4"
+                    Style="{StaticResource ReceiptsCard}">
+
+                <Grid>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="60"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="70"/>
+                    </Grid.RowDefinitions>
+
+
+                    <!-- NASLOV -->
+
+                    <Grid Grid.Row="0"
+                          Margin="16,0">
+
+                        <StackPanel VerticalAlignment="Center">
+
+                            <TextBlock Text="Stavke računa"
+                                       Style="{StaticResource ReceiptsSectionTitle}"/>
+
+                            <TextBlock Text="Artikli odabranog računa"
+                                       Style="{StaticResource ReceiptsSectionDescription}"
+                                       Margin="0,2,0,0"/>
+
+                        </StackPanel>
+
+                    </Grid>
+
+
+                    <!-- STAVKE -->
+
+                    <DataGrid x:Name="ListaStavki"
+                              Grid.Row="1"
+                              Margin="12,0,12,0"
+                              ItemsSource="{Binding ReceiptItems}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              HeadersVisibility="Column"
+                              CanUserAddRows="False"
+                              CanUserResizeRows="False"
+                              CanUserSortColumns="False"
+                              GridLinesVisibility="None"
+                              RowHeight="35"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              Foreground="{DynamicResource GlobalFontColor}"
+                              HorizontalScrollBarVisibility="Disabled"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              SelectionMode="Single">
+
+                        <DataGrid.Resources>
+
+                            <Style TargetType="ScrollBar"
+                                   BasedOn="{StaticResource WideVerticalScrollBar}"/>
+
+                        </DataGrid.Resources>
+
+                        <DataGrid.Columns>
+
+
+                            <DataGridTemplateColumn Header="Artikl"
+                                                    Width="2*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding ArtiklNormativ}"
+                                                   TextWrapping="Wrap"/>
+
+                                    </DataTemplate>
+
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+
+                            <DataGridTemplateColumn Header="Kol."
+                                                    Width="*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding Kolicina, StringFormat={}{0:0.00}}"
+                                                   TextAlignment="Right"/>
+
+                                    </DataTemplate>
+
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+
+                            <DataGridTemplateColumn Header="Cijena"
+                                                    Width="*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding Cijena, StringFormat={}{0:0.00}}"
+                                                   TextAlignment="Right"/>
+
+                                    </DataTemplate>
+
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+
+                            <DataGridTemplateColumn Header="Iznos"
+                                                    Width="*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding BrojRacuna, StringFormat={}{0:0.00}}"
+                                                   TextAlignment="Right"/>
+
+                                    </DataTemplate>
+
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                        </DataGrid.Columns>
+
+                    </DataGrid>
+
+
+                    <!-- UKUPNO -->
+
+                    <Border Grid.Row="2"
+                            BorderThickness="0,1,0,0"
+                            BorderBrush="#3F3F46">
+
+                        <Grid Margin="18,0">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Text="UKUPNO"
+                                       Foreground="{DynamicResource GlobalFontColor}"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Opacity="0.65"
+                                       VerticalAlignment="Center"/>
+
+                            <StackPanel Grid.Column="1"
+                                        Orientation="Horizontal"
+                                        VerticalAlignment="Center">
+
+                                <TextBlock Text="{Binding IznosRacuna, StringFormat={}{0:0.00}}"
+                                           Foreground="{DynamicResource GlobalFontColor}"
+                                           FontSize="27"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center"/>
+
+                                <TextBlock Text=" €"
+                                           Foreground="{DynamicResource GlobalFontColor}"
+                                           FontSize="15"
+                                           Opacity="0.65"
+                                           Margin="3,7,0,0"
+                                           VerticalAlignment="Center"/>
+
+                            </StackPanel>
+
+                        </Grid>
+
+                    </Border>
+
+                </Grid>
+
+            </Border>
+
+        </Grid>
+
     </Grid>
+
 </UserControl>

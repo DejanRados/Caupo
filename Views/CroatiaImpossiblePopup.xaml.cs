@@ -1,25 +1,18 @@
 ﻿using Caupo.Data;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.Views
 {
-    public partial class CroatiaFiscalWarningPopup : Window
+    public partial class CroatiaImpossiblePopup : Window
     {
-        public string WarningText { get; }
         public TblRadnici? ConfirmedWorker { get; private set; }
 
-        private bool _allowAutomaticClose;
-
-        public CroatiaFiscalWarningPopup(string warningText)
+        public CroatiaImpossiblePopup()
         {
             InitializeComponent();
-
-            WarningText = warningText;
-            DataContext = this;
 
             Loaded += (_, _) => txtPassword.Focus();
         }
@@ -33,6 +26,12 @@ namespace Caupo.Views
         {
             if (e.Key == Key.Enter)
                 await ConfirmAsync();
+        }
+
+        private void BtnCancel_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
+            Close();
         }
 
         private async Task ConfirmAsync()
@@ -64,13 +63,14 @@ namespace Caupo.Views
 
                 if (!string.Equals(worker.Dozvole, "Administrator", StringComparison.OrdinalIgnoreCase))
                 {
-                    txtError.Text = "Za potvrdu ovog upozorenja potrebna je administratorska šifra.";
+                    txtError.Text = "Za ovu akciju potrebna je administratorska šifra.";
                     txtPassword.Clear();
                     txtPassword.Focus();
                     return;
                 }
 
                 ConfirmedWorker = worker;
+
                 DialogResult = true;
                 Close();
             }
@@ -78,26 +78,6 @@ namespace Caupo.Views
             {
                 txtError.Text = "Nije moguće provjeriti šifru: " + ex.Message;
             }
-        }
-
-        public void CloseAutomatically()
-        {
-            Debug.WriteLine("[HR POPUP] CloseAutomatically pozvan.");
-
-            _allowAutomaticClose = true;
-            DialogResult = false;
-        }
-
-        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
-        {
-            Debug.WriteLine($"[HR POPUP] OnClosing: DialogResult={DialogResult}, Automatic={_allowAutomaticClose}");
-
-            if (DialogResult != true && !_allowAutomaticClose)
-                e.Cancel = true;
-
-            base.OnClosing(e);
-
-            Debug.WriteLine($"[HR POPUP] OnClosing završio. Cancel={e.Cancel}");
         }
     }
 }

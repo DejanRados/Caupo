@@ -1461,36 +1461,23 @@ namespace Caupo.ViewModels
 
         public RekapitulacijaPrometa IzracunajRekapitulaciju(DateTime datum)
         {
-            var r = new RekapitulacijaPrometa ();
+            var r = new RekapitulacijaPrometa();
             r.Datum = datum.Date;
 
             var racuniZaDan = SviRacuni
-                .Where (x => x.Datum.Date == datum.Date)
-                .ToList ();
+                .Where(x => x.Datum.Date == datum.Date)
+                .ToList();
 
-            var radniciMap = SviRadnici.ToDictionary (x => x.IdRadnika, x => x.Radnik);
-            foreach(var racun in racuniZaDan)
+            var radniciMap = SviRadnici.ToDictionary(x => x.IdRadnika, x => x.Radnik);
+
+            foreach (var racun in racuniZaDan)
             {
-                if(string.IsNullOrEmpty (racun.RadnikName))
-                {
-                    if(int.TryParse (racun.Radnik, out int radnikId))
-                    {
-                        if(radniciMap.TryGetValue (radnikId, out var ime))
-                        {
-                            racun.RadnikName = ime;
-                        }
-                        else
-                        {
-                            racun.RadnikName = racun.Radnik; // fallback na originalni string
-                        }
-                    }
-                    else
-                    {
-                        // ne može parsirati, samo zadrži originalni string
-                        racun.RadnikName = racun.Radnik;
-                    }
-                }
+                if (int.TryParse(racun.Radnik, out int radnikId) && radniciMap.TryGetValue(radnikId, out var ime))
+                    racun.RadnikName = ime;
+                else
+                    racun.RadnikName = string.Empty;
             }
+
             var stavkeZaDan =
                 from rac in racuniZaDan
                 join st in SveStavke on rac.BrojRacuna equals st.BrojRacuna
@@ -1498,65 +1485,62 @@ namespace Caupo.ViewModels
 
             // 1. OSTVAREN PROMET
             r.Gotovina = stavkeZaDan
-                .Where (x => x.Racun.NacinPlacanja == 0)
-                .Sum (x => x.Stavka.Kolicina.GetValueOrDefault () * x.Stavka.Cijena.GetValueOrDefault ());
+                .Where(x => x.Racun.NacinPlacanja == 0)
+                .Sum(x => x.Stavka.Kolicina.GetValueOrDefault() * x.Stavka.Cijena.GetValueOrDefault());
 
             r.Kartica = stavkeZaDan
-                .Where (x => x.Racun.NacinPlacanja == 1)
-                .Sum (x => x.Stavka.Kolicina.GetValueOrDefault () * x.Stavka.Cijena.GetValueOrDefault ());
+                .Where(x => x.Racun.NacinPlacanja == 1)
+                .Sum(x => x.Stavka.Kolicina.GetValueOrDefault() * x.Stavka.Cijena.GetValueOrDefault());
 
             r.Cek = stavkeZaDan
-                .Where (x => x.Racun.NacinPlacanja == 2)
-                .Sum (x => x.Stavka.Kolicina.GetValueOrDefault () * x.Stavka.Cijena.GetValueOrDefault ());
+                .Where(x => x.Racun.NacinPlacanja == 2)
+                .Sum(x => x.Stavka.Kolicina.GetValueOrDefault() * x.Stavka.Cijena.GetValueOrDefault());
 
             r.Virman = stavkeZaDan
-                .Where (x => x.Racun.NacinPlacanja == 3)
-                .Sum (x => x.Stavka.Kolicina.GetValueOrDefault () * x.Stavka.Cijena.GetValueOrDefault ());
+                .Where(x => x.Racun.NacinPlacanja == 3)
+                .Sum(x => x.Stavka.Kolicina.GetValueOrDefault() * x.Stavka.Cijena.GetValueOrDefault());
 
             // Ukupno
             r.Ukupno = r.Gotovina + r.Kartica + r.Cek + r.Virman;
 
             // Reklamirano
             r.Reklamirano = stavkeZaDan
-                .Where (x => x.Racun.Reklamiran == "DA")
-                .Sum (x => x.Stavka.Kolicina.GetValueOrDefault () * x.Stavka.Cijena.GetValueOrDefault ());
-
-            // Pazar
-
+                .Where(x => x.Racun.Reklamiran == "DA")
+                .Sum(x => x.Stavka.Kolicina.GetValueOrDefault() * x.Stavka.Cijena.GetValueOrDefault());
 
             // -------------------------------
             // 2. PROMET PO RADNICIMA
             // -------------------------------
             var prometPoRadnicima = stavkeZaDan
-                .GroupBy (x => x.Racun.Radnik)
-                .Select (g =>
+                .GroupBy(x => x.Racun.Radnik)
+                .Select(g =>
                 {
-                    var stavke = g.ToList ();
+                    var stavke = g.ToList();
 
                     var gotovina = stavke
-                        .Where (s => s.Racun.NacinPlacanja == 0 && s.Racun.Reklamiran != "DA")
-                        .Sum (s => s.Stavka.Kolicina.GetValueOrDefault () * s.Stavka.Cijena.GetValueOrDefault ());
+                        .Where(s => s.Racun.NacinPlacanja == 0 && s.Racun.Reklamiran != "DA")
+                        .Sum(s => s.Stavka.Kolicina.GetValueOrDefault() * s.Stavka.Cijena.GetValueOrDefault());
 
                     var kartica = stavke
-                        .Where (s => s.Racun.NacinPlacanja == 1 && s.Racun.Reklamiran != "DA")
-                        .Sum (s => s.Stavka.Kolicina.GetValueOrDefault () * s.Stavka.Cijena.GetValueOrDefault ());
+                        .Where(s => s.Racun.NacinPlacanja == 1 && s.Racun.Reklamiran != "DA")
+                        .Sum(s => s.Stavka.Kolicina.GetValueOrDefault() * s.Stavka.Cijena.GetValueOrDefault());
 
                     var cek = stavke
-                        .Where (s => s.Racun.NacinPlacanja == 2 && s.Racun.Reklamiran != "DA")
-                        .Sum (s => s.Stavka.Kolicina.GetValueOrDefault () * s.Stavka.Cijena.GetValueOrDefault ());
+                        .Where(s => s.Racun.NacinPlacanja == 2 && s.Racun.Reklamiran != "DA")
+                        .Sum(s => s.Stavka.Kolicina.GetValueOrDefault() * s.Stavka.Cijena.GetValueOrDefault());
 
                     var virman = stavke
-                        .Where (s => s.Racun.NacinPlacanja == 3 && s.Racun.Reklamiran != "DA")
-                        .Sum (s => s.Stavka.Kolicina.GetValueOrDefault () * s.Stavka.Cijena.GetValueOrDefault ());
+                        .Where(s => s.Racun.NacinPlacanja == 3 && s.Racun.Reklamiran != "DA")
+                        .Sum(s => s.Stavka.Kolicina.GetValueOrDefault() * s.Stavka.Cijena.GetValueOrDefault());
 
                     var reklamirano = stavke
-                        .Where (s => s.Racun.Reklamiran == "DA")
-                        .Sum (s => s.Stavka.Kolicina.GetValueOrDefault () * s.Stavka.Cijena.GetValueOrDefault ());
+                        .Where(s => s.Racun.Reklamiran == "DA")
+                        .Sum(s => s.Stavka.Kolicina.GetValueOrDefault() * s.Stavka.Cijena.GetValueOrDefault());
 
                     return new RadnikPromet
                     {
                         RadnikId = g.Key,
-                        Radnik = stavke.First ().Racun.RadnikName ?? stavke.First ().Racun.Radnik,
+                        Radnik = stavke.First().Racun.RadnikName ?? string.Empty,
                         Gotovina = gotovina,
                         Kartica = kartica,
                         Cek = cek,
@@ -1564,64 +1548,55 @@ namespace Caupo.ViewModels
                         Reklamirano = reklamirano
                     };
                 })
-                .Where (r => r.Gotovina + r.Kartica + r.Cek + r.Virman > 0 || r.Reklamirano > 0)
-                .ToList ();
+                .Where(r => r.Gotovina + r.Kartica + r.Cek + r.Virman > 0 || r.Reklamirano > 0)
+                .ToList();
 
             r.PrometPoRadnicima = prometPoRadnicima;
 
-
-            // helper metoda:
             List<ArtiklPromet> GetPromet(int vrsta, bool reklamirano)
             {
-                // Početni query: sve stavke te vrste
                 var q = from ps in stavkeZaDan
                         where ps.Stavka.VrstaArtikla == vrsta
                         select ps;
 
-                // Ako tražimo reklamirano → filtriramo samo one s Reklamiran == "DA"
-                if(reklamirano)
-                    q = q.Where (ps => ps.Racun.Reklamiran == "DA");
+                if (reklamirano)
+                    q = q.Where(ps => ps.Racun.Reklamiran == "DA");
 
                 var result = (from ps in q
                               group ps by ps.Stavka.Artikl into g
                               select new ArtiklPromet
                               {
                                   NazivArtikla = g.Key,
-                                  // Sumiramo sigurno nullable vrijednosti
-                                  Kolicina = g.Sum (x => x.Stavka.Kolicina.GetValueOrDefault ()),
-                                  Cijena = g.Any () ? Math.Round (g.Average (x => x.Stavka.Cijena.GetValueOrDefault ()), 2) : 0m,
-                                  Iznos = g.Sum (x => (x.Stavka.Kolicina.GetValueOrDefault () * x.Stavka.Cijena.GetValueOrDefault ()))
+                                  Kolicina = g.Sum(x => x.Stavka.Kolicina.GetValueOrDefault()),
+                                  Cijena = g.Any() ? Math.Round(g.Average(x => x.Stavka.Cijena.GetValueOrDefault()), 2) : 0m,
+                                  Iznos = g.Sum(x => x.Stavka.Kolicina.GetValueOrDefault() * x.Stavka.Cijena.GetValueOrDefault())
                               })
-                             .OrderBy (x => x.NazivArtikla)
-                             .ToList ();
+                             .OrderBy(x => x.NazivArtikla)
+                             .ToList();
 
                 return result;
             }
 
-
             // ŠANK
-            r.SankProdano = GetPromet (0, false);
-            r.SankReklamirano = GetPromet (0, true);
-            r.SankUkupno = r.SankProdano.Sum (x => x.Iznos ?? 0) -
-                           r.SankReklamirano.Sum (x => x.Iznos ?? 0);
+            r.SankProdano = GetPromet(0, false);
+            r.SankReklamirano = GetPromet(0, true);
+            r.SankUkupno = r.SankProdano.Sum(x => x.Iznos ?? 0) -
+                           r.SankReklamirano.Sum(x => x.Iznos ?? 0);
 
             // KUHINJA
-            r.KuhinjaProdano = GetPromet (1, false);
-            r.KuhinjaReklamirano = GetPromet (1, true);
-            r.KuhinjaUkupno = r.KuhinjaProdano.Sum (x => x.Iznos ?? 0) -
-                              r.KuhinjaReklamirano.Sum (x => x.Iznos ?? 0);
+            r.KuhinjaProdano = GetPromet(1, false);
+            r.KuhinjaReklamirano = GetPromet(1, true);
+            r.KuhinjaUkupno = r.KuhinjaProdano.Sum(x => x.Iznos ?? 0) -
+                              r.KuhinjaReklamirano.Sum(x => x.Iznos ?? 0);
 
             // OSTALO
-            r.OstaloProdano = GetPromet (2, false);
-            r.OstaloReklamirano = GetPromet (2, true);
-            r.OstaloUkupno = r.OstaloProdano.Sum (x => x.Iznos ?? 0) -
-                             r.OstaloReklamirano.Sum (x => x.Iznos ?? 0);
+            r.OstaloProdano = GetPromet(2, false);
+            r.OstaloReklamirano = GetPromet(2, true);
+            r.OstaloUkupno = r.OstaloProdano.Sum(x => x.Iznos ?? 0) -
+                             r.OstaloReklamirano.Sum(x => x.Iznos ?? 0);
 
             return r;
         }
-
-
-
 
 
 
