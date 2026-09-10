@@ -850,11 +850,9 @@ namespace Caupo.Data
             {
                 get
                 {
-                    // Calculate Total based on Qty and Price
-                    if(Cijena.HasValue && Kolicina > 0)
-                    {
-                        return Cijena.Value * (decimal)Kolicina;
-                    }
+                    if (Cijena.HasValue && Kolicina.HasValue)
+                        return Cijena.Value * Kolicina.Value;
+
                     return null;
                 }
             }
@@ -944,6 +942,7 @@ namespace Caupo.Data
             [NotMapped]
             public string? RadnikName { get; set; }
             public string? Fiskalizovan { get; set; } = "NE";
+            public string? TipRacuna { get; set; }
 
             private string? reklamiran = "NE";
             public string? Reklamiran

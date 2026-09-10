@@ -17,6 +17,10 @@ namespace Caupo.Fiscal.Serbia.Models
         public decimal TotalAmount { get; init; }
 
         public IReadOnlyList<SerbiaReceiptReprintItem> Items { get; init; } = Array.Empty<SerbiaReceiptReprintItem>();
+
+        public bool IsRefund { get; init; }
+        public string ReferentDocumentNumber { get; init; } = string.Empty;
+        public DateTime? ReferentDocumentDateTime { get; init; }
     }
 
     public sealed class SerbiaReceiptReprintItem

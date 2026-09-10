@@ -23,6 +23,12 @@ namespace Caupo.Fiscal.RS.Models
         public decimal TotalAmount { get; init; }
 
         public IReadOnlyList<RsReceiptReprintItem> Items { get; init; } = Array.Empty<RsReceiptReprintItem>();
+        
+        public bool IsRefund { get; init; }
+
+        public string ReferentDocumentNumber { get; init; } = string.Empty;
+
+        public DateTime? ReferentDocumentDateTime { get; init; }
     }
 
     public sealed class RsReceiptReprintItem

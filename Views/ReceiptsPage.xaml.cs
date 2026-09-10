@@ -4,6 +4,8 @@ using Caupo.ViewModels;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
 using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.Views
@@ -36,6 +38,20 @@ namespace Caupo.Views
         // ============================================================
         // SELECTION
         // ============================================================
+        private void ListaRacuna_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            DependencyObject? source = e.OriginalSource as DependencyObject;
+
+            while (source != null && source is not DataGridRow)
+                source = VisualTreeHelper.GetParent(source);
+
+            if (source is DataGridRow row && !row.IsSelected)
+            {
+                row.IsSelected = true;
+                ListaRacuna.SelectedItem = row.Item;
+                ListaRacuna.CurrentItem = row.Item;
+            }
+        }
 
         private async void ListaRacuna_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

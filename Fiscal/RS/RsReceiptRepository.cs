@@ -95,22 +95,37 @@ namespace Caupo.Fiscal.RS
             }
         }
 
-        public async Task<bool> MarkRefundedAsync(
-            string fiscalReceiptNumber,
-            CancellationToken cancellationToken = default)
+        public async Task<bool> MarkRefundedAsync(string fiscalReceiptNumber, RsFiscalResponse fiscalResponse, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(fiscalReceiptNumber))
                 return false;
 
             await using var db = new AppDbContext();
+            await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
 
-            int affected = await db.Racuni
-                .Where(x => x.BrojFiskalnogRacuna == fiscalReceiptNumber)
-                .ExecuteUpdateAsync(
-                    update => update.SetProperty(x => x.Reklamiran, "DA"),
-                    cancellationToken);
+            try
+            {
+                var receipt = await db.Racuni.FirstOrDefaultAsync(x => x.BrojFiskalnogRacuna == fiscalReceiptNumber, cancellationToken);
 
-            return affected > 0;
+                if (receipt == null)
+                    return false;
+
+                receipt.Reklamiran = "DA";
+                receipt.BrojRefundRacuna = fiscalResponse.FiscalReceiptNumber;
+                receipt.BrojRacunaHr = fiscalResponse.TotalCounter;
+                receipt.Jir = fiscalResponse.VerificationUrl;
+                receipt.DatumRefundRacuna = fiscalResponse.SdcDateTime ?? DateTime.Now;
+
+                await db.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+
+                return true;
+            }
+            catch
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
+            }
         }
     }
 }

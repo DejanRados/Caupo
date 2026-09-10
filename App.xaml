@@ -1386,21 +1386,26 @@
                                 <DataGridCellsPresenter x:Name="DataGridCellsPresenter" VerticalAlignment="Stretch"  HorizontalAlignment="Stretch"/>
                             </Border>
                             <ControlTemplate.Triggers>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter TargetName="Border" Property="Background" Value="#FF5FB7B7"/>
-                                </Trigger>
-                                 <MultiTrigger>
+
+                                <MultiTrigger>
                                     <MultiTrigger.Conditions>
                                         <Condition Property="IsMouseOver" Value="True"/>
                                         <Condition Property="IsSelected" Value="False"/>
                                     </MultiTrigger.Conditions>
+
                                     <Setter TargetName="Border" Property="Background" Value="#555FB7B7"/>
                                 </MultiTrigger>
+
                                 <DataTrigger Binding="{Binding IsReklamiran}" Value="True">
-                                    <Setter TargetName="Border" Property="Background"     Value="#302FA4A9"/>
-                                    <Setter TargetName="Border" Property="BorderBrush"    Value="#FF2FA4A9"/>
-                                    <Setter TargetName="Border"  Property="BorderThickness"  Value="0,0,0,2"/>
+                                    <Setter TargetName="Border" Property="Background" Value="#302FA4A9"/>
+                                    <Setter TargetName="Border" Property="BorderBrush" Value="#FF2FA4A9"/>
+                                    <Setter TargetName="Border" Property="BorderThickness" Value="0,0,0,2"/>
                                 </DataTrigger>
+
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter TargetName="Border" Property="Background" Value="#FF5FB7B7"/>
+                                </Trigger>
+
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Setter.Value>

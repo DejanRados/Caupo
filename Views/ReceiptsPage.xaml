@@ -614,15 +614,13 @@
                     </Grid>
 
 
-                    <!-- VAŽNO:
-                         Ne postavljamo lokalni Cell/Header stil.
-                         Koriste se tvoji globalni Caupo DataGrid stilovi. -->
-
+                  
                     <DataGrid x:Name="ListaRacuna"
                               Grid.Row="1"
                               ItemsSource="{Binding ReceiptsFilter}"
                               SelectedItem="{Binding SelectedReceipt, Mode=TwoWay}"
                               SelectionChanged="ListaRacuna_SelectionChanged"
+                              PreviewMouseLeftButtonDown="ListaRacuna_PreviewMouseLeftButtonDown"
                               AutoGenerateColumns="False"
                               IsReadOnly="True"
                               HeadersVisibility="Column"
@@ -670,7 +668,7 @@
 
 
                             <DataGridTemplateColumn Header="Fiskalni broj"
-                                                    Width="1.5*">
+                                                    Width="1.1*">
 
                                 <DataGridTemplateColumn.CellTemplate>
 
@@ -713,6 +711,22 @@
 
                                         <TextBlock Text="{Binding NacinPlacanjaName}"
                                                    TextAlignment="Center"/>
+
+                                    </DataTemplate>
+
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="Tip računa"
+                          Width="0.9*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding TipRacuna}"
+                         TextAlignment="Center"/>
 
                                     </DataTemplate>
 
@@ -888,7 +902,7 @@
 
                                     <DataTemplate>
 
-                                        <TextBlock Text="{Binding BrojRacuna, StringFormat={}{0:0.00}}"
+                                        <TextBlock Text="{Binding Iznos, StringFormat={}{0:0.00}}"
                                                    TextAlignment="Right"/>
 
                                     </DataTemplate>

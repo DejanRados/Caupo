@@ -45,7 +45,8 @@ namespace Caupo.Fiscal.Croatia
                     Zki = fiscalization.Zki,
                     BrojRacunaHr = builtInvoice.ReceiptNumberHr,
                     Iznos = request.TotalAmount,
-                    PorezNaPotrosnjuStopa = pnpRate
+                    PorezNaPotrosnjuStopa = pnpRate,
+                    TipRacuna = "Racun"
                 };
 
                 await db.Racuni.AddAsync(receipt, cancellationToken);
@@ -82,6 +83,89 @@ namespace Caupo.Fiscal.Croatia
             }
         }
 
+        public async Task<int> SaveStornoAsync(
+    TblRacuni originalReceipt,
+    IReadOnlyList<TblRacunStavka> originalItems,
+    CroatiaBuiltInvoice builtInvoice,
+    CroatiaFiscalizationResponse fiscalization,
+    int workerId,
+    CancellationToken cancellationToken = default)
+        {
+            await using var db = new AppDbContext();
+            await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+
+            try
+            {
+                var original = await db.Racuni
+                    .FirstOrDefaultAsync(x => x.BrojRacuna == originalReceipt.BrojRacuna, cancellationToken);
+
+                if (original == null)
+                    throw new FiscalException($"Originalni račun {originalReceipt.BrojRacuna} nije pronađen.");
+
+                if (string.Equals(original.Reklamiran, "DA", StringComparison.OrdinalIgnoreCase))
+                    throw new FiscalException($"Račun {originalReceipt.BrojRacunaHr} je već storniran.");
+
+                decimal pnpRate = builtInvoice.Taxes
+                    .Where(x => x.IsConsumptionTax)
+                    .Select(x => x.Rate)
+                    .FirstOrDefault();
+
+                var stornoReceipt = new TblRacuni
+                {
+                    BrojRacuna = builtInvoice.LocalReceiptNumber,
+                    Kupac = original.Kupac,
+                    Datum = builtInvoice.IssueDateTime,
+                    DatumFiskalnogDokumenta = null,
+                    NacinPlacanja = original.NacinPlacanja,
+                    BrojFiskalnogRacuna = builtInvoice.ReceiptNumberHr,
+                    Radnik = workerId.ToString(),
+                    Fiskalizovan = fiscalization.Fiscalized
+                        ? FiscalizationStatus.Fiscalized.ToString()
+                        : FiscalizationStatus.NotFiscalized.ToString(),
+                    Jir = fiscalization.Jir,
+                    Zki = fiscalization.Zki,
+                    BrojRacunaHr = builtInvoice.ReceiptNumberHr,
+                    Iznos = builtInvoice.TotalAmount,
+                    PorezNaPotrosnjuStopa = pnpRate,
+                    TipRacuna = "Storno"
+                };
+
+                await db.Racuni.AddAsync(stornoReceipt, cancellationToken);
+
+                foreach (var item in originalItems)
+                {
+                    var row = new TblRacunStavka
+                    {
+                        BrojRacuna = builtInvoice.LocalReceiptNumber,
+                        Artikl = item.Artikl,
+                        Sifra = item.Sifra,
+                        Kolicina = -Math.Abs(item.Kolicina ?? 0m),
+                        Cijena = item.Cijena,
+                        PoreskaStopa = item.PoreskaStopa,
+                        PorezNaPotrosnju = item.PorezNaPotrosnju,
+                        JedinicaMjere = item.JedinicaMjere,
+                        VrstaArtikla = item.VrstaArtikla,
+                        ArtiklNormativ = item.ArtiklNormativ
+                    };
+
+                    await db.RacunStavka.AddAsync(row, cancellationToken);
+                }
+
+                original.Reklamiran = "DA";
+                original.BrojRefundRacuna = builtInvoice.ReceiptNumberHr;
+                original.DatumRefundRacuna = builtInvoice.IssueDateTime;
+
+                await db.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+
+                return stornoReceipt.BrojRacuna;
+            }
+            catch
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
+            }
+        }
         public async Task<List<TblRacuni>> GetNotFiscalizedAsync(CancellationToken cancellationToken = default)
         {
             await using var db = new AppDbContext();
@@ -141,6 +225,53 @@ namespace Caupo.Fiscal.Croatia
             receipt.Fiskalizovan = FiscalizationStatus.Impossible.ToString();
 
             await db.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<(TblRacuni Receipt, List<TblRacunStavka> Items)> GetForStornoAsync( int localReceiptNumber, CancellationToken cancellationToken = default)
+        {
+            await using var db = new AppDbContext();
+
+            var receipt = await db.Racuni
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.BrojRacuna == localReceiptNumber, cancellationToken);
+
+            if (receipt == null)
+                throw new FiscalException($"Račun {localReceiptNumber} nije pronađen.");
+
+            if (!string.Equals(
+                    receipt.Fiskalizovan,
+                    FiscalizationStatus.Fiscalized.ToString(),
+                    StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(
+                    receipt.Fiskalizovan,
+                    "DA",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                throw new FiscalException("Stornirati je moguće samo fiskalizovan račun.");
+            }
+
+            if (string.Equals(receipt.Reklamiran, "DA", StringComparison.OrdinalIgnoreCase))
+                throw new FiscalException("Odabrani račun je već storniran.");
+
+            if (string.IsNullOrWhiteSpace(receipt.BrojRacunaHr))
+                throw new FiscalException($"Račun {localReceiptNumber} nema hrvatski broj računa.");
+
+            if (string.IsNullOrWhiteSpace(receipt.Jir))
+                throw new FiscalException($"Račun {receipt.BrojRacunaHr} nema spremljen JIR.");
+
+            if (string.IsNullOrWhiteSpace(receipt.Zki))
+                throw new FiscalException($"Račun {receipt.BrojRacunaHr} nema spremljen ZKI.");
+
+            var items = await db.RacunStavka
+                .AsNoTracking()
+                .Where(x => x.BrojRacuna == localReceiptNumber)
+                .OrderBy(x => x.IdStavke)
+                .ToListAsync(cancellationToken);
+
+            if (items.Count == 0)
+                throw new FiscalException($"Račun {receipt.BrojRacunaHr} nema spremljenih stavki.");
+
+            return (receipt, items);
         }
 
         public async Task<(TblRacuni Receipt, List<TblRacunStavka> Items)> GetForSubsequentFiscalizationAsync(int localReceiptNumber, CancellationToken cancellationToken = default)

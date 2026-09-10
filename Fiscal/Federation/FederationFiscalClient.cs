@@ -269,11 +269,7 @@ namespace Caupo.Fiscal.Federation
 
             try
             {
-                printer.Inicijalizacija(
-                    _settings.ServerIpAddress,
-                    _settings.ServerPort,
-                    _settings.PrinterIndex,
-                    _settings.PrinterPassword);
+                printer.Inicijalizacija(_settings.ServerIpAddress, _settings.ServerPort, _settings.PrinterIndex, _settings.PrinterPassword);
 
                 Debug.WriteLine("[FEDERACIJA/TRING] Printer uspješno inicijalizovan za reklamaciju.");
             }
@@ -329,10 +325,9 @@ namespace Caupo.Fiscal.Federation
                     };
                 }
 
-                string? fiscalNumber = response.Odgovori?
-                    .FirstOrDefault(x => x.Naziv == "BrojFiskalnogRacuna")
-                    ?.Vrijednost
-                    ?.ToString();
+                string? fiscalNumber = response.Odgovori?.FirstOrDefault(x => x.Naziv == "BrojFiskalnogRacuna")?.Vrijednost?.ToString();
+                string? fiscalDate = response.Odgovori?.FirstOrDefault(x => x.Naziv == "DatumFiskalnogRacuna")?.Vrijednost?.ToString();
+                string? fiscalTime = response.Odgovori?.FirstOrDefault(x => x.Naziv == "VrijemeFiskalnogRacuna")?.Vrijednost?.ToString();
 
                 if (string.IsNullOrWhiteSpace(fiscalNumber))
                 {
@@ -345,13 +340,31 @@ namespace Caupo.Fiscal.Federation
                     };
                 }
 
+                DateTime? fiscalDateTime = DateTime.Now;
+
+                if (!string.IsNullOrWhiteSpace(fiscalDate) && !string.IsNullOrWhiteSpace(fiscalTime))
+                {
+                    string value = $"{fiscalDate} {fiscalTime}";
+
+                    if (DateTime.TryParseExact(value, "d.M.yy H:mm", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out DateTime parsed))
+                        fiscalDateTime = parsed;
+                    else
+                        Debug.WriteLine($"[FEDERACIJA/TRING REFUND] Datum/vrijeme nije moguće parsirati: {value}. Koristi se lokalno vrijeme {fiscalDateTime:dd.MM.yyyy HH:mm:ss}.");
+                }
+                else
+                {
+                    Debug.WriteLine($"[FEDERACIJA/TRING REFUND] Tring nije vratio datum/vrijeme. Koristi se lokalno vrijeme {fiscalDateTime:dd.MM.yyyy HH:mm:ss}.");
+                }
+
                 Debug.WriteLine("[FEDERACIJA/TRING REFUND] Broj reklamiranog fiskalnog računa: " + fiscalNumber);
+                Debug.WriteLine("[FEDERACIJA/TRING REFUND] Datum reklamiranog fiskalnog računa: " + (fiscalDateTime?.ToString("dd.MM.yyyy HH:mm") ?? "nije dostupan"));
 
                 return new FederationFiscalResponse
                 {
                     Fiscalized = true,
                     Printed = true,
                     FiscalReceiptNumber = fiscalNumber,
+                    FiscalDateTime = fiscalDateTime,
                     RawResponse = response
                 };
             }

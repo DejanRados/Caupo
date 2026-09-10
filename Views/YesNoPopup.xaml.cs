@@ -1,49 +1,50 @@
-﻿using Caupo.Properties;
-using System.Windows;
-using System.Windows.Media;
+﻿using System.Windows;
 
 namespace Caupo.Views
 {
-    /// <summary>
-    /// Interaction logic for YesNoPopup.xaml
-    /// </summary>
     public partial class YesNoPopup : Window
     {
-        public string ImagePath { get; set; }
-        public Brush? FontColor { get; set; }
+        public string PopupTitle
+        {
+            get => MessageTitle.Text;
+            set => MessageTitle.Text = value;
+        }
+
+        public string PopupMessage
+        {
+            get => MessageText.Text;
+            set => MessageText.Text = value;
+        }
+
+        public string ConfirmText
+        {
+            get => ConfirmButtonText.Text;
+            set => ConfirmButtonText.Text = value;
+        }
+
+        public string CancelText
+        {
+            get => CancelButtonText.Text;
+            set => CancelButtonText.Text = value;
+        }
+
         public string Kliknuo { get; private set; } = "Ne";
+
         public YesNoPopup()
         {
-            InitializeComponent ();
-            string tema = Settings.Default.Tema;
-            this.DataContext = this;
-            if(tema == "Tamna")
-            {
-                ImagePath = "pack://application:,,,/Images/Dark/info.png";
-                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
-                Application.Current.Resources["GlobalFontColor"] = FontColor;
-            }
-            else
-            {
-                ImagePath = "pack://application:,,,/Images/Light/info.png";
-                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
-                Application.Current.Resources["GlobalFontColor"] = FontColor;
-            }
-
+            InitializeComponent();
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             Kliknuo = "Ne";
-            this.DialogResult = false;
-
+            DialogResult = false;
         }
 
         private void OKButton_Click(object sender, RoutedEventArgs e)
         {
             Kliknuo = "Da";
-            this.DialogResult = true;
-
+            DialogResult = true;
         }
     }
 }

@@ -23,116 +23,56 @@ namespace Caupo.Fiscal.Federation
             return (max ?? 0) + 1;
         }
 
-        public async Task<int> SaveAsync(
-            FiscalRequest request,
-            FederationBuiltInvoice builtInvoice,
-            FederationFiscalResponse fiscalResponse,
-            CancellationToken cancellationToken = default)
+        public async Task<int> SaveAsync(FiscalRequest request, FederationBuiltInvoice builtInvoice, FederationFiscalResponse fiscalResponse, CancellationToken cancellationToken = default)
         {
-            await using var db =
-                new AppDbContext();
-
-            await using var transaction =
-                await db.Database
-                    .BeginTransactionAsync(
-                        cancellationToken);
+            await using var db = new AppDbContext();
+            await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
 
             try
             {
-                string buyer =
-                    request.Buyer == null ||
-                    request.Buyer.IsCitizen
-                        ? "Gradjani"
-                        : request.Buyer.Name
-                            ?? "Gradjani";
+                string buyer = request.Buyer == null || request.Buyer.IsCitizen ? "Gradjani" : request.Buyer.Name ?? "Gradjani";
 
-               
+                var receipt = new TblRacuni
+                {
+                    Datum = builtInvoice.IssueDateTime,
+                    Kupac = buyer,
+                    NacinPlacanja = (int)request.PaymentType,
+                    BrojFiskalnogRacuna = fiscalResponse.FiscalReceiptNumber,
+                    Radnik = request.Cashier.Id.Value.ToString(),
+                    Fiskalizovan = fiscalResponse.Fiscalized ? "DA" : "NE",
+                    Iznos = request.TotalAmount,
+                    TipRacuna = "Racun"
+                };
 
-                var receipt =
-                    new TblRacuni
+                await db.Racuni.AddAsync(receipt, cancellationToken);
+                await db.SaveChangesAsync(cancellationToken);
+
+                foreach (var item in request.Items)
+                {
+                    var row = new TblRacunStavka
                     {
-                        Datum =
-                            builtInvoice.IssueDateTime,
-
-                        Kupac =
-                            buyer,
-
-                        NacinPlacanja =
-                            (int)request.PaymentType,
-
-                        BrojFiskalnogRacuna =
-                            fiscalResponse
-                                .FiscalReceiptNumber,
-
-                        Radnik = request.Cashier.Id.Value.ToString(),
-
-                        Fiskalizovan =
-                            fiscalResponse.Fiscalized
-                                ? "DA"
-                                : "NE",
-
-                        Iznos =
-                            request.TotalAmount
+                        BrojRacuna = receipt.BrojRacuna,
+                        Artikl = item.Name,
+                        Sifra = item.Sifra,
+                        Kolicina = item.Quantity ?? 0m,
+                        Cijena = item.UnitPrice,
+                        PoreskaStopa = item.PoreskaStopa,
+                        JedinicaMjere = item.JedinicaMjere,
+                        VrstaArtikla = item.Proizvod,
+                        ArtiklNormativ = item.Naziv
                     };
 
-                await db.Racuni.AddAsync(
-                    receipt,
-                    cancellationToken);
-
-                await db.SaveChangesAsync(
-                    cancellationToken);
-
-                foreach(var item in request.Items)
-                {
-                    var row =
-                        new TblRacunStavka
-                        {
-                            BrojRacuna =
-                                receipt.BrojRacuna,
-
-                            Artikl =
-                                item.Name,
-
-                            Sifra =
-                                item.Sifra,
-
-                            Kolicina =
-                                item.Quantity ?? 0m,
-
-                            Cijena =
-                                item.UnitPrice,
-
-                            PoreskaStopa =
-                                item.PoreskaStopa,
-
-                            JedinicaMjere =
-                                item.JedinicaMjere,
-
-                            VrstaArtikla =
-                                item.Proizvod,
-
-                            ArtiklNormativ =
-                                item.Naziv
-                        };
-
-                    await db.RacunStavka.AddAsync(
-                        row,
-                        cancellationToken);
+                    await db.RacunStavka.AddAsync(row, cancellationToken);
                 }
 
-                await db.SaveChangesAsync(
-                    cancellationToken);
-
-                await transaction.CommitAsync(
-                    cancellationToken);
+                await db.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
 
                 return receipt.BrojRacuna;
             }
             catch
             {
-                await transaction.RollbackAsync(
-                    cancellationToken);
-
+                await transaction.RollbackAsync(cancellationToken);
                 throw;
             }
         }
@@ -150,18 +90,14 @@ namespace Caupo.Fiscal.Federation
 
             await using var db = new AppDbContext();
 
-            var receipt = await db.Racuni
-                .FirstOrDefaultAsync(
-                    x => x.BrojFiskalnogRacuna == request.ReferentDocumentNumber,
-                    cancellationToken);
+            var receipt = await db.Racuni.FirstOrDefaultAsync(x => x.BrojFiskalnogRacuna == request.ReferentDocumentNumber, cancellationToken);
 
             if (receipt == null)
-                throw new FiscalException(
-                    $"Originalni račun sa fiskalnim brojem '{request.ReferentDocumentNumber}' nije pronađen.");
+                throw new FiscalException($"Originalni račun sa fiskalnim brojem '{request.ReferentDocumentNumber}' nije pronađen.");
 
             receipt.Reklamiran = "DA";
             receipt.BrojRefundRacuna = fiscalResponse.FiscalReceiptNumber;
-            receipt.DatumRefundRacuna = DateTime.Now;
+            receipt.DatumRefundRacuna = fiscalResponse.FiscalDateTime ?? DateTime.Now;
 
             await db.SaveChangesAsync(cancellationToken);
 

@@ -97,7 +97,9 @@ namespace Caupo.Fiscal.Serbia
 
                 racun.Reklamiran = "DA";
                 racun.BrojRefundRacuna = response.InvoiceNumber;
+                racun.BrojRacunaHr = response.InvoiceCounter;
                 racun.DatumRefundRacuna = response.SdcDateTime?.LocalDateTime ?? DateTime.Now;
+                racun.Jir = response.VerificationUrl;
 
                 await db.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);

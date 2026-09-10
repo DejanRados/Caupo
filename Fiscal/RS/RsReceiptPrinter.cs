@@ -175,7 +175,15 @@ namespace Caupo.Fiscal.RS
             sb.AppendLine(LeftRight("ЕСИР број:", data.LocalReceiptNumber.ToString(CultureInfo.InvariantCulture)));
             sb.AppendLine(LeftRight("ЕСИР време:", FormatDateTime(data.EsirDateTime)));
 
-            sb.AppendLine(Center("ПРОМЕТ ПРОДАЈА", '-'));
+            if (data.IsRefund)
+            {
+                sb.AppendLine(LeftRight("Реф. број:", data.ReferentDocumentNumber));
+
+                if (data.ReferentDocumentDateTime.HasValue)
+                    sb.AppendLine(LeftRight("Реф. време:", FormatDateTime(data.ReferentDocumentDateTime.Value)));
+            }
+
+            sb.AppendLine(Center(data.IsRefund ? "ПРОМЕТ РЕФУНДАЦИЈА" : "ПРОМЕТ ПРОДАЈА", '-'));
             sb.AppendLine("Артикли");
             sb.AppendLine(new string('=', JournalWidth));
             sb.AppendLine("Назив   Цена         Кол.         Укупно");
@@ -192,19 +200,29 @@ namespace Caupo.Fiscal.RS
 
                 decimal total = Math.Round(item.Quantity * item.UnitPrice, 2, MidpointRounding.AwayFromZero);
 
+                if (data.IsRefund)
+                    total = -Math.Abs(total);
+
                 string price = FormatAmount(item.UnitPrice);
                 string quantity = FormatQuantity(item.Quantity);
                 string totalText = FormatAmount(total);
 
-                sb.AppendLine(
-                    price.PadLeft(13) +
-                    quantity.PadLeft(11) +
-                    totalText.PadLeft(16));
+                sb.AppendLine(price.PadLeft(13) + quantity.PadLeft(11) + totalText.PadLeft(16));
             }
 
             sb.AppendLine(new string('-', JournalWidth));
-            sb.AppendLine(LeftRight("Укупан износ:", FormatAmount(data.TotalAmount)));
-            sb.AppendLine(LeftRight(GetPaymentName(data.PaymentType) + ":", FormatAmount(data.TotalAmount)));
+
+            if (data.IsRefund)
+            {
+                sb.AppendLine(LeftRight("Укупна рефундација:", FormatAmount(Math.Abs(data.TotalAmount))));
+                sb.AppendLine(LeftRight(GetPaymentName(data.PaymentType) + ":", FormatAmount(Math.Abs(data.TotalAmount))));
+            }
+            else
+            {
+                sb.AppendLine(LeftRight("Укупан износ:", FormatAmount(data.TotalAmount)));
+                sb.AppendLine(LeftRight(GetPaymentName(data.PaymentType) + ":", FormatAmount(data.TotalAmount)));
+            }
+
             sb.AppendLine(new string('=', JournalWidth));
             sb.AppendLine("Ознака       Име      Стопа        Порез");
 

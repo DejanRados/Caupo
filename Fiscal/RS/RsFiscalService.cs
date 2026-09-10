@@ -8,9 +8,7 @@ namespace Caupo.Fiscal.RS
     public sealed class RsFiscalService :
         IFiscalService
     {
-        public async Task<FiscalResult> IzdajRacunAsync(
-            FiscalRequest request,
-            CancellationToken cancellationToken = default)
+        public async Task<FiscalResult> IzdajRacunAsync(FiscalRequest request, CancellationToken cancellationToken = default)
         {
             if(request.Items == null ||
                request.Items.Count == 0)
@@ -112,7 +110,7 @@ namespace Caupo.Fiscal.RS
                 }
                 else if (request.IsRefund)
                 {
-                    saved = await FiscalDatabaseRetry.ExecuteAsync(() => repository.MarkRefundedAsync(request.ReferentDocumentNumber ?? string.Empty, cancellationToken), cancellationToken);
+                    saved = await FiscalDatabaseRetry.ExecuteAsync(() => repository.MarkRefundedAsync(request.ReferentDocumentNumber ?? string.Empty, fiscalResponse, cancellationToken), cancellationToken);
 
                     if (saved)
                         DatabaseBackupService.StartBackup(Globals.CurrentDbPath);
@@ -136,7 +134,7 @@ namespace Caupo.Fiscal.RS
                     {
                         if (request.IsRefund)
                         {
-                            saved = await repository.MarkRefundedAsync(request.ReferentDocumentNumber ?? string.Empty, cancellationToken);
+                            saved = await repository.MarkRefundedAsync(request.ReferentDocumentNumber ?? string.Empty, fiscalResponse, cancellationToken);
                         }
                         else
                         {

@@ -21,6 +21,8 @@ namespace Caupo.Fiscal.Federation.Models
         public bool Printed { get; init; }
 
         public string? FiscalReceiptNumber { get; init; }
+
+        public DateTime? FiscalDateTime { get; init; }
         public string? ErrorMessage { get; init; }
 
         public TringKasaOdgovor? RawResponse { get; init; }

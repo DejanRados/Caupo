@@ -11,7 +11,6 @@ using System.Drawing.Printing;
 using System.Globalization;
 using System.IO;
 
-
 namespace Caupo.Fiscal.Croatia
 {
     public sealed class CroatiaReceiptPrinter
@@ -70,6 +69,52 @@ namespace Caupo.Fiscal.Croatia
             }
         }
 
+        public async Task<bool> PrintStornoAsync(FiscalRequest request, CroatiaBuiltInvoice builtInvoice, CroatiaFiscalizationResponse fiscalization, string originalReceiptNumber, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (string.IsNullOrWhiteSpace(_settings.PosPrinter))
+                return false;
+
+            if (string.IsNullOrWhiteSpace(originalReceiptNumber))
+                return false;
+
+            try
+            {
+                Dictionary<int, decimal?> taxRates = await LoadTaxRatesAsync(cancellationToken);
+
+                using var document = new PrintDocument();
+
+                document.PrinterSettings.PrinterName = _settings.PosPrinter;
+
+                if (!document.PrinterSettings.IsValid)
+                    return false;
+
+                document.DefaultPageSettings.Margins = new Margins(0, 0, 0, 0);
+
+                Debug.WriteLine("=======================================================");
+                Debug.WriteLine($"[HR STORNO PRINT] Printer: {document.PrinterSettings.PrinterName}");
+                Debug.WriteLine($"[HR STORNO PRINT] Storno: {builtInvoice.ReceiptNumberHr}");
+                Debug.WriteLine($"[HR STORNO PRINT] Original: {originalReceiptNumber}");
+                Debug.WriteLine("=======================================================");
+
+                document.PrintPage += (_, e) => DrawReceipt(e, request, builtInvoice, fiscalization, taxRates, originalReceiptNumber);
+
+                document.Print();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("=======================================================");
+                Debug.WriteLine("[HR STORNO PRINT] ERROR");
+                Debug.WriteLine(ex.ToString());
+                Debug.WriteLine("=======================================================");
+
+                return false;
+            }
+        }
+
         public async Task<bool> ReprintAsync(FiscalRequest request, CroatiaBuiltInvoice builtInvoice, CroatiaFiscalizationResponse fiscalization, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -78,7 +123,6 @@ namespace Caupo.Fiscal.Croatia
 
             return await PrintAsync(request, builtInvoice, fiscalization, cancellationToken);
         }
-
 
         private static async Task<Dictionary<int, decimal?>> LoadTaxRatesAsync(CancellationToken cancellationToken)
         {
@@ -95,7 +139,7 @@ namespace Caupo.Fiscal.Croatia
             }
         }
 
-        private void DrawReceipt(PrintPageEventArgs e, FiscalRequest request, CroatiaBuiltInvoice builtInvoice, CroatiaFiscalizationResponse fiscalization, IReadOnlyDictionary<int, decimal?> taxRates)
+        private void DrawReceipt(PrintPageEventArgs e, FiscalRequest request, CroatiaBuiltInvoice builtInvoice, CroatiaFiscalizationResponse fiscalization, IReadOnlyDictionary<int, decimal?> taxRates, string? originalReceiptNumber = null)
         {
             Graphics? g = e.Graphics;
 
@@ -147,6 +191,13 @@ namespace Caupo.Fiscal.Croatia
             y += 3;
 
             DrawSeparator(g, left, width, ref y);
+
+            if (!string.IsNullOrWhiteSpace(originalReceiptNumber))
+            {
+                DrawCentered(g, "STORNO RAČUN", titleFont, left, width, ref y, lineHeight + 2);
+                DrawSeparator(g, left, width, ref y);
+                DrawLeftRight(g, "Stornirani račun:", originalReceiptNumber, normal, bold, left, width, ref y, lineHeight);
+            }
 
             DrawLeftRight(g, "Broj računa:", builtInvoice.ReceiptNumberHr, normal, bold, left, width, ref y, lineHeight);
             DrawLeftRight(g, "Datum izdavanja:", builtInvoice.IssueDateTime.ToString("dd.MM.yyyy.", CultureInfo.InvariantCulture), normal, normal, left, width, ref y, lineHeight);
@@ -200,7 +251,6 @@ namespace Caupo.Fiscal.Croatia
             {
                 DrawCentered(g, "RAČUN NIJE FISKALIZOVAN", bold, left, width, ref y, lineHeight);
                 DrawCentered(g, "Potrebna je naknadna dostava računa.", small, left, width, ref y, smallLineHeight);
-
                 DrawSeparator(g, left, width, ref y);
             }
 
@@ -301,7 +351,6 @@ namespace Caupo.Fiscal.Croatia
         private static void DrawTaxRecap(Graphics g, CroatiaBuiltInvoice builtInvoice, Font bold, Font small, int left, int width, ref int y, int lineHeight)
         {
             g.DrawString("REKAPITULACIJA POREZA", bold, Brushes.Black, left, y);
-
             y += (int)Math.Ceiling(bold.GetHeight(g)) + 3;
 
             float rateX = left;
@@ -335,7 +384,6 @@ namespace Caupo.Fiscal.Croatia
                 y += 2;
 
                 g.DrawString("POREZ NA POTROŠNJU", bold, Brushes.Black, left, y);
-
                 y += (int)Math.Ceiling(bold.GetHeight(g)) + 3;
 
                 foreach (var tax in consumptionTaxes)
@@ -536,7 +584,5 @@ namespace Caupo.Fiscal.Croatia
                 _ => "NEPOZNATO"
             };
         }
-
-      
     }
 }
