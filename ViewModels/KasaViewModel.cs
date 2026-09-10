@@ -596,24 +596,22 @@ namespace Caupo.ViewModels
         {
             try
             {
-                await using var db =
-                    new AppDbContext();
+                await using var db = new AppDbContext();
 
                 _sviArtikli = await db.Artikli
                     .AsNoTracking()
+                    .Where(a => a.Aktivan)
                     .OrderBy(a => a.VrstaArtikla)
                     .ThenBy(a => a.Pozicija)
                     .ToListAsync();
 
                 RefreshArticles();
 
-                Debug.WriteLine(
-                    $"[KASA] Artikli učitani: {_sviArtikli.Count}");
+                Debug.WriteLine($"[KASA] Artikli učitani: {_sviArtikli.Count}");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(
-                    "[KASA] LoadArtikliAsync: " + ex);
+                Debug.WriteLine("[KASA] LoadArtikliAsync: " + ex);
             }
         }
 

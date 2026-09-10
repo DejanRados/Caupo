@@ -424,6 +424,7 @@
                         <RowDefinition Height="44"/>
                         <RowDefinition Height="44"/>
                         <RowDefinition Height="44"/>
+                        <RowDefinition Height="44"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
@@ -572,6 +573,22 @@
                         <TextBlock Grid.Column="1"
                                    Text="{Binding Fiskalizovan}"
                                    Style="{StaticResource ReceiptDetailValue}"/>
+
+                    </Grid>
+
+                    <Grid Grid.Row="9">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="115"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Reklamiran"
+                 Style="{StaticResource ReceiptDetailLabel}"/>
+
+                        <TextBlock Grid.Column="1"
+                 Text="{Binding Reklamiran}"
+                 Style="{StaticResource ReceiptDetailValue}"/>
 
                     </Grid>
 

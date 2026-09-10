@@ -180,7 +180,9 @@ namespace Caupo.Data
 
             public string? ArtiklNormativ { get; set; }
 
-            public string? PrikazatiNaDispleju { get; set; }
+            //public string? PrikazatiNaDispleju { get; set; }
+
+            public bool Aktivan { get; set; } = true;
 
             [NotMapped]
             [JsonIgnore]

@@ -1,480 +1,950 @@
 ﻿<UserControl x:Class="Caupo.Views.ArticlesPage"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:system="clr-namespace:System;assembly=mscorlib"
-        xmlns:local="clr-namespace:Caupo.ViewModels"
-        xmlns:loc="clr-namespace:Caupo.Helpers"
-         xmlns:syncfusionskin ="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF" 
-        mc:Ignorable="d"
-        UseLayoutRounding="True">
-  
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             xmlns:local="clr-namespace:Caupo.ViewModels"
+             xmlns:loc="clr-namespace:Caupo.Helpers"
+             xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+             mc:Ignorable="d"
+             UseLayoutRounding="True">
 
-    <Grid>
-        <!-- Header -->
-        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="55" Background="#323232" >
+    <UserControl.Resources>
+
+        <!-- ===================================================== -->
+        <!-- ARTICLES - ZAJEDNIČKI STILOVI                         -->
+        <!-- ===================================================== -->
+
+        <Style x:Key="ArticlesSectionTitle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="FontSize" Value="19"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+
+        <Style x:Key="ArticlesSectionDescription" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Opacity" Value="0.65"/>
+        </Style>
+
+        <Style x:Key="ArticlesCard" TargetType="Border">
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+
+        <Style x:Key="ArticleDetailLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Opacity" Value="0.62"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="ArticleDetailValue" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid x:Name="MainContent" Background="{DynamicResource GlobalBackgroundColor}">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="55"/>
+            <RowDefinition Height="82"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ===================================================== -->
+        <!-- HEADER                                                -->
+        <!-- ===================================================== -->
+
+        <Grid Grid.Row="0" Height="55" Background="#323232">
+
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="0.2*"/>
             </Grid.ColumnDefinitions>
-            <Image Source="pack://application:,,,/Images/dsoftlogosmall.png" Width="50" Height="50" Grid.Column="0" HorizontalAlignment="Left" Margin="20,0,0,0"/>
-            <Label x:Name="lblApp" Content="Caupo - Artikli" Foreground="#fafafa" FontSize="25" Grid.Column="0" HorizontalAlignment="Center"  VerticalAlignment="Center"/>
-            <Label x:Name="lblUlogovaniKorisnik" Content="Ime i prezime" Foreground="#fafafa" FontSize="16" Grid.Column="1" HorizontalAlignment="Right"  VerticalAlignment="Center"/>
-            <Button x:Name="CloseButton" Style="{StaticResource CloseButtonStyle}"  VerticalAlignment="Top" HorizontalAlignment="Right" Padding="0" Margin="1" Click="CloseButton_Click" Grid.Column="2" />
+
+            <Image Source="pack://application:,,,/Images/dsoftlogosmall.png"
+                   Width="50"
+                   Height="50"
+                   Grid.Column="0"
+                   HorizontalAlignment="Left"
+                   Margin="20,0,0,0"/>
+
+            <Label x:Name="lblApp"
+                   Content="Caupo - Artikli"
+                   Foreground="#fafafa"
+                   FontSize="25"
+                   Grid.Column="0"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"/>
+
+            <Label x:Name="lblUlogovaniKorisnik"
+                   Content="Ime i prezime"
+                   Foreground="#fafafa"
+                   FontSize="15"
+                   Grid.Column="1"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Center"/>
+
+            <Button x:Name="CloseButton"
+                    Style="{StaticResource CloseButtonStyle}"
+                    Grid.Column="2"
+                    VerticalAlignment="Top"
+                    HorizontalAlignment="Right"
+                    Padding="0"
+                    Margin="1"
+                    Click="CloseButton_Click"/>
+
         </Grid>
 
-        <!-- Glavni grid -->
-        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <!-- ===================================================== -->
+        <!-- GORNJA TRAKA                                          -->
+        <!-- ===================================================== -->
+
+        <Grid Grid.Row="1" Margin="24,12,24,8">
+
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.4*"/>
-                <ColumnDefinition Width="0.5*"/>
-
+                <ColumnDefinition Width="520"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="0.25*"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="0.2*"/>
-            </Grid.RowDefinitions>
 
-            <Grid  Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Margin="10,60,60,0" HorizontalAlignment="Right" VerticalAlignment="Center">
+            <!-- ================================================= -->
+            <!-- PRETRAGA + NAVIGACIJA                             -->
+            <!-- ================================================= -->
+
+            <Grid Grid.Column="0">
+
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="55"/>
+                    <ColumnDefinition Width="55"/>
+                    <ColumnDefinition Width="55"/>
+                    <ColumnDefinition Width="55"/>
                 </Grid.ColumnDefinitions>
-                <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160"  Margin="2" Grid.Column="0">
-                    <Button Style="{StaticResource PrimaryButtonStyle}"   Margin="5"     x:Name="BtnEdit"     Width="120"    Height="50"      Click="BtnEdit_Click" >
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" >
-                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60019;" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <TextBlock Text="Izmjeni"  VerticalAlignment="Center"   />
-                        </StackPanel>
-                    </Button>
-                </Viewbox>
-                <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160"  Margin="2" Grid.Column="1">
-                    <Button Style="{StaticResource PrimaryButtonStyle}"   Margin="5"  x:Name="BtnAdd"     Width="120"    Height="50"       Click="BtnAdd_Click">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60000;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <TextBlock Text="Dodaj"  VerticalAlignment="Center"   />
-                        </StackPanel>
-                    </Button>
-                </Viewbox>
-                <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160"  Margin="2" Grid.Column="2">
-                    <Button Style="{StaticResource PrimaryButtonStyle}"  Margin="5"  x:Name="BtnDelete"    Width="120"    Height="50"        Click="BtnDelete_Click">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60033;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <TextBlock Text="Obriši"  VerticalAlignment="Center"   />
-                        </StackPanel>
-                    </Button>
 
-                </Viewbox>
-                <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160"  Margin="2" Grid.Column="3">
-                    <Button Style="{StaticResource PrimaryButtonStyle}" Margin="5" x:Name="BtnExport"    Width="120"    Height="50"         Click="BtnExport_Click">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#xec28;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <TextBlock Text="Izvoz"  VerticalAlignment="Center"   />
-                        </StackPanel>
-                    </Button>
-                </Viewbox>
-                <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160"  Margin="2" Grid.Column="4">
-                    <Button Style="{StaticResource PrimaryButtonStyle}"    Margin="5" x:Name="BtnImport"    Width="120"    Height="50"         Click="BtnImport_Click">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#xEC26;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <TextBlock Text="Uvoz"  VerticalAlignment="Center"   />
-                        </StackPanel>
-                    </Button>
-                </Viewbox>
-            
+                <Border Grid.Column="0"
+                        Height="48"
+                        Margin="0,0,8,0"
+                        Padding="5"
+                        BorderThickness="1"
+                        BorderBrush="#3F3F46"
+                        CornerRadius="6"
+                        Background="Transparent">
 
-            </Grid>
-        
+                    <DockPanel>
 
-            <!--  Search TextBox -->
-            <StackPanel Orientation="Horizontal" Grid.Row="0"  Grid.Column="0" Margin="30,60,0,0"  >
-                <Border Padding="5" Width="300" Height="50" HorizontalAlignment="Left"  BorderThickness="2" Background="Transparent"  BorderBrush="#774A6FA5" CornerRadius="15" >
-                    <DockPanel Grid.Row="1" Grid.Column="1" Margin="1" >
-                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60013;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        <TextBox x:Name="SearchTextBox" Style="{StaticResource TextBoxCustom}" GotFocus="TextBox_GotFocus" LostFocus="TextBox_LostFocus" CaretBrush="{DynamicResource GlobalFontColor}"  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Foreground="{DynamicResource GlobalFontColor}"  FontSize="16" HorizontalAlignment="Stretch" VerticalContentAlignment="Center" Background="Transparent" BorderBrush="Transparent" Padding="5" >
-                          
-                           
-                        </TextBox>
+                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                   FontSize="22"
+                                   Width="34"
+                                   FontWeight="ExtraLight"
+                                   Text="&#60013;"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   Opacity="0.65"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBox x:Name="SearchTextBox"
+                                 Style="{StaticResource TextBoxCustom}"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 GotFocus="TextBox_GotFocus"
+                                 LostFocus="TextBox_LostFocus"
+                                 Foreground="{DynamicResource GlobalFontColor}"
+                                 CaretBrush="{DynamicResource GlobalFontColor}"
+                                 Background="Transparent"
+                                 BorderBrush="Transparent"
+                                 BorderThickness="0"
+                                 FontSize="15"
+                                 Padding="5,0"
+                                 VerticalContentAlignment="Center"/>
+
                     </DockPanel>
+
                 </Border>
 
-                <Button Style="{StaticResource SecondaryButtonStyle}"   x:Name="BtnFirst" Click="BtnFirst_Click" Width="50" Height="50" VerticalAlignment="Center"   Grid.Column="0" HorizontalAlignment="Center" ToolTip="Prvi artikl" Margin="10,0,0,0">
-                     <TextBlock 
-             FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
-             FontSize="24"
-             FontWeight="ExtraLight"
-             Text="&#60271;" 
-             Foreground="{DynamicResource GlobalFontColor}"
-             HorizontalAlignment="Center"
-             VerticalAlignment="Center"/>
-                </Button>
-                <Button Style="{StaticResource SecondaryButtonStyle}"      x:Name="BtnLast" Click="BtnLast_Click" Width="50" Height="50" Padding="0"  VerticalAlignment="Center"  Grid.Column="2" ToolTip="Naredni artikl" Margin="10,0,0,0" >
-                    <TextBlock 
-            FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
-            FontSize="24"
-            FontWeight="ExtraLight"
-            Text="&#60272;" 
-            Foreground="{DynamicResource GlobalFontColor}"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"/>
+                <Button x:Name="BtnFirst"
+                        Grid.Column="1"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Width="48"
+                        Height="48"
+                        Padding="0"
+                        Click="BtnFirst_Click"
+                        ToolTip="Prvi artikl">
+
+                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                               FontSize="21"
+                               FontWeight="ExtraLight"
+                               Text="&#xE76C;"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+
                 </Button>
 
+                <Button x:Name="BtnPrevious"
+                        Grid.Column="2"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Width="48"
+                        Height="48"
+                        Padding="0"
+                        Click="BtnPrevious_Click"
+                        ToolTip="Prethodni artikl">
 
-            </StackPanel>
-            <DataGrid x:Name="ListaArtikala" VerticalAlignment="Top" Margin="30,20" HorizontalAlignment="Left"
-                Grid.Row="1" Grid.RowSpan="2" Grid.Column="0"
-                MaxWidth="950" MaxHeight="800"
-                SelectionChanged="ListaArtikala_SelectionChanged" 
-                GridLinesVisibility="None"
-                ItemsSource="{Binding ArtikliFilter}"
-                SelectedItem="{Binding SelectedArticle, Mode=TwoWay}" 
-                AutoGenerateColumns="False"
-                HeadersVisibility="Column"
-                CanUserAddRows="False"
-                CanUserResizeRows="False"
-                CanUserSortColumns="False"
-                RowHeight="35"
-                HorizontalScrollBarVisibility="Disabled"
-                Background="Transparent"
-                BorderThickness="0"
-                ClipToBounds="True"
-                BorderBrush="{DynamicResource GlobalFontColor}"
-                ScrollViewer.VerticalScrollBarVisibility="Auto"
-                SelectionMode="Single">
-             
-                <DataGrid.Resources>
-                    <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
-                </DataGrid.Resources>
-                <DataGrid.Columns>
+                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                               FontSize="22"
+                               FontWeight="ExtraLight"
+                               Text="&#60271;"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
 
-                    <DataGridTemplateColumn Header="Artikl" Width="2*" >
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding ArtiklNormativ}" TextWrapping="Wrap" HorizontalAlignment="Left" Padding="10,0"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                </Button>
 
-                    <DataGridTemplateColumn Header="Cijena" Width="*" >
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Cijena, StringFormat={}{0:F2}}"   TextAlignment="Center"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                <Button x:Name="BtnNext"
+                        Grid.Column="3"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Width="48"
+                        Height="48"
+                        Padding="0"
+                        Click="BtnNext_Click"
+                        ToolTip="Sljedeći artikl">
 
-                    <DataGridTemplateColumn Header="Šifra" Width="*">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Sifra}"               TextAlignment="Center"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                               FontSize="22"
+                               FontWeight="ExtraLight"
+                               Text="&#60272;"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
 
-                    <DataGridTemplateColumn Header="Vrsta artikla" Width="*">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding VrstaArtiklaName}"            TextAlignment="Center"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
+                </Button>
 
-                </DataGrid.Columns>
-            </DataGrid>
+                <Button x:Name="BtnLast"
+                        Grid.Column="4"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Width="48"
+                        Height="48"
+                        Padding="0"
+                        Click="BtnLast_Click"
+                        ToolTip="Posljednji artikl">
 
-       
-            <!-- Grid za dodavanje ili izmjenu -->
-            <Border Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="1" CornerRadius="10" Margin="20" >
-            <Grid Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" Margin="20,5"  >
-                <ScrollViewer VerticalScrollBarVisibility="Hidden"  >
-                    <StackPanel>
-                            <!--IdArtikl-->
-                            <Grid Visibility="Collapsed" >
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.33*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Label  Content="Id artikla" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center" Margin="10" Grid.Column="0" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource GlobalFontColor}" VerticalContentAlignment="Bottom" />
-                            <TextBox x:Name="IdArtiklaTextBox" Style="{DynamicResource TextBoxCustom}"  VerticalContentAlignment="Bottom" Padding="3" IsReadOnly="True"  Text ="{Binding SelectedArticle.IdArtikla}" Grid.Column="1" BorderThickness="0,0,0,1" Background="Transparent" Width="100" HorizontalAlignment="Left"/>
-                        </Grid>
-                        <!--Sifra-->
-                        <Grid Height="35" >
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.33*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Label Content="Šifra" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"  Grid.Column="0"  VerticalContentAlignment="Bottom"/>
-                            <TextBox x:Name="SifraTextBox" CaretBrush="{DynamicResource GlobalFontColor}" Style="{DynamicResource TextBoxCustom}"  FontSize="15" Margin="1" VerticalContentAlignment="Bottom" Padding="3" Text ="{Binding SelectedArticle.Sifra, Mode=OneWay}" Grid.Column="1" BorderThickness="0,0,0,1" Background="Transparent" Width="100" HorizontalAlignment="Left"  />
-                        </Grid>
-                            <!--Artikl-->
-                            <Grid Height="43" >
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.33*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="35"/>
-                                    <RowDefinition Height="8"/>
-                                </Grid.RowDefinitions>
-                            <Label Content ="Artikl" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Bottom" Grid.Column="0" Grid.Row="0" VerticalContentAlignment="Center"/>
-                            <TextBox  x:Name="ArtiklTextBox"  Style="{DynamicResource TextBoxCustom}"  CaretBrush="{DynamicResource GlobalFontColor}" VerticalAlignment="Bottom"
-                                     Grid.Column="1" Grid.Row="0" 
-                                      GotFocus="ArtiklTextBox_GotFocus"
-                                      LostFocus="ArtiklTextBox_LostFocus"
-                                      TextChanged="ArtiklTextBox_TextChanged"
-                                     Text = "{Binding SelectedArticle.Artikl}"
-                                     FontSize="15" 
-                                      Height="30"
-                                     HorizontalAlignment="Left"
-                                     VerticalContentAlignment="Bottom" 
-                                     Background="Transparent" 
-                                      BorderThickness="0,0,0,1"
-                                      
-                                       Padding="3"
-                                      Width="250"/>
-                                <Label x:Name="lblArtikl" Content="Obavezan podatak" FontSize="8" Grid.Column="1" Grid.Row="1"  VerticalAlignment="Top" Height="8" Padding="0" Foreground="red" Visibility="Collapsed"/>
-                            </Grid>
-                            <!--Cijena-->
-                            <Grid Height="43" >
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.33*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="35"/>
-                                    <RowDefinition Height="10"/>
-                                </Grid.RowDefinitions>
-                                <Label Content ="Cijena" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Bottom"  Grid.Column="0" Grid.Row="0" VerticalContentAlignment="Center" />
-                            <TextBox x:Name="CijenaTextBox" Style="{DynamicResource TextBoxCustom}"  CaretBrush="{DynamicResource GlobalFontColor}" 
-                                     FontSize="15"
-                                     VerticalContentAlignment="Bottom"
-                                     GotFocus="CijenaTextBox_GotFocus"
-                                     LostFocus="CijenaTextBox_LostFocus"
-                                     Padding="3"
-                                     Text ="{Binding SelectedArticle.Cijena, StringFormat='{}{0:F2}'}"
-                                     Grid.Column="1" Grid.Row="0"
-                                     BorderThickness="0,0,0,1"
-                                     Background="Transparent"
-                                     Width="100" HorizontalAlignment="Left" />
-                                <Label x:Name="lblCijena" Content="Obavezan podatak" FontSize="8" Grid.Column="1" Grid.Row="1"  VerticalAlignment="Top" Height="10" Padding="0" Foreground="red" Visibility="Collapsed"/>
-                            </Grid>
-                            <!--Int sifral-->
-                            <Grid Height="40"  x:Name="InternaSifraGrid" Visibility="Collapsed">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.33*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Label Content ="Interna Šifra" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"  Grid.Column="0" VerticalContentAlignment="Bottom"/>
-                            <TextBox x:Name="InternaSifraTextBox" Style="{DynamicResource TextBoxCustom}"  CaretBrush="{DynamicResource GlobalFontColor}"
-                                     FontSize="15"
-                                     VerticalContentAlignment="Bottom"
-                                     Padding="3"
-                                     Text ="{Binding SelectedArticle.InternaSifra}"
-                                     Grid.Column="1" BorderThickness="0,0,0,1"
-                                     Background="Transparent" Width="100"
-                                     HorizontalAlignment="Left"   />
-                        </Grid>
-                            <!--Slika-->
-                            <Grid Height="40"  x:Name="SlikaGrid" Visibility="Collapsed">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.33*"/>
-                                <ColumnDefinition Width="*"/>
+                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                               FontSize="21"
+                               FontWeight="ExtraLight"
+                               Text="&#xE76B;"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
 
-                            </Grid.ColumnDefinitions>
-                            <Label Content ="Slika" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"  Grid.Column="0" VerticalContentAlignment="Bottom"/>
-                            <StackPanel Orientation="Horizontal" Grid.Column="1"  >
-                                <TextBox x:Name="SlikaTextBox" Style="{DynamicResource TextBoxCustom}"  CaretBrush="{DynamicResource GlobalFontColor}"
-                                         FontSize="15"
-                                         VerticalContentAlignment="Bottom"
-                                         Padding="3"
-                                         Text ="{Binding SelectedArticle.Slika}"
-                                         BorderThickness="0,0,0,1"
-                                         Background="Transparent"
-                                         Width="250" HorizontalAlignment="Left" />
+                </Button>
 
-                                <Button Style="{StaticResource SecondaryButtonStyle}"  x:Name="btnSlika"    Width="50"    Height="40"   Foreground="{DynamicResource GlobalFontColor}"   Click="btnSlika_Click" Grid.Column="1" HorizontalAlignment="Left" Margin="10,0,0,0">
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"  FontSize="24"  FontWeight="ExtraLight" Text="&#xEAEA;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button>
-                            </StackPanel>
-                        </Grid>
-                            <!--JM-->
-                            <Grid Height="40"  x:Name="JedinicaMjereGrid" Visibility="Collapsed">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.33*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Label Content ="Jedinica mjere" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"  Grid.Column="0" VerticalContentAlignment="Bottom" />
-                            <ComboBox x:Name="JediniceMjerePicker" Foreground="{DynamicResource GlobalFontColor}" FontSize="15"  VerticalContentAlignment="Center" Padding="3"  Width="100"    HorizontalAlignment="Left" Grid.Column="1" Margin="0,5,0,0" 
-                                 HorizontalContentAlignment="Left" 
-                                      BorderThickness="0,0,0,1"
-                                      Background="Transparent"
-                                   DisplayMemberPath="JedinicaMjere"
-                                  ItemsSource="{Binding JediniceMjere }"
-                                  SelectedItem="{Binding SelectedJedinicaMjere}"/>
-                        </Grid>
-                            <!--PS-->
-                            <Grid Height="40"  x:Name="PoreskeStopeGrid" Visibility="Collapsed">
-                               <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.33*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Label Content ="Poreska stopa" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"  Grid.Column="0" VerticalContentAlignment="Bottom"/>
-                            <ComboBox x:Name="PoreskeStopePicker" Foreground="{DynamicResource GlobalFontColor}"  Width="200"   FontSize="15"    HorizontalAlignment="Left"  Grid.Column="1" Margin="0,5,0,0" VerticalContentAlignment="Center" Padding="3"
-                                   HorizontalContentAlignment="Left" SelectedItem="{Binding SelectedPoreskaStopa}"
-                                            BorderThickness="0,0,0,1"
-                                     Background="Transparent"
-                                   ItemsSource="{Binding PoreskeStope }"
-                                   DisplayMemberPath="Opis" />
-                        </Grid>
-                            <!--Normativ-->
-                            <Grid Height="40"  x:Name="NormativGrid" Visibility="Collapsed">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.33*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Label Content ="Normativ pića" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"  Grid.Column="0" VerticalContentAlignment="Bottom"/>
-                            <ComboBox x:Name="NormativPicker" Foreground="{DynamicResource GlobalFontColor}" Width="100"  FontSize="15"   HorizontalAlignment="Left" Grid.Column="1"  Margin="0,5,0,0" VerticalContentAlignment="Center" Padding="3"
-                                          HorizontalContentAlignment="Left" SelectedItem="{Binding SelectedNormativ}"
-                                            BorderThickness="0,0,0,1"
-                                        Background="Transparent"
-                                        ItemsSource="{Binding Normativi}"
-                                        DisplayMemberPath="Normativ"
-                                       SelectionChanged="NormativPicker_SelectionChanged" />
-                        </Grid>
-                            <!--Vrsta-->
-                            <Grid Height="40"  x:Name="VrstaArtiklaGrid" Visibility="Collapsed">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.33*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Label Content ="Vrsta artikla" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"  Grid.Column="0" VerticalContentAlignment="Bottom"/>
-                            <ComboBox x:Name="VrstaArtiklaPicker" Foreground="{DynamicResource GlobalFontColor}" Width="200"  FontSize="15"       BorderThickness="0,0,0,1"   Background="Transparent"  HorizontalAlignment="Left"    HorizontalContentAlignment="Left" SelectedItem="{Binding SelectedVrstaArtikla}" Grid.Column="1"  Margin="0,5,0,0" VerticalContentAlignment="Center" Padding="3">
-                                <system:String>Piće</system:String>
-                                <system:String>Hrana</system:String>
-                                <system:String>Ostalo</system:String>
-                            </ComboBox>
-                        </Grid>
-                            <!--Kategorijal-->
-                            <Grid Height="40"  x:Name="KategorijaGrid" Visibility="Collapsed">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.33*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Label Content ="Kategorija" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"  Grid.Column="0" VerticalContentAlignment="Bottom"/>
-                            <StackPanel Orientation="Horizontal" Grid.Column="1" >
-                                <ComboBox x:Name="KategorijePicker"  Width="250"  Foreground="{DynamicResource GlobalFontColor}" FontSize="15"   HorizontalAlignment="Left" Grid.Column="1"  Margin="0,5,0,0" VerticalContentAlignment="Center" Padding="3"
-                                                   HorizontalContentAlignment="Left" SelectedItem="{Binding SelectedKategorija, Mode=TwoWay}"       BorderThickness="0,0,0,1"
-                                                    Background="Transparent"
-                                                  ItemsSource="{Binding Kategorije}"
-                                                  DisplayMemberPath="Kategorija" />
-                                <Button Style="{StaticResource SecondaryButtonStyle}"  x:Name="btnKategorija"    Width="50"    Height="40"   Foreground="{DynamicResource GlobalFontColor}"   Click="btnKategorija_Click" Grid.Column="1" HorizontalAlignment="Left" Margin="10,0,0,0">
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                        <TextBlock FontFamily="Segoe MDL2 Assets"  FontSize="24"  FontWeight="ExtraLight" Text="&#xED0E;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button>
-                            </StackPanel>
-                        </Grid>
-                            <!--Pozicija-->
-                            <Grid Height="40"  x:Name="PozicijaGrid" Visibility="Collapsed">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.33*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Label Content ="Pozicija" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"  Grid.Column="0" VerticalContentAlignment="Bottom"/>
-                            <TextBox x:Name="PozicijaTextBox" Style="{DynamicResource TextBoxCustom}"  CaretBrush="{DynamicResource GlobalFontColor}" Foreground="{DynamicResource GlobalFontColor}"
-                                     FontSize="15"
-                                     VerticalContentAlignment="Bottom"
-                                     Padding="3"
-                                     Text ="{Binding SelectedArticle.Pozicija}" 
-                                     Grid.Column="1" 
-                                     Width="100" 
-                                     HorizontalAlignment="Left"
-                                     BorderThickness="0,0,0,1" Background="Transparent" />
-                        </Grid>
-                            <!--ArtiklNorm-->
-                            <Grid Height="40"  x:Name="ArtiklNormativGrid" Visibility="Collapsed">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.33*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Label Content ="Artikl Normativ" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"  Grid.Column="0" VerticalContentAlignment="Bottom"/>
-                            <TextBox x:Name="ArtiklNormativTextBox" Style="{DynamicResource TextBoxCustom}"  CaretBrush="{DynamicResource GlobalFontColor}" Foreground="{DynamicResource GlobalFontColor}"
-                                     FontSize="15"  
-                                     VerticalContentAlignment="Bottom"
-                                     Padding="3"
-                                     IsReadOnly="True" 
-                                     Text="{Binding SelectedArticle.ArtiklNormativ}"
-                                     Grid.Column="1" 
-                                     Width="200" 
-                                     HorizontalAlignment="Left"
-                                     BorderThickness="0,0,0,1" Background="Transparent"   />
-                        </Grid>
-                            <!--Prikaz-->
-                            <Grid Height="40"  x:Name="PrikazGrid" Visibility="Collapsed">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.33*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Label Content ="Prikaz na displeju" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"  Grid.Column="0" VerticalContentAlignment="Bottom"/>
-                            <ComboBox x:Name="PrikazatiNaDisplejuPicker" FontSize="15"  Width="150"   Foreground="{DynamicResource GlobalFontColor}"      BorderThickness="0,0,0,1"  Background="Transparent"  HorizontalAlignment="Left"      HorizontalContentAlignment="Left" SelectedItem="{Binding SelectedArticle.PrikazatiNaDispleju}" Grid.Column="1"  Margin="0,5,0,0" VerticalContentAlignment="Center" Padding="3">
-                                <system:String>DA</system:String>
-                                <system:String>NE</system:String>
-                            </ComboBox>
-                        </Grid>
-                            <!--EditGrid-->
-                            <Grid x:Name="EditGrid" Visibility="Collapsed"  Margin=" 5" >
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.3*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Button Style="{StaticResource CancelButtonStyle}"  x:Name="CancelEditButton" Margin="10,0"   Width="120"    Height="50"    Click="CancelEditButton_Click" Grid.Column="0" HorizontalAlignment="Right">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"  FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60039;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Odustani"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
-                                </StackPanel>
-                            </Button>
-
-                            <Button  Style="{StaticResource PrimaryButtonStyle}"  x:Name="SaveEditButton"    Width="120"    Height="50"    Click="SaveEditButton_Click" Grid.Column="1" HorizontalAlignment="Left">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"  FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#xEB4B;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Spremi"  VerticalAlignment="Center"   />
-                                </StackPanel>
-                            </Button>
-
-                        </Grid>
-                            <!--AddGrid-->
-                            <Grid x:Name="AddGrid" Visibility="Collapsed"  Margin="5">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.33*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Button Style="{StaticResource CancelButtonStyle}"   x:Name="CancelAddButton" Margin="10,0"   Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"      Click="CancelAddButton_Click" Grid.Column="0" HorizontalAlignment="Right">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"  FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#60039;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Odustani"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
-                                </StackPanel>
-                            </Button>
-
-                            <Button  Style="{StaticResource PrimaryButtonStyle}"    x:Name="SaveAddButton"    Width="120"    Height="50"   Foreground="{DynamicResource GlobalFontColor}"      Click="SaveAddButton_Click" Grid.Column="1" HorizontalAlignment="Left">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"  FontSize="24" Width="30" FontWeight="ExtraLight" Text="&#xEB4B;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Spremi"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
-                                </StackPanel>
-                            </Button>
-                        </Grid>
-                    </StackPanel>
-                </ScrollViewer>
             </Grid>
+
+            <!-- ================================================= -->
+            <!-- AKCIJE                                            -->
+            <!-- ================================================= -->
+
+            <Grid Grid.Column="2" HorizontalAlignment="Right">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="115"/>
+                    <ColumnDefinition Width="115"/>
+                    <ColumnDefinition Width="115"/>
+                    <ColumnDefinition Width="115"/>
+                    <ColumnDefinition Width="115"/>
+                </Grid.ColumnDefinitions>
+
+                <Button x:Name="BtnAdd"
+                        Grid.Column="0"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Height="48"
+                        Margin="3"
+                        Click="BtnAdd_Click">
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+
+                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                   Text="&#60000;"
+                                   FontSize="21"
+                                   Margin="0,0,7,0"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Text="Dodaj"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
+
+                    </StackPanel>
+
+                </Button>
+
+                <Button x:Name="BtnEdit"
+                        Grid.Column="1"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Height="48"
+                        Margin="3"
+                        Click="BtnEdit_Click">
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+
+                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                   Text="&#60019;"
+                                   FontSize="21"
+                                   Margin="0,0,7,0"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Text="Uredi"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
+
+                    </StackPanel>
+
+                </Button>
+
+                <Button x:Name="BtnDelete"
+                        Grid.Column="2"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Height="48"
+                        Margin="3"
+                        Click="BtnDelete_Click">
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+
+                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                   Text="&#60033;"
+                                   FontSize="21"
+                                   Margin="0,0,7,0"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Text="Obriši"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
+
+                    </StackPanel>
+
+                </Button>
+
+                <Button x:Name="BtnImport"
+                        Grid.Column="3"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Height="48"
+                        Margin="3"
+                        Click="BtnImport_Click">
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+
+                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                   Text="&#xEC26;"
+                                   FontSize="21"
+                                   Margin="0,0,7,0"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Text="Uvoz"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
+
+                    </StackPanel>
+
+                </Button>
+
+                <Button x:Name="BtnExport"
+                        Grid.Column="4"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Height="48"
+                        Margin="3"
+                        Click="BtnExport_Click">
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+
+                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                   Text="&#xEC28;"
+                                   FontSize="21"
+                                   Margin="0,0,7,0"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Text="Izvoz"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
+
+                    </StackPanel>
+
+                </Button>
+
+            </Grid>
+
+        </Grid>
+
+        <!-- ===================================================== -->
+        <!-- GLAVNI SADRŽAJ                                        -->
+        <!-- ===================================================== -->
+
+        <Grid Grid.Row="2" Margin="24,4,24,22">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ================================================= -->
+            <!-- LIJEVI PANEL                                      -->
+            <!-- ================================================= -->
+
+            <Border Grid.Column="0"
+                    Style="{StaticResource ArticlesCard}"
+                    Padding="18">
+
+                <Grid>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="22"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0">
+
+                        <TextBlock Text="Alati"
+                                   Style="{StaticResource ArticlesSectionTitle}"/>
+
+                        <TextBlock Text="Filteri i dodatne opcije"
+                                   Style="{StaticResource ArticlesSectionDescription}"
+                                   Margin="0,3,0,0"/>
+
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2">
+
+                        <TextBlock Text="Ovaj prostor je rezervisan za dodatne komande, filtere i grupne operacije nad artiklima."
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="13"
+                                   TextWrapping="Wrap"
+                                   Opacity="0.55"/>
+
+                    </StackPanel>
+
+                </Grid>
+
+            </Border>
+
+            <!-- ================================================= -->
+            <!-- LISTA ARTIKALA                                    -->
+            <!-- ================================================= -->
+
+            <Border Grid.Column="2" Style="{StaticResource ArticlesCard}">
+
+                <Grid>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="60"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="16,0">
+
+                        <StackPanel VerticalAlignment="Center">
+
+                            <TextBlock Text="Artikli"
+                                       Style="{StaticResource ArticlesSectionTitle}"/>
+
+                            <TextBlock Text="Pregled artikala"
+                                       Style="{StaticResource ArticlesSectionDescription}"
+                                       Margin="0,2,0,0"/>
+
+                        </StackPanel>
+
+                    </Grid>
+
+                    <DataGrid x:Name="ListaArtikala"
+                              Grid.Row="1"
+                              ItemsSource="{Binding ArtikliFilter}"
+                              SelectedItem="{Binding SelectedArticle, Mode=TwoWay}"
+                              SelectionChanged="ListaArtikala_SelectionChanged"
+                              PreviewMouseLeftButtonDown="ListaArtikala_PreviewMouseLeftButtonDown"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              HeadersVisibility="Column"
+                              CanUserAddRows="False"
+                              CanUserResizeRows="False"
+                              CanUserSortColumns="False"
+                              GridLinesVisibility="None"
+                              RowHeight="35"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              BorderBrush="{DynamicResource GlobalFontColor}"
+                              Foreground="{DynamicResource GlobalFontColor}"
+                              HorizontalScrollBarVisibility="Disabled"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              SelectionMode="Single"
+                              ClipToBounds="True">
+
+                        <DataGrid.Resources>
+
+                            <Style TargetType="ScrollBar"
+                                   BasedOn="{StaticResource WideVerticalScrollBar}"/>
+
+                        </DataGrid.Resources>
+
+                        <DataGrid.Columns>
+
+                            <DataGridTemplateColumn Header="Šifra" Width="0.75*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding Sifra}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+
+                                    </DataTemplate>
+
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="Artikl" Width="2.2*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding ArtiklNormativ}"
+                                                   TextAlignment="Left"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Padding="8,0"/>
+
+                                    </DataTemplate>
+
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="Cijena" Width="0.8*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding Cijena, StringFormat={}{0:0.00}}"
+                                                   TextAlignment="Right"
+                                                   Padding="0,0,10,0"/>
+
+                                    </DataTemplate>
+
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="Vrsta" Width="1*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding VrstaArtiklaName}"
+                                                   TextAlignment="Center"/>
+
+                                    </DataTemplate>
+
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                        </DataGrid.Columns>
+
+                    </DataGrid>
+
+                </Grid>
+
+            </Border>
+
+            <!-- ================================================= -->
+            <!-- DETALJI ARTIKLA                                   -->
+            <!-- ================================================= -->
+
+            <Border Grid.Column="4"
+                    Style="{StaticResource ArticlesCard}"
+                    Padding="18">
+
+                <Grid DataContext="{Binding SelectedArticle}">
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="18"/>
+                        <RowDefinition Height="165"/>
+                        <RowDefinition Height="14"/>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0">
+
+                        <TextBlock Text="Odabrani artikal"
+                                   Style="{StaticResource ArticlesSectionTitle}"/>
+
+                        <TextBlock Text="Detalji artikla"
+                                   Style="{StaticResource ArticlesSectionDescription}"
+                                   Margin="0,3,0,0"/>
+
+                    </StackPanel>
+
+                    <!-- SLIKA -->
+
+                    <Border Grid.Row="2"
+        BorderBrush="#3F3F46"
+        BorderThickness="1"
+        CornerRadius="6"
+        Padding="8">
+
+                        <Grid>
+
+                             <TextBlock Text="Nema slike"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               FontSize="13"
+                               Opacity="0.45"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center">  
+
+                                <TextBlock.Style>
+
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SlikaSource}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+
+                                    </Style>
+
+                                </TextBlock.Style>
+
+                            </TextBlock>
+
+                            <Image Source="{Binding SlikaSource}"
+                                   Width="180"
+                                   Height="145"
+                                   Stretch="Uniform"
+                                   StretchDirection="Both"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/> 
+
+                        </Grid>
+
+                    </Border>
+
+                    <!-- NAZIV -->
+
+                    <Grid Grid.Row="4">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="105"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Naziv"
+                                   Style="{StaticResource ArticleDetailLabel}"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding Artikl}"
+                                   Style="{StaticResource ArticleDetailValue}"/>
+
+                    </Grid>
+
+                    <!-- ŠIFRA -->
+
+                    <Grid Grid.Row="5">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="105"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Šifra"
+                                   Style="{StaticResource ArticleDetailLabel}"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding Sifra}"
+                                   Style="{StaticResource ArticleDetailValue}"/>
+
+                    </Grid>
+
+                    <!-- INTERNA ŠIFRA -->
+
+                    <Grid Grid.Row="6">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="105"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Interna šifra"
+                                   Style="{StaticResource ArticleDetailLabel}"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding InternaSifra}"
+                                   Style="{StaticResource ArticleDetailValue}"/>
+
+                    </Grid>
+
+                    <!-- CIJENA -->
+
+                    <Grid Grid.Row="7">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="105"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Cijena"
+                                   Style="{StaticResource ArticleDetailLabel}"/>
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+
+                            <TextBlock Text="{Binding Cijena, StringFormat={}{0:0.00}}"
+                                       Style="{StaticResource ArticleDetailValue}"/>
+
+                            <TextBlock Text=" €"
+                                       Foreground="{DynamicResource GlobalFontColor}"
+                                       FontSize="13"
+                                       Opacity="0.65"
+                                       VerticalAlignment="Center"/>
+
+                        </StackPanel>
+
+                    </Grid>
+
+                    <!-- JEDINICA MJERE -->
+
+                    <Grid Grid.Row="8">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="105"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Jedinica mjere"
+                                   Style="{StaticResource ArticleDetailLabel}"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding JedinicaMjereName}"
+                                   Style="{StaticResource ArticleDetailValue}"/>
+
+                    </Grid>
+
+                    <!-- POREZ -->
+
+                    <Grid Grid.Row="9">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="105"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Porez"
+                                   Style="{StaticResource ArticleDetailLabel}"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding PoreskaStopaPostotak}"
+                                   Style="{StaticResource ArticleDetailValue}"/>
+
+                    </Grid>
+
+                    <!-- VRSTA -->
+
+                    <Grid Grid.Row="10">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="105"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Vrsta"
+                                   Style="{StaticResource ArticleDetailLabel}"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding VrstaArtiklaName}"
+                                   Style="{StaticResource ArticleDetailValue}"/>
+
+                    </Grid>
+
+                    <!-- KATEGORIJA -->
+
+                    <Grid Grid.Row="11">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="105"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Kategorija"
+                                   Style="{StaticResource ArticleDetailLabel}"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding Kategorija}"
+                                   Style="{StaticResource ArticleDetailValue}"/>
+
+                    </Grid>
+
+                    <!-- NORMATIV -->
+
+                    <Grid Grid.Row="12">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="105"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Normativ"
+                                   Style="{StaticResource ArticleDetailLabel}"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding Normativ}"
+                                   Style="{StaticResource ArticleDetailValue}"/>
+
+                    </Grid>
+
+                    <!-- POZICIJA -->
+
+                    <Grid Grid.Row="13">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="105"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Pozicija"
+                                   Style="{StaticResource ArticleDetailLabel}"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding Pozicija}"
+                                   Style="{StaticResource ArticleDetailValue}"/>
+
+                    </Grid>
+
+                    <!-- AKTIVAN -->
+
+                    <Grid Grid.Row="14">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="105"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Aktivan"
+               Style="{StaticResource ArticleDetailLabel}"/>
+
+                        <TextBlock Grid.Column="1">
+
+                            <TextBlock.Style>
+
+                                <Style TargetType="TextBlock"
+                   BasedOn="{StaticResource ArticleDetailValue}">
+
+                                    <Setter Property="Text" Value="NE"/>
+
+                                    <Style.Triggers>
+
+                                        <DataTrigger Binding="{Binding Aktivan}" Value="True">
+                                            <Setter Property="Text" Value="DA"/>
+                                        </DataTrigger>
+
+                                    </Style.Triggers>
+
+                                </Style>
+
+                            </TextBlock.Style>
+
+                        </TextBlock>
+
+                    </Grid>
+
+                </Grid>
+
             </Border>
 
         </Grid>
+
+        <!-- ===================================================== -->
+        <!-- PRIVREMENI LEGACY CONTROLS                            -->
+        <!-- Potrebni dok stari inline CRUD ne zamijenimo popupima -->
+        <!-- ===================================================== -->
+
+        <Grid Visibility="Collapsed">
+
+            <Grid x:Name="InternaSifraGrid"/>
+            <Grid x:Name="SlikaGrid"/>
+            <Grid x:Name="JedinicaMjereGrid"/>
+            <Grid x:Name="PoreskeStopeGrid"/>
+            <Grid x:Name="NormativGrid"/>
+            <Grid x:Name="VrstaArtiklaGrid"/>
+            <Grid x:Name="KategorijaGrid"/>
+            <Grid x:Name="PozicijaGrid"/>
+            <Grid x:Name="PrikazGrid"/>
+            <Grid x:Name="ArtiklNormativGrid"/>
+            <Grid x:Name="EditGrid"/>
+            <Grid x:Name="AddGrid"/>
+
+            <TextBox x:Name="IdArtiklaTextBox"/>
+            <TextBox x:Name="SifraTextBox"/>
+            <TextBox x:Name="ArtiklTextBox" TextChanged="ArtiklTextBox_TextChanged"/>
+            <TextBox x:Name="CijenaTextBox"/>
+            <TextBox x:Name="InternaSifraTextBox"/>
+            <TextBox x:Name="SlikaTextBox"/>
+            <TextBox x:Name="PozicijaTextBox"/>
+            <TextBox x:Name="ArtiklNormativTextBox"/>
+
+            <ComboBox x:Name="JediniceMjerePicker"/>
+            <ComboBox x:Name="PoreskeStopePicker"/>
+            <ComboBox x:Name="NormativPicker"/>
+            <ComboBox x:Name="VrstaArtiklaPicker"/>
+            <ComboBox x:Name="KategorijePicker"/>
+
+            <ComboBox x:Name="PrikazatiNaDisplejuPicker">
+                <system:String>DA</system:String>
+                <system:String>NE</system:String>
+            </ComboBox>
+
+            <Button x:Name="btnSlika"/>
+            <Button x:Name="btnKategorija"/>
+
+            <Button x:Name="SaveEditButton"/>
+            <Button x:Name="CancelEditButton"/>
+            <Button x:Name="SaveAddButton"/>
+            <Button x:Name="CancelAddButton"/>
+
+            <Label x:Name="lblArtikl"/>
+            <Label x:Name="lblCijena"/>
+
+        </Grid>
+
     </Grid>
+
 </UserControl>

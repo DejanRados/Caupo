@@ -10,6 +10,7 @@ using System.IO;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using static Caupo.Data.DatabaseTables;
 
@@ -265,7 +266,7 @@ namespace Caupo.Views
                     artikl.Slika = SlikaTextBox.Text;
                     artikl.VrstaArtikla = VrstaArtiklaPicker.SelectedIndex;
                     artikl.Pozicija = Convert.ToInt32 (PozicijaTextBox.Text);
-                    artikl.PrikazatiNaDispleju = PrikazatiNaDisplejuPicker.Text;
+                    artikl.Aktivan = PrikazatiNaDisplejuPicker.Text == "DA";
                     TblKategorije kategorija = (TblKategorije)KategorijePicker.SelectedItem;
                     artikl.Kategorija = kategorija.IdKategorije;
                     TblNormativPica normativ = (TblNormativPica)NormativPicker.SelectedItem;
@@ -427,7 +428,7 @@ namespace Caupo.Views
                 artikl.Slika = SlikaTextBox.Text;
                 artikl.VrstaArtikla = VrstaArtiklaPicker.SelectedIndex;
                 artikl.Pozicija = Convert.ToInt32 (PozicijaTextBox.Text);
-                artikl.PrikazatiNaDispleju = PrikazatiNaDisplejuPicker.Text;
+                artikl.Aktivan = PrikazatiNaDisplejuPicker.Text == "DA";
                 TblKategorije kategorija = (TblKategorije)KategorijePicker.SelectedItem;
                 artikl.Kategorija = kategorija.IdKategorije;
                 TblNormativPica normativ = (TblNormativPica)NormativPicker.SelectedItem;
@@ -473,18 +474,63 @@ namespace Caupo.Views
             }
         }
 
+        private void ListaArtikala_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            DependencyObject? source = e.OriginalSource as DependencyObject;
+
+            while (source != null && source is not DataGridRow)
+                source = VisualTreeHelper.GetParent(source);
+
+            if (source is DataGridRow row && !row.IsSelected)
+            {
+                row.IsSelected = true;
+                ListaArtikala.SelectedItem = row.Item;
+                ListaArtikala.CurrentItem = row.Item;
+            }
+        }
+
+        private void BtnPrevious_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is not ArticlesViewModel viewModel || viewModel.SelectedArticle == null)
+                return;
+
+            int index = viewModel.ArtikliFilter.IndexOf(viewModel.SelectedArticle);
+
+            if (index <= 0)
+                return;
+
+            viewModel.SelectedArticle = viewModel.ArtikliFilter[index - 1];
+            ListaArtikala.SelectedItem = viewModel.SelectedArticle;
+            ListaArtikala.ScrollIntoView(viewModel.SelectedArticle);
+        }
+
+        private void BtnNext_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is not ArticlesViewModel viewModel || viewModel.SelectedArticle == null)
+                return;
+
+            int index = viewModel.ArtikliFilter.IndexOf(viewModel.SelectedArticle);
+
+            if (index < 0 || index >= viewModel.ArtikliFilter.Count - 1)
+                return;
+
+            viewModel.SelectedArticle = viewModel.ArtikliFilter[index + 1];
+            ListaArtikala.SelectedItem = viewModel.SelectedArticle;
+            ListaArtikala.ScrollIntoView(viewModel.SelectedArticle);
+        }
+
         private void ListaArtikala_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var dataGrid = sender as DataGrid;
-            var selectedItem = dataGrid.SelectedItem as DatabaseTables.TblArtikli;
+            var selectedItem = dataGrid?.SelectedItem as DatabaseTables.TblArtikli;
 
-            if(selectedItem != null)
+            if (selectedItem != null)
             {
-                if(DataContext is ArticlesViewModel viewModel)
+                if (DataContext is ArticlesViewModel viewModel)
                 {
                     viewModel.SelectedArticle = selectedItem;
-                    //SearchTextBox.Text = "";
-                    ListaArtikala.ScrollIntoView (ListaArtikala.SelectedItem);
+                    PrikazatiNaDisplejuPicker.SelectedIndex = selectedItem.Aktivan ? 0 : 1;
+                    ListaArtikala.ScrollIntoView(ListaArtikala.SelectedItem);
                 }
             }
         }
@@ -907,7 +953,7 @@ namespace Caupo.Views
                         Kategorija = null,
                         Pozicija = rb,
                         ArtiklNormativ = normativ != 1 ? $"{artikl} {normativ}" : artikl,
-                        PrikazatiNaDispleju = "DA"
+                        Aktivan = true
                     };
                 })
                 .ToList();
