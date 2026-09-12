@@ -1281,7 +1281,7 @@
             <Style TargetType="DataGridColumnHeader">
                 <Setter Property="Background" Value="#BB323232"/>
                 <Setter Property="Foreground" Value="#F5F5F5" />
-                <Setter Property="Height" Value="40"/>
+                <Setter Property="MinHeight" Value="45"/>
                 <Setter Property="HorizontalContentAlignment" Value="Center"/>
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
                 <Setter Property="BorderBrush" Value="Transparent"/>

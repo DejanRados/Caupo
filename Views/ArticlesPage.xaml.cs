@@ -4,7 +4,7 @@ using Caupo.Properties;
 using Caupo.ViewModels;
 using ClosedXML.Excel;
 using Microsoft.Win32;
-
+using System.Linq;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
@@ -119,6 +119,107 @@ namespace Caupo.Views
 
             FocusedTextBox = null;
 
+        }
+
+        private bool _updatingArticleCheckBoxes;
+
+        private void ArticleCheckBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            if(sender is not CheckBox checkBox || checkBox.Tag is not DatabaseTables.TblArtikli article)
+                return;
+
+            if(DataContext is not ArticlesViewModel viewModel)
+                return;
+
+            _updatingArticleCheckBoxes = true;
+            checkBox.IsChecked = viewModel.IsArticleChecked (article);
+            _updatingArticleCheckBoxes = false;
+        }
+
+        private void ArticleCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            if(_updatingArticleCheckBoxes)
+                return;
+
+            if(sender is not CheckBox checkBox || checkBox.Tag is not DatabaseTables.TblArtikli article)
+                return;
+
+            if(DataContext is not ArticlesViewModel viewModel)
+                return;
+
+            viewModel.SetArticleChecked (article, true);
+            RefreshSelectAllCheckBox (viewModel);
+        }
+
+        private void ArticleCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if(_updatingArticleCheckBoxes)
+                return;
+
+            if(sender is not CheckBox checkBox || checkBox.Tag is not DatabaseTables.TblArtikli article)
+                return;
+
+            if(DataContext is not ArticlesViewModel viewModel)
+                return;
+
+            viewModel.SetArticleChecked (article, false);
+            RefreshSelectAllCheckBox (viewModel);
+        }
+
+        private void SelectAllArticlesCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            if(_updatingArticleCheckBoxes)
+                return;
+
+            if(DataContext is not ArticlesViewModel viewModel)
+                return;
+
+            viewModel.SetAllVisibleArticlesChecked (true);
+            RefreshVisibleArticleCheckBoxes (viewModel);
+        }
+
+        private void SelectAllArticlesCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if(_updatingArticleCheckBoxes)
+                return;
+
+            if(DataContext is not ArticlesViewModel viewModel)
+                return;
+
+            viewModel.SetAllVisibleArticlesChecked (false);
+            RefreshVisibleArticleCheckBoxes (viewModel);
+        }
+
+        private void RefreshVisibleArticleCheckBoxes(ArticlesViewModel viewModel)
+        {
+            _updatingArticleCheckBoxes = true;
+
+            foreach(var article in ListaArtikala.Items.OfType<DatabaseTables.TblArtikli> ())
+            {
+                if(ListaArtikala.ItemContainerGenerator.ContainerFromItem (article) is not DataGridRow row)
+                    continue;
+
+                var cellContent = ListaArtikala.Columns[^1].GetCellContent (row);
+
+                if(cellContent == null)
+                    continue;
+
+                CheckBox? checkBox = FindVisualChildren<CheckBox> (cellContent).FirstOrDefault ();
+
+                if(checkBox != null)
+                    checkBox.IsChecked = viewModel.IsArticleChecked (article);
+            }
+
+            SelectAllArticlesCheckBox.IsChecked = viewModel.AreAllVisibleArticlesChecked ();
+
+            _updatingArticleCheckBoxes = false;
+        }
+
+        private void RefreshSelectAllCheckBox(ArticlesViewModel viewModel)
+        {
+            _updatingArticleCheckBoxes = true;
+            SelectAllArticlesCheckBox.IsChecked = viewModel.AreAllVisibleArticlesChecked ();
+            _updatingArticleCheckBoxes = false;
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
@@ -489,50 +590,17 @@ namespace Caupo.Views
             }
         }
 
-        private void BtnPrevious_Click(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is not ArticlesViewModel viewModel || viewModel.SelectedArticle == null)
-                return;
 
-            int index = viewModel.ArtikliFilter.IndexOf(viewModel.SelectedArticle);
-
-            if (index <= 0)
-                return;
-
-            viewModel.SelectedArticle = viewModel.ArtikliFilter[index - 1];
-            ListaArtikala.SelectedItem = viewModel.SelectedArticle;
-            ListaArtikala.ScrollIntoView(viewModel.SelectedArticle);
-        }
-
-        private void BtnNext_Click(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is not ArticlesViewModel viewModel || viewModel.SelectedArticle == null)
-                return;
-
-            int index = viewModel.ArtikliFilter.IndexOf(viewModel.SelectedArticle);
-
-            if (index < 0 || index >= viewModel.ArtikliFilter.Count - 1)
-                return;
-
-            viewModel.SelectedArticle = viewModel.ArtikliFilter[index + 1];
-            ListaArtikala.SelectedItem = viewModel.SelectedArticle;
-            ListaArtikala.ScrollIntoView(viewModel.SelectedArticle);
-        }
 
         private void ListaArtikala_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var dataGrid = sender as DataGrid;
-            var selectedItem = dataGrid?.SelectedItem as DatabaseTables.TblArtikli;
+            if(sender is not DataGrid dataGrid || dataGrid.SelectedItem is not DatabaseTables.TblArtikli selectedItem)
+                return;
 
-            if (selectedItem != null)
-            {
-                if (DataContext is ArticlesViewModel viewModel)
-                {
-                    viewModel.SelectedArticle = selectedItem;
-                    PrikazatiNaDisplejuPicker.SelectedIndex = selectedItem.Aktivan ? 0 : 1;
-                    ListaArtikala.ScrollIntoView(ListaArtikala.SelectedItem);
-                }
-            }
+            if(DataContext is ArticlesViewModel viewModel)
+                viewModel.SelectedArticle = selectedItem;
+
+            dataGrid.ScrollIntoView (selectedItem);
         }
 
         private void BtnEdit_Click(object sender, RoutedEventArgs e)
@@ -1052,22 +1120,7 @@ namespace Caupo.Views
                 _ => null
             };
         }
-        private void BtnFirst_Click(object sender, RoutedEventArgs e)
-        {
-            if(DataContext is ArticlesViewModel viewModel)
-            {
-                viewModel.SelectedArticle = viewModel.Artikli?.FirstOrDefault ();
-            }
-        }
 
-
-        private void BtnLast_Click(object sender, RoutedEventArgs e)
-        {
-            if(DataContext is ArticlesViewModel viewModel)
-            {
-                viewModel.SelectedArticle = viewModel.Artikli?.Last ();
-            }
-        }
 
         private void btnKategorija_Click(object sender, RoutedEventArgs e)
         {

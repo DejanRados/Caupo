@@ -13,7 +13,7 @@
     <UserControl.Resources>
 
         <!-- ===================================================== -->
-        <!-- ARTICLES - ZAJEDNIČKI STILOVI                         -->
+        <!-- ARTICLES - COMMON STYLES                              -->
         <!-- ===================================================== -->
 
         <Style x:Key="ArticlesSectionTitle" TargetType="TextBlock">
@@ -48,6 +48,60 @@
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- ===================================================== -->
+        <!-- LARGE TOUCH CHECKBOX                                  -->
+        <!-- ===================================================== -->
+
+        <Style x:Key="ArticleTouchCheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="Width" Value="44"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Margin" Value="1"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Focusable" Value="False"/>
+
+            <Setter Property="Template">
+                <Setter.Value>
+
+                    <ControlTemplate TargetType="CheckBox">
+
+                        <Border x:Name="CheckBorder"
+                                Margin="1"
+                                Background="Transparent"
+                                BorderBrush="{DynamicResource GlobalFontColor}"
+                                BorderThickness="2"
+                                CornerRadius="4">
+
+                            <TextBlock x:Name="CheckMark"
+                                       Text="✓"
+                                       Foreground="{DynamicResource GlobalFontColor}"
+                                       FontSize="29"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Visibility="Collapsed"/>
+
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="CheckBorder" Property="Opacity" Value="0.75"/>
+                            </Trigger>
+
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+
+                </Setter.Value>
+            </Setter>
         </Style>
 
     </UserControl.Resources>
@@ -107,7 +161,7 @@
         </Grid>
 
         <!-- ===================================================== -->
-        <!-- GORNJA TRAKA                                          -->
+        <!-- TOP TOOLBAR                                           -->
         <!-- ===================================================== -->
 
         <Grid Grid.Row="1" Margin="24,12,24,8">
@@ -119,7 +173,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- ================================================= -->
-            <!-- PRETRAGA + NAVIGACIJA                             -->
+            <!-- SEARCH + NAVIGATION                               -->
             <!-- ================================================= -->
 
             <Grid Grid.Column="0">
@@ -177,7 +231,7 @@
                         Width="48"
                         Height="48"
                         Padding="0"
-                        Click="BtnFirst_Click"
+                        Command="{Binding FirstCommand}"
                         ToolTip="Prvi artikl">
 
                     <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
@@ -196,7 +250,7 @@
                         Width="48"
                         Height="48"
                         Padding="0"
-                        Click="BtnPrevious_Click"
+                        Command="{Binding PreviousCommand}"
                         ToolTip="Prethodni artikl">
 
                     <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
@@ -215,7 +269,7 @@
                         Width="48"
                         Height="48"
                         Padding="0"
-                        Click="BtnNext_Click"
+                        Command="{Binding NextCommand}"
                         ToolTip="Sljedeći artikl">
 
                     <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
@@ -234,7 +288,7 @@
                         Width="48"
                         Height="48"
                         Padding="0"
-                        Click="BtnLast_Click"
+                        Command="{Binding LastCommand}"
                         ToolTip="Posljednji artikl">
 
                     <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
@@ -250,7 +304,7 @@
             </Grid>
 
             <!-- ================================================= -->
-            <!-- AKCIJE                                            -->
+            <!-- ACTIONS                                           -->
             <!-- ================================================= -->
 
             <Grid Grid.Column="2" HorizontalAlignment="Right">
@@ -388,7 +442,7 @@
         </Grid>
 
         <!-- ===================================================== -->
-        <!-- GLAVNI SADRŽAJ                                        -->
+        <!-- MAIN CONTENT                                          -->
         <!-- ===================================================== -->
 
         <Grid Grid.Row="2" Margin="24,4,24,22">
@@ -402,7 +456,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- ================================================= -->
-            <!-- LIJEVI PANEL                                      -->
+            <!-- LEFT PANEL                                        -->
             <!-- ================================================= -->
 
             <Border Grid.Column="0"
@@ -430,11 +484,54 @@
 
                     <StackPanel Grid.Row="2">
 
-                        <TextBlock Text="Ovaj prostor je rezervisan za dodatne komande, filtere i grupne operacije nad artiklima."
+                        <TextBlock Text="Status artikla"
                                    Foreground="{DynamicResource GlobalFontColor}"
                                    FontSize="13"
-                                   TextWrapping="Wrap"
-                                   Opacity="0.55"/>
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,7"/>
+
+                        <ComboBox ItemsSource="{Binding ActiveFilters}"
+                                  SelectedItem="{Binding SelectedActiveFilter, Mode=TwoWay}"
+                                  Height="38"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalContentAlignment="Center"/>
+
+                        <TextBlock Text="Vrsta artikla"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Margin="0,18,0,7"/>
+
+                        <ComboBox ItemsSource="{Binding ArticleTypeFilters}"
+                                  SelectedItem="{Binding SelectedArticleTypeFilter, Mode=TwoWay}"
+                                  Height="38"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalContentAlignment="Center"/>
+
+                        <TextBlock Text="Kategorija"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Margin="0,18,0,7"/>
+
+                        <ComboBox ItemsSource="{Binding CategoryFilters}"
+                                  SelectedItem="{Binding SelectedCategoryFilter, Mode=TwoWay}"
+                                  IsEnabled="{Binding IsCategoryFilterEnabled}"
+                                  Height="38"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalContentAlignment="Center"/>
+
+                        <TextBlock Text="Poreska stopa"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Margin="0,18,0,7"/>
+
+                        <ComboBox ItemsSource="{Binding TaxFilters}"
+                                  SelectedItem="{Binding SelectedTaxFilter, Mode=TwoWay}"
+                                  Height="38"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalContentAlignment="Center"/>
 
                     </StackPanel>
 
@@ -443,10 +540,11 @@
             </Border>
 
             <!-- ================================================= -->
-            <!-- LISTA ARTIKALA                                    -->
+            <!-- ARTICLE LIST                                      -->
             <!-- ================================================= -->
 
-            <Border Grid.Column="2" Style="{StaticResource ArticlesCard}">
+            <Border Grid.Column="2"
+                    Style="{StaticResource ArticlesCard}">
 
                 <Grid>
 
@@ -481,9 +579,9 @@
                               HeadersVisibility="Column"
                               CanUserAddRows="False"
                               CanUserResizeRows="False"
-                              CanUserSortColumns="False"
+                              CanUserSortColumns="True"
                               GridLinesVisibility="None"
-                              RowHeight="35"
+                              
                               Background="Transparent"
                               BorderThickness="0"
                               BorderBrush="{DynamicResource GlobalFontColor}"
@@ -502,7 +600,12 @@
 
                         <DataGrid.Columns>
 
-                            <DataGridTemplateColumn Header="Šifra" Width="0.75*">
+                            <!-- ŠIFRA -->
+
+                            <DataGridTemplateColumn Header="Šifra"
+                                                    Width="0.75*"
+                                                    SortMemberPath="Sifra"
+                                                    CanUserSort="False">
 
                                 <DataGridTemplateColumn.CellTemplate>
 
@@ -518,7 +621,11 @@
 
                             </DataGridTemplateColumn>
 
-                            <DataGridTemplateColumn Header="Artikl" Width="2.2*">
+                            <!-- ARTIKL -->
+
+                            <DataGridTemplateColumn Header="Artikl"
+                                                    Width="2.2*"
+                                                    SortMemberPath="Artikl">
 
                                 <DataGridTemplateColumn.CellTemplate>
 
@@ -527,7 +634,8 @@
                                         <TextBlock Text="{Binding ArtiklNormativ}"
                                                    TextAlignment="Left"
                                                    TextTrimming="CharacterEllipsis"
-                                                   Padding="8,0"/>
+                                                   Padding="8,0"
+                                                   VerticalAlignment="Center"/>
 
                                     </DataTemplate>
 
@@ -535,7 +643,11 @@
 
                             </DataGridTemplateColumn>
 
-                            <DataGridTemplateColumn Header="Cijena" Width="0.8*">
+                            <!-- CIJENA -->
+
+                            <DataGridTemplateColumn Header="Cijena"
+                                                    Width="0.8*"
+                                                    SortMemberPath="Cijena">
 
                                 <DataGridTemplateColumn.CellTemplate>
 
@@ -543,7 +655,8 @@
 
                                         <TextBlock Text="{Binding Cijena, StringFormat={}{0:0.00}}"
                                                    TextAlignment="Right"
-                                                   Padding="0,0,10,0"/>
+                                                   Padding="0,0,10,0"
+                                                   VerticalAlignment="Center"/>
 
                                     </DataTemplate>
 
@@ -551,14 +664,98 @@
 
                             </DataGridTemplateColumn>
 
-                            <DataGridTemplateColumn Header="Vrsta" Width="1*">
+                            <!-- VRSTA -->
+
+                            <DataGridTemplateColumn Header="Vrsta"
+                                                    Width="1*"
+                                                    SortMemberPath="VrstaArtikla">
 
                                 <DataGridTemplateColumn.CellTemplate>
 
                                     <DataTemplate>
 
                                         <TextBlock Text="{Binding VrstaArtiklaName}"
-                                                   TextAlignment="Center"/>
+                                                   TextAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+
+                                    </DataTemplate>
+
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                            <!-- TOUCH CHECKBOX / SELECT ALL -->
+
+                            <DataGridTemplateColumn Width="50"
+                                                    CanUserSort="False"
+                                                    CanUserResize="False">
+
+                                <DataGridTemplateColumn.HeaderStyle>
+
+                                    <Style TargetType="DataGridColumnHeader">
+
+                                        <Setter Property="Background" Value="#BB323232"/>
+                                        <Setter Property="Foreground" Value="#F5F5F5"/>
+                                        <Setter Property="MinHeight" Value="45"/>
+                                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                        <Setter Property="BorderBrush" Value="Transparent"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="FontWeight" Value="Normal"/>
+                                        <Setter Property="SnapsToDevicePixels" Value="True"/>
+                                        <Setter Property="OverridesDefaultStyle" Value="True"/>
+
+                                        <Setter Property="Template">
+
+                                            <Setter.Value>
+
+                                                <ControlTemplate TargetType="DataGridColumnHeader">
+
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                            Padding="1"
+                                                            SnapsToDevicePixels="True">
+
+                                                        <ContentPresenter Content="{TemplateBinding Content}"
+                                                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+
+                                                    </Border>
+
+                                                </ControlTemplate>
+
+                                            </Setter.Value>
+
+                                        </Setter>
+
+                                    </Style>
+
+                                </DataGridTemplateColumn.HeaderStyle>
+
+                                <DataGridTemplateColumn.Header>
+
+                                    <CheckBox Width="42" x:Name="SelectAllArticlesCheckBox"
+                                              Height="42"
+                                              Margin="0"
+                                              Style="{StaticResource ArticleTouchCheckBoxStyle}"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                                ToolTip="Označi sve prikazane artikle"
+                                              Checked="SelectAllArticlesCheckBox_Checked"
+                                              Unchecked="SelectAllArticlesCheckBox_Unchecked"/>     
+
+                                </DataGridTemplateColumn.Header>
+
+                                <DataGridTemplateColumn.CellTemplate>
+
+                                    <DataTemplate>
+
+                                        <CheckBox Style="{StaticResource ArticleTouchCheckBoxStyle}"
+                                      Tag="{Binding}"
+                                      Loaded="ArticleCheckBox_Loaded"
+                                      Checked="ArticleCheckBox_Checked"
+                                      Unchecked="ArticleCheckBox_Unchecked"/>
 
                                     </DataTemplate>
 
@@ -575,7 +772,7 @@
             </Border>
 
             <!-- ================================================= -->
-            <!-- DETALJI ARTIKLA                                   -->
+            <!-- ARTICLE DETAILS                                   -->
             <!-- ================================================= -->
 
             <Border Grid.Column="4"
@@ -614,32 +811,36 @@
 
                     </StackPanel>
 
-                    <!-- SLIKA -->
+                    <!-- IMAGE -->
 
                     <Border Grid.Row="2"
-        BorderBrush="#3F3F46"
-        BorderThickness="1"
-        CornerRadius="6"
-        Padding="8">
+                            BorderBrush="#3F3F46"
+                            BorderThickness="1"
+                            CornerRadius="6"
+                            Padding="8">
 
                         <Grid>
 
-                             <TextBlock Text="Nema slike"
-                               Foreground="{DynamicResource GlobalFontColor}"
-                               FontSize="13"
-                               Opacity="0.45"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center">  
+                            <TextBlock Text="Nema slike"
+                                       Foreground="{DynamicResource GlobalFontColor}"
+                                       FontSize="13"
+                                       Opacity="0.45"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center">
 
                                 <TextBlock.Style>
 
                                     <Style TargetType="TextBlock">
+
                                         <Setter Property="Visibility" Value="Collapsed"/>
 
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding SlikaSource}" Value="{x:Null}">
+
+                                            <DataTrigger Binding="{Binding SlikaSource}"
+                                                         Value="{x:Null}">
                                                 <Setter Property="Visibility" Value="Visible"/>
                                             </DataTrigger>
+
                                         </Style.Triggers>
 
                                     </Style>
@@ -649,18 +850,18 @@
                             </TextBlock>
 
                             <Image Source="{Binding SlikaSource}"
-                                   Width="180"
+                                   Width="150"
                                    Height="145"
-                                   Stretch="Uniform"
+                                   Stretch="None"
                                    StretchDirection="Both"
                                    HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/> 
+                                   VerticalAlignment="Center"/>
 
                         </Grid>
 
                     </Border>
 
-                    <!-- NAZIV -->
+                    <!-- NAME -->
 
                     <Grid Grid.Row="4">
 
@@ -678,7 +879,7 @@
 
                     </Grid>
 
-                    <!-- ŠIFRA -->
+                    <!-- CODE -->
 
                     <Grid Grid.Row="5">
 
@@ -696,7 +897,7 @@
 
                     </Grid>
 
-                    <!-- INTERNA ŠIFRA -->
+                    <!-- INTERNAL CODE -->
 
                     <Grid Grid.Row="6">
 
@@ -714,7 +915,7 @@
 
                     </Grid>
 
-                    <!-- CIJENA -->
+                    <!-- PRICE -->
 
                     <Grid Grid.Row="7">
 
@@ -741,7 +942,7 @@
 
                     </Grid>
 
-                    <!-- JEDINICA MJERE -->
+                    <!-- UNIT -->
 
                     <Grid Grid.Row="8">
 
@@ -759,7 +960,7 @@
 
                     </Grid>
 
-                    <!-- POREZ -->
+                    <!-- TAX -->
 
                     <Grid Grid.Row="9">
 
@@ -777,7 +978,7 @@
 
                     </Grid>
 
-                    <!-- VRSTA -->
+                    <!-- TYPE -->
 
                     <Grid Grid.Row="10">
 
@@ -795,7 +996,7 @@
 
                     </Grid>
 
-                    <!-- KATEGORIJA -->
+                    <!-- CATEGORY -->
 
                     <Grid Grid.Row="11">
 
@@ -813,7 +1014,7 @@
 
                     </Grid>
 
-                    <!-- NORMATIV -->
+                    <!-- NORM -->
 
                     <Grid Grid.Row="12">
 
@@ -831,7 +1032,7 @@
 
                     </Grid>
 
-                    <!-- POZICIJA -->
+                    <!-- POSITION -->
 
                     <Grid Grid.Row="13">
 
@@ -849,7 +1050,7 @@
 
                     </Grid>
 
-                    <!-- AKTIVAN -->
+                    <!-- ACTIVE -->
 
                     <Grid Grid.Row="14">
 
@@ -859,14 +1060,14 @@
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Text="Aktivan"
-               Style="{StaticResource ArticleDetailLabel}"/>
+                                   Style="{StaticResource ArticleDetailLabel}"/>
 
                         <TextBlock Grid.Column="1">
 
                             <TextBlock.Style>
 
                                 <Style TargetType="TextBlock"
-                   BasedOn="{StaticResource ArticleDetailValue}">
+                                       BasedOn="{StaticResource ArticleDetailValue}">
 
                                     <Setter Property="Text" Value="NE"/>
 
@@ -893,8 +1094,7 @@
         </Grid>
 
         <!-- ===================================================== -->
-        <!-- PRIVREMENI LEGACY CONTROLS                            -->
-        <!-- Potrebni dok stari inline CRUD ne zamijenimo popupima -->
+        <!-- TEMPORARY LEGACY CONTROLS                             -->
         <!-- ===================================================== -->
 
         <Grid Visibility="Collapsed">
