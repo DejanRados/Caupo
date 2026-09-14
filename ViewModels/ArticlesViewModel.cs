@@ -12,8 +12,6 @@ using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.ViewModels
 {
-
-
     public enum ArticleActiveFilter
     {
         Svi,
@@ -57,14 +55,14 @@ namespace Caupo.ViewModels
 
     public class ArticlesViewModel : INotifyPropertyChanged
     {
+        private readonly HashSet<int> _selectedArticleIds = new HashSet<int>();
 
-        private readonly HashSet<int> _selectedArticleIds = new HashSet<int> ();
         public int BrojOznacenihArtikala => _selectedArticleIds.Count;
-        public ObservableCollection<TblNormativPica> Normativi { get; set; } = new ObservableCollection<TblNormativPica> ();
-        public ObservableCollection<TblKategorije> Kategorije { get; set; } = new ObservableCollection<TblKategorije> ();
-        public ObservableCollection<TblPoreskeStope> PoreskeStope { get; set; } = new ObservableCollection<TblPoreskeStope> ();
-        public ObservableCollection<TblJediniceMjere> JediniceMjere { get; set; } = new ObservableCollection<TblJediniceMjere> ();
-        public ObservableCollection<string> VrstaArtikla { get; set; } = new ObservableCollection<string> ();
+        public ObservableCollection<TblNormativPica> Normativi { get; set; } = new ObservableCollection<TblNormativPica>();
+        public ObservableCollection<TblKategorije> Kategorije { get; set; } = new ObservableCollection<TblKategorije>();
+        public ObservableCollection<TblPoreskeStope> PoreskeStope { get; set; } = new ObservableCollection<TblPoreskeStope>();
+        public ObservableCollection<TblJediniceMjere> JediniceMjere { get; set; } = new ObservableCollection<TblJediniceMjere>();
+        public ObservableCollection<string> VrstaArtikla { get; set; } = new ObservableCollection<string>();
 
         public ObservableCollection<ArticleActiveFilter> ActiveFilters { get; } = new ObservableCollection<ArticleActiveFilter>
         {
@@ -81,8 +79,8 @@ namespace Caupo.ViewModels
             "Ostalo"
         };
 
-        public ObservableCollection<ArticleCategoryFilter> CategoryFilters { get; } = new ObservableCollection<ArticleCategoryFilter> ();
-        public ObservableCollection<ArticleTaxFilter> TaxFilters { get; } = new ObservableCollection<ArticleTaxFilter> ();
+        public ObservableCollection<ArticleCategoryFilter> CategoryFilters { get; } = new ObservableCollection<ArticleCategoryFilter>();
+        public ObservableCollection<ArticleTaxFilter> TaxFilters { get; } = new ObservableCollection<ArticleTaxFilter>();
 
         public IRelayCommand FirstCommand { get; }
         public IRelayCommand PreviousCommand { get; }
@@ -95,10 +93,10 @@ namespace Caupo.ViewModels
             get => _selectedJedinicaMjere;
             set
             {
-                if(_selectedJedinicaMjere != value)
+                if (_selectedJedinicaMjere != value)
                 {
                     _selectedJedinicaMjere = value;
-                    OnPropertyChanged (nameof (SelectedJedinicaMjere));
+                    OnPropertyChanged(nameof(SelectedJedinicaMjere));
                 }
             }
         }
@@ -109,10 +107,10 @@ namespace Caupo.ViewModels
             get => _selectedKategorija;
             set
             {
-                if(_selectedKategorija != value)
+                if (_selectedKategorija != value)
                 {
                     _selectedKategorija = value;
-                    OnPropertyChanged (nameof (SelectedKategorija));
+                    OnPropertyChanged(nameof(SelectedKategorija));
                 }
             }
         }
@@ -123,10 +121,10 @@ namespace Caupo.ViewModels
             get => _selectedPoreskaStopa;
             set
             {
-                if(_selectedPoreskaStopa != value)
+                if (_selectedPoreskaStopa != value)
                 {
                     _selectedPoreskaStopa = value;
-                    OnPropertyChanged (nameof (SelectedPoreskaStopa));
+                    OnPropertyChanged(nameof(SelectedPoreskaStopa));
                 }
             }
         }
@@ -137,10 +135,10 @@ namespace Caupo.ViewModels
             get => _selectedNormativ;
             set
             {
-                if(_selectedNormativ != value)
+                if (_selectedNormativ != value)
                 {
                     _selectedNormativ = value;
-                    OnPropertyChanged (nameof (SelectedNormativ));
+                    OnPropertyChanged(nameof(SelectedNormativ));
                 }
             }
         }
@@ -151,10 +149,10 @@ namespace Caupo.ViewModels
             get => _selectedVrstaArtikla;
             set
             {
-                if(_selectedVrstaArtikla != value)
+                if (_selectedVrstaArtikla != value)
                 {
                     _selectedVrstaArtikla = value;
-                    OnPropertyChanged (nameof (SelectedVrstaArtikla));
+                    OnPropertyChanged(nameof(SelectedVrstaArtikla));
                 }
             }
         }
@@ -165,11 +163,12 @@ namespace Caupo.ViewModels
             get => _selectedActiveFilter;
             set
             {
-                if(_selectedActiveFilter != value)
+                if (_selectedActiveFilter != value)
                 {
                     _selectedActiveFilter = value;
-                    OnPropertyChanged (nameof (SelectedActiveFilter));
-                    FilterItems ();
+                    OnPropertyChanged(nameof(SelectedActiveFilter));
+                    ClearArticleSelection();
+                    FilterItems();
                 }
             }
         }
@@ -180,13 +179,14 @@ namespace Caupo.ViewModels
             get => _selectedArticleTypeFilter;
             set
             {
-                if(_selectedArticleTypeFilter != value)
+                if (_selectedArticleTypeFilter != value)
                 {
                     _selectedArticleTypeFilter = value ?? "Sve vrste";
-                    OnPropertyChanged (nameof (SelectedArticleTypeFilter));
-                    OnPropertyChanged (nameof (IsCategoryFilterEnabled));
-                    UpdateCategoryFilters ();
-                    FilterItems ();
+                    OnPropertyChanged(nameof(SelectedArticleTypeFilter));
+                    OnPropertyChanged(nameof(IsCategoryFilterEnabled));
+                    ClearArticleSelection();
+                    UpdateCategoryFilters();
+                    FilterItems();
                 }
             }
         }
@@ -197,11 +197,12 @@ namespace Caupo.ViewModels
             get => _selectedCategoryFilter;
             set
             {
-                if(_selectedCategoryFilter != value)
+                if (_selectedCategoryFilter != value)
                 {
                     _selectedCategoryFilter = value;
-                    OnPropertyChanged (nameof (SelectedCategoryFilter));
-                    FilterItems ();
+                    OnPropertyChanged(nameof(SelectedCategoryFilter));
+                    ClearArticleSelection();
+                    FilterItems();
                 }
             }
         }
@@ -212,11 +213,12 @@ namespace Caupo.ViewModels
             get => _selectedTaxFilter;
             set
             {
-                if(_selectedTaxFilter != value)
+                if (_selectedTaxFilter != value)
                 {
                     _selectedTaxFilter = value;
-                    OnPropertyChanged (nameof (SelectedTaxFilter));
-                    FilterItems ();
+                    OnPropertyChanged(nameof(SelectedTaxFilter));
+                    ClearArticleSelection();
+                    FilterItems();
                 }
             }
         }
@@ -229,38 +231,38 @@ namespace Caupo.ViewModels
             get => _selectedArticle;
             set
             {
-                if(_selectedArticle == value)
+                if (_selectedArticle == value)
                     return;
 
                 _selectedArticle = value;
-                OnPropertyChanged (nameof (SelectedArticle));
-                UpdateComboBoxes ();
-                NotifyNavigationCommands ();
+                OnPropertyChanged(nameof(SelectedArticle));
+                UpdateComboBoxes();
+                NotifyNavigationCommands();
             }
         }
 
-        private ObservableCollection<TblArtikli> _artikli = new ObservableCollection<TblArtikli> ();
+        private ObservableCollection<TblArtikli> _artikli = new ObservableCollection<TblArtikli>();
         public ObservableCollection<TblArtikli> Artikli
         {
             get => _artikli;
             set
             {
                 _artikli = value;
-                OnPropertyChanged (nameof (Artikli));
-                OnPropertyChanged (nameof (BrojArtikala));
+                OnPropertyChanged(nameof(Artikli));
+                OnPropertyChanged(nameof(BrojArtikala));
             }
         }
 
-        private ObservableCollection<TblArtikli> _artikliFilter = new ObservableCollection<TblArtikli> ();
+        private ObservableCollection<TblArtikli> _artikliFilter = new ObservableCollection<TblArtikli>();
         public ObservableCollection<TblArtikli> ArtikliFilter
         {
             get => _artikliFilter;
             set
             {
                 _artikliFilter = value;
-                OnPropertyChanged (nameof (ArtikliFilter));
-                OnPropertyChanged (nameof (BrojPrikazanihArtikala));
-                NotifyNavigationCommands ();
+                OnPropertyChanged(nameof(ArtikliFilter));
+                OnPropertyChanged(nameof(BrojPrikazanihArtikala));
+                NotifyNavigationCommands();
             }
         }
 
@@ -270,11 +272,12 @@ namespace Caupo.ViewModels
             get => _searchText;
             set
             {
-                if(_searchText != value)
+                if (_searchText != value)
                 {
                     _searchText = value ?? string.Empty;
-                    OnPropertyChanged (nameof (SearchText));
-                    FilterItems ();
+                    OnPropertyChanged(nameof(SearchText));
+                    ClearArticleSelection();
+                    FilterItems();
                 }
             }
         }
@@ -285,10 +288,10 @@ namespace Caupo.ViewModels
             get => _novaSifra;
             set
             {
-                if(_novaSifra != value)
+                if (_novaSifra != value)
                 {
                     _novaSifra = value;
-                    OnPropertyChanged (nameof (NovaSifra));
+                    OnPropertyChanged(nameof(NovaSifra));
                 }
             }
         }
@@ -298,74 +301,83 @@ namespace Caupo.ViewModels
 
         public ArticlesViewModel()
         {
-            FirstCommand = new RelayCommand (MoveFirst, CanMoveFirst);
-            PreviousCommand = new RelayCommand (MovePrevious, CanMovePrevious);
-            NextCommand = new RelayCommand (MoveNext, CanMoveNext);
-            LastCommand = new RelayCommand (MoveLast, CanMoveLast);
+            FirstCommand = new RelayCommand(MoveFirst, CanMoveFirst);
+            PreviousCommand = new RelayCommand(MovePrevious, CanMovePrevious);
+            NextCommand = new RelayCommand(MoveNext, CanMoveNext);
+            LastCommand = new RelayCommand(MoveLast, CanMoveLast);
 
-            UpdateCategoryFilters ();
-            UpdateTaxFilters ();
+            UpdateCategoryFilters();
+            UpdateTaxFilters();
 
-            _ = StartAsync ();
+            _ = StartAsync();
         }
 
         private async Task StartAsync()
         {
-            await LoadJediniceMjere ();
-            await LoadKategorije ();
-            await LoadNormativi ();
-            LoadVrsteArtikla ();
-            await LoadPoreskeStope ();
-            await LoadArticlesAsync ();
+            await LoadJediniceMjere();
+            await LoadKategorije();
+            await LoadNormativi();
+            LoadVrsteArtikla();
+            await LoadPoreskeStope();
+            await LoadArticlesAsync();
         }
 
         public bool IsArticleChecked(TblArtikli? article)
         {
-            return article != null && _selectedArticleIds.Contains (article.IdArtikla);
+            return article != null && _selectedArticleIds.Contains(article.IdArtikla);
         }
 
         public void SetArticleChecked(TblArtikli? article, bool isChecked)
         {
-            if(article == null)
+            if (article == null)
                 return;
 
-            if(isChecked)
-                _selectedArticleIds.Add (article.IdArtikla);
+            if (isChecked)
+                _selectedArticleIds.Add(article.IdArtikla);
             else
-                _selectedArticleIds.Remove (article.IdArtikla);
+                _selectedArticleIds.Remove(article.IdArtikla);
 
-            OnPropertyChanged (nameof (BrojOznacenihArtikala));
+            OnPropertyChanged(nameof(BrojOznacenihArtikala));
         }
 
         public bool AreAllVisibleArticlesChecked()
         {
-            return ArtikliFilter.Count > 0 && ArtikliFilter.All (a => _selectedArticleIds.Contains (a.IdArtikla));
+            return ArtikliFilter.Count > 0 && ArtikliFilter.All(a => _selectedArticleIds.Contains(a.IdArtikla));
+        }
+
+        public void ClearArticleSelection()
+        {
+            if (_selectedArticleIds.Count == 0)
+                return;
+
+            _selectedArticleIds.Clear();
+            OnPropertyChanged(nameof(BrojOznacenihArtikala));
         }
 
         public void SetAllVisibleArticlesChecked(bool isChecked)
         {
-            foreach(var article in ArtikliFilter)
+            foreach (var article in ArtikliFilter)
             {
-                if(isChecked)
-                    _selectedArticleIds.Add (article.IdArtikla);
+                if (isChecked)
+                    _selectedArticleIds.Add(article.IdArtikla);
                 else
-                    _selectedArticleIds.Remove (article.IdArtikla);
+                    _selectedArticleIds.Remove(article.IdArtikla);
             }
 
-            OnPropertyChanged (nameof (BrojOznacenihArtikala));
+            OnPropertyChanged(nameof(BrojOznacenihArtikala));
         }
 
         private List<TblArtikli> GetCurrentArticleOrder()
         {
-            ICollectionView view = CollectionViewSource.GetDefaultView (ArtikliFilter);
-            return view.Cast<TblArtikli> ().ToList ();
+            ICollectionView view = CollectionViewSource.GetDefaultView(ArtikliFilter);
+            return view.Cast<TblArtikli>().ToList();
         }
 
         private void MoveFirst()
         {
-            var articles = GetCurrentArticleOrder ();
+            var articles = GetCurrentArticleOrder();
 
-            if(articles.Count == 0)
+            if (articles.Count == 0)
                 return;
 
             SelectedArticle = articles[0];
@@ -373,14 +385,14 @@ namespace Caupo.ViewModels
 
         private void MovePrevious()
         {
-            var articles = GetCurrentArticleOrder ();
+            var articles = GetCurrentArticleOrder();
 
-            if(SelectedArticle == null || articles.Count == 0)
+            if (SelectedArticle == null || articles.Count == 0)
                 return;
 
-            int index = articles.IndexOf (SelectedArticle);
+            int index = articles.IndexOf(SelectedArticle);
 
-            if(index <= 0)
+            if (index <= 0)
                 return;
 
             SelectedArticle = articles[index - 1];
@@ -388,26 +400,26 @@ namespace Caupo.ViewModels
 
         private void MoveNext()
         {
-            var articles = GetCurrentArticleOrder ();
+            var articles = GetCurrentArticleOrder();
 
-            if(articles.Count == 0)
+            if (articles.Count == 0)
                 return;
 
-            if(SelectedArticle == null)
+            if (SelectedArticle == null)
             {
                 SelectedArticle = articles[0];
                 return;
             }
 
-            int index = articles.IndexOf (SelectedArticle);
+            int index = articles.IndexOf(SelectedArticle);
 
-            if(index < 0)
+            if (index < 0)
             {
                 SelectedArticle = articles[0];
                 return;
             }
 
-            if(index >= articles.Count - 1)
+            if (index >= articles.Count - 1)
                 return;
 
             SelectedArticle = articles[index + 1];
@@ -415,9 +427,9 @@ namespace Caupo.ViewModels
 
         private void MoveLast()
         {
-            var articles = GetCurrentArticleOrder ();
+            var articles = GetCurrentArticleOrder();
 
-            if(articles.Count == 0)
+            if (articles.Count == 0)
                 return;
 
             SelectedArticle = articles[^1];
@@ -425,59 +437,59 @@ namespace Caupo.ViewModels
 
         private bool CanMoveFirst()
         {
-            var articles = GetCurrentArticleOrder ();
+            var articles = GetCurrentArticleOrder();
 
-            if(articles.Count == 0 || SelectedArticle == null)
+            if (articles.Count == 0 || SelectedArticle == null)
                 return false;
 
-            return articles.IndexOf (SelectedArticle) > 0;
+            return articles.IndexOf(SelectedArticle) > 0;
         }
 
         private bool CanMovePrevious()
         {
-            var articles = GetCurrentArticleOrder ();
+            var articles = GetCurrentArticleOrder();
 
-            if(articles.Count == 0 || SelectedArticle == null)
+            if (articles.Count == 0 || SelectedArticle == null)
                 return false;
 
-            return articles.IndexOf (SelectedArticle) > 0;
+            return articles.IndexOf(SelectedArticle) > 0;
         }
 
         private bool CanMoveNext()
         {
-            var articles = GetCurrentArticleOrder ();
+            var articles = GetCurrentArticleOrder();
 
-            if(articles.Count == 0 || SelectedArticle == null)
+            if (articles.Count == 0 || SelectedArticle == null)
                 return false;
 
-            int index = articles.IndexOf (SelectedArticle);
+            int index = articles.IndexOf(SelectedArticle);
 
             return index >= 0 && index < articles.Count - 1;
         }
 
         private bool CanMoveLast()
         {
-            var articles = GetCurrentArticleOrder ();
+            var articles = GetCurrentArticleOrder();
 
-            if(articles.Count == 0 || SelectedArticle == null)
+            if (articles.Count == 0 || SelectedArticle == null)
                 return false;
 
-            int index = articles.IndexOf (SelectedArticle);
+            int index = articles.IndexOf(SelectedArticle);
 
             return index >= 0 && index < articles.Count - 1;
         }
 
         private void NotifyNavigationCommands()
         {
-            FirstCommand?.NotifyCanExecuteChanged ();
-            PreviousCommand?.NotifyCanExecuteChanged ();
-            NextCommand?.NotifyCanExecuteChanged ();
-            LastCommand?.NotifyCanExecuteChanged ();
+            FirstCommand?.NotifyCanExecuteChanged();
+            PreviousCommand?.NotifyCanExecuteChanged();
+            NextCommand?.NotifyCanExecuteChanged();
+            LastCommand?.NotifyCanExecuteChanged();
         }
 
         public void RefreshNavigationCommands()
         {
-            NotifyNavigationCommands ();
+            NotifyNavigationCommands();
         }
 
         public async Task LoadArticlesAsync()
@@ -486,79 +498,82 @@ namespace Caupo.ViewModels
             {
                 int? selectedId = SelectedArticle?.IdArtikla;
 
-                await using var db = new AppDbContext ();
+                await using var db = new AppDbContext();
 
                 var artikli = await db.Artikli
-                    .AsNoTracking ()
-                    .OrderBy (a => a.IdArtikla)
-                    .ToListAsync ();
+                    .AsNoTracking()
+                    .OrderBy(a => a.IdArtikla)
+                    .ToListAsync();
 
-                Artikli = new ObservableCollection<TblArtikli> (artikli);
+                foreach (var artikl in artikli)
+                    artikl.KategorijaName = Kategorije.FirstOrDefault(x => x.IdKategorije == artikl.Kategorija)?.Kategorija ?? string.Empty;
 
-                FilterItems (selectedId);
+                Artikli = new ObservableCollection<TblArtikli>(artikli);
+
+                FilterItems(selectedId);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine ("[ARTIKLI] LoadArticlesAsync: " + ex);
+                Debug.WriteLine("[ARTIKLI] LoadArticlesAsync: " + ex);
             }
         }
 
         public void FilterItems()
         {
-            FilterItems (SelectedArticle?.IdArtikla);
+            FilterItems(SelectedArticle?.IdArtikla);
         }
 
         private void FilterItems(int? selectedId)
         {
-            string search = SearchText.Trim ();
+            string search = SearchText.Trim();
 
             IEnumerable<TblArtikli> filtered = Artikli;
 
             filtered = SelectedActiveFilter switch
             {
-                ArticleActiveFilter.Aktivni => filtered.Where (a => a.Aktivan),
-                ArticleActiveFilter.Neaktivni => filtered.Where (a => !a.Aktivan),
+                ArticleActiveFilter.Aktivni => filtered.Where(a => a.Aktivan),
+                ArticleActiveFilter.Neaktivni => filtered.Where(a => !a.Aktivan),
                 _ => filtered
             };
 
             filtered = SelectedArticleTypeFilter switch
             {
-                "Piće" => filtered.Where (a => a.VrstaArtikla == 0),
-                "Hrana" => filtered.Where (a => a.VrstaArtikla == 1),
-                "Ostalo" => filtered.Where (a => a.VrstaArtikla == 2),
+                "Piće" => filtered.Where(a => a.VrstaArtikla == 0),
+                "Hrana" => filtered.Where(a => a.VrstaArtikla == 1),
+                "Ostalo" => filtered.Where(a => a.VrstaArtikla == 2),
                 _ => filtered
             };
 
-            if(SelectedCategoryFilter?.CategoryId != null)
-                filtered = filtered.Where (a => a.Kategorija == SelectedCategoryFilter.CategoryId.Value);
+            if (SelectedCategoryFilter?.CategoryId != null)
+                filtered = filtered.Where(a => a.Kategorija == SelectedCategoryFilter.CategoryId.Value);
 
-            if(SelectedTaxFilter?.TaxId != null)
-                filtered = filtered.Where (a => a.PoreskaStopa == SelectedTaxFilter.TaxId.Value);
+            if (SelectedTaxFilter?.TaxId != null)
+                filtered = filtered.Where(a => a.PoreskaStopa == SelectedTaxFilter.TaxId.Value);
 
-            if(!string.IsNullOrWhiteSpace (search))
+            if (!string.IsNullOrWhiteSpace(search))
             {
-                filtered = filtered.Where (a =>
-                    (!string.IsNullOrWhiteSpace (a.Artikl) && a.Artikl.Contains (search, StringComparison.OrdinalIgnoreCase)) ||
-                    (!string.IsNullOrWhiteSpace (a.Sifra) && a.Sifra.Contains (search, StringComparison.OrdinalIgnoreCase)) ||
-                    (!string.IsNullOrWhiteSpace (a.InternaSifra) && a.InternaSifra.Contains (search, StringComparison.OrdinalIgnoreCase)));
+                filtered = filtered.Where(a =>
+                    (!string.IsNullOrWhiteSpace(a.Artikl) && a.Artikl.Contains(search, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrWhiteSpace(a.Sifra) && a.Sifra.Contains(search, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrWhiteSpace(a.InternaSifra) && a.InternaSifra.Contains(search, StringComparison.OrdinalIgnoreCase)));
             }
 
-            ArtikliFilter = new ObservableCollection<TblArtikli> (filtered);
+            ArtikliFilter = new ObservableCollection<TblArtikli>(filtered);
 
             TblArtikli? selected = null;
 
-            if(selectedId.HasValue)
-                selected = ArtikliFilter.FirstOrDefault (a => a.IdArtikla == selectedId.Value);
+            if (selectedId.HasValue)
+                selected = ArtikliFilter.FirstOrDefault(a => a.IdArtikla == selectedId.Value);
 
-            SelectedArticle = selected ?? ArtikliFilter.FirstOrDefault ();
+            SelectedArticle = selected ?? ArtikliFilter.FirstOrDefault();
 
-            NotifyNavigationCommands ();
+            NotifyNavigationCommands();
         }
 
         private void UpdateCategoryFilters()
         {
-            CategoryFilters.Clear ();
-            CategoryFilters.Add (new ArticleCategoryFilter (null, "Sve kategorije"));
+            CategoryFilters.Clear();
+            CategoryFilters.Add(new ArticleCategoryFilter(null, "Sve kategorije"));
 
             int? articleType = SelectedArticleTypeFilter switch
             {
@@ -568,179 +583,179 @@ namespace Caupo.ViewModels
                 _ => null
             };
 
-            if(articleType.HasValue)
+            if (articleType.HasValue)
             {
-                foreach(var kategorija in Kategorije.Where (k => k.VrstaArtikla == articleType.Value).OrderBy (k => k.Kategorija))
-                    CategoryFilters.Add (new ArticleCategoryFilter (kategorija.IdKategorije, kategorija.Kategorija ?? string.Empty));
+                foreach (var kategorija in Kategorije.Where(k => k.VrstaArtikla == articleType.Value).OrderBy(k => k.Kategorija))
+                    CategoryFilters.Add(new ArticleCategoryFilter(kategorija.IdKategorije, kategorija.Kategorija ?? string.Empty));
             }
 
-            _selectedCategoryFilter = CategoryFilters.FirstOrDefault ();
-            OnPropertyChanged (nameof (SelectedCategoryFilter));
+            _selectedCategoryFilter = CategoryFilters.FirstOrDefault();
+            OnPropertyChanged(nameof(SelectedCategoryFilter));
         }
 
         private void UpdateTaxFilters()
         {
-            TaxFilters.Clear ();
-            TaxFilters.Add (new ArticleTaxFilter (null, "Sve poreske stope"));
+            TaxFilters.Clear();
+            TaxFilters.Add(new ArticleTaxFilter(null, "Sve poreske stope"));
 
-            foreach(var poreskaStopa in PoreskeStope)
-                TaxFilters.Add (new ArticleTaxFilter (poreskaStopa.IdStope, poreskaStopa.ToString ()));
+            foreach (var poreskaStopa in PoreskeStope)
+                TaxFilters.Add(new ArticleTaxFilter(poreskaStopa.IdStope, poreskaStopa.ToString()));
 
-            _selectedTaxFilter = TaxFilters.FirstOrDefault ();
-            OnPropertyChanged (nameof (SelectedTaxFilter));
+            _selectedTaxFilter = TaxFilters.FirstOrDefault();
+            OnPropertyChanged(nameof(SelectedTaxFilter));
         }
 
         public async Task DeleteArticle(int articleId)
         {
-            await using var db = new AppDbContext ();
+            await using var db = new AppDbContext();
 
-            var artikl = await db.Artikli.FindAsync (articleId);
+            var artikl = await db.Artikli.FindAsync(articleId);
 
-            if(artikl == null)
+            if (artikl == null)
             {
-                MyMessageBox myMessageBox = new MyMessageBox ();
+                MyMessageBox myMessageBox = new MyMessageBox();
                 myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                 myMessageBox.MessageTitle.Text = "Greška";
                 myMessageBox.MessageText.Text = "Artikl sa ID: " + articleId + " nije pronađen u bazi." + Environment.NewLine + "Neuspješno brisanje artikla";
-                myMessageBox.ShowDialog ();
+                myMessageBox.ShowDialog();
                 return;
             }
 
             string? nazivArtikla = artikl.Artikl;
 
-            db.Artikli.Remove (artikl);
-            await db.SaveChangesAsync ();
-            await LoadArticlesAsync ();
+            db.Artikli.Remove(artikl);
+            await db.SaveChangesAsync();
+            await LoadArticlesAsync();
 
-            MyMessageBox successMessageBox = new MyMessageBox ();
+            MyMessageBox successMessageBox = new MyMessageBox();
             successMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             successMessageBox.MessageTitle.Text = "POTVRDA";
             successMessageBox.MessageText.Text = "Artikl " + nazivArtikla + " je uspješno obrisan iz baze.";
-            successMessageBox.ShowDialog ();
+            successMessageBox.ShowDialog();
         }
 
         public event EventHandler<string?>? ErrorOccurred;
 
         protected virtual void OnErrorOccurred(string? message)
         {
-            ErrorOccurred?.Invoke (this, message);
+            ErrorOccurred?.Invoke(this, message);
         }
 
         public async Task InsertArticle(TblArtikli artikl)
         {
-            await using var db = new AppDbContext ();
+            await using var db = new AppDbContext();
 
-            var duplicateArticle = await db.Artikli.FirstOrDefaultAsync (a => a.Artikl == artikl.Artikl || a.Sifra == artikl.Sifra || a.InternaSifra == artikl.InternaSifra);
+            var duplicateArticle = await db.Artikli.FirstOrDefaultAsync(a => a.Artikl == artikl.Artikl || a.Sifra == artikl.Sifra || a.InternaSifra == artikl.InternaSifra);
 
-            if(duplicateArticle != null)
+            if (duplicateArticle != null)
             {
                 string poruka = string.Empty;
 
-                if(duplicateArticle.Sifra == artikl.Sifra)
+                if (duplicateArticle.Sifra == artikl.Sifra)
                     poruka += "Šifra " + artikl.Sifra + ", ";
 
-                if(duplicateArticle.InternaSifra == artikl.InternaSifra)
+                if (duplicateArticle.InternaSifra == artikl.InternaSifra)
                     poruka += "Interna šifra " + artikl.InternaSifra + ", ";
 
-                if(duplicateArticle.Artikl == artikl.Artikl)
+                if (duplicateArticle.Artikl == artikl.Artikl)
                     poruka += "Naziv artikla " + artikl.Artikl + ", ";
 
-                poruka = poruka.TrimEnd (',', ' ');
+                poruka = poruka.TrimEnd(',', ' ');
                 poruka += " se već koristi u bazi." + Environment.NewLine + "Ta vrsta podataka mora biti jedinstvena za svaki artikl.";
 
-                OnErrorOccurred (poruka);
+                OnErrorOccurred(poruka);
                 return;
             }
 
-            await db.Artikli.AddAsync (artikl);
-            await db.SaveChangesAsync ();
+            await db.Artikli.AddAsync(artikl);
+            await db.SaveChangesAsync();
 
             int insertedId = artikl.IdArtikla;
 
-            await LoadArticlesAsync ();
+            await LoadArticlesAsync();
 
-            SelectedArticle = ArtikliFilter.FirstOrDefault (a => a.IdArtikla == insertedId) ?? ArtikliFilter.LastOrDefault ();
+            SelectedArticle = ArtikliFilter.FirstOrDefault(a => a.IdArtikla == insertedId) ?? ArtikliFilter.LastOrDefault();
 
-            MyMessageBox myMessageBox = new MyMessageBox ();
+            MyMessageBox myMessageBox = new MyMessageBox();
             myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             myMessageBox.MessageTitle.Text = "POTVRDA";
             myMessageBox.MessageText.Text = "Artikl " + artikl.Artikl + " je uspješno dodan u bazu.";
-            myMessageBox.ShowDialog ();
+            myMessageBox.ShowDialog();
         }
 
         public async Task UpdateArticle(TblArtikli artikl)
         {
-            await using var db = new AppDbContext ();
+            await using var db = new AppDbContext();
 
-            var duplicateArticle = await db.Artikli.FirstOrDefaultAsync (a => (a.Sifra == artikl.Sifra || a.InternaSifra == artikl.InternaSifra) && a.IdArtikla != artikl.IdArtikla);
+            var duplicateArticle = await db.Artikli.FirstOrDefaultAsync(a => (a.Sifra == artikl.Sifra || a.InternaSifra == artikl.InternaSifra) && a.IdArtikla != artikl.IdArtikla);
 
-            if(duplicateArticle != null)
+            if (duplicateArticle != null)
             {
                 string poruka = string.Empty;
 
-                if(duplicateArticle.Sifra == artikl.Sifra)
+                if (duplicateArticle.Sifra == artikl.Sifra)
                     poruka += "Šifra " + artikl.Sifra + ", ";
 
-                if(duplicateArticle.InternaSifra == artikl.InternaSifra)
+                if (duplicateArticle.InternaSifra == artikl.InternaSifra)
                     poruka += "Interna šifra " + artikl.InternaSifra + ", ";
 
-                poruka = poruka.TrimEnd (',', ' ');
+                poruka = poruka.TrimEnd(',', ' ');
                 poruka += " se već koristi u bazi." + Environment.NewLine + "Ta vrsta podataka mora biti jedinstvena za svaki artikl.";
 
-                OnErrorOccurred (poruka);
+                OnErrorOccurred(poruka);
                 return;
             }
 
-            var existingArticle = await db.Artikli.FindAsync (artikl.IdArtikla);
+            var existingArticle = await db.Artikli.FindAsync(artikl.IdArtikla);
 
-            if(existingArticle == null)
+            if (existingArticle == null)
             {
-                MyMessageBox errorMessageBox = new MyMessageBox ();
+                MyMessageBox errorMessageBox = new MyMessageBox();
                 errorMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
                 errorMessageBox.MessageTitle.Text = "Greška";
                 errorMessageBox.MessageText.Text = "Artikl sa ID: " + artikl.IdArtikla + " nije pronađen u bazi." + Environment.NewLine + "Neuspješno ažuriranje artikla";
-                errorMessageBox.ShowDialog ();
+                errorMessageBox.ShowDialog();
                 return;
             }
 
-            db.Entry (existingArticle).CurrentValues.SetValues (artikl);
-            await db.SaveChangesAsync ();
+            db.Entry(existingArticle).CurrentValues.SetValues(artikl);
+            await db.SaveChangesAsync();
 
             int updatedId = existingArticle.IdArtikla;
             string? nazivArtikla = existingArticle.Artikl;
 
-            await LoadArticlesAsync ();
+            await LoadArticlesAsync();
 
-            SelectedArticle = ArtikliFilter.FirstOrDefault (a => a.IdArtikla == updatedId);
+            SelectedArticle = ArtikliFilter.FirstOrDefault(a => a.IdArtikla == updatedId);
 
-            MyMessageBox myMessageBox = new MyMessageBox ();
+            MyMessageBox myMessageBox = new MyMessageBox();
             myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             myMessageBox.MessageTitle.Text = "POTVRDA";
             myMessageBox.MessageText.Text = "Artikl " + nazivArtikla + " je uspješno ažuriran.";
-            myMessageBox.ShowDialog ();
+            myMessageBox.ShowDialog();
         }
 
         public async Task GetNewSifra()
         {
-            await using var db = new AppDbContext ();
+            await using var db = new AppDbContext();
 
-            var poslednjiArtikl = await db.Artikli.OrderByDescending (a => a.IdArtikla).FirstOrDefaultAsync ();
+            var poslednjiArtikl = await db.Artikli.OrderByDescending(a => a.IdArtikla).FirstOrDefaultAsync();
 
-            if(poslednjiArtikl == null)
+            if (poslednjiArtikl == null)
             {
                 NovaSifra = "1";
                 return;
             }
 
-            if(int.TryParse (poslednjiArtikl.Sifra, out int poslednjaSifra))
-                NovaSifra = (poslednjaSifra + 1).ToString ();
+            if (int.TryParse(poslednjiArtikl.Sifra, out int poslednjaSifra))
+                NovaSifra = (poslednjaSifra + 1).ToString();
             else
-                NovaSifra = (poslednjiArtikl.IdArtikla + 1).ToString ();
+                NovaSifra = (poslednjiArtikl.IdArtikla + 1).ToString();
         }
 
         public void UpdateComboBoxes()
         {
-            if(SelectedArticle == null)
+            if (SelectedArticle == null)
             {
                 SelectedJedinicaMjere = null;
                 SelectedKategorija = null;
@@ -750,10 +765,10 @@ namespace Caupo.ViewModels
                 return;
             }
 
-            SelectedJedinicaMjere = JediniceMjere.FirstOrDefault (item => item.IdJedinice == SelectedArticle.JedinicaMjere);
-            SelectedKategorija = Kategorije.FirstOrDefault (item => item.IdKategorije == SelectedArticle.Kategorija);
-            SelectedNormativ = Normativi.FirstOrDefault (item => item.Normativ == SelectedArticle.Normativ.ToString ());
-            SelectedPoreskaStopa = PoreskeStope.FirstOrDefault (item => item.IdStope == SelectedArticle.PoreskaStopa);
+            SelectedJedinicaMjere = JediniceMjere.FirstOrDefault(item => item.IdJedinice == SelectedArticle.JedinicaMjere);
+            SelectedKategorija = Kategorije.FirstOrDefault(item => item.IdKategorije == SelectedArticle.Kategorija);
+            SelectedNormativ = Normativi.FirstOrDefault(item => item.Normativ == SelectedArticle.Normativ.ToString());
+            SelectedPoreskaStopa = PoreskeStope.FirstOrDefault(item => item.IdStope == SelectedArticle.PoreskaStopa);
 
             int vrsta = SelectedArticle.VrstaArtikla ?? 0;
             SelectedVrstaArtikla = vrsta >= 0 && vrsta < VrstaArtikla.Count ? VrstaArtikla[vrsta] : null;
@@ -763,23 +778,20 @@ namespace Caupo.ViewModels
         {
             try
             {
-                await using var db = new AppDbContext ();
+                await using var db = new AppDbContext();
 
-                var poreskeStope = await db.PoreskeStope
-                    .Where (x => x.Aktivna)
-                    .OrderBy (x => x.IdStope)
-                    .ToListAsync ();
+                var poreskeStope = await db.PoreskeStope.Where(x => x.Aktivna).OrderBy(x => x.IdStope).ToListAsync();
 
-                PoreskeStope.Clear ();
+                PoreskeStope.Clear();
 
-                foreach(var poreskaStopa in poreskeStope)
-                    PoreskeStope.Add (poreskaStopa);
+                foreach (var poreskaStopa in poreskeStope)
+                    PoreskeStope.Add(poreskaStopa);
 
-                UpdateTaxFilters ();
+                UpdateTaxFilters();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine ("[ARTIKLI] LoadPoreskeStope: " + ex);
+                Debug.WriteLine("[ARTIKLI] LoadPoreskeStope: " + ex);
             }
         }
 
@@ -787,18 +799,18 @@ namespace Caupo.ViewModels
         {
             try
             {
-                await using var db = new AppDbContext ();
+                await using var db = new AppDbContext();
 
-                var normativi = await db.NormativPica.ToListAsync ();
+                var normativi = await db.NormativPica.ToListAsync();
 
-                Normativi.Clear ();
+                Normativi.Clear();
 
-                foreach(var normativ in normativi)
-                    Normativi.Add (normativ);
+                foreach (var normativ in normativi)
+                    Normativi.Add(normativ);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine ("[ARTIKLI] LoadNormativi: " + ex);
+                Debug.WriteLine("[ARTIKLI] LoadNormativi: " + ex);
             }
         }
 
@@ -806,51 +818,47 @@ namespace Caupo.ViewModels
         {
             try
             {
-                await using var db = new AppDbContext ();
+                await using var db = new AppDbContext();
 
-                var kategorije = await db.Kategorije
-                    .OrderBy (x => x.Kategorija)
-                    .ToListAsync ();
+                var kategorije = await db.Kategorije.OrderBy(x => x.Kategorija).ToListAsync();
 
-                Kategorije.Clear ();
+                Kategorije.Clear();
 
-                foreach(var kategorija in kategorije)
-                    Kategorije.Add (kategorija);
+                foreach (var kategorija in kategorije)
+                    Kategorije.Add(kategorija);
 
-                UpdateCategoryFilters ();
+                UpdateCategoryFilters();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine ("[ARTIKLI] LoadKategorije: " + ex);
+                Debug.WriteLine("[ARTIKLI] LoadKategorije: " + ex);
             }
         }
 
         public void LoadVrsteArtikla()
         {
-            VrstaArtikla.Clear ();
-            VrstaArtikla.Add ("Piće");
-            VrstaArtikla.Add ("Hrana");
-            VrstaArtikla.Add ("Ostalo");
+            VrstaArtikla.Clear();
+            VrstaArtikla.Add("Piće");
+            VrstaArtikla.Add("Hrana");
+            VrstaArtikla.Add("Ostalo");
         }
 
         public async Task LoadJediniceMjere()
         {
             try
             {
-                await using var db = new AppDbContext ();
+                await using var db = new AppDbContext();
 
-                var jediniceMjere = await db.JediniceMjere
-                    .OrderBy (x => x.IdJedinice)
-                    .ToListAsync ();
+                var jediniceMjere = await db.JediniceMjere.OrderBy(x => x.IdJedinice).ToListAsync();
 
-                JediniceMjere.Clear ();
+                JediniceMjere.Clear();
 
-                foreach(var jedinicaMjere in jediniceMjere)
-                    JediniceMjere.Add (jedinicaMjere);
+                foreach (var jedinicaMjere in jediniceMjere)
+                    JediniceMjere.Add(jedinicaMjere);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine ("[ARTIKLI] LoadJediniceMjere: " + ex);
+                Debug.WriteLine("[ARTIKLI] LoadJediniceMjere: " + ex);
             }
         }
 
@@ -858,7 +866,7 @@ namespace Caupo.ViewModels
 
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
-            PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

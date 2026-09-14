@@ -175,6 +175,9 @@ namespace Caupo.Data
             }
 
             public int? Kategorija { get; set; }
+            [NotMapped]
+            [JsonIgnore]
+            public string? KategorijaName { get; set; }
 
             public int? Pozicija { get; set; }
 
