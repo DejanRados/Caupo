@@ -18,6 +18,7 @@
     <Compile Remove="Fiscal\FiskalniRacun.cs" />
     <Compile Remove="Fiscal\PrintRacunHrvatska.cs" />
     <Compile Remove="Fiscal\racun_hr.cs" />
+    <Compile Remove="Helpers\TextImageMapper.cs" />
     <Compile Remove="Views\LicencePage.xaml.cs" />
   </ItemGroup>
 

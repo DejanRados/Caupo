@@ -6,6 +6,7 @@
              xmlns:system="clr-namespace:System;assembly=mscorlib"
              xmlns:local="clr-namespace:Caupo.ViewModels"
              xmlns:loc="clr-namespace:Caupo.Helpers"
+             xmlns:articleImport="clr-namespace:Caupo.ArticleImport"
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
              mc:Ignorable="d"
              UseLayoutRounding="True">
@@ -103,6 +104,28 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- ARTICLE IMPORT - COLUMN PREVIEW -->
+        <DataTemplate x:Key="ArticleImportColumnPreviewTemplate">
+            <Grid Width="380" Margin="2,3">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Orientation="Horizontal" >
+                    <TextBlock Grid.Row="0" Text="Kolona: " FontWeight="SemiBold" FontSize="16" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Grid.Row="0" Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="16" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,4,0,0">
+                    <TextBlock Text="Podaci:  " FontWeight="SemiBold"  Opacity="0.65" TextTrimming="CharacterEllipsis" MaxWidth="65" Margin="0,0,0,5"/>
+                    <TextBlock Text="{Binding Example1}" Opacity="0.65" TextTrimming="CharacterEllipsis" MaxWidth="100"/>
+                    <TextBlock Text="  /  " Opacity="0.45"/>
+                    <TextBlock Text="{Binding Example2}" Opacity="0.65" TextTrimming="CharacterEllipsis" MaxWidth="100"/>
+                    <TextBlock Text="  /  " Opacity="0.45"/>
+                    <TextBlock Text="{Binding Example3}" Opacity="0.65" TextTrimming="CharacterEllipsis" MaxWidth="100"/>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
 
     </UserControl.Resources>
 
@@ -1684,6 +1707,718 @@
                 </Grid>
 
             </Border>
+
+        </Grid>
+
+        <!-- ARTICLE IMPORT MAPPER -->
+        <Grid x:Name="ArticleImportMapperGrid" Panel.ZIndex="1250" Background="{DynamicResource GlobalBackgroundColor}" Visibility="Collapsed">
+            <Button Grid.Column="1" Style="{StaticResource CloseButtonStyle}" VerticalAlignment="Top" HorizontalAlignment="Right" Padding="0" Margin="1" Click="BtnArticleImportMapperClose_Click"/>
+            <Grid Margin="20">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="20"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- HEADER -->
+                <Grid Grid.Row="0">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="58"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                        <TextBlock x:Name="ArticleImportMapperTitle" Text="Uvoz artikala" FontSize="24" FontWeight="SemiBold" Foreground="{DynamicResource GlobalFontColor}"/>
+                        <TextBlock x:Name="ArticleImportMapperSummary" Text="Odaberite koji podatak iz fajla odgovara podatku u Caupu." Margin="0,5,0,0" Opacity="0.75" Foreground="{DynamicResource GlobalFontColor}"/>
+                    </StackPanel>
+
+
+
+                </Grid>
+
+                <!-- SADRŽAJ -->
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+
+                    <ScrollViewer.Resources>
+                        <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
+                    </ScrollViewer.Resources>
+
+                    <StackPanel MaxWidth="1100" HorizontalAlignment="Center">
+
+                        <!-- OBJAŠNJENJE -->
+                        <Border Padding="20" Margin="0,0,0,20" BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0,0,0,1">
+                            <StackPanel>
+                                <TextBlock Text="Povežite kolone" FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource GlobalFontColor}"/>
+                                <TextBlock Text="Za svaku Caupo kolonu odaberite odgovarajuću kolonu iz uvezenog fajla." Margin="0,6,0,0" FontSize="15" Opacity="0.75" Foreground="{DynamicResource GlobalFontColor}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- ZAGLAVLJE -->
+                        <Grid Margin="10,0,10,8">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="400"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Caupo kolona" FontSize="16" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{DynamicResource GlobalFontColor}"/>
+
+                            <TextBlock Grid.Column="2" Text="Kolona u fajlu" FontSize="16" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{DynamicResource GlobalFontColor}"/>
+
+                            <TextBlock Grid.Column="3" Text="Primjer podatka" FontSize="16" Margin="20,0,20,0" VerticalAlignment="Center" FontWeight="SemiBold" Foreground="{DynamicResource GlobalFontColor}"/>
+
+                            <Button x:Name="BtnArticleImportMapperContinue" Grid.Column="4" Content="NASTAVI" Style="{StaticResource PrimaryButtonStyle}" MinWidth="160" Margin="5" Click="BtnArticleImportMapperContinue_Click"/>
+                            <Border  Grid.ColumnSpan="5" BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0,0,0,1">
+                               
+                            </Border>
+                        </Grid>
+
+                        <!-- ŠIFRA -->
+                        <Grid Height="52" Margin="10,0">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="400"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Šifra artikla" VerticalAlignment="Center" FontSize="15" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <ComboBox x:Name="ImportCodeComboBox" Grid.Column="2" Height="40" Padding="5,0" Margin="0" ItemTemplate="{StaticResource ArticleImportColumnPreviewTemplate}" SelectionChanged="ArticleImportMapperComboBox_SelectionChanged"/>
+                            <TextBlock x:Name="ImportCodeExampleText" Grid.Column="3" Margin="20,0,0,0" VerticalAlignment="Center" Opacity="0.65" Foreground="{DynamicResource GlobalFontColor}"/>
+
+                        </Grid>
+
+                        <!-- INTERNA ŠIFRA -->
+                        <Grid Height="52" Margin="10,0">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="400"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Interna šifra" VerticalAlignment="Center" FontSize="15" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <ComboBox x:Name="ImportInternalCodeComboBox" Grid.Column="2" Height="40" Padding="5,0" Margin="0" ItemTemplate="{StaticResource ArticleImportColumnPreviewTemplate}" SelectionChanged="ArticleImportMapperComboBox_SelectionChanged"/>
+                            <TextBlock x:Name="ImportInternalCodeExampleText" Grid.Column="3" Margin="20,0,0,0" VerticalAlignment="Center" Opacity="0.65" Foreground="{DynamicResource GlobalFontColor}"/>
+
+                        </Grid>
+
+                        <!-- NAZIV -->
+                        <Grid Height="52" Margin="10,0">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="400"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Naziv artikla" VerticalAlignment="Center" FontSize="15" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <ComboBox x:Name="ImportNameComboBox" Grid.Column="2" Height="40" Padding="5,0" Margin="0" ItemTemplate="{StaticResource ArticleImportColumnPreviewTemplate}" SelectionChanged="ArticleImportMapperComboBox_SelectionChanged"/>
+                            <TextBlock x:Name="ImportNameExampleText" Grid.Column="3" Margin="20,0,0,0" VerticalAlignment="Center" Opacity="0.65" Foreground="{DynamicResource GlobalFontColor}"/>
+
+                        </Grid>
+
+                        <!-- CIJENA -->
+                        <Grid Height="52" Margin="10,0">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="400"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Cijena" VerticalAlignment="Center" FontSize="15" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <ComboBox x:Name="ImportPriceComboBox" Grid.Column="2" Height="40" Padding="5,0" Margin="0" ItemTemplate="{StaticResource ArticleImportColumnPreviewTemplate}" SelectionChanged="ArticleImportMapperComboBox_SelectionChanged"/>
+                            <TextBlock x:Name="ImportPriceExampleText" Grid.Column="3" Margin="20,0,0,0" VerticalAlignment="Center" Opacity="0.65" Foreground="{DynamicResource GlobalFontColor}"/>
+
+                        </Grid>
+
+                        <!-- VRSTA -->
+                        <Grid Height="52" Margin="10,0">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="400"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Tip artikla" VerticalAlignment="Center" FontSize="15" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <ComboBox x:Name="ImportTypeComboBox" Grid.Column="2" Height="40" Padding="5,0" Margin="0" ItemTemplate="{StaticResource ArticleImportColumnPreviewTemplate}" SelectionChanged="ArticleImportMapperComboBox_SelectionChanged"/>
+                            <TextBlock x:Name="ImportTypeExampleText" Grid.Column="3" Margin="20,0,0,0" VerticalAlignment="Center" Opacity="0.65" Foreground="{DynamicResource GlobalFontColor}"/>
+
+                        </Grid>
+
+                        <!-- KATEGORIJA -->
+                        <Grid Height="52" Margin="10,0">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="400"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Kategorija" VerticalAlignment="Center" FontSize="15" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <ComboBox x:Name="ImportCategoryComboBox" Grid.Column="2" Height="40" Padding="5,0" Margin="0" ItemTemplate="{StaticResource ArticleImportColumnPreviewTemplate}" SelectionChanged="ArticleImportMapperComboBox_SelectionChanged"/>
+                            <TextBlock x:Name="ImportCategoryExampleText" Grid.Column="3" Margin="20,0,0,0" VerticalAlignment="Center" Opacity="0.65" Foreground="{DynamicResource GlobalFontColor}"/>
+
+                        </Grid>
+
+                        <!-- JEDINICA -->
+                        <Grid Height="52" Margin="10,0">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="400"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Jedinica mjere" VerticalAlignment="Center" FontSize="15" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <ComboBox x:Name="ImportUnitComboBox" Grid.Column="2" Height="40" Padding="5,0" Margin="0" ItemTemplate="{StaticResource ArticleImportColumnPreviewTemplate}" SelectionChanged="ArticleImportMapperComboBox_SelectionChanged"/>
+                            <TextBlock x:Name="ImportUnitExampleText" Grid.Column="3" Margin="20,0,0,0" VerticalAlignment="Center" Opacity="0.65" Foreground="{DynamicResource GlobalFontColor}"/>
+
+                        </Grid>
+
+                        <!-- POREZ -->
+                        <Grid Height="52" Margin="10,0">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="400"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Poreska stopa" VerticalAlignment="Center" FontSize="15" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <ComboBox x:Name="ImportTaxComboBox" Grid.Column="2" Height="40" Padding="5,0" Margin="0" ItemTemplate="{StaticResource ArticleImportColumnPreviewTemplate}" SelectionChanged="ArticleImportMapperComboBox_SelectionChanged"/>
+                            <TextBlock x:Name="ImportTaxExampleText" Grid.Column="3" Margin="20,0,0,0" VerticalAlignment="Center" Opacity="0.65" Foreground="{DynamicResource GlobalFontColor}"/>
+
+                        </Grid>
+
+                        <!-- NORMATIV -->
+                        <Grid Height="52" Margin="10,0">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="400"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Normativ" VerticalAlignment="Center" FontSize="15" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <ComboBox x:Name="ImportNormativComboBox" Grid.Column="2" Height="40" Padding="5,0" Margin="0" ItemTemplate="{StaticResource ArticleImportColumnPreviewTemplate}" SelectionChanged="ArticleImportMapperComboBox_SelectionChanged"/>
+                            <TextBlock x:Name="ImportNormativExampleText" Grid.Column="3" Margin="20,0,0,0" VerticalAlignment="Center" Opacity="0.65" Foreground="{DynamicResource GlobalFontColor}"/>
+
+                        </Grid>
+
+                        <!-- POZICIJA -->
+                        <Grid Height="52" Margin="10,0">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="400"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Pozicija" VerticalAlignment="Center" FontSize="15" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <ComboBox x:Name="ImportPositionComboBox" Grid.Column="2" Height="40" Padding="5,0" Margin="0" ItemTemplate="{StaticResource ArticleImportColumnPreviewTemplate}" SelectionChanged="ArticleImportMapperComboBox_SelectionChanged"/>
+                            <TextBlock x:Name="ImportPositionExampleText" Grid.Column="3" Margin="20,0,0,0" VerticalAlignment="Center" Opacity="0.65" Foreground="{DynamicResource GlobalFontColor}"/>
+
+                        </Grid>
+
+                        <!-- AKTIVAN -->
+                        <Grid Height="52" Margin="10,0">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="400"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Aktivan" VerticalAlignment="Center" FontSize="15" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <ComboBox x:Name="ImportActiveComboBox" Grid.Column="2" Height="40" Padding="5,0" Margin="0" ItemTemplate="{StaticResource ArticleImportColumnPreviewTemplate}" SelectionChanged="ArticleImportMapperComboBox_SelectionChanged"/>
+                            <TextBlock x:Name="ImportActiveExampleText" Grid.Column="3" Margin="20,0,0,0" VerticalAlignment="Center" Opacity="0.65" Foreground="{DynamicResource GlobalFontColor}"/>
+
+                        </Grid>
+
+                        <!-- POREZ NA POTROŠNJU -->
+                        <Grid Height="52" Margin="10,0">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="400"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Porez na potrošnju" VerticalAlignment="Center" FontSize="15" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <ComboBox x:Name="ImportConsumptionTaxComboBox" Grid.Column="2" Height="40" Padding="5,0" Margin="0" ItemTemplate="{StaticResource ArticleImportColumnPreviewTemplate}" SelectionChanged="ArticleImportMapperComboBox_SelectionChanged"/>
+                            <TextBlock x:Name="ImportConsumptionTaxExampleText" Grid.Column="3" Margin="20,0,0,0" VerticalAlignment="Center" Opacity="0.65" Foreground="{DynamicResource GlobalFontColor}"/>
+
+                        </Grid>
+
+                        <!-- SLIKA -->
+                        <Grid Height="52" Margin="10,0">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="260"/>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="400"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Slika" VerticalAlignment="Center" FontSize="15" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <TextBlock Grid.Column="1" Text="→" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="18" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <ComboBox x:Name="ImportImageComboBox" Grid.Column="2" Height="40" Padding="5,0" Margin="0" ItemTemplate="{StaticResource ArticleImportColumnPreviewTemplate}" SelectionChanged="ArticleImportMapperComboBox_SelectionChanged"/>
+                            <TextBlock x:Name="ImportImageExampleText" Grid.Column="3" Margin="20,0,0,0" VerticalAlignment="Center" Opacity="0.65" Foreground="{DynamicResource GlobalFontColor}"/>
+
+                        </Grid>
+
+                    </StackPanel>
+
+                </ScrollViewer>
+
+                <!-- FOOTER -->
+                <Grid Grid.Row="4">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Podaci još nisu upisani u Caupo." VerticalAlignment="Center" Opacity="0.65" Foreground="{DynamicResource GlobalFontColor}"/>
+
+
+
+                </Grid>
+
+            </Grid>
+
+        </Grid>
+
+        <!-- IMPORT / EXPORT EDITOR -->
+        <Grid x:Name="ArticleTransferGrid" Panel.ZIndex="1200" Background="{DynamicResource GlobalBackgroundColor}" Visibility="Collapsed">
+
+            <Grid Margin="20">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="12"/>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="12"/>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- HEADER -->
+                <Grid Grid.Row="0">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="58"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                        <TextBlock x:Name="ArticleTransferTitle" Text="Import / Export artikala" FontSize="24" FontWeight="SemiBold" Foreground="{DynamicResource GlobalFontColor}"/>
+                        <TextBlock x:Name="ArticleTransferSummary" Text="Privremeni editor — promjene još nisu upisane u bazu." Margin="0,5,0,0" Opacity="0.75" Foreground="{DynamicResource GlobalFontColor}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,10,0">
+
+                        <Button Height="42" MinWidth="105" Margin="4,0" Style="{StaticResource SecondaryButtonStyle}" Click="BtnTransferLoadFile_Click">
+                            <TextBlock Text="Uvezi fajl" Foreground="{DynamicResource GlobalFontColor}"/>
+                        </Button>
+
+                        <Button Height="42" MinWidth="105" Margin="4,0" Style="{StaticResource SecondaryButtonStyle}" Click="BtnTransferSaveFile_Click">
+                            <TextBlock Text="Izvezi XLSX" Foreground="{DynamicResource GlobalFontColor}"/>
+                        </Button>
+
+                        <Button Height="42" MinWidth="105" Margin="4,0" Style="{StaticResource SecondaryButtonStyle}" Click="BtnTransferValidate_Click">
+                            <TextBlock Text="Validiraj" Foreground="{DynamicResource GlobalFontColor}"/>
+                        </Button>
+
+                        <Button x:Name="BtnTransferApply" Height="42" MinWidth="135" Margin="4,0" Style="{StaticResource PrimaryButtonStyle}" IsEnabled="False" Click="BtnTransferApply_Click">
+                            <TextBlock Text="Primijeni u Caupo" Foreground="#F5F5F5"/>
+                        </Button>
+
+                    </StackPanel>
+
+                    <Button x:Name="ArticleTransferCloseButton" Grid.Column="2" Style="{StaticResource CloseButtonStyle}" VerticalAlignment="Top" HorizontalAlignment="Right" Padding="0" Margin="1" Click="BtnTransferClose_Click"/>
+
+                </Grid>
+
+                <!-- GLAVNI EDITOR -->
+                <DataGrid x:Name="ArticleTransferDataGrid"
+                  Grid.Row="2"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="True"
+                  CanUserDeleteRows="True"
+                  HeadersVisibility="Column"
+                  SelectionUnit="CellOrRowHeader"
+                  GridLinesVisibility="None"
+                  RowHeaderWidth="0"
+                  HorizontalAlignment="Stretch"
+                  HorizontalContentAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  Background="Transparent"
+                  Foreground="{DynamicResource GlobalFontColor}"
+                  PreviewKeyDown="ArticleTransferDataGrid_PreviewKeyDown"
+                  PreviewMouseLeftButtonDown="ArticleTransferDataGrid_PreviewMouseLeftButtonDown"
+                  CellEditEnding="ArticleTransferDataGrid_CellEditEnding">
+
+                    <DataGrid.Resources>
+
+                        <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
+
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                            <Setter Property="Padding" Value="8,0"/>
+                        </Style>
+
+                        <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Margin" Value="0"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderBrush" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsEditing" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource GlobalBackgroundColor}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+
+                        <!-- NORMALNI TEKST -->
+                        <Style x:Key="TransferCellTextStyle" TargetType="TextBlock">
+                            <Setter Property="Padding" Value="8,0"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+                            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                        </Style>
+
+                        <!-- TEXTBOX EDITOR -->
+                        <Style x:Key="TransferCellTextBoxStyle" TargetType="TextBox">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderBrush" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+                            <Setter Property="CaretBrush" Value="{DynamicResource GlobalFontColor}"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Padding" Value="8,0"/>
+                            <Setter Property="Margin" Value="0"/>
+                            <Setter Property="FontSize" Value="15"/>
+                            <Setter Property="Height" Value="40"/>
+                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                            <Setter Property="VerticalAlignment" Value="Stretch"/>
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type TextBox}">
+                                        <ScrollViewer x:Name="PART_ContentHost" Margin="0" Padding="{TemplateBinding Padding}" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+
+                    </DataGrid.Resources>
+
+                    <DataGrid.Columns>
+
+                        <!-- ID -->
+                        <DataGridTemplateColumn Header="ID" Width="60" IsReadOnly="True">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding IdArtikla}" Style="{StaticResource TransferCellTextStyle}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- ŠIFRA -->
+                        <DataGridTemplateColumn Header="Šifra" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Sifra}" Style="{StaticResource TransferCellTextStyle}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding Sifra, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TransferCellTextBoxStyle}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- INTERNA ŠIFRA -->
+                        <DataGridTemplateColumn Header="Interna šifra" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding InternaSifra}" Style="{StaticResource TransferCellTextStyle}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding InternaSifra, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TransferCellTextBoxStyle}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- NAZIV -->
+                        <DataGridTemplateColumn Header="Naziv" Width="2*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Artikl}" Style="{StaticResource TransferCellTextStyle}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding Artikl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TransferCellTextBoxStyle}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- CIJENA -->
+                        <DataGridTemplateColumn Header="Cijena" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Cijena}" Style="{StaticResource TransferCellTextStyle}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding Cijena, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TransferCellTextBoxStyle}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- VRSTA -->
+                        <DataGridTemplateColumn Header="Vrsta" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Vrsta}" Style="{StaticResource TransferCellTextStyle}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+                                    <ComboBox SelectedValue="{Binding Vrsta, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Content" Height="40" Padding="5,0" Margin="0">
+                                        <ComboBoxItem Content="Piće"/>
+                                        <ComboBoxItem Content="Hrana"/>
+                                        <ComboBoxItem Content="Ostalo"/>
+                                    </ComboBox>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- KATEGORIJA -->
+                        <DataGridTemplateColumn Header="Kategorija" Width="1.5*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Kategorija}" Style="{StaticResource TransferCellTextStyle}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+                                    <ComboBox ItemsSource="{Binding AvailableCategories}" SelectedItem="{Binding Kategorija, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="40" Padding="5,0" Margin="0"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- JEDINICA MJERE -->
+                        <DataGridTemplateColumn Header="Jedinica" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Jedinica}" Style="{StaticResource TransferCellTextStyle}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+                                    <ComboBox ItemsSource="{Binding DataContext.JediniceMjere, ElementName=ArticleTransferDataGrid}" SelectedValue="{Binding Jedinica, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="JedinicaMjere" Height="40" Padding="5,0" Margin="0"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- POREZ -->
+                        <DataGridTemplateColumn Header="Porez" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Porez}" Style="{StaticResource TransferCellTextStyle}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+                                    <ComboBox ItemsSource="{Binding DataContext.PoreskeStope, ElementName=ArticleTransferDataGrid}" SelectedValue="{Binding Porez, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Opis" Height="40" Padding="5,0" Margin="0"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- NORMATIV -->
+                        <!-- NORMATIV -->
+                        <DataGridTemplateColumn Header="Normativ" Width="*">
+
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Normativ}" Style="{StaticResource TransferCellTextStyle}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+
+                                    <Grid>
+
+                                        <ComboBox x:Name="NormativComboBox" ItemsSource="{Binding DataContext.Normativi, ElementName=ArticleTransferDataGrid}" SelectedValue="{Binding Normativ, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Normativ" Height="40" Padding="5,0" Margin="0" Visibility="Collapsed"/>
+
+                                        <Border x:Name="NormativFixedBorder" Height="40" Background="Transparent" Padding="8,0" Visibility="Visible">
+                                            <TextBlock Text="1" VerticalAlignment="Center" Foreground="{DynamicResource GlobalFontColor}"/>
+                                        </Border>
+
+                                    </Grid>
+
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding CanEditNormativ}" Value="True">
+                                            <Setter TargetName="NormativComboBox" Property="Visibility" Value="Visible"/>
+                                            <Setter TargetName="NormativFixedBorder" Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+
+                        </DataGridTemplateColumn>
+
+                        <!-- POZICIJA -->
+                        <DataGridTemplateColumn Header="Pozicija" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Pozicija}" Style="{StaticResource TransferCellTextStyle}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+                                    <TextBox Text="{Binding Pozicija, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TransferCellTextBoxStyle}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- AKTIVAN -->
+                        <DataGridTemplateColumn Header="Aktivan" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding Aktivan, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- POREZ NA POTROŠNJU -->
+                        <DataGridTemplateColumn Header="Porez potrošnja" Width="1.2*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding PorezNaPotrosnju, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                    </DataGrid.Columns>
+
+                </DataGrid>
+
+                <!-- ERROR / OUTPUT -->
+                <Border Grid.Row="4" BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0.5" Padding="10">
+
+                    <Grid>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock x:Name="ArticleTransferErrorTitle" Text="Greške (0)" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource GlobalFontColor}"/>
+                            <TextBlock x:Name="ArticleTransferValidationSummary" Grid.Column="1" Text="Nije validirano" Opacity="0.75" Foreground="{DynamicResource GlobalFontColor}"/>
+
+                        </Grid>
+
+                        <DataGrid x:Name="ArticleTransferErrorGrid"
+                          Grid.Row="1"
+                          Margin="0,8,0,0"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="None"
+                          RowHeaderWidth="0"
+                          HorizontalAlignment="Stretch"
+                          HorizontalContentAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          Background="Transparent"
+                          Foreground="{DynamicResource GlobalFontColor}"
+                          MouseDoubleClick="ArticleTransferErrorGrid_MouseDoubleClick">
+
+                            <DataGrid.Resources>
+
+                                <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
+
+                                <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                    <Setter Property="Padding" Value="8,0"/>
+                                </Style>
+
+                            </DataGrid.Resources>
+
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Tip" Binding="{Binding Type}" Width="100"/>
+                                <DataGridTextColumn Header="Red" Binding="{Binding RowNumber}" Width="70"/>
+                                <DataGridTextColumn Header="Polje" Binding="{Binding ColumnName}" Width="160"/>
+                                <DataGridTextColumn Header="Opis" Binding="{Binding Message}" Width="*"/>
+                            </DataGrid.Columns>
+
+                        </DataGrid>
+
+                    </Grid>
+
+                </Border>
+
+                <!-- STATUS -->
+                <TextBlock x:Name="ArticleTransferFooter" Grid.Row="6" VerticalAlignment="Center" Opacity="0.75" Foreground="{DynamicResource GlobalFontColor}"/>
+
+            </Grid>
 
         </Grid>
 
