@@ -55,6 +55,13 @@ namespace Caupo.ViewModels
 
     public class ArticlesViewModel : INotifyPropertyChanged
     {
+        public event EventHandler<string>? ErrorOccurred;
+
+        private void OnErrorOccurred(string message)
+        {
+            ErrorOccurred?.Invoke(this, message);
+        }
+
         private readonly HashSet<int> _selectedArticleIds = new HashSet<int>();
 
         public int BrojOznacenihArtikala => _selectedArticleIds.Count;
@@ -605,10 +612,9 @@ namespace Caupo.ViewModels
             OnPropertyChanged(nameof(SelectedTaxFilter));
         }
 
-        public async Task DeleteArticle(int articleId)
+        public async Task<bool> DeleteArticle(int articleId)
         {
             await using var db = new AppDbContext();
-
             var artikl = await db.Artikli.FindAsync(articleId);
 
             if (artikl == null)
@@ -618,11 +624,10 @@ namespace Caupo.ViewModels
                 myMessageBox.MessageTitle.Text = "Greška";
                 myMessageBox.MessageText.Text = "Artikl sa ID: " + articleId + " nije pronađen u bazi." + Environment.NewLine + "Neuspješno brisanje artikla";
                 myMessageBox.ShowDialog();
-                return;
+                return false;
             }
 
             string? nazivArtikla = artikl.Artikl;
-
             db.Artikli.Remove(artikl);
             await db.SaveChangesAsync();
             await LoadArticlesAsync();
@@ -632,20 +637,35 @@ namespace Caupo.ViewModels
             successMessageBox.MessageTitle.Text = "POTVRDA";
             successMessageBox.MessageText.Text = "Artikl " + nazivArtikla + " je uspješno obrisan iz baze.";
             successMessageBox.ShowDialog();
+            return true;
         }
 
-        public event EventHandler<string?>? ErrorOccurred;
-
-        protected virtual void OnErrorOccurred(string? message)
+        public async Task<bool> DeactivateArticle(int articleId)
         {
-            ErrorOccurred?.Invoke(this, message);
+            await using var db = new AppDbContext();
+            var artikl = await db.Artikli.FindAsync(articleId);
+
+            if (artikl == null)
+            {
+                MyMessageBox myMessageBox = new MyMessageBox();
+                myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                myMessageBox.MessageTitle.Text = "Greška";
+                myMessageBox.MessageText.Text = "Artikl sa ID: " + articleId + " nije pronađen u bazi.";
+                myMessageBox.ShowDialog();
+                return false;
+            }
+
+            artikl.Aktivan = false;
+            await db.SaveChangesAsync();
+            await LoadArticlesAsync();
+            return true;
         }
 
-        public async Task InsertArticle(TblArtikli artikl)
+        public async Task<bool> InsertArticle(TblArtikli artikl)
         {
             await using var db = new AppDbContext();
 
-            var duplicateArticle = await db.Artikli.FirstOrDefaultAsync(a => a.Artikl == artikl.Artikl || a.Sifra == artikl.Sifra || a.InternaSifra == artikl.InternaSifra);
+            var duplicateArticle = await db.Artikli.FirstOrDefaultAsync(a => a.Sifra == artikl.Sifra || a.InternaSifra == artikl.InternaSifra || a.ArtiklNormativ == artikl.ArtiklNormativ);
 
             if (duplicateArticle != null)
             {
@@ -657,14 +677,14 @@ namespace Caupo.ViewModels
                 if (duplicateArticle.InternaSifra == artikl.InternaSifra)
                     poruka += "Interna šifra " + artikl.InternaSifra + ", ";
 
-                if (duplicateArticle.Artikl == artikl.Artikl)
-                    poruka += "Naziv artikla " + artikl.Artikl + ", ";
+                if (duplicateArticle.ArtiklNormativ == artikl.ArtiklNormativ)
+                    poruka += "Naziv za prodaju " + artikl.ArtiklNormativ + ", ";
 
                 poruka = poruka.TrimEnd(',', ' ');
-                poruka += " se već koristi u bazi." + Environment.NewLine + "Ta vrsta podataka mora biti jedinstvena za svaki artikl.";
+                poruka += " se već koristi u bazi. Ova vrijednost mora biti jedinstvena za svaki artikl.";
 
                 OnErrorOccurred(poruka);
-                return;
+                return false;
             }
 
             await db.Artikli.AddAsync(artikl);
@@ -673,7 +693,6 @@ namespace Caupo.ViewModels
             int insertedId = artikl.IdArtikla;
 
             await LoadArticlesAsync();
-
             SelectedArticle = ArtikliFilter.FirstOrDefault(a => a.IdArtikla == insertedId) ?? ArtikliFilter.LastOrDefault();
 
             MyMessageBox myMessageBox = new MyMessageBox();
@@ -681,13 +700,14 @@ namespace Caupo.ViewModels
             myMessageBox.MessageTitle.Text = "POTVRDA";
             myMessageBox.MessageText.Text = "Artikl " + artikl.Artikl + " je uspješno dodan u bazu.";
             myMessageBox.ShowDialog();
+            return true;
         }
 
-        public async Task UpdateArticle(TblArtikli artikl)
+        public async Task<bool> UpdateArticle(TblArtikli artikl)
         {
             await using var db = new AppDbContext();
 
-            var duplicateArticle = await db.Artikli.FirstOrDefaultAsync(a => (a.Sifra == artikl.Sifra || a.InternaSifra == artikl.InternaSifra) && a.IdArtikla != artikl.IdArtikla);
+            var duplicateArticle = await db.Artikli.FirstOrDefaultAsync(a => a.IdArtikla != artikl.IdArtikla && (a.Sifra == artikl.Sifra || a.InternaSifra == artikl.InternaSifra || a.ArtiklNormativ == artikl.ArtiklNormativ));
 
             if (duplicateArticle != null)
             {
@@ -699,11 +719,14 @@ namespace Caupo.ViewModels
                 if (duplicateArticle.InternaSifra == artikl.InternaSifra)
                     poruka += "Interna šifra " + artikl.InternaSifra + ", ";
 
+                if (duplicateArticle.ArtiklNormativ == artikl.ArtiklNormativ)
+                    poruka += "Naziv za prodaju " + artikl.ArtiklNormativ + ", ";
+
                 poruka = poruka.TrimEnd(',', ' ');
-                poruka += " se već koristi u bazi." + Environment.NewLine + "Ta vrsta podataka mora biti jedinstvena za svaki artikl.";
+                poruka += " se već koristi u bazi. Ova vrijednost mora biti jedinstvena za svaki artikl.";
 
                 OnErrorOccurred(poruka);
-                return;
+                return false;
             }
 
             var existingArticle = await db.Artikli.FindAsync(artikl.IdArtikla);
@@ -715,7 +738,7 @@ namespace Caupo.ViewModels
                 errorMessageBox.MessageTitle.Text = "Greška";
                 errorMessageBox.MessageText.Text = "Artikl sa ID: " + artikl.IdArtikla + " nije pronađen u bazi." + Environment.NewLine + "Neuspješno ažuriranje artikla";
                 errorMessageBox.ShowDialog();
-                return;
+                return false;
             }
 
             db.Entry(existingArticle).CurrentValues.SetValues(artikl);
@@ -725,7 +748,6 @@ namespace Caupo.ViewModels
             string? nazivArtikla = existingArticle.Artikl;
 
             await LoadArticlesAsync();
-
             SelectedArticle = ArtikliFilter.FirstOrDefault(a => a.IdArtikla == updatedId);
 
             MyMessageBox myMessageBox = new MyMessageBox();
@@ -733,6 +755,30 @@ namespace Caupo.ViewModels
             myMessageBox.MessageTitle.Text = "POTVRDA";
             myMessageBox.MessageText.Text = "Artikl " + nazivArtikla + " je uspješno ažuriran.";
             myMessageBox.ShowDialog();
+            return true;
+        }
+
+        public async Task<long> GetNextArticleSequenceValueAsync()
+        {
+            await using var db = new AppDbContext();
+            var connection = db.Database.GetDbConnection();
+            bool closeConnection = connection.State != System.Data.ConnectionState.Open;
+
+            if (closeConnection)
+                await connection.OpenAsync();
+
+            try
+            {
+                await using var command = connection.CreateCommand();
+                command.CommandText = "SELECT seq FROM sqlite_sequence WHERE name = 'tblArtikli' LIMIT 1;";
+                object? result = await command.ExecuteScalarAsync();
+                return result == null || result == DBNull.Value ? 1L : Convert.ToInt64(result) + 1L;
+            }
+            finally
+            {
+                if (closeConnection)
+                    await connection.CloseAsync();
+            }
         }
 
         public async Task GetNewSifra()
@@ -841,6 +887,15 @@ namespace Caupo.ViewModels
             VrstaArtikla.Add("Piće");
             VrstaArtikla.Add("Hrana");
             VrstaArtikla.Add("Ostalo");
+        }
+
+        public async Task<bool> HasArticleBeenSold(string? sifra)
+        {
+            if (string.IsNullOrWhiteSpace(sifra))
+                return false;
+
+            await using var db = new AppDbContext();
+            return await db.RacunStavka.AnyAsync(x => x.Sifra == sifra);
         }
 
         public async Task LoadJediniceMjere()

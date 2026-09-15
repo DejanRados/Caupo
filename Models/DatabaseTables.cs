@@ -813,6 +813,7 @@ namespace Caupo.Data
                 return Opis ?? string.Empty;
             }
         }
+
         [Table ("tblRacunStavke")]
         public class TblRacunStavka : INotifyPropertyChanged
         {
@@ -914,6 +915,7 @@ namespace Caupo.Data
             protected void OnPropertyChanged(string propertyName) =>
                 PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
         }
+       
         [Table ("tblRacuni")]
         public class TblRacuni : INotifyPropertyChanged
         {

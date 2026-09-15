@@ -653,6 +653,27 @@
                                     </DataGridTemplateColumn.CellTemplate>
 
                                 </DataGridTemplateColumn>
+                                <!-- Jedinica mjere -->
+
+                                <DataGridTemplateColumn Header="Jed.mjere"
+                                      Width="2.2*"
+                                      SortMemberPath="Artikl">
+
+                                    <DataGridTemplateColumn.CellTemplate>
+
+                                        <DataTemplate>
+
+                                            <TextBlock Text="{Binding JedinicaMjereName}"
+                                             TextAlignment="Center"
+                                             TextTrimming="CharacterEllipsis"
+                                             Padding="8,0"
+                                             VerticalAlignment="Center"/>
+
+                                        </DataTemplate>
+
+                                    </DataGridTemplateColumn.CellTemplate>
+
+                                </DataGridTemplateColumn>
 
                                 <!-- CIJENA -->
 
@@ -682,11 +703,11 @@
                                       CanUserSort="False"
                                       SortMemberPath="Kategorija">
 
-                                                    <DataGridTemplateColumn.CellTemplate>
+                                    <DataGridTemplateColumn.CellTemplate>
 
-                                                        <DataTemplate>
+                                        <DataTemplate>
 
-                                                        <TextBlock Text="{Binding KategorijaName}"
+                                            <TextBlock Text="{Binding KategorijaName}"
                                      TextAlignment="Center"
                                      VerticalAlignment="Center"/>
 
@@ -1125,58 +1146,6 @@
 
             </Grid>
 
-            <!-- ===================================================== -->
-            <!-- TEMPORARY LEGACY CONTROLS                             -->
-            <!-- ===================================================== -->
-
-            <Grid Visibility="Collapsed">
-
-                <Grid x:Name="InternaSifraGrid"/>
-                <Grid x:Name="SlikaGrid"/>
-                <Grid x:Name="JedinicaMjereGrid"/>
-                <Grid x:Name="PoreskeStopeGrid"/>
-                <Grid x:Name="NormativGrid"/>
-                <Grid x:Name="VrstaArtiklaGrid"/>
-                <Grid x:Name="KategorijaGrid"/>
-                <Grid x:Name="PozicijaGrid"/>
-                <Grid x:Name="PrikazGrid"/>
-                <Grid x:Name="ArtiklNormativGrid"/>
-                <Grid x:Name="EditGrid"/>
-                <Grid x:Name="AddGrid"/>
-
-                <TextBox x:Name="IdArtiklaTextBox"/>
-                <TextBox x:Name="SifraTextBox"/>
-                <TextBox x:Name="ArtiklTextBox" TextChanged="ArtiklTextBox_TextChanged"/>
-                <TextBox x:Name="CijenaTextBox"/>
-                <TextBox x:Name="InternaSifraTextBox"/>
-                <TextBox x:Name="SlikaTextBox"/>
-                <TextBox x:Name="PozicijaTextBox"/>
-                <TextBox x:Name="ArtiklNormativTextBox"/>
-
-                <ComboBox x:Name="JediniceMjerePicker"/>
-                <ComboBox x:Name="PoreskeStopePicker"/>
-                <ComboBox x:Name="NormativPicker"/>
-                <ComboBox x:Name="VrstaArtiklaPicker"/>
-                <ComboBox x:Name="KategorijePicker"/>
-
-                <ComboBox x:Name="PrikazatiNaDisplejuPicker">
-                    <system:String>DA</system:String>
-                    <system:String>NE</system:String>
-                </ComboBox>
-
-                <Button x:Name="btnSlika"/>
-                <Button x:Name="btnKategorija"/>
-
-                <Button x:Name="SaveEditButton"/>
-                <Button x:Name="CancelEditButton"/>
-                <Button x:Name="SaveAddButton"/>
-                <Button x:Name="CancelAddButton"/>
-
-                <Label x:Name="lblArtikl"/>
-                <Label x:Name="lblCijena"/>
-
-            </Grid>
-
         </Grid>
 
         <Grid x:Name="BatchEditGrid"
@@ -1414,6 +1383,310 @@
             </Border>
 
         </Grid>
+
+        <!-- ========================================================= -->
+        <!-- NEW / EDIT ARTICLE OVERLAY                                -->
+        <!-- ========================================================= -->
+
+        <Grid x:Name="ArticleEditGrid"
+      Panel.ZIndex="1000"
+      Background="#77000000"
+      Visibility="Collapsed">
+
+            <Border Width="760"
+            Height="820"
+            Padding="24"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            Background="{DynamicResource GlobalBackgroundColor}"
+            BorderBrush="{DynamicResource GlobalFontColor}"
+            BorderThickness="0.5"
+            CornerRadius="20">
+
+                <Grid>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="22"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="22"/>
+                        <RowDefinition Height="50"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- NASLOV -->
+
+                    <StackPanel Grid.Row="0">
+                        <TextBlock x:Name="ArticleEditTitle"
+                           Text="Novi artikl"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           FontSize="19"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"/>
+
+                        <TextBlock x:Name="ArticleEditDescription"
+                           Text="Unos podataka artikla"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           FontSize="12"
+                           Opacity="0.65"
+                           Margin="0,4,0,0"
+                           HorizontalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- FORMA -->
+
+                    <Grid Grid.Row="2">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="28"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- LIJEVA KOLONA -->
+
+                        <StackPanel Grid.Column="0">
+
+                            <TextBlock Text="Naziv artikla"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,7"/>
+
+                            <TextBox x:Name="ArticleNameTextBox"
+                             Height="38"
+                             TextChanged="ArticleNameTextBox_TextChanged"
+                             Style="{DynamicResource TextBoxCustom}"
+                             Background="Transparent"
+                             Foreground="{DynamicResource GlobalFontColor}"
+                             CaretBrush="{DynamicResource GlobalFontColor}"
+                             BorderThickness="0,0,0,1"
+                             FontSize="15"
+                             VerticalContentAlignment="Center"/>
+
+                            <TextBlock Text="Šifra"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Margin="0,18,0,7"/>
+
+                            <TextBox x:Name="ArticleCodeTextBox"
+                             TextChanged="ArticleEditTextBox_TextChanged"
+                             Height="38"
+                             Style="{DynamicResource TextBoxCustom}"
+                             Background="Transparent"
+                             Foreground="{DynamicResource GlobalFontColor}"
+                             CaretBrush="{DynamicResource GlobalFontColor}"
+                             BorderThickness="0,0,0,1"
+                             FontSize="15"
+                             VerticalContentAlignment="Center"/>
+
+                            <TextBlock Text="Interna šifra"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Margin="0,18,0,7"/>
+
+                            <TextBox x:Name="ArticleInternalCodeTextBox"
+                             TextChanged="ArticleEditTextBox_TextChanged"
+                             Height="38"
+                             Style="{DynamicResource TextBoxCustom}"
+                             Background="Transparent"
+                             Foreground="{DynamicResource GlobalFontColor}"
+                             CaretBrush="{DynamicResource GlobalFontColor}"
+                             BorderThickness="0,0,0,1"
+                             FontSize="15"
+                             VerticalContentAlignment="Center"/>
+
+                            <TextBlock Text="Cijena"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Margin="0,18,0,7"/>
+
+                            <TextBox x:Name="ArticlePriceTextBox"
+                             TextChanged="ArticleEditTextBox_TextChanged"
+                             Height="38"
+                             Style="{DynamicResource TextBoxCustom}"
+                             Background="Transparent"
+                             Foreground="{DynamicResource GlobalFontColor}"
+                             CaretBrush="{DynamicResource GlobalFontColor}"
+                             BorderThickness="0,0,0,1"
+                             FontSize="15"
+                             HorizontalContentAlignment="Center"
+                             VerticalContentAlignment="Center"/>
+
+                            <TextBlock Text="Jedinica mjere"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Margin="0,18,0,7"/>
+
+                            <ComboBox x:Name="ArticleUnitComboBox"
+                              SelectionChanged="ArticleEditComboBox_SelectionChanged"
+                              Height="38"
+                              HorizontalAlignment="Stretch"
+                              VerticalContentAlignment="Center"/>
+
+                            <StackPanel x:Name="ArticleNormativPanel" Visibility="Collapsed">
+
+                                <TextBlock Text="Normativ"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Margin="0,18,0,7"/>
+
+                                <ComboBox x:Name="ArticleNormativComboBox"
+                                  Height="38"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalContentAlignment="Center"
+                                  SelectionChanged="ArticleNormativComboBox_SelectionChanged"/>
+
+                                <TextBlock Text="Naziv za prodaju"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Margin="0,18,0,7"/>
+
+                                <Label x:Name="ArticleNormativLabel"
+                                   Height="38"
+                                   Padding="10,0"
+                                   HorizontalContentAlignment="Left"
+                                   VerticalContentAlignment="Center"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="15"
+                                   FontWeight="SemiBold"/>
+
+                            </StackPanel>
+
+                        </StackPanel>
+
+                        <!-- DESNA KOLONA -->
+
+                        <StackPanel Grid.Column="2">
+
+                            <TextBlock Text="Vrsta artikla"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,7"/>
+
+                            <ComboBox x:Name="ArticleTypeComboBox"
+                              Height="38"
+                              HorizontalAlignment="Stretch"
+                              VerticalContentAlignment="Center"
+                              SelectionChanged="ArticleTypeComboBox_SelectionChanged"/>
+
+                            <TextBlock Text="Kategorija"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Margin="0,18,0,7"/>
+
+                            <ComboBox x:Name="ArticleCategoryComboBox"
+                              SelectionChanged="ArticleEditComboBox_SelectionChanged"
+                              Height="38"
+                              HorizontalAlignment="Stretch"
+                              VerticalContentAlignment="Center"/>
+
+                            <TextBlock Text="Poreska stopa"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Margin="0,18,0,7"/>
+
+                            <ComboBox x:Name="ArticleTaxComboBox"
+                              SelectionChanged="ArticleEditComboBox_SelectionChanged"
+                              Height="38"
+                              HorizontalAlignment="Stretch"
+                              VerticalContentAlignment="Center"/>
+
+                            <TextBlock Text="Pozicija"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Margin="0,18,0,7"/>
+
+                            <TextBox x:Name="ArticlePositionTextBox"
+                             TextChanged="ArticleEditTextBox_TextChanged"
+                             Height="38"
+                             Style="{DynamicResource TextBoxCustom}"
+                             Background="Transparent"
+                             Foreground="{DynamicResource GlobalFontColor}"
+                             CaretBrush="{DynamicResource GlobalFontColor}"
+                             BorderThickness="0,0,0,1"
+                             FontSize="15"
+                             HorizontalContentAlignment="Center"
+                             VerticalContentAlignment="Center"/>
+
+                            <StackPanel x:Name="ArticleConsumptionTaxPanel"
+                                Visibility="Collapsed">
+
+                                <TextBlock Text="Porez na potrošnju"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Margin="0,18,0,7"/>
+
+                                <ComboBox x:Name="ArticleConsumptionTaxComboBox"
+                                  Height="38"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalContentAlignment="Center">
+                                    <ComboBoxItem Content="DA"/>
+                                    <ComboBoxItem Content="NE"/>
+                                </ComboBox>
+
+                            </StackPanel>
+
+                            <TextBlock Text="Status artikla"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               FontSize="13"
+                               FontWeight="SemiBold"
+                               Margin="0,18,0,7"/>
+
+                            <ComboBox x:Name="ArticleActiveComboBox"
+                              Height="38"
+                              HorizontalAlignment="Stretch"
+                              VerticalContentAlignment="Center">
+                                <ComboBoxItem Content="Aktivan"/>
+                                <ComboBoxItem Content="Neaktivan"/>
+                            </ComboBox>
+
+                        </StackPanel>
+
+                    </Grid>
+
+                    <!-- DUGMAD -->
+
+                    <Grid Grid.Row="4">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0" Click="BtnArticleEditCancel_Click"
+                        Height="44"
+                        Style="{StaticResource SecondaryButtonStyle}">
+                            <TextBlock Text="Odustani"
+                               Foreground="{DynamicResource GlobalFontColor}"/>
+                        </Button>
+
+                        <Button Grid.Column="2" Click="BtnArticleEditSave_Click"
+                        Height="44"
+                        Style="{StaticResource PrimaryButtonStyle}">
+                            <TextBlock Text="Spremi"
+                               Foreground="#F5F5F5"/>
+                        </Button>
+
+                    </Grid>
+
+                </Grid>
+
+            </Border>
+
+        </Grid>
+
     </Grid>
 
 </UserControl>

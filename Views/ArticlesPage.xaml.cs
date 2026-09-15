@@ -32,10 +32,14 @@ namespace Caupo.Views
             InitializeComponent();
 
             lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
-            BatchEditGrid.IsVisibleChanged += (s, e) => UpdateBatchEditBlur();
+            BatchEditGrid.IsVisibleChanged += (s, e) => UpdateOverlayBlur();
+            ArticleEditGrid.IsVisibleChanged += (s, e) => UpdateOverlayBlur();
 
             if (DataContext is ArticlesViewModel viewModel)
+            {
                 viewModel.PropertyChanged += ArticlesViewModel_PropertyChanged;
+                viewModel.ErrorOccurred += ViewModel_ErrorOccurred;
+            }
         }
 
         private void ArticlesViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -53,12 +57,14 @@ namespace Caupo.Views
             UpdateBatchEditButton();
         }
 
+        private bool _isEditingArticle;
+        private int? _editingArticleId;
         private VirtualKeyboard virtualKeyboard;
         private TextBox? FocusedTextBox = null;
 
         public void ReceiveKey(string key)
         {
-           
+
             if (FocusedTextBox != null)
             {
                 switch (key)
@@ -103,7 +109,7 @@ namespace Caupo.Views
                         break;
                 }
 
-                return; 
+                return;
             }
 
 
@@ -147,6 +153,22 @@ namespace Caupo.Views
 
         private bool _updatingArticleCheckBoxes;
 
+        private sealed class ArticleTypeOption
+        {
+            public int TypeId { get; }
+            public string Name { get; }
+
+            public ArticleTypeOption(int typeId, string name)
+            {
+                TypeId = typeId;
+                Name = name;
+            }
+
+            public override string ToString()
+            {
+                return Name;
+            }
+        }
         private sealed class BatchUnitOption
         {
             public int? UnitId { get; }
@@ -179,7 +201,6 @@ namespace Caupo.Views
                 return Name;
             }
         }
-
         private sealed class BatchTaxOption
         {
             public int? TaxId { get; }
@@ -197,6 +218,206 @@ namespace Caupo.Views
             }
         }
 
+        private void ConfigureArticleEditOptions(ArticlesViewModel viewModel)
+        {
+            ArticleTypeComboBox.ItemsSource = new List<ArticleTypeOption>
+            {
+                new ArticleTypeOption(-1, "SVI"),
+                new ArticleTypeOption(0, "Piće"),
+                new ArticleTypeOption(1, "Hrana"),
+                new ArticleTypeOption(2, "Ostalo")
+            };
+
+            var articleTaxes = new List<BatchTaxOption> { new BatchTaxOption(null, "SVE") };
+            articleTaxes.AddRange(viewModel.PoreskeStope.OrderBy(x => x.IdStope).Select(x => new BatchTaxOption(x.IdStope, x.ToString())));
+            ArticleTaxComboBox.ItemsSource = articleTaxes;
+            ArticleUnitComboBox.ItemsSource = viewModel.JediniceMjere.OrderBy(x => x.IdJedinice).Select(x => new BatchUnitOption(x.IdJedinice, x.ToString())).ToList();
+            ArticleNormativComboBox.ItemsSource = viewModel.Normativi.ToList();
+
+            bool isCroatia = string.Equals(Settings.Default.Country, "Hrvatska", StringComparison.OrdinalIgnoreCase);
+            ArticleConsumptionTaxPanel.Visibility = isCroatia ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private static decimal? ParseArticleNormativ(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return null;
+
+            string normalized = value.Trim().Replace(',', '.');
+            return decimal.TryParse(normalized, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal result) ? result : null;
+        }
+
+        private static string BuildArticleNormativ(string? articleName, string? normativText)
+        {
+            string name = articleName?.Trim() ?? string.Empty;
+            string text = normativText?.Trim() ?? "1";
+            decimal? normativ = ParseArticleNormativ(text);
+            return normativ == 1m ? name : $"{name} {text}";
+        }
+
+        private void UpdateArticleNormativLabel()
+        {
+            if (ArticleNormativLabel == null || ArticleNameTextBox == null || ArticleNormativComboBox == null)
+                return;
+
+            if (ArticleNormativComboBox.SelectedItem is not TblNormativPica selectedNormativ)
+            {
+                ArticleNormativLabel.Content = ArticleNameTextBox.Text.Trim();
+                return;
+            }
+
+            if (string.Equals(selectedNormativ.Normativ, "Dodaj normativ", StringComparison.OrdinalIgnoreCase))
+                return;
+
+            decimal? normativ = ParseArticleNormativ(selectedNormativ.Normativ);
+            ArticleNormativLabel.Content = normativ.HasValue ? BuildArticleNormativ(ArticleNameTextBox.Text, selectedNormativ.Normativ) : ArticleNameTextBox.Text.Trim();
+        }
+
+        private async void ArticleNormativComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ArticleEditComboBox_SelectionChanged(sender, e);
+            if (ArticleNormativComboBox.SelectedItem is not TblNormativPica selectedNormativ)
+            {
+                UpdateArticleNormativLabel();
+                return;
+            }
+
+            if (!string.Equals(selectedNormativ.Normativ, "Dodaj normativ", StringComparison.OrdinalIgnoreCase))
+            {
+                UpdateArticleNormativLabel();
+                return;
+            }
+
+            if (DataContext is not ArticlesViewModel viewModel)
+                return;
+
+            MyInputBox dialog = new MyInputBox();
+            dialog.InputTitle.Text = "NOVI NORMATIV PIĆA";
+            dialog.InputText.Focus();
+            dialog.ShowDialog();
+
+            string result = dialog.result?.Trim() ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(result))
+            {
+                ArticleNormativComboBox.SelectedItem = viewModel.Normativi.FirstOrDefault(x => ParseArticleNormativ(x.Normativ) == 1m);
+                return;
+            }
+
+            decimal? newValue = ParseArticleNormativ(result);
+
+            if (!newValue.HasValue || newValue.Value <= 0)
+            {
+                ShowArticleEditMessage("GREŠKA", "Unesite ispravan normativ veći od 0.");
+                ArticleNormativComboBox.SelectedItem = viewModel.Normativi.FirstOrDefault(x => ParseArticleNormativ(x.Normativ) == 1m);
+                return;
+            }
+
+            TblNormativPica? existing = viewModel.Normativi.FirstOrDefault(x => ParseArticleNormativ(x.Normativ) == newValue.Value);
+
+            if (existing != null)
+            {
+                ArticleNormativComboBox.SelectedItem = existing;
+                return;
+            }
+
+            string normalizedText = result.Replace(',', '.');
+
+            await using (var db = new AppDbContext())
+            {
+                db.NormativPica.Add(new TblNormativPica { Normativ = normalizedText });
+                await db.SaveChangesAsync();
+            }
+
+            await viewModel.LoadNormativi();
+            ArticleNormativComboBox.ItemsSource = viewModel.Normativi.ToList();
+            ArticleNormativComboBox.SelectedItem = ArticleNormativComboBox.Items.OfType<TblNormativPica>().FirstOrDefault(x => ParseArticleNormativ(x.Normativ) == newValue.Value);
+        }
+
+        private void ArticleNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            UpdateArticleNormativLabel();
+            ArticleEditTextBox_TextChanged(sender, e);
+        }
+
+        private void ArticleTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ArticleEditComboBox_SelectionChanged(sender, e);
+            if (DataContext is not ArticlesViewModel viewModel || ArticleTypeComboBox.SelectedItem is not ArticleTypeOption selectedType)
+            {
+                ArticleCategoryComboBox.ItemsSource = null;
+                return;
+            }
+
+            if (selectedType.TypeId < 0)
+            {
+                ArticleCategoryComboBox.ItemsSource = new List<BatchCategoryOption> { new BatchCategoryOption(null, "SVE") };
+                ArticleCategoryComboBox.SelectedIndex = 0;
+                ArticleNormativPanel.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            var articleCategories = new List<BatchCategoryOption> { new BatchCategoryOption(null, "SVE") };
+            articleCategories.AddRange(viewModel.Kategorije.Where(x => x.VrstaArtikla == selectedType.TypeId).OrderBy(x => x.Kategorija).Select(x => new BatchCategoryOption(x.IdKategorije, x.Kategorija ?? string.Empty)));
+            ArticleCategoryComboBox.ItemsSource = articleCategories;
+            ArticleCategoryComboBox.SelectedIndex = 0;
+            ArticleNormativPanel.Visibility = selectedType.TypeId == 0 ? Visibility.Visible : Visibility.Collapsed;
+
+            if (selectedType.TypeId != 0)
+                ArticleNormativLabel.Content = ArticleNameTextBox.Text.Trim();
+        }
+
+        private void SetArticleFieldError(Control control)
+        {
+            control.BorderBrush = Brushes.Red;
+            control.BorderThickness = new Thickness(0, 0, 0, 2);
+        }
+
+        private void ClearArticleFieldError(Control control)
+        {
+            control.BorderBrush = Application.Current.Resources["GlobalFontColor"] as Brush;
+            control.BorderThickness = new Thickness(0, 0, 0, 1);
+        }
+
+        private void ClearArticleEditErrors()
+        {
+            ClearArticleFieldError(ArticleNameTextBox);
+            ClearArticleFieldError(ArticleCodeTextBox);
+            ClearArticleFieldError(ArticleInternalCodeTextBox);
+            ClearArticleFieldError(ArticlePriceTextBox);
+            ClearArticleFieldError(ArticleUnitComboBox);
+            ClearArticleFieldError(ArticleNormativComboBox);
+            ClearArticleFieldError(ArticleTypeComboBox);
+            ClearArticleFieldError(ArticleCategoryComboBox);
+            ClearArticleFieldError(ArticleTaxComboBox);
+            ClearArticleFieldError(ArticlePositionTextBox);
+        }
+
+        private void ArticleEditTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (sender is TextBox textBox && !string.IsNullOrWhiteSpace(textBox.Text))
+                ClearArticleFieldError(textBox);
+        }
+
+        private void ArticleEditComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is not ComboBox comboBox || comboBox.SelectedItem == null)
+                return;
+
+            bool valid = comboBox switch
+            {
+                _ when comboBox == ArticleTypeComboBox => comboBox.SelectedItem is ArticleTypeOption type && type.TypeId >= 0,
+                _ when comboBox == ArticleCategoryComboBox => comboBox.SelectedItem is BatchCategoryOption category && category.CategoryId != null,
+                _ when comboBox == ArticleTaxComboBox => comboBox.SelectedItem is BatchTaxOption tax && tax.TaxId != null,
+                _ when comboBox == ArticleUnitComboBox => comboBox.SelectedItem is BatchUnitOption unit && unit.UnitId != null,
+                _ when comboBox == ArticleNormativComboBox => comboBox.SelectedItem is TblNormativPica normativ && !string.Equals(normativ.Normativ, "Dodaj normativ", StringComparison.OrdinalIgnoreCase) && ParseArticleNormativ(normativ.Normativ) > 0m,
+                _ => true
+            };
+
+            if (valid)
+                ClearArticleFieldError(comboBox);
+        }
+
         private void ConfigureBatchUnit(ArticlesViewModel viewModel)
         {
             var units = new List<BatchUnitOption>
@@ -204,11 +425,11 @@ namespace Caupo.Views
                 new BatchUnitOption (null, "Ne mijenjaj")
             };
 
-                    units.AddRange(
-                        viewModel.JediniceMjere
-                            .OrderBy(x => x.IdJedinice)
-                            .Select(x => new BatchUnitOption(x.IdJedinice, x.ToString()))
-                    );
+            units.AddRange(
+                viewModel.JediniceMjere
+                    .OrderBy(x => x.IdJedinice)
+                    .Select(x => new BatchUnitOption(x.IdJedinice, x.ToString()))
+            );
 
             BatchUnitComboBox.ItemsSource = units;
             BatchUnitComboBox.SelectedIndex = 0;
@@ -386,11 +607,10 @@ namespace Caupo.Views
                 BtnBatchEdit.IsEnabled = viewModel.BrojOznacenihArtikala > 0;
         }
 
-        private void UpdateBatchEditBlur()
+        private void UpdateOverlayBlur()
         {
-            MainContent.Effect = BatchEditGrid.Visibility == Visibility.Visible
-                ? new BlurEffect { Radius = 8 }
-                : null;
+            bool overlayVisible = BatchEditGrid.Visibility == Visibility.Visible || ArticleEditGrid.Visibility == Visibility.Visible;
+            MainContent.Effect = overlayVisible ? new BlurEffect { Radius = 8 } : null;
         }
 
         private void BtnBatchEdit_Click(object sender, RoutedEventArgs e)
@@ -433,8 +653,7 @@ namespace Caupo.Views
             BatchTaxOption? selectedTax = BatchTaxComboBox.SelectedItem as BatchTaxOption;
             bool changeTax = selectedTax?.TaxId != null;
 
-            bool changeConsumptionTax = BatchConsumptionTaxPanel.Visibility == Visibility.Visible &&
-            BatchConsumptionTaxComboBox.SelectedIndex > 0;
+            bool changeConsumptionTax = BatchConsumptionTaxPanel.Visibility == Visibility.Visible && BatchConsumptionTaxComboBox.SelectedIndex > 0;
 
             BatchUnitOption? selectedUnit = BatchUnitComboBox.SelectedItem as BatchUnitOption;
             bool changeUnit = selectedUnit?.UnitId != null;
@@ -460,6 +679,14 @@ namespace Caupo.Views
             if (changePrice && (operation < 0 || operation > 2))
                 return;
 
+            if (changePrice && operation == 2 && value >= 100m)
+            {
+                ShowBatchEditMessage("GREŠKA", "Postotak smanjenja mora biti manji od 100%.");
+                BatchValueTextBox.Focus();
+                BatchValueTextBox.SelectAll();
+                return;
+            }
+
             var selectedIds = viewModel.Artikli
                 .Where(viewModel.IsArticleChecked)
                 .Select(x => x.IdArtikla)
@@ -467,6 +694,8 @@ namespace Caupo.Views
 
             if (selectedIds.Count == 0)
                 return;
+
+            int? selectedArticleId = viewModel.SelectedArticle?.IdArtikla;
 
             try
             {
@@ -480,37 +709,18 @@ namespace Caupo.Views
                 {
                     if (changePrice)
                     {
-                        decimal currentPrice = article.Cijena ?? 0m;
-                        decimal newPrice;
-
-                        switch (operation)
+                        if (operation == 0)
                         {
-                            case 0:
-                                newPrice = value;
-                                break;
-
-                            case 1:
-                                newPrice = currentPrice * (1m + value / 100m);
-                                newPrice = RoundPriceUpToTenCents(newPrice);
-                                break;
-
-                            case 2:
-                                newPrice = currentPrice * (1m - value / 100m);
-
-                                if (newPrice <= 0)
-                                {
-                                    ShowBatchEditMessage("GREŠKA", $"Smanjenje od {value:0.##}% bi kod nekih artikala dalo cijenu 0 ili manju.");
-                                    return;
-                                }
-
-                                newPrice = RoundPriceUpToTenCents(newPrice);
-                                break;
-
-                            default:
-                                return;
+                            article.Cijena = value;
                         }
+                        else if (article.Cijena.HasValue)
+                        {
+                            decimal newPrice = operation == 1
+                                ? article.Cijena.Value * (1m + value / 100m)
+                                : article.Cijena.Value * (1m - value / 100m);
 
-                        article.Cijena = newPrice;
+                            article.Cijena = RoundPriceUpToTenCents(newPrice);
+                        }
                     }
 
                     if (changeActive)
@@ -530,24 +740,23 @@ namespace Caupo.Views
                 }
 
                 await db.SaveChangesAsync();
-
-                int? selectedArticleId = viewModel.SelectedArticle?.IdArtikla;
-
-                await viewModel.LoadArticlesAsync();
-
-                if (selectedArticleId.HasValue)
-                    viewModel.SelectedArticle = viewModel.Artikli.FirstOrDefault(x => x.IdArtikla == selectedArticleId.Value);
-
-                BatchEditGrid.Visibility = Visibility.Collapsed;
-                RefreshVisibleArticleCheckBoxes(viewModel);
-                RefreshSelectAllCheckBox(viewModel);
-                UpdateBatchEditButton();
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("[ARTICLES] Batch update: " + ex);
+                Debug.WriteLine("[ARTICLES] Batch save: " + ex);
                 ShowBatchEditMessage("GREŠKA", "Grupna promjena artikala nije spremljena.");
+                return;
             }
+
+            await viewModel.LoadArticlesAsync();
+
+            if (selectedArticleId.HasValue)
+                viewModel.SelectedArticle = viewModel.Artikli.FirstOrDefault(x => x.IdArtikla == selectedArticleId.Value);
+
+            BatchEditGrid.Visibility = Visibility.Collapsed;
+            RefreshVisibleArticleCheckBoxes(viewModel);
+            RefreshSelectAllCheckBox(viewModel);
+            UpdateBatchEditButton();
         }
 
         private static decimal RoundPriceUpToTenCents(decimal price)
@@ -592,7 +801,7 @@ namespace Caupo.Views
         }
 
 
-       
+
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
@@ -600,190 +809,6 @@ namespace Caupo.Views
             page.DataContext = new HomeViewModel();
             PageNavigator.NavigateWithFade(page);
         }
-
-        private void btnSlika_Click(object sender, RoutedEventArgs e)
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.gif;*.bmp";
-            if (openFileDialog.ShowDialog() == true)
-            {
-                string filePath = openFileDialog.FileName;
-                SlikaTextBox.Text = filePath;
-
-            }
-        }
-
-        private async void NormativPicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (string.IsNullOrEmpty(ArtiklTextBox.Text))
-            {
-                return;
-            }
-            var selectedNormativ = NormativPicker.SelectedItem as DatabaseTables.TblNormativPica;
-            if (selectedNormativ != null)
-            {
-                string? normativ = selectedNormativ.Normativ;
-                if (normativ == "1" || (decimal.TryParse(normativ, out decimal normValue) && normValue < 0.01m))
-                {
-                    if (ArtiklNormativTextBox != null)
-                    {
-                        ArtiklNormativTextBox.Text = ArtiklTextBox.Text;
-                    }
-                }
-                else if (normativ != "Dodaj normativ")
-                {
-                    ArtiklNormativTextBox.Text = ArtiklTextBox.Text + " " + normativ;
-                }
-                else
-                {
-                    MyInputBox dialog = new MyInputBox();
-                    dialog.InputTitle.Text = "NOVI NORMATIV PIĆA";
-                    dialog.InputText.Focus();
-                    dialog.ShowDialog();
-                    string result = dialog.result;
-
-                    if (!string.IsNullOrEmpty(result))
-                    {
-                        DatabaseTables.TblNormativPica normativPica = new DatabaseTables.TblNormativPica();
-                        normativPica.Normativ = result;
-                        using (var db = new AppDbContext())
-                        {
-                            db.NormativPica.Add(normativPica);
-                            db.SaveChanges();
-                            Debug.WriteLine("New record inserted successfully!");
-                            if (DataContext is ArticlesViewModel viewModel)
-                            {
-                                await viewModel.LoadNormativi();
-
-                            }
-                        }
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
-
-            }
-        }
-
-        private async void CancelEditButton_Click(object sender, RoutedEventArgs e)
-        {
-            InternaSifraGrid.Visibility = Visibility.Collapsed;
-            SlikaGrid.Visibility = Visibility.Collapsed;
-            JedinicaMjereGrid.Visibility = Visibility.Collapsed;
-            PoreskeStopeGrid.Visibility = Visibility.Collapsed;
-            NormativGrid.Visibility = Visibility.Collapsed;
-            VrstaArtiklaGrid.Visibility = Visibility.Collapsed;
-            KategorijaGrid.Visibility = Visibility.Collapsed;
-            PozicijaGrid.Visibility = Visibility.Collapsed;
-            PrikazGrid.Visibility = Visibility.Collapsed;
-            EditGrid.Visibility = Visibility.Collapsed;
-            AddGrid.Visibility = Visibility.Collapsed;
-            lblArtikl.Visibility = Visibility.Collapsed;
-            lblCijena.Visibility = Visibility.Collapsed;
-            if (DataContext is ArticlesViewModel viewModel)
-            {
-
-
-                var artikl = viewModel.SelectedArticle;
-                await viewModel.LoadArticlesAsync();
-                viewModel.SelectedArticle = artikl;
-                _BorderBrush = Application.Current.Resources["GlobalFontColor"] as Brush;
-                ChangeTextBoxBorderBrush(this, _BorderBrush);
-                foreach (ComboBox comboBox in FindVisualChildren<ComboBox>(this))
-                {
-                    comboBox.BorderThickness = new Thickness(0, 0, 0, 1);
-                }
-                if (artikl != null)
-                {
-                    var foundItem = ListaArtikala.Items.Cast<dynamic>().FirstOrDefault(item =>
-                        item.IdArtikla == artikl.IdArtikla);
-                    if (foundItem != null)
-                    {
-                        Debug.WriteLine("Pronađen po ID-u - pokušavam selekciju i scroll");
-                        ListaArtikala.SelectedItem = foundItem;
-                        ListaArtikala.ScrollIntoView(foundItem);
-                    }
-                }
-            }
-        }
-
-        private async void SaveEditButton_Click(object sender, RoutedEventArgs e)
-        {
-            bool isValid = ValidateForm();
-
-            if (!isValid)
-            {
-                isValid = true;
-                return;
-            }
-
-            if (DataContext is ArticlesViewModel viewModel)
-            {
-                viewModel.ErrorOccurred -= ViewModel_ErrorOccurred;
-                viewModel.ErrorOccurred += ViewModel_ErrorOccurred;
-
-                var artikl = viewModel.SelectedArticle;
-                if (artikl != null)
-                {
-                    artikl.IdArtikla = Convert.ToInt32(IdArtiklaTextBox.Text);
-                    artikl.Artikl = ArtiklTextBox.Text;
-                    artikl.Cijena = Convert.ToDecimal(CijenaTextBox.Text);
-                    artikl.Sifra = SifraTextBox.Text;
-                    artikl.InternaSifra = InternaSifraTextBox.Text;
-                    TblPoreskeStope ps = (TblPoreskeStope)PoreskeStopePicker.SelectedItem;
-                    artikl.PoreskaStopa = ps.IdStope;
-                    TblJediniceMjere jediniceMjere = (TblJediniceMjere)JediniceMjerePicker.SelectedItem;
-                    artikl.JedinicaMjere = jediniceMjere.IdJedinice;
-                    artikl.Slika = SlikaTextBox.Text;
-                    artikl.VrstaArtikla = VrstaArtiklaPicker.SelectedIndex;
-                    artikl.Pozicija = Convert.ToInt32(PozicijaTextBox.Text);
-                    artikl.Aktivan = PrikazatiNaDisplejuPicker.Text == "DA";
-                    TblKategorije kategorija = (TblKategorije)KategorijePicker.SelectedItem;
-                    artikl.Kategorija = kategorija.IdKategorije;
-                    TblNormativPica normativ = (TblNormativPica)NormativPicker.SelectedItem;
-                    artikl.Normativ = Convert.ToDecimal(normativ.Normativ);
-                    artikl.ArtiklNormativ = ArtiklNormativTextBox.Text;
-                    await viewModel.UpdateArticle(artikl);
-                }
-
-                if (_errorOccurred)
-                {
-                    _errorOccurred = false;
-                    return;
-                }
-                InternaSifraGrid.Visibility = Visibility.Collapsed;
-                SlikaGrid.Visibility = Visibility.Collapsed;
-                JedinicaMjereGrid.Visibility = Visibility.Collapsed;
-                PoreskeStopeGrid.Visibility = Visibility.Collapsed;
-                NormativGrid.Visibility = Visibility.Collapsed;
-                VrstaArtiklaGrid.Visibility = Visibility.Collapsed;
-                KategorijaGrid.Visibility = Visibility.Collapsed;
-                PozicijaGrid.Visibility = Visibility.Collapsed;
-                PrikazGrid.Visibility = Visibility.Collapsed;
-                EditGrid.Visibility = Visibility.Collapsed;
-                AddGrid.Visibility = Visibility.Collapsed;
-                foreach (ComboBox comboBox in FindVisualChildren<ComboBox>(this))
-                {
-                    comboBox.BorderThickness = new Thickness(0, 0, 0, 1);
-                }
-                ChangeTextBoxBorderBrush(this, _BorderBrush);
-                if (artikl != null)
-                {
-                    var foundItem = ListaArtikala.Items.Cast<dynamic>().FirstOrDefault(item =>
-                        item.IdArtikla == artikl.IdArtikla);
-                    if (foundItem != null)
-                    {
-                        Debug.WriteLine("Pronađen po ID-u - pokušavam selekciju i scroll");
-                        ListaArtikala.SelectedItem = foundItem;
-                        ListaArtikala.ScrollIntoView(foundItem);
-                    }
-                }
-
-            }
-        }
-
 
         public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
         {
@@ -803,10 +828,24 @@ namespace Caupo.Views
                     yield return childOfChild;
             }
         }
-        private bool _errorOccurred = false;
         private void ViewModel_ErrorOccurred(object? sender, string? errorMessage)
         {
-            // Ako je došlo do greške, prikažite poruku
+            if (!string.IsNullOrWhiteSpace(errorMessage))
+            {
+                if (errorMessage.StartsWith("Šifra ", StringComparison.OrdinalIgnoreCase) || errorMessage.Contains(", Šifra ", StringComparison.OrdinalIgnoreCase))
+                    SetArticleFieldError(ArticleCodeTextBox);
+
+                if (errorMessage.Contains("Interna šifra", StringComparison.OrdinalIgnoreCase))
+                    SetArticleFieldError(ArticleInternalCodeTextBox);
+
+                if (errorMessage.Contains("Naziv za prodaju", StringComparison.OrdinalIgnoreCase))
+                {
+                    SetArticleFieldError(ArticleNameTextBox);
+                    if (ArticleNormativPanel.Visibility == Visibility.Visible)
+                        SetArticleFieldError(ArticleNormativComboBox);
+                }
+            }
+
             MyMessageBox myMessageBox = new MyMessageBox
             {
                 WindowStartupLocation = WindowStartupLocation.CenterScreen
@@ -814,137 +853,6 @@ namespace Caupo.Views
             myMessageBox.MessageTitle.Text = "GREŠKA";
             myMessageBox.MessageText.Text = errorMessage;
             myMessageBox.ShowDialog();
-            _errorOccurred = true;
-
-        }
-
-        private void CancelAddButton_Click(object sender, RoutedEventArgs e)
-        {
-            InternaSifraGrid.Visibility = Visibility.Collapsed;
-            SlikaGrid.Visibility = Visibility.Collapsed;
-            JedinicaMjereGrid.Visibility = Visibility.Collapsed;
-            PoreskeStopeGrid.Visibility = Visibility.Collapsed;
-            NormativGrid.Visibility = Visibility.Collapsed;
-            VrstaArtiklaGrid.Visibility = Visibility.Collapsed;
-            KategorijaGrid.Visibility = Visibility.Collapsed;
-            PozicijaGrid.Visibility = Visibility.Collapsed;
-            PrikazGrid.Visibility = Visibility.Collapsed;
-            EditGrid.Visibility = Visibility.Collapsed;
-            AddGrid.Visibility = Visibility.Collapsed;
-            lblArtikl.Visibility = Visibility.Collapsed;
-            lblCijena.Visibility = Visibility.Collapsed;
-
-            if (DataContext is ArticlesViewModel viewModel)
-            {
-                viewModel.SelectedArticle = viewModel.Artikli?.FirstOrDefault();
-
-                _BorderBrush = Application.Current.Resources["GlobalFontColor"] as Brush;
-
-                ChangeTextBoxBorderBrush(this, _BorderBrush);
-                foreach (ComboBox comboBox in FindVisualChildren<ComboBox>(this))
-                {
-                    comboBox.BorderThickness = new Thickness(0, 0, 0, 1);
-                }
-                ListaArtikala.ScrollIntoView(viewModel.SelectedArticle);
-            }
-        }
-
-
-        private void ChangeTextBoxBorderBrush(DependencyObject parent, Brush? brush)
-        {
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
-            {
-                var child = VisualTreeHelper.GetChild(parent, i);
-                if (child is TextBox textBox)
-                {
-                    if (textBox.Name != "SearchTextBox")
-                    {
-                        textBox.BorderBrush = brush;
-                        textBox.BorderThickness = new Thickness(0, 0, 0, 1);
-                    }
-                }
-                if (child is ComboBox cmb)
-                {
-
-                    cmb.BorderBrush = brush;
-                    cmb.BorderThickness = new Thickness(0, 0, 0, 1);
-
-                }
-                ChangeTextBoxBorderBrush(child, brush);
-            }
-        }
-
-        private async void SaveAddButton_Click(object sender, RoutedEventArgs e)
-        {
-            bool isValid = ValidateForm();
-
-            if (!isValid)
-            {
-                isValid = true;
-                return;
-            }
-
-            if (DataContext is ArticlesViewModel viewModel)
-            {
-                viewModel.ErrorOccurred -= ViewModel_ErrorOccurred;
-                viewModel.ErrorOccurred += ViewModel_ErrorOccurred;
-
-                TblArtikli artikl = new TblArtikli();
-                artikl.Artikl = ArtiklTextBox.Text;
-                artikl.Cijena = Convert.ToDecimal(CijenaTextBox.Text);
-                artikl.Sifra = SifraTextBox.Text;
-                artikl.InternaSifra = InternaSifraTextBox.Text;
-                TblPoreskeStope ps = (TblPoreskeStope)PoreskeStopePicker.SelectedItem;
-                artikl.PoreskaStopa = ps.IdStope;
-                TblJediniceMjere jediniceMjere = (TblJediniceMjere)JediniceMjerePicker.SelectedItem;
-                artikl.JedinicaMjere = jediniceMjere.IdJedinice;
-                artikl.Slika = SlikaTextBox.Text;
-                artikl.VrstaArtikla = VrstaArtiklaPicker.SelectedIndex;
-                artikl.Pozicija = Convert.ToInt32(PozicijaTextBox.Text);
-                artikl.Aktivan = PrikazatiNaDisplejuPicker.Text == "DA";
-                TblKategorije kategorija = (TblKategorije)KategorijePicker.SelectedItem;
-                artikl.Kategorija = kategorija.IdKategorije;
-                TblNormativPica normativ = (TblNormativPica)NormativPicker.SelectedItem;
-                artikl.Normativ = Convert.ToDecimal(normativ.Normativ);
-                artikl.ArtiklNormativ = ArtiklNormativTextBox.Text;
-                await viewModel.InsertArticle(artikl);
-                if (_errorOccurred)
-                {
-                    _errorOccurred = false;
-                    return;
-                }
-
-                InternaSifraGrid.Visibility = Visibility.Collapsed;
-                SlikaGrid.Visibility = Visibility.Collapsed;
-                JedinicaMjereGrid.Visibility = Visibility.Collapsed;
-                PoreskeStopeGrid.Visibility = Visibility.Collapsed;
-                NormativGrid.Visibility = Visibility.Collapsed;
-                VrstaArtiklaGrid.Visibility = Visibility.Collapsed;
-                KategorijaGrid.Visibility = Visibility.Collapsed;
-                PozicijaGrid.Visibility = Visibility.Collapsed;
-                PrikazGrid.Visibility = Visibility.Collapsed;
-                EditGrid.Visibility = Visibility.Collapsed;
-                AddGrid.Visibility = Visibility.Collapsed;
-                ChangeTextBoxBorderBrush(this, _BorderBrush);
-                foreach (ComboBox comboBox in FindVisualChildren<ComboBox>(this))
-                {
-                    comboBox.BorderThickness = new Thickness(0, 0, 0, 1);
-                }
-
-                ListaArtikala.ScrollIntoView(ListaArtikala.SelectedItem);
-            }
-        }
-
-        private void ArtiklTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            var textBox = (TextBox)sender;
-            string newText = textBox.Text;
-            if (ArtiklNormativTextBox != null)
-            {
-                ArtiklNormativTextBox.Text = newText;
-                NormativPicker.IsEnabled = true;
-                NormativPicker.SelectedIndex = 1;
-            }
         }
 
         private void ListaArtikala_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -975,232 +883,315 @@ namespace Caupo.Views
             dataGrid.ScrollIntoView(selectedItem);
         }
 
-        private void BtnEdit_Click(object sender, RoutedEventArgs e)
+        private async void BtnEdit_Click(object sender, RoutedEventArgs e)
         {
-            InternaSifraGrid.Visibility = Visibility.Visible;
-            SlikaGrid.Visibility = Visibility.Visible;
-            JedinicaMjereGrid.Visibility = Visibility.Visible;
-            PoreskeStopeGrid.Visibility = Visibility.Visible;
-            NormativGrid.Visibility = Visibility.Visible;
-            VrstaArtiklaGrid.Visibility = Visibility.Visible;
-            KategorijaGrid.Visibility = Visibility.Visible;
-            PozicijaGrid.Visibility = Visibility.Visible;
-            PrikazGrid.Visibility = Visibility.Visible;
-            EditGrid.Visibility = Visibility.Visible;
-            AddGrid.Visibility = Visibility.Collapsed;
+            if (DataContext is not ArticlesViewModel viewModel || viewModel.SelectedArticle == null)
+                return;
+
+
+            TblArtikli article = viewModel.SelectedArticle;
+
+            _isEditingArticle = true;
+            _editingArticleId = article.IdArtikla;
+            ClearArticleEditErrors();
+
+            bool hasBeenSold = await viewModel.HasArticleBeenSold(article.Sifra);
+            ArticleNameTextBox.IsReadOnly = hasBeenSold;
+
+            ArticleEditTitle.Text = "Uredi artikl";
+            ArticleEditDescription.Text = $"Uređivanje artikla: {article.Artikl}";
+
+            ConfigureArticleEditOptions(viewModel);
+
+            ArticleNameTextBox.Text = article.Artikl ?? string.Empty;
+            ArticleCodeTextBox.Text = article.Sifra ?? string.Empty;
+            ArticleInternalCodeTextBox.Text = article.InternaSifra ?? string.Empty;
+            ArticlePriceTextBox.Text = article.Cijena?.ToString("0.00", CultureInfo.CurrentCulture) ?? string.Empty;
+
+            ArticleTypeComboBox.SelectedItem = ArticleTypeComboBox.Items.OfType<ArticleTypeOption>().FirstOrDefault(x => x.TypeId == article.VrstaArtikla);
+
+            ArticleCategoryComboBox.SelectedItem = ArticleCategoryComboBox.Items.OfType<BatchCategoryOption>().FirstOrDefault(x => x.CategoryId == article.Kategorija);
+            ArticleTaxComboBox.SelectedItem = ArticleTaxComboBox.Items.OfType<BatchTaxOption>().FirstOrDefault(x => x.TaxId == article.PoreskaStopa);
+            ArticleUnitComboBox.SelectedItem = ArticleUnitComboBox.Items.OfType<BatchUnitOption>().FirstOrDefault(x => x.UnitId == article.JedinicaMjere);
+            ArticleNormativComboBox.SelectedItem = ArticleNormativComboBox.Items.OfType<TblNormativPica>().FirstOrDefault(x => ParseArticleNormativ(x.Normativ) == article.Normativ);
+            ArticlePositionTextBox.Text = article.Pozicija?.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
+            ArticleNormativLabel.Content = BuildArticleNormativ(article.Artikl, ArticleNormativComboBox.SelectedItem is TblNormativPica editNormativ ? editNormativ.Normativ : "1");
+
+            ArticleConsumptionTaxComboBox.SelectedIndex = article.PorezNaPotrosnju ? 0 : 1;
+            ArticleActiveComboBox.SelectedIndex = article.Aktivan ? 0 : 1;
+
+            ArticleEditGrid.Visibility = Visibility.Visible;
+            ArticleNameTextBox.Focus();
         }
 
         private async void BtnAdd_Click(object sender, RoutedEventArgs e)
         {
-            InternaSifraGrid.Visibility = Visibility.Visible;
-            SlikaGrid.Visibility = Visibility.Visible;
-            JedinicaMjereGrid.Visibility = Visibility.Visible;
-            PoreskeStopeGrid.Visibility = Visibility.Visible;
-            NormativGrid.Visibility = Visibility.Visible;
-            VrstaArtiklaGrid.Visibility = Visibility.Visible;
-            KategorijaGrid.Visibility = Visibility.Visible;
-            PozicijaGrid.Visibility = Visibility.Visible;
-            PrikazGrid.Visibility = Visibility.Visible;
-            AddGrid.Visibility = Visibility.Visible;
-            ArtiklNormativGrid.Visibility = Visibility.Visible;
-            EditGrid.Visibility = Visibility.Collapsed;
+            if (DataContext is not ArticlesViewModel viewModel)
+                return;
 
-            if (DataContext is ArticlesViewModel viewModel)
+            _isEditingArticle = false;
+            _editingArticleId = null;
+            ClearArticleEditErrors();
+            ArticleNameTextBox.IsReadOnly = false;
+
+            ArticleEditTitle.Text = "Novi artikl";
+            ArticleEditDescription.Text = "Unos podataka novog artikla";
+
+            long nextId = await viewModel.GetNextArticleSequenceValueAsync();
+            string suggestedValue = nextId.ToString(CultureInfo.InvariantCulture);
+
+            ArticleNameTextBox.Clear();
+            ArticleCodeTextBox.Text = suggestedValue;
+            ArticleInternalCodeTextBox.Text = suggestedValue;
+            ArticlePriceTextBox.Clear();
+            ArticlePositionTextBox.Text = suggestedValue;
+
+            ConfigureArticleEditOptions(viewModel);
+
+            ArticleTypeComboBox.SelectedIndex = 0;
+            ArticleTaxComboBox.SelectedIndex = 0;
+            ArticleUnitComboBox.SelectedItem = ArticleUnitComboBox.Items.OfType<BatchUnitOption>().FirstOrDefault(x => string.Equals(x.Name, "komad", StringComparison.OrdinalIgnoreCase))
+                ?? ArticleUnitComboBox.Items.OfType<BatchUnitOption>().FirstOrDefault(x => string.Equals(x.Name, "kom", StringComparison.OrdinalIgnoreCase));
+            ArticleNormativComboBox.SelectedItem = ArticleNormativComboBox.Items.OfType<TblNormativPica>().FirstOrDefault(x => ParseArticleNormativ(x.Normativ) == 1m);
+            UpdateArticleNormativLabel();
+            ArticleConsumptionTaxComboBox.SelectedIndex = 1;
+            ArticleActiveComboBox.SelectedIndex = 0;
+
+            ArticleEditGrid.Visibility = Visibility.Visible;
+            ArticleNameTextBox.Focus();
+        }
+
+        private void BtnArticleEditCancel_Click(object sender, RoutedEventArgs e)
+        {
+            ClearArticleEditErrors();
+            ArticleEditGrid.Visibility = Visibility.Collapsed;
+        }
+
+        private async void BtnArticleEditSave_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is not ArticlesViewModel viewModel)
+                return;
+
+            ClearArticleEditErrors();
+
+            string naziv = ArticleNameTextBox.Text.Trim();
+            string sifra = ArticleCodeTextBox.Text.Trim();
+            string internaSifra = ArticleInternalCodeTextBox.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(naziv))
             {
-                viewModel.SelectedArticle = null;
-
-
-
-                await viewModel.GetNewSifra();
-                IdArtiklaTextBox.Text = string.Empty;
-                SifraTextBox.Text = viewModel.NovaSifra;
-                ArtiklTextBox.Text = string.Empty;
-                CijenaTextBox.Text = string.Empty;
-                InternaSifraTextBox.Text = viewModel.NovaSifra;
-                SlikaTextBox.Text = string.Empty;
-                JediniceMjerePicker.SelectedIndex = 0;
-                PoreskeStopePicker.SelectedIndex = 1;
-                NormativPicker.SelectedIndex = 1;
-                NormativPicker.IsEnabled = false;
-                VrstaArtiklaPicker.SelectedIndex = 0;
-                KategorijePicker.SelectedIndex = 0;
-                PozicijaTextBox.Text = viewModel.NovaSifra;
-                ArtiklNormativTextBox.Text = string.Empty;
-                PrikazatiNaDisplejuPicker.SelectedIndex = 0;
-                _BorderBrush = Application.Current.Resources["GlobalFontColor"] as Brush;
-                ArtiklTextBox.Focus();
-
+                SetArticleFieldError(ArticleNameTextBox);
+                ShowArticleEditMessage("GREŠKA", "Unesite naziv artikla.");
+                ArticleNameTextBox.Focus();
+                return;
             }
 
+            if (string.IsNullOrWhiteSpace(sifra))
+            {
+                SetArticleFieldError(ArticleCodeTextBox);
+                ShowArticleEditMessage("GREŠKA", "Unesite šifru artikla.");
+                ArticleCodeTextBox.Focus();
+                return;
+            }
 
+            if (string.IsNullOrWhiteSpace(internaSifra))
+            {
+                SetArticleFieldError(ArticleInternalCodeTextBox);
+                ShowArticleEditMessage("GREŠKA", "Unesite internu šifru artikla.");
+                ArticleInternalCodeTextBox.Focus();
+                return;
+            }
+
+            if (!TryParseArticlePrice(ArticlePriceTextBox.Text, out decimal cijena) || cijena < 0)
+            {
+                SetArticleFieldError(ArticlePriceTextBox);
+                ShowArticleEditMessage("GREŠKA", "Unesite ispravnu cijenu artikla.");
+                ArticlePriceTextBox.Focus();
+                ArticlePriceTextBox.SelectAll();
+                return;
+            }
+
+            if (ArticleTypeComboBox.SelectedItem is not ArticleTypeOption selectedType || selectedType.TypeId < 0)
+            {
+                SetArticleFieldError(ArticleTypeComboBox);
+                ShowArticleEditMessage("GREŠKA", "Odaberite vrstu artikla.");
+                ArticleTypeComboBox.Focus();
+                return;
+            }
+
+            if (ArticleCategoryComboBox.SelectedItem is not BatchCategoryOption selectedCategory || selectedCategory.CategoryId == null)
+            {
+                SetArticleFieldError(ArticleCategoryComboBox);
+                ShowArticleEditMessage("GREŠKA", "Odaberite kategoriju artikla.");
+                ArticleCategoryComboBox.Focus();
+                return;
+            }
+
+            if (ArticleTaxComboBox.SelectedItem is not BatchTaxOption selectedTax || selectedTax.TaxId == null)
+            {
+                SetArticleFieldError(ArticleTaxComboBox);
+                ShowArticleEditMessage("GREŠKA", "Odaberite poresku stopu.");
+                ArticleTaxComboBox.Focus();
+                return;
+            }
+
+            if (ArticleUnitComboBox.SelectedItem is not BatchUnitOption selectedUnit || selectedUnit.UnitId == null)
+            {
+                SetArticleFieldError(ArticleUnitComboBox);
+                ShowArticleEditMessage("GREŠKA", "Odaberite jedinicu mjere.");
+                ArticleUnitComboBox.Focus();
+                return;
+            }
+
+            decimal normativ = 1m;
+            string normativText = "1";
+
+            if (selectedType.TypeId == 0)
+            {
+                if (ArticleNormativComboBox.SelectedItem is not TblNormativPica selectedNormativ || string.Equals(selectedNormativ.Normativ, "Dodaj normativ", StringComparison.OrdinalIgnoreCase))
+                {
+                    SetArticleFieldError(ArticleNormativComboBox);
+                    ShowArticleEditMessage("GREŠKA", "Odaberite normativ artikla.");
+                    ArticleNormativComboBox.Focus();
+                    return;
+                }
+
+                decimal? parsedNormativ = ParseArticleNormativ(selectedNormativ.Normativ);
+
+                if (!parsedNormativ.HasValue || parsedNormativ.Value <= 0)
+                {
+                    SetArticleFieldError(ArticleNormativComboBox);
+                    ShowArticleEditMessage("GREŠKA", "Odaberite ispravan normativ artikla.");
+                    ArticleNormativComboBox.Focus();
+                    return;
+                }
+
+                normativ = parsedNormativ.Value;
+                normativText = selectedNormativ.Normativ?.Trim() ?? "1";
+            }
+
+            if (!int.TryParse(ArticlePositionTextBox.Text.Trim(), out int pozicija) || pozicija < 0)
+            {
+                SetArticleFieldError(ArticlePositionTextBox);
+                ShowArticleEditMessage("GREŠKA", "Unesite ispravnu poziciju artikla.");
+                ArticlePositionTextBox.Focus();
+                ArticlePositionTextBox.SelectAll();
+                return;
+            }
+
+            TblArtikli article;
+
+            if (_isEditingArticle)
+            {
+                if (!_editingArticleId.HasValue)
+                    return;
+
+                article = viewModel.Artikli.FirstOrDefault(x => x.IdArtikla == _editingArticleId.Value);
+
+                if (article == null)
+                {
+                    ShowArticleEditMessage("GREŠKA", "Artikl više nije pronađen.");
+                    return;
+                }
+
+                if (await viewModel.HasArticleBeenSold(article.Sifra))
+                    naziv = article.Artikl ?? string.Empty;
+            }
+            else
+            {
+                article = new TblArtikli();
+            }
+
+            article.Artikl = naziv;
+            article.Sifra = sifra;
+            article.InternaSifra = internaSifra;
+            article.Cijena = cijena;
+            article.VrstaArtikla = selectedType.TypeId;
+            article.Kategorija = selectedCategory.CategoryId.Value;
+            article.PoreskaStopa = selectedTax.TaxId.Value;
+            article.JedinicaMjere = selectedUnit.UnitId.Value;
+            article.Normativ = normativ;
+            article.Pozicija = pozicija;
+            article.ArtiklNormativ = selectedType.TypeId == 0 ? BuildArticleNormativ(naziv, normativText) : naziv;
+            article.Aktivan = ArticleActiveComboBox.SelectedIndex != 1;
+            article.PorezNaPotrosnju = ArticleConsumptionTaxPanel.Visibility == Visibility.Visible && ArticleConsumptionTaxComboBox.SelectedIndex == 0;
+
+            try
+            {
+                bool saved = _isEditingArticle ? await viewModel.UpdateArticle(article) : await viewModel.InsertArticle(article);
+
+                if (!saved)
+                    return;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[ARTICLES] Save article: " + ex);
+                ShowArticleEditMessage("GREŠKA", "Artikl nije spremljen.");
+                return;
+            }
+
+            ArticleEditGrid.Visibility = Visibility.Collapsed;
+            _isEditingArticle = false;
+            _editingArticleId = null;
+        }
+
+        private static bool TryParseArticlePrice(string text, out decimal value)
+        {
+            string normalized = text.Trim().Replace(',', '.');
+            return decimal.TryParse(normalized, NumberStyles.Number, CultureInfo.InvariantCulture, out value);
+        }
+
+        private static void ShowArticleEditMessage(string title, string message)
+        {
+            MyMessageBox myMessageBox = new MyMessageBox();
+            myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            myMessageBox.MessageTitle.Text = title;
+            myMessageBox.MessageText.Text = message;
+            myMessageBox.ShowDialog();
         }
 
         private async void BtnDelete_Click(object sender, RoutedEventArgs e)
         {
-            if (DataContext is ArticlesViewModel viewModel)
+            if (DataContext is not ArticlesViewModel viewModel || viewModel.SelectedArticle == null)
             {
-                int id = Convert.ToInt32(IdArtiklaTextBox.Text);
+                ShowArticleEditMessage("GREŠKA", "Odaberite artikl koji želite obrisati.");
+                return;
+            }
 
-                YesNoPopup myMessageBox = new YesNoPopup();
-                myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-                myMessageBox.MessageTitle.Text = "POTVRDA BRISANJA";
-                myMessageBox.MessageText.Text = "Da li ste sigurni da želite obrisati artikl :" + Environment.NewLine + ArtiklTextBox.Text + " ?";
-                myMessageBox.ShowDialog();
-                if (myMessageBox.Kliknuo == "Da")
+            TblArtikli article = viewModel.SelectedArticle;
+            bool hasBeenSold = await viewModel.HasArticleBeenSold(article.Sifra);
+
+            if (hasBeenSold)
+            {
+                if (!article.Aktivan)
                 {
-                    await viewModel.DeleteArticle(id);
+                    ShowArticleEditMessage("INFORMACIJA", $"Artikl {article.Artikl} je već neaktivan i ne može se fizički obrisati jer je korišten na računima.");
+                    return;
                 }
-            }
-        }
 
-        Brush? _BorderBrush;
-        private bool ValidateForm()
-        {
-            bool isValid = true;
-            if (DataContext is ArticlesViewModel viewModel)
-            {
-                _BorderBrush = Application.Current.Resources["GlobalFontColor"] as Brush;
-            }
+                YesNoPopup deactivatePopup = new YesNoPopup();
+                deactivatePopup.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                deactivatePopup.MessageTitle.Text = "DEAKTIVACIJA ARTIKLA";
+                deactivatePopup.MessageText.Text = $"Artikl {article.Artikl} je već korišten na računima i ne može se fizički obrisati." + Environment.NewLine + Environment.NewLine + "Želite li ga postaviti kao neaktivan?";
+                deactivatePopup.ShowDialog();
 
-            if (string.IsNullOrWhiteSpace(ArtiklTextBox.Text))
-            {
-                ArtiklTextBox.BorderBrush = Brushes.Red;
-                lblArtikl.Visibility = Visibility.Visible;
-                isValid = false;
-            }
-            else
-            {
-                ArtiklTextBox.BorderBrush = _BorderBrush;
-                lblArtikl.Visibility = Visibility.Collapsed;
+                if (deactivatePopup.Kliknuo != "Da")
+                    return;
+
+                if (await viewModel.DeactivateArticle(article.IdArtikla))
+                    ShowArticleEditMessage("POTVRDA", $"Artikl {article.Artikl} je postavljen kao neaktivan.");
+
+                return;
             }
 
-            if (string.IsNullOrWhiteSpace(SifraTextBox.Text))
-            {
-                SifraTextBox.BorderBrush = Brushes.Red;
-                isValid = false;
-            }
-            else
-            {
-                SifraTextBox.BorderBrush = _BorderBrush;
-            }
+            YesNoPopup deletePopup = new YesNoPopup();
+            deletePopup.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            deletePopup.MessageTitle.Text = "POTVRDA BRISANJA";
+            deletePopup.MessageText.Text = $"Da li ste sigurni da želite obrisati artikl:" + Environment.NewLine + article.Artikl + " ?";
+            deletePopup.ShowDialog();
 
-            if (string.IsNullOrWhiteSpace(CijenaTextBox.Text))
-            {
-                CijenaTextBox.BorderBrush = Brushes.Red;
-                lblCijena.Visibility = Visibility.Visible;
-                isValid = false;
-            }
-            else
-            {
-                CijenaTextBox.BorderBrush = _BorderBrush;
-                lblCijena.Visibility = Visibility.Collapsed;
-            }
-
-            /*  if (string.IsNullOrWhiteSpace(ArtiklNormativTextBox.Text))
-              {
-                  ArtiklNormativTextBox.BorderBrush = Brushes.Red;
-                  isValid = false;
-              }
-              else
-              {
-                  ArtiklNormativTextBox.BorderBrush = _BorderBrush;
-              }*/
-
-            if (string.IsNullOrWhiteSpace(InternaSifraTextBox.Text))
-            {
-                InternaSifraTextBox.BorderBrush = Brushes.Red;
-                isValid = false;
-            }
-            else
-            {
-                InternaSifraTextBox.BorderBrush = _BorderBrush;
-            }
-
-            if (string.IsNullOrWhiteSpace(PozicijaTextBox.Text))
-            {
-                PozicijaTextBox.BorderBrush = Brushes.Red;
-                isValid = false;
-            }
-            else
-            {
-                PozicijaTextBox.BorderBrush = _BorderBrush;
-            }
-
-
-            if (PoreskeStopePicker.SelectedIndex == -1)
-            {
-                PoreskeStopePicker.BorderBrush = Brushes.Red;
-                PoreskeStopePicker.BorderThickness = new Thickness(0, 0, 0, 1);
-                isValid = false;
-            }
-            else
-            {
-                PoreskeStopePicker.BorderBrush = _BorderBrush;
-                PoreskeStopePicker.BorderThickness = new Thickness(0, 0, 0, 1);
-            }
-
-            if (JediniceMjerePicker.SelectedIndex == -1)
-            {
-                JediniceMjerePicker.BorderBrush = Brushes.Red;
-                JediniceMjerePicker.BorderThickness = new Thickness(0, 0, 0, 1);
-                isValid = false;
-            }
-            else
-            {
-                JediniceMjerePicker.BorderBrush = _BorderBrush;
-                JediniceMjerePicker.BorderThickness = new Thickness(0, 0, 0, 1);
-            }
-
-            if (VrstaArtiklaPicker.SelectedIndex == -1)
-            {
-                VrstaArtiklaPicker.BorderBrush = Brushes.Red;
-                VrstaArtiklaPicker.BorderThickness = new Thickness(0, 0, 0, 1);
-                isValid = false;
-            }
-            else
-            {
-                VrstaArtiklaPicker.BorderBrush = _BorderBrush;
-                VrstaArtiklaPicker.BorderThickness = new Thickness(0, 0, 0, 1);
-            }
-
-
-            if (KategorijePicker.SelectedIndex == -1)
-            {
-                KategorijePicker.BorderBrush = Brushes.Red;
-                KategorijePicker.BorderThickness = new Thickness(0, 0, 0, 1);
-                isValid = false;
-            }
-            else
-            {
-                KategorijePicker.BorderBrush = _BorderBrush;
-                KategorijePicker.BorderThickness = new Thickness(0, 0, 0, 1);
-            }
-
-            if (PrikazatiNaDisplejuPicker.SelectedIndex == -1)
-            {
-                PrikazatiNaDisplejuPicker.BorderBrush = Brushes.Red;
-                PrikazatiNaDisplejuPicker.BorderThickness = new Thickness(0, 0, 0, 1);
-                isValid = false;
-            }
-            else
-            {
-                PrikazatiNaDisplejuPicker.BorderBrush = _BorderBrush;
-                PrikazatiNaDisplejuPicker.BorderThickness = new Thickness(0, 0, 0, 1);
-            }
-
-            if (NormativPicker.SelectedIndex == -1)
-            {
-                NormativPicker.BorderBrush = Brushes.Red;
-                NormativPicker.BorderThickness = new Thickness(0, 0, 0, 1);
-                isValid = false;
-            }
-            else
-            {
-                NormativPicker.BorderBrush = _BorderBrush;
-                NormativPicker.BorderThickness = new Thickness(0, 0, 0, 1);
-            }
-
-            return isValid;
+            if (deletePopup.Kliknuo == "Da")
+                await viewModel.DeleteArticle(article.IdArtikla);
         }
 
         private void BtnExport_Click(object sender, RoutedEventArgs e)
@@ -1501,27 +1492,6 @@ namespace Caupo.Views
             PageNavigator.NavigateWithFade(page);
         }
 
-        private void CijenaTextBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            lblCijena.Visibility = Visibility.Collapsed;
-            CijenaTextBox.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FF2FA4A9"));
-
-        }
-
-        private void ArtiklTextBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            ArtiklTextBox.BorderBrush = (SolidColorBrush)(new BrushConverter().ConvertFrom("#FF2FA4A9"));
-            lblArtikl.Visibility = Visibility.Collapsed;
-        }
-
-        private void ArtiklTextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            ArtiklTextBox.BorderBrush = Application.Current.Resources["GlobalFontColor"] as Brush;
-        }
-
-        private void CijenaTextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            CijenaTextBox.BorderBrush = Application.Current.Resources["GlobalFontColor"] as Brush;
-        }
+       
     }
 }
