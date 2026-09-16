@@ -2026,14 +2026,16 @@
         <!-- IMPORT / EXPORT EDITOR -->
         <Grid x:Name="ArticleTransferGrid" Panel.ZIndex="1200" Background="{DynamicResource GlobalBackgroundColor}" Visibility="Collapsed">
 
+            <Button x:Name="ArticleTransferCloseButton" Grid.Column="2" Style="{StaticResource CloseButtonStyle}" VerticalAlignment="Top" HorizontalAlignment="Right" Padding="0" Margin="1" Click="BtnTransferClose_Click"/>
+
             <Grid Margin="20">
 
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="12"/>
-                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="2*" MinHeight="120"/>
                     <RowDefinition Height="12"/>
-                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*" MinHeight="120"/>
                     <RowDefinition Height="10"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
@@ -2058,21 +2060,37 @@
                             <TextBlock Text="Uvezi fajl" Foreground="{DynamicResource GlobalFontColor}"/>
                         </Button>
 
-                        <Button Height="42" MinWidth="105" Margin="4,0" Style="{StaticResource SecondaryButtonStyle}" Click="BtnTransferSaveFile_Click">
-                            <TextBlock Text="Izvezi XLSX" Foreground="{DynamicResource GlobalFontColor}"/>
+                        <Button x:Name="ArticleTransferExportButton" Height="42" MinWidth="105" Margin="4,0" Style="{StaticResource SecondaryButtonStyle}" Click="BtnTransferSaveFile_Click">
+                            <TextBlock Text="Izvezi artikle" Foreground="{DynamicResource GlobalFontColor}"/>
                         </Button>
 
-                        <Button Height="42" MinWidth="105" Margin="4,0" Style="{StaticResource SecondaryButtonStyle}" Click="BtnTransferValidate_Click">
-                            <TextBlock Text="Validiraj" Foreground="{DynamicResource GlobalFontColor}"/>
-                        </Button>
+                        <Popup x:Name="ArticleTransferExportPopup" PlacementTarget="{Binding ElementName=ArticleTransferExportButton}" Placement="Bottom" StaysOpen="False" AllowsTransparency="True" HorizontalOffset="4" VerticalOffset="2">
+
+                            <Border Width="150" Background="{DynamicResource GlobalBackgroundColor}" BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="1" CornerRadius="8" Padding="4">
+
+                                <StackPanel>
+
+                                    <Button Height="40" Style="{StaticResource SecondaryButtonStyle}" Click="BtnTransferExportXlsx_Click">
+                                        <TextBlock Text="Excel" Foreground="{DynamicResource GlobalFontColor}"/>
+                                    </Button>
+
+                                    <Button Height="40" Margin="0,4,0,0" Style="{StaticResource SecondaryButtonStyle}" Click="BtnTransferExportCsv_Click">
+                                        <TextBlock Text="CSV" Foreground="{DynamicResource GlobalFontColor}"/>
+                                    </Button>
+
+                                </StackPanel>
+
+                            </Border>
+
+                        </Popup>
+
+                      
 
                         <Button x:Name="BtnTransferApply" Height="42" MinWidth="135" Margin="4,0" Style="{StaticResource PrimaryButtonStyle}" IsEnabled="False" Click="BtnTransferApply_Click">
                             <TextBlock Text="Primijeni u Caupo" Foreground="#F5F5F5"/>
                         </Button>
 
                     </StackPanel>
-
-                    <Button x:Name="ArticleTransferCloseButton" Grid.Column="2" Style="{StaticResource CloseButtonStyle}" VerticalAlignment="Top" HorizontalAlignment="Right" Padding="0" Margin="1" Click="BtnTransferClose_Click"/>
 
                 </Grid>
 
@@ -2093,6 +2111,7 @@
                   Foreground="{DynamicResource GlobalFontColor}"
                   PreviewKeyDown="ArticleTransferDataGrid_PreviewKeyDown"
                   PreviewMouseLeftButtonDown="ArticleTransferDataGrid_PreviewMouseLeftButtonDown"
+                  BeginningEdit="ArticleTransferDataGrid_BeginningEdit"
                   CellEditEnding="ArticleTransferDataGrid_CellEditEnding">
 
                     <DataGrid.Resources>
@@ -2113,12 +2132,14 @@
                             <Setter Property="VerticalContentAlignment" Value="Stretch"/>
                             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+
                             <Style.Triggers>
                                 <Trigger Property="IsEditing" Value="True">
                                     <Setter Property="Background" Value="{DynamicResource GlobalBackgroundColor}"/>
                                     <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
                                 </Trigger>
                             </Style.Triggers>
+
                         </Style>
 
                         <!-- NORMALNI TEKST -->
@@ -2145,6 +2166,7 @@
                             <Setter Property="HorizontalAlignment" Value="Stretch"/>
                             <Setter Property="VerticalAlignment" Value="Stretch"/>
                             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="{x:Type TextBox}">
@@ -2152,6 +2174,7 @@
                                     </ControlTemplate>
                                 </Setter.Value>
                             </Setter>
+
                         </Style>
 
                     </DataGrid.Resources>
@@ -2162,134 +2185,304 @@
                         <DataGridTemplateColumn Header="ID" Width="60" IsReadOnly="True">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding IdArtikla}" Style="{StaticResource TransferCellTextStyle}"/>
+
+                                    <TextBlock Text="{Binding IdArtikla}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource TransferCellTextStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IdError}" Value="True">
+                                                        <Setter Property="Foreground" Value="#B85450"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
 
                         <!-- ŠIFRA -->
                         <DataGridTemplateColumn Header="Šifra" Width="*">
+
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Sifra}" Style="{StaticResource TransferCellTextStyle}"/>
+
+                                    <TextBlock Text="{Binding Sifra}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource TransferCellTextStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SifraWarning}" Value="True">
+                                                        <Setter Property="Foreground" Value="#B38B32"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding SifraError}" Value="True">
+                                                        <Setter Property="Foreground" Value="#B85450"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
+
                             <DataGridTemplateColumn.CellEditingTemplate>
                                 <DataTemplate>
                                     <TextBox Text="{Binding Sifra, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TransferCellTextBoxStyle}"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellEditingTemplate>
+
                         </DataGridTemplateColumn>
 
                         <!-- INTERNA ŠIFRA -->
                         <DataGridTemplateColumn Header="Interna šifra" Width="*">
+
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding InternaSifra}" Style="{StaticResource TransferCellTextStyle}"/>
+
+                                    <TextBlock Text="{Binding InternaSifra}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource TransferCellTextStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding InternaSifraWarning}" Value="True">
+                                                        <Setter Property="Foreground" Value="#B38B32"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding InternaSifraError}" Value="True">
+                                                        <Setter Property="Foreground" Value="#B85450"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
+
                             <DataGridTemplateColumn.CellEditingTemplate>
                                 <DataTemplate>
                                     <TextBox Text="{Binding InternaSifra, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TransferCellTextBoxStyle}"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellEditingTemplate>
+
                         </DataGridTemplateColumn>
 
                         <!-- NAZIV -->
                         <DataGridTemplateColumn Header="Naziv" Width="2*">
+
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Artikl}" Style="{StaticResource TransferCellTextStyle}"/>
+
+                                    <TextBlock Text="{Binding Artikl}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource TransferCellTextStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ArtiklWarning}" Value="True">
+                                                        <Setter Property="Foreground" Value="#B38B32"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding ArtiklError}" Value="True">
+                                                        <Setter Property="Foreground" Value="#B85450"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
+
                             <DataGridTemplateColumn.CellEditingTemplate>
                                 <DataTemplate>
                                     <TextBox Text="{Binding Artikl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TransferCellTextBoxStyle}"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellEditingTemplate>
+
                         </DataGridTemplateColumn>
 
                         <!-- CIJENA -->
                         <DataGridTemplateColumn Header="Cijena" Width="*">
+
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Cijena}" Style="{StaticResource TransferCellTextStyle}"/>
+
+                                    <TextBlock Text="{Binding Cijena}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource TransferCellTextStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding CijenaWarning}" Value="True">
+                                                        <Setter Property="Foreground" Value="#B38B32"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding CijenaError}" Value="True">
+                                                        <Setter Property="Foreground" Value="#B85450"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
+
                             <DataGridTemplateColumn.CellEditingTemplate>
                                 <DataTemplate>
                                     <TextBox Text="{Binding Cijena, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TransferCellTextBoxStyle}"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellEditingTemplate>
+
                         </DataGridTemplateColumn>
 
                         <!-- VRSTA -->
                         <DataGridTemplateColumn Header="Vrsta" Width="*">
+
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Vrsta}" Style="{StaticResource TransferCellTextStyle}"/>
+
+                                    <TextBlock Text="{Binding Vrsta}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource TransferCellTextStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding VrstaWarning}" Value="True">
+                                                        <Setter Property="Foreground" Value="#B38B32"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding VrstaError}" Value="True">
+                                                        <Setter Property="Foreground" Value="#B85450"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
+
                             <DataGridTemplateColumn.CellEditingTemplate>
                                 <DataTemplate>
-                                    <ComboBox SelectedValue="{Binding Vrsta, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Content" Height="40" Padding="5,0" Margin="0">
+                                    <ComboBox SelectedValue="{Binding Vrsta, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Content" Height="40" Padding="5,0" Margin="0" DropDownClosed="ArticleTransferComboBox_DropDownClosed">
                                         <ComboBoxItem Content="Piće"/>
                                         <ComboBoxItem Content="Hrana"/>
                                         <ComboBoxItem Content="Ostalo"/>
                                     </ComboBox>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellEditingTemplate>
+
                         </DataGridTemplateColumn>
 
                         <!-- KATEGORIJA -->
                         <DataGridTemplateColumn Header="Kategorija" Width="1.5*">
+
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Kategorija}" Style="{StaticResource TransferCellTextStyle}"/>
+
+                                    <TextBlock Text="{Binding Kategorija}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource TransferCellTextStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding KategorijaWarning}" Value="True">
+                                                        <Setter Property="Foreground" Value="#B38B32"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding KategorijaError}" Value="True">
+                                                        <Setter Property="Foreground" Value="#B85450"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
+
                             <DataGridTemplateColumn.CellEditingTemplate>
                                 <DataTemplate>
-                                    <ComboBox ItemsSource="{Binding AvailableCategories}" SelectedItem="{Binding Kategorija, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="40" Padding="5,0" Margin="0"/>
+                                    <ComboBox ItemsSource="{Binding AvailableCategories}" SelectedItem="{Binding Kategorija, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="40" Padding="5,0" Margin="0" DropDownClosed="ArticleTransferComboBox_DropDownClosed"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellEditingTemplate>
+
                         </DataGridTemplateColumn>
 
                         <!-- JEDINICA MJERE -->
                         <DataGridTemplateColumn Header="Jedinica" Width="*">
+
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Jedinica}" Style="{StaticResource TransferCellTextStyle}"/>
+
+                                    <TextBlock Text="{Binding Jedinica}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource TransferCellTextStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding JedinicaWarning}" Value="True">
+                                                        <Setter Property="Foreground" Value="#B38B32"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding JedinicaError}" Value="True">
+                                                        <Setter Property="Foreground" Value="#B85450"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
+
                             <DataGridTemplateColumn.CellEditingTemplate>
                                 <DataTemplate>
-                                    <ComboBox ItemsSource="{Binding DataContext.JediniceMjere, ElementName=ArticleTransferDataGrid}" SelectedValue="{Binding Jedinica, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="JedinicaMjere" Height="40" Padding="5,0" Margin="0"/>
+                                    <ComboBox ItemsSource="{Binding DataContext.JediniceMjere, ElementName=ArticleTransferDataGrid}" SelectedValue="{Binding Jedinica, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="JedinicaMjere" Height="40" Padding="5,0" Margin="0" DropDownClosed="ArticleTransferComboBox_DropDownClosed"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellEditingTemplate>
+
                         </DataGridTemplateColumn>
 
                         <!-- POREZ -->
                         <DataGridTemplateColumn Header="Porez" Width="*">
+
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Porez}" Style="{StaticResource TransferCellTextStyle}"/>
+
+                                    <TextBlock Text="{Binding Porez}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource TransferCellTextStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding PorezWarning}" Value="True">
+                                                        <Setter Property="Foreground" Value="#B38B32"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding PorezError}" Value="True">
+                                                        <Setter Property="Foreground" Value="#B85450"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
+
                             <DataGridTemplateColumn.CellEditingTemplate>
                                 <DataTemplate>
-                                    <ComboBox ItemsSource="{Binding DataContext.PoreskeStope, ElementName=ArticleTransferDataGrid}" SelectedValue="{Binding Porez, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Opis" Height="40" Padding="5,0" Margin="0"/>
+                                    <ComboBox ItemsSource="{Binding DataContext.PoreskeStope, ElementName=ArticleTransferDataGrid}" SelectedValue="{Binding Porez, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Opis" Height="40" Padding="5,0" Margin="0" DropDownClosed="ArticleTransferComboBox_DropDownClosed"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellEditingTemplate>
+
                         </DataGridTemplateColumn>
 
-                        <!-- NORMATIV -->
                         <!-- NORMATIV -->
                         <DataGridTemplateColumn Header="Normativ" Width="*">
 
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Normativ}" Style="{StaticResource TransferCellTextStyle}"/>
+
+                                    <TextBlock Text="{Binding Normativ}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource TransferCellTextStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding NormativWarning}" Value="True">
+                                                        <Setter Property="Foreground" Value="#B38B32"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding NormativError}" Value="True">
+                                                        <Setter Property="Foreground" Value="#B85450"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
 
@@ -2298,7 +2491,7 @@
 
                                     <Grid>
 
-                                        <ComboBox x:Name="NormativComboBox" ItemsSource="{Binding DataContext.Normativi, ElementName=ArticleTransferDataGrid}" SelectedValue="{Binding Normativ, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Normativ" Height="40" Padding="5,0" Margin="0" Visibility="Collapsed"/>
+                                        <ComboBox x:Name="NormativComboBox" ItemsSource="{Binding DataContext.Normativi, ElementName=ArticleTransferDataGrid}" SelectedValue="{Binding Normativ, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Normativ" Height="40" Padding="5,0" Margin="0" Visibility="Collapsed" DropDownClosed="ArticleTransferComboBox_DropDownClosed"/>
 
                                         <Border x:Name="NormativFixedBorder" Height="40" Background="Transparent" Padding="8,0" Visibility="Visible">
                                             <TextBlock Text="1" VerticalAlignment="Center" Foreground="{DynamicResource GlobalFontColor}"/>
@@ -2320,16 +2513,34 @@
 
                         <!-- POZICIJA -->
                         <DataGridTemplateColumn Header="Pozicija" Width="*">
+
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Pozicija}" Style="{StaticResource TransferCellTextStyle}"/>
+
+                                    <TextBlock Text="{Binding Pozicija}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource TransferCellTextStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding PozicijaWarning}" Value="True">
+                                                        <Setter Property="Foreground" Value="#B38B32"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding PozicijaError}" Value="True">
+                                                        <Setter Property="Foreground" Value="#B85450"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
+
                             <DataGridTemplateColumn.CellEditingTemplate>
                                 <DataTemplate>
                                     <TextBox Text="{Binding Pozicija, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TransferCellTextBoxStyle}"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellEditingTemplate>
+
                         </DataGridTemplateColumn>
 
                         <!-- AKTIVAN -->
@@ -2350,9 +2561,55 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
 
+                        <!-- SLIKA -->
+                        <DataGridTemplateColumn Header="Slika" Width="3*">
+
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+
+                                    <Grid Margin="8,0">
+
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="8"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Image Grid.Column="0" Height="36" Source="{Binding SlikaZaPrikaz}" Stretch="Uniform"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding Slika}" Style="{StaticResource TransferCellTextStyle}" ToolTip="{Binding Slika}"/>
+
+                                    </Grid>
+
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+
+                            <DataGridTemplateColumn.CellEditingTemplate>
+                                <DataTemplate>
+
+                                    <Grid>
+
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="8"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Image Grid.Column="0" Width="36" Height="36" Source="{Binding SlikaZaPrikaz}" Stretch="UniformToFill"/>
+                                        <TextBox Grid.Column="2" Text="{Binding Slika, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TransferCellTextBoxStyle}"/>
+
+                                    </Grid>
+
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellEditingTemplate>
+
+                        </DataGridTemplateColumn>
+
                     </DataGrid.Columns>
 
                 </DataGrid>
+
+                <!-- SPLITER -->
+                <GridSplitter Grid.Row="3" Height="12" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext" Background="{DynamicResource GlobalFontColor}" Opacity="0.20" Cursor="SizeNS" Margin="0,5,0,0"/>
 
                 <!-- ERROR / OUTPUT -->
                 <Border Grid.Row="4" BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0.5" Padding="10">
@@ -2389,7 +2646,7 @@
                           VerticalAlignment="Stretch"
                           Background="Transparent"
                           Foreground="{DynamicResource GlobalFontColor}"
-                          MouseDoubleClick="ArticleTransferErrorGrid_MouseDoubleClick">
+                          SelectionChanged="ArticleTransferErrorGrid_SelectionChanged">
 
                             <DataGrid.Resources>
 

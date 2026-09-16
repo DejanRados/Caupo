@@ -1,8 +1,8 @@
-﻿using Caupo.Data;
+﻿using Caupo.ArticleImport;
+using Caupo.Data;
 using Caupo.Helpers;
 using Caupo.Properties;
 using Caupo.ViewModels;
-using Caupo.ArticleImport;
 using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
@@ -13,6 +13,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
@@ -260,9 +261,12 @@ namespace Caupo.Views
         private static string BuildArticleNormativ(string? articleName, string? normativText)
         {
             string name = articleName?.Trim() ?? string.Empty;
-            string text = normativText?.Trim() ?? "1";
-            decimal? normativ = ParseArticleNormativ(text);
-            return normativ == 1m ? name : $"{name} {text}";
+            decimal? normativ = ParseArticleNormativ(normativText);
+
+            if (!normativ.HasValue || normativ == 1m)
+                return name;
+
+            return $"{name} {normativ.Value.ToString("0.00", CultureInfo.InvariantCulture)}";
         }
 
         private void UpdateArticleNormativLabel()
@@ -1213,133 +1217,9 @@ namespace Caupo.Views
         private readonly ObservableCollection<ArticleTransferError> _articleTransferErrors = new();
         private bool _articleTransferValidated;
 
-        public sealed class ArticleTransferRow : INotifyPropertyChanged
-        {
-            private readonly List<TblKategorije> _categories;
+        
 
-            private string _vrsta = string.Empty;
-            private string _kategorija = string.Empty;
-            private string _jedinica = string.Empty;
-            private string _normativ = "1";
-
-            public ArticleTransferRow(IEnumerable<TblKategorije> categories)
-            {
-                _categories = categories.ToList();
-            }
-
-            public int IdArtikla { get; set; }
-            public string Sifra { get; set; } = string.Empty;
-            public string InternaSifra { get; set; } = string.Empty;
-            public string Artikl { get; set; } = string.Empty;
-            public string Cijena { get; set; } = string.Empty;
-
-            public string Vrsta
-            {
-                get => _vrsta;
-                set
-                {
-                    if (_vrsta == value)
-                        return;
-
-                    _vrsta = value;
-
-                    if (_vrsta != "Piće")
-                        Normativ = "1";
-                    else if (string.Equals(Jedinica, "kom", StringComparison.OrdinalIgnoreCase))
-                        Normativ = "1";
-
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(CanEditNormativ));
-                    RefreshCategories();
-                }
-            }
-
-            public string Kategorija
-            {
-                get => _kategorija;
-                set
-                {
-                    if (_kategorija == value)
-                        return;
-
-                    _kategorija = value;
-                    OnPropertyChanged();
-                }
-            }
-
-            public string Jedinica
-            {
-                get => _jedinica;
-                set
-                {
-                    if (_jedinica == value)
-                        return;
-
-                    _jedinica = value;
-
-                    if (string.Equals(_jedinica, "kom", StringComparison.OrdinalIgnoreCase))
-                        Normativ = "1";
-
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(CanEditNormativ));
-                }
-            }
-
-            public string Porez { get; set; } = string.Empty;
-
-            public string Normativ
-            {
-                get => _normativ;
-                set
-                {
-                    if (_normativ == value)
-                        return;
-
-                    _normativ = value;
-                    OnPropertyChanged();
-                }
-            }
-
-            public string Pozicija { get; set; } = string.Empty;
-            public bool Aktivan { get; set; } = true;
-            public bool PorezNaPotrosnju { get; set; }
-
-            public bool CanEditNormativ => Vrsta == "Piće" && !string.Equals(Jedinica, "kom", StringComparison.OrdinalIgnoreCase);
-
-            public ObservableCollection<string> AvailableCategories { get; } = new();
-
-            public void RefreshCategories()
-            {
-                string currentCategory = Kategorija;
-                AvailableCategories.Clear();
-
-                int? typeId = Vrsta switch
-                {
-                    "Piće" => 0,
-                    "Hrana" => 1,
-                    "Ostalo" => 2,
-                    _ => null
-                };
-
-                if (typeId.HasValue)
-                {
-                    foreach (var category in _categories.Where(x => x.VrstaArtikla == typeId.Value).OrderBy(x => x.IdKategorije))
-                        AvailableCategories.Add(category.ToString());
-                }
-
-                if (!string.IsNullOrWhiteSpace(currentCategory) && AvailableCategories.Contains(currentCategory))
-                    Kategorija = currentCategory;
-                else
-                    Kategorija = string.Empty;
-            }
-
-            public event PropertyChangedEventHandler? PropertyChanged;
-
-            private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
+     
 
         public sealed class ArticleTransferError
         {
@@ -1369,7 +1249,7 @@ namespace Caupo.Views
             OpenFileDialog dialog = new()
             {
                 Title = "Uvezi artikle",
-                Filter = "Excel datoteke (*.xlsx)|*.xlsx",
+                Filter = "Podržane datoteke (*.xlsx;*.csv)|*.xlsx;*.csv|Excel datoteke (*.xlsx)|*.xlsx|CSV datoteke (*.csv)|*.csv",
                 Multiselect = false
             };
 
@@ -1378,9 +1258,23 @@ namespace Caupo.Views
 
             try
             {
-                ArticleImportSourceData source = ExcelArticleImportReader.Read(dialog.FileName);
+                string extension = Path.GetExtension(dialog.FileName).ToLowerInvariant();
+
+                ArticleImportSourceData source = extension switch
+                {
+                    ".xlsx" => ExcelArticleImportReader.Read(dialog.FileName),
+                    ".csv" => CsvArticleImportReader.Read(dialog.FileName),
+                    _ => throw new NotSupportedException($"Format {extension} nije podržan.")
+                };
 
                 _articleImportSource = source;
+
+                if (ArticleImportFormatDetector.IsCaupoArticleFormat(source))
+                {
+                    LoadCaupoArticleImport(source);
+                    return;
+                }
+
                 _articleImportMappings = ArticleImportMapper.CreateMappings();
 
                 LoadArticleImportMapperColumns(source);
@@ -1392,7 +1286,79 @@ namespace Caupo.Views
             catch (Exception ex)
             {
                 Debug.WriteLine($"[ARTICLE IMPORT] Greška: {ex}");
+                ShowArticleImportMapperMessage("Datoteku nije moguće učitati.");
             }
+        }
+
+        private async void LoadCaupoArticleImport(ArticleImportSourceData source)
+        {
+            ArticlesViewModel viewModel = (ArticlesViewModel)DataContext;
+
+            _articleTransferRows.Clear();
+
+            foreach (ArticleImportSourceRow row in source.Rows)
+            {
+                _articleTransferRows.Add(new ArticleTransferRow(viewModel.Kategorije)
+                {
+                    IdArtikla = int.TryParse(row.GetString("IdArtikla"), out int id) ? id : 0,
+                    Sifra = row.GetString("Sifra"),
+                    InternaSifra = row.GetString("InternaSifra"),
+                    Artikl = row.GetString("Artikl"),
+                    Cijena = row.GetString("Cijena"),
+                    Vrsta = ResolveImportVrsta(row.GetString("VrstaArtikla")),
+                    Kategorija = ResolveImportKategorija(row.GetString("Kategorija"), viewModel),
+                    Jedinica = ResolveImportJedinica(row.GetString("JedinicaMjere"), viewModel),
+                    Porez = ResolveImportPorez(row.GetString("PoreskaStopa"), viewModel),
+                    Normativ = row.GetString("Normativ"),
+                    Pozicija = row.GetString("Pozicija"),
+                    Aktivan = ParseTransferBool(row.GetString("Aktivan"), true),
+                    PorezNaPotrosnju = ParseTransferBool(row.GetString("PorezNaPotrosnju"), false),
+                    Slika = row.GetString("Slika")
+                });
+            }
+
+            Debug.WriteLine($"[ARTICLE IMPORT] Prepoznat Caupo format. Učitano redova: {_articleTransferRows.Count}");
+
+            OpenArticleTransferEditor(
+                "Uvoz artikala",
+                $"Caupo format · Učitano {_articleTransferRows.Count} artikala. Pregledajte podatke prije validacije i spremanja."
+            );
+            
+        }
+
+        private static string ResolveImportVrsta(string value)
+        {
+            return value switch
+            {
+                "0" => "Piće",
+                "1" => "Hrana",
+                "2" => "Ostalo",
+                _ => value
+            };
+        }
+
+        private static string ResolveImportJedinica(string value, ArticlesViewModel viewModel)
+        {
+            if (!int.TryParse(value, out int id))
+                return value;
+
+            return viewModel.JediniceMjere.FirstOrDefault(x => x.IdJedinice == id)?.ToString() ?? value;
+        }
+
+        private static string ResolveImportPorez(string value, ArticlesViewModel viewModel)
+        {
+            if (!int.TryParse(value, out int id))
+                return value;
+
+            return viewModel.PoreskeStope.FirstOrDefault(x => x.IdStope == id)?.ToString() ?? value;
+        }
+
+        private static string ResolveImportKategorija(string value, ArticlesViewModel viewModel)
+        {
+            if (!int.TryParse(value, out int id))
+                return value;
+
+            return viewModel.Kategorije.FirstOrDefault(x => x.IdKategorije == id)?.ToString() ?? value;
         }
 
         private List<ArticleImportMappingOption> CreateArticleImportMappingOptions(ArticleImportSourceData source)
@@ -1596,10 +1562,22 @@ namespace Caupo.Views
             ArticleImportMapping? codeMapping = _articleImportMappings.FirstOrDefault(x => x.TargetColumn == "Šifra");
             ArticleImportMapping? internalCodeMapping = _articleImportMappings.FirstOrDefault(x => x.TargetColumn == "Interna šifra");
             ArticleImportMapping? positionMapping = _articleImportMappings.FirstOrDefault(x => x.TargetColumn == "Pozicija");
+            ArticleImportMapping? priceMapping = _articleImportMappings.FirstOrDefault(x => x.TargetColumn == "Cijena");
+            ArticleImportMapping? typeMapping = _articleImportMappings.FirstOrDefault(x => x.TargetColumn == "Vrsta");
+            ArticleImportMapping? categoryMapping = _articleImportMappings.FirstOrDefault(x => x.TargetColumn == "Kategorija");
+            ArticleImportMapping? unitMapping = _articleImportMappings.FirstOrDefault(x => x.TargetColumn == "Jedinica");
+            ArticleImportMapping? normativMapping = _articleImportMappings.FirstOrDefault(x => x.TargetColumn == "Normativ");
 
             bool generateCode = codeMapping == null || codeMapping.MappingType == ArticleImportMappingType.None;
             bool generateInternalCode = internalCodeMapping == null || internalCodeMapping.MappingType == ArticleImportMappingType.None;
             bool generatePosition = positionMapping == null || positionMapping.MappingType == ArticleImportMappingType.None;
+
+            bool defaultPrice = priceMapping == null || priceMapping.MappingType == ArticleImportMappingType.None;
+            bool defaultType = typeMapping == null || typeMapping.MappingType == ArticleImportMappingType.None;
+            bool defaultCategory = categoryMapping == null || categoryMapping.MappingType == ArticleImportMappingType.None;
+            bool defaultUnit = unitMapping == null || unitMapping.MappingType == ArticleImportMappingType.None;
+            bool defaultTax = taxMapping == null || taxMapping.MappingType == ArticleImportMappingType.None;
+            bool defaultNormativ = normativMapping == null || normativMapping.MappingType == ArticleImportMappingType.None;
 
             int nextCode = viewModel.Artikli
                 .Select(x => int.TryParse(x.Sifra, out int value) ? value : 0)
@@ -1612,9 +1590,9 @@ namespace Caupo.Views
                 .Max() + 1;
 
             int nextPosition = viewModel.Artikli
-                 .Select(x => x.Pozicija ?? 0)
-                 .DefaultIfEmpty(0)
-                 .Max() + 1;
+                .Select(x => x.Pozicija ?? 0)
+                .DefaultIfEmpty(0)
+                .Max() + 1;
 
             foreach (ArticleImportMappedRow row in mappedRows)
             {
@@ -1637,7 +1615,7 @@ namespace Caupo.Views
 
             foreach (ArticleImportMappedRow row in mappedRows)
             {
-                _articleTransferRows.Add(new ArticleTransferRow(viewModel.Kategorije)
+                var transferRow = new ArticleTransferRow(viewModel.Kategorije)
                 {
                     IdArtikla = 0,
                     Sifra = row.GetString("Šifra"),
@@ -1651,8 +1629,29 @@ namespace Caupo.Views
                     Normativ = row.GetString("Normativ"),
                     Pozicija = row.GetString("Pozicija"),
                     Aktivan = ParseTransferBool(row.GetString("Aktivan"), true),
-                    PorezNaPotrosnju = ParseTransferBool(row.GetString("Porez na potrošnju"), false)
-                });
+                    PorezNaPotrosnju = ParseTransferBool(row.GetString("Porez na potrošnju"), false),
+                    Slika = row.GetString("Slika")
+                };
+
+                if (defaultPrice)
+                    transferRow.DefaultedFields.Add("Cijena");
+
+                if (defaultType)
+                    transferRow.DefaultedFields.Add("Vrsta");
+
+                if (defaultCategory)
+                    transferRow.DefaultedFields.Add("Kategorija");
+
+                if (defaultUnit)
+                    transferRow.DefaultedFields.Add("Jedinica");
+
+                if (defaultTax)
+                    transferRow.DefaultedFields.Add("Porez");
+
+                if (defaultNormativ)
+                    transferRow.DefaultedFields.Add("Normativ");
+
+                _articleTransferRows.Add(transferRow);
             }
 
             Debug.WriteLine($"[ARTICLE IMPORT] Pripremljeno redova za editor: {_articleTransferRows.Count}");
@@ -1672,7 +1671,7 @@ namespace Caupo.Views
             messageBox.MessageText.Text = message;
             messageBox.ShowDialog();
         }
-        private void OpenArticleTransferEditor(string title, string description)
+        private async void OpenArticleTransferEditor(string title, string description)
         {
             ArticleTransferTitle.Text = title;
             ArticleTransferSummary.Text = description;
@@ -1680,6 +1679,8 @@ namespace Caupo.Views
             ArticleTransferErrorGrid.ItemsSource = _articleTransferErrors;
             ResetTransferValidation();
             ArticleTransferGrid.Visibility = Visibility.Visible;
+
+            await ValidateArticleTransferAsync();
         }
 
         private void LoadTransferRowsFromCaupo(ArticlesViewModel viewModel)
@@ -1707,7 +1708,8 @@ namespace Caupo.Views
                     Normativ = article.Normativ?.ToString(CultureInfo.InvariantCulture) ?? "1",
                     Pozicija = article.Pozicija?.ToString() ?? string.Empty,
                     Aktivan = article.Aktivan,
-                    PorezNaPotrosnju = article.PorezNaPotrosnju
+                    PorezNaPotrosnju = article.PorezNaPotrosnju,
+                    Slika = article.Slika ?? string.Empty
                 });
             }
         }
@@ -1774,50 +1776,150 @@ namespace Caupo.Views
 
         private void BtnTransferSaveFile_Click(object sender, RoutedEventArgs e)
         {
+            ArticleTransferExportPopup.IsOpen = !ArticleTransferExportPopup.IsOpen;
+        }
+
+        private void BtnTransferExportXlsx_Click(object sender, RoutedEventArgs e)
+        {
+            ArticleTransferExportPopup.IsOpen = false;
             ArticleTransferDataGrid.CommitEdit(DataGridEditingUnit.Cell, true);
             ArticleTransferDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
 
-            SaveFileDialog dialog = new SaveFileDialog { Filter = "Excel Files (*.xlsx)|*.xlsx", DefaultExt = ".xlsx", FileName = "Caupo_Artikli.xlsx" };
+            SaveFileDialog dialog = new()
+            {
+                Title = "Izvezi artikle u Excel",
+                Filter = "Excel datoteka (*.xlsx)|*.xlsx",
+                DefaultExt = ".xlsx",
+                AddExtension = true,
+                FileName = "Caupo_Artikli.xlsx"
+            };
+
             if (dialog.ShowDialog() != true)
                 return;
 
             try
             {
-                using var workbook = new XLWorkbook();
-                var sheet = workbook.Worksheets.Add("Artikli");
-                string[] headers = { "ID", "Šifra", "Interna šifra", "Naziv", "Cijena", "Vrsta", "Kategorija", "Jedinica", "Porez", "Normativ", "Pozicija", "Aktivan", "Porez na potrošnju" };
-                for (int i = 0; i < headers.Length; i++) sheet.Cell(1, i + 1).Value = headers[i];
-
-                int r = 2;
-                foreach (var item in _articleTransferRows)
-                {
-                    sheet.Cell(r, 1).Value = item.IdArtikla == 0 ? string.Empty : item.IdArtikla.ToString();
-                    sheet.Cell(r, 2).Value = item.Sifra;
-                    sheet.Cell(r, 3).Value = item.InternaSifra;
-                    sheet.Cell(r, 4).Value = item.Artikl;
-                    sheet.Cell(r, 5).Value = item.Cijena;
-                    sheet.Cell(r, 6).Value = item.Vrsta;
-                    sheet.Cell(r, 7).Value = item.Kategorija;
-                    sheet.Cell(r, 8).Value = item.Jedinica;
-                    sheet.Cell(r, 9).Value = item.Porez;
-                    sheet.Cell(r, 10).Value = item.Normativ;
-                    sheet.Cell(r, 11).Value = item.Pozicija;
-                    sheet.Cell(r, 12).Value = item.Aktivan ? "DA" : "NE";
-                    sheet.Cell(r, 13).Value = item.PorezNaPotrosnju ? "DA" : "NE";
-                    r++;
-                }
-
-                sheet.SheetView.FreezeRows(1);
-                sheet.RangeUsed().SetAutoFilter();
-                sheet.Columns().AdjustToContents();
-                workbook.SaveAs(dialog.FileName);
+                ExportArticlesToXlsx(dialog.FileName);
                 ArticleTransferFooter.Text = $"Izvezeno {_articleTransferRows.Count} artikala u {Path.GetFileName(dialog.FileName)}";
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("[ARTICLES] Import editor export: " + ex);
+                Debug.WriteLine("[ARTICLES] XLSX export: " + ex);
                 ShowArticleEditMessage("GREŠKA", "XLSX fajl nije spremljen.");
             }
+        }
+
+        private void BtnTransferExportCsv_Click(object sender, RoutedEventArgs e)
+        {
+            ArticleTransferExportPopup.IsOpen = false;
+            ArticleTransferDataGrid.CommitEdit(DataGridEditingUnit.Cell, true);
+            ArticleTransferDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
+
+            SaveFileDialog dialog = new()
+            {
+                Title = "Izvezi artikle u CSV",
+                Filter = "CSV datoteka (*.csv)|*.csv",
+                DefaultExt = ".csv",
+                AddExtension = true,
+                FileName = "Caupo_Artikli.csv"
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            try
+            {
+                ExportArticlesToCsv(dialog.FileName);
+                ArticleTransferFooter.Text = $"Izvezeno {_articleTransferRows.Count} artikala u {Path.GetFileName(dialog.FileName)}";
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[ARTICLES] CSV export: " + ex);
+                ShowArticleEditMessage("GREŠKA", "CSV fajl nije spremljen.");
+            }
+        }
+
+        private void ExportArticlesToXlsx(string filePath)
+        {
+            using var workbook = new XLWorkbook();
+            var sheet = workbook.Worksheets.Add("Artikli");
+
+            string[] headers = { "IdArtikla", "Sifra", "InternaSifra", "Artikl", "Cijena", "VrstaArtikla", "Kategorija", "JedinicaMjere", "PoreskaStopa", "Normativ", "Pozicija", "Aktivan", "PorezNaPotrosnju", "Slika" };
+
+            for (int i = 0; i < headers.Length; i++)
+                sheet.Cell(1, i + 1).Value = headers[i];
+
+            int r = 2;
+
+            foreach (var item in _articleTransferRows)
+            {
+                sheet.Cell(r, 1).Value = item.IdArtikla == 0 ? string.Empty : item.IdArtikla.ToString();
+                sheet.Cell(r, 2).Value = item.Sifra;
+                sheet.Cell(r, 3).Value = item.InternaSifra;
+                sheet.Cell(r, 4).Value = item.Artikl;
+                sheet.Cell(r, 5).Value = item.Cijena;
+                sheet.Cell(r, 6).Value = item.Vrsta;
+                sheet.Cell(r, 7).Value = item.Kategorija;
+                sheet.Cell(r, 8).Value = item.Jedinica;
+                sheet.Cell(r, 9).Value = item.Porez;
+                sheet.Cell(r, 10).Value = item.Normativ;
+                sheet.Cell(r, 11).Value = item.Pozicija;
+                sheet.Cell(r, 12).Value = item.Aktivan ? "DA" : "NE";
+                sheet.Cell(r, 13).Value = item.PorezNaPotrosnju ? "DA" : "NE";
+                sheet.Cell(r, 14).Value = item.Slika;
+                r++;
+            }
+
+            sheet.SheetView.FreezeRows(1);
+            sheet.RangeUsed().SetAutoFilter();
+            sheet.Columns().AdjustToContents();
+            workbook.SaveAs(filePath);
+        }
+
+
+        private void ExportArticlesToCsv(string filePath)
+        {
+            using StreamWriter writer = new(filePath, false, new UTF8Encoding(true));
+
+            string[] headers = { "IdArtikla", "Sifra", "InternaSifra", "Artikl", "Cijena", "VrstaArtikla", "Kategorija", "JedinicaMjere", "PoreskaStopa", "Normativ", "Pozicija", "Aktivan", "PorezNaPotrosnju", "Slika" };
+
+            writer.WriteLine(string.Join(";", headers.Select(EscapeCsvValue)));
+
+            foreach (var item in _articleTransferRows)
+            {
+                string[] values =
+                {
+            item.IdArtikla == 0 ? string.Empty : item.IdArtikla.ToString(),
+            item.Sifra,
+            item.InternaSifra,
+            item.Artikl,
+            item.Cijena,
+            item.Vrsta,
+            item.Kategorija,
+            item.Jedinica,
+            item.Porez,
+            item.Normativ,
+            item.Pozicija,
+            item.Aktivan ? "DA" : "NE",
+            item.PorezNaPotrosnju ? "DA" : "NE",
+            item.Slika
+        };
+
+                writer.WriteLine(string.Join(";", values.Select(EscapeCsvValue)));
+            }
+        }
+
+        private static string EscapeCsvValue(string? value)
+        {
+            string text = value ?? string.Empty;
+
+            if (text.Contains('"'))
+                text = text.Replace("\"", "\"\"");
+
+            if (text.Contains(';') || text.Contains('"') || text.Contains('\r') || text.Contains('\n'))
+                text = $"\"{text}\"";
+
+            return text;
         }
 
         private async void BtnTransferValidate_Click(object sender, RoutedEventArgs e)
@@ -1827,8 +1929,8 @@ namespace Caupo.Views
 
         private async Task<bool> ValidateArticleTransferAsync()
         {
-            ArticleTransferDataGrid.CommitEdit(DataGridEditingUnit.Cell, true);
-            ArticleTransferDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
+            //ArticleTransferDataGrid.CommitEdit(DataGridEditingUnit.Cell, true);
+            //ArticleTransferDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
             _articleTransferErrors.Clear();
 
             if (DataContext is not ArticlesViewModel viewModel)
@@ -1841,12 +1943,20 @@ namespace Caupo.Views
             foreach (var row in _articleTransferRows)
             {
                 rowNumber++;
-                void Error(string field, string message) => _articleTransferErrors.Add(new ArticleTransferError { RowNumber = rowNumber, ColumnName = field, Message = message });
+
+                row.ErrorFields.Clear();
+                row.WarningFields.Clear();
+
+                void Error(string field, string message)
+                {
+                    row.ErrorFields.Add(field);
+                    _articleTransferErrors.Add(new ArticleTransferError { RowNumber = rowNumber, ColumnName = field, Message = message });
+                }
 
                 if (string.IsNullOrWhiteSpace(row.Sifra)) Error("Šifra", "Šifra artikla nije unesena.");
                 if (string.IsNullOrWhiteSpace(row.InternaSifra)) Error("Interna šifra", "Interna šifra nije unesena.");
                 if (string.IsNullOrWhiteSpace(row.Artikl)) Error("Naziv", "Naziv artikla nije unesen.");
-                if (!TryParseArticlePrice(row.Cijena, out decimal cijena) || cijena < 0) Error("Cijena", $"Artikl '{row.Artikl}' nema ispravnu cijenu.");
+                if (!TryParseArticlePrice(row.Cijena, out decimal cijena) || cijena <= 0) Error("Cijena", $"Artikl '{row.Artikl}' mora imati cijenu veću od 0.");
 
                 int? typeId = MapTransferType(row.Vrsta);
                 if (typeId == null) Error("Vrsta", $"Za artikl '{row.Artikl}' izaberite Piće, Hrana ili Ostalo.");
@@ -1861,38 +1971,96 @@ namespace Caupo.Views
                 if (tax == null) Error("Porez", $"Poreska stopa '{row.Porez}' ne postoji ili nije aktivna.");
 
                 decimal? normativ = ParseArticleNormativ(row.Normativ);
-                if (typeId == 0 && (!normativ.HasValue || normativ <= 0)) Error("Normativ", $"Artikl '{row.Artikl}' mora imati ispravan normativ veći od 0.");
-                if (typeId != 0) normativ = 1m;
+
+                if (typeId == 0)
+                {
+                    if (!normativ.HasValue || normativ <= 0)
+                        Error("Normativ", $"Artikl '{row.Artikl}' mora imati ispravan normativ veći od 0.");
+                    else if (unit != null && string.Equals(unit.ToString().Trim(), "kom", StringComparison.OrdinalIgnoreCase) && normativ != 1m)
+                        Error("Normativ", $"Artikl '{row.Artikl}' ima jedinicu mjere 'kom', ali normativ nije 1. Provjerite jedinicu mjere ili normativ.");
+                }
+                else if (typeId == 1 || typeId == 2)
+                {
+                    if (!normativ.HasValue || normativ != 1m)
+                        Error("Normativ", $"Artikl '{row.Artikl}' vrste '{row.Vrsta}' mora imati normativ 1.");
+                }
 
                 if (!int.TryParse(row.Pozicija, out int pozicija) || pozicija <= 0) Error("Pozicija", $"Artikl '{row.Artikl}' mora imati ispravnu poziciju.");
 
                 string artiklNormativ = BuildArticleNormativ(row.Artikl, typeId == 0 ? row.Normativ : "1");
-                var duplicateCode = dbArticles.FirstOrDefault(x => x.IdArtikla != row.IdArtikla && x.Sifra == row.Sifra);
+
+                var duplicateCode = dbArticles.FirstOrDefault(x => x.IdArtikla != row.IdArtikla && string.Equals(x.Sifra?.Trim(), row.Sifra?.Trim(), StringComparison.OrdinalIgnoreCase));
                 if (duplicateCode != null) Error("Šifra", $"Šifra '{row.Sifra}' već pripada artiklu '{duplicateCode.Artikl}'.");
-                var duplicateInternal = dbArticles.FirstOrDefault(x => x.IdArtikla != row.IdArtikla && x.InternaSifra == row.InternaSifra);
+
+                var duplicateInternal = dbArticles.FirstOrDefault(x => x.IdArtikla != row.IdArtikla && string.Equals(x.InternaSifra?.Trim(), row.InternaSifra?.Trim(), StringComparison.OrdinalIgnoreCase));
                 if (duplicateInternal != null) Error("Interna šifra", $"Interna šifra '{row.InternaSifra}' već pripada artiklu '{duplicateInternal.Artikl}'.");
-                var duplicateNorm = dbArticles.FirstOrDefault(x => x.IdArtikla != row.IdArtikla && x.ArtiklNormativ == artiklNormativ);
+
+                var duplicateNorm = dbArticles.FirstOrDefault(x => x.IdArtikla != row.IdArtikla && string.Equals(x.ArtiklNormativ?.Trim(), artiklNormativ.Trim(), StringComparison.OrdinalIgnoreCase));
                 if (duplicateNorm != null) Error("Naziv / Normativ", $"Naziv za prodaju '{artiklNormativ}' već postoji kod artikla '{duplicateNorm.Artikl}'.");
 
                 if (row.IdArtikla > 0)
                 {
                     var original = dbArticles.FirstOrDefault(x => x.IdArtikla == row.IdArtikla);
-                    if (original == null) Error("ID", $"Artikl ID {row.IdArtikla} više ne postoji u bazi.");
+
+                    if (original == null)
+                        Error("ID", $"Artikl ID {row.IdArtikla} više ne postoji u bazi.");
                     else if (!string.Equals(original.Artikl, row.Artikl, StringComparison.Ordinal) && await viewModel.HasArticleBeenSold(original.Sifra))
                         Error("Naziv", $"Naziv artikla '{original.Artikl}' se ne može mijenjati jer je artikl već prodavan.");
                 }
+
+                void Warning(string field, string message)
+                {
+                    row.WarningFields.Add(field);
+                    _articleTransferErrors.Add(new ArticleTransferError { Type = "Upozorenje", RowNumber = rowNumber, ColumnName = field, Message = message });
+                }
+
+                if (row.DefaultedFields.Contains("Cijena"))
+                    Warning("Cijena", $"Za artikl '{row.Artikl}' cijena nije pronađena u izvoru. Caupo je automatski postavio {row.Cijena}.");
+
+                if (row.DefaultedFields.Contains("Vrsta"))
+                    Warning("Vrsta", $"Za artikl '{row.Artikl}' vrsta nije pronađena u izvoru. Caupo je automatski postavio '{row.Vrsta}'.");
+
+                if (row.DefaultedFields.Contains("Kategorija"))
+                    Warning("Kategorija", $"Za artikl '{row.Artikl}' kategorija nije pronađena u izvoru. Caupo je automatski postavio '{row.Kategorija}'.");
+
+                if (row.DefaultedFields.Contains("Jedinica"))
+                    Warning("Jedinica", $"Za artikl '{row.Artikl}' jedinica mjere nije pronađena u izvoru. Caupo je automatski postavio '{row.Jedinica}'.");
+
+                if (row.DefaultedFields.Contains("Porez"))
+                    Warning("Porez", $"Za artikl '{row.Artikl}' porez nije pronađen u izvoru. Caupo je automatski postavio '{row.Porez}'.");
+
+                if (row.DefaultedFields.Contains("Normativ"))
+                    Warning("Normativ", $"Za artikl '{row.Artikl}' normativ nije pronađen u izvoru. Caupo je automatski postavio {row.Normativ}.");
+
+                row.RefreshValidationState();
+
             }
 
-            foreach (var group in _articleTransferRows.Where(x => !string.IsNullOrWhiteSpace(x.Sifra)).GroupBy(x => x.Sifra, StringComparer.OrdinalIgnoreCase).Where(x => x.Count() > 1))
+            foreach (var group in _articleTransferRows.Where(x => !string.IsNullOrWhiteSpace(x.Sifra)).GroupBy(x => x.Sifra.Trim(), StringComparer.OrdinalIgnoreCase).Where(x => x.Count() > 1))
                 _articleTransferErrors.Add(new ArticleTransferError { RowNumber = 0, ColumnName = "Šifra", Message = $"Šifra '{group.Key}' se pojavljuje više puta u editoru." });
-            foreach (var group in _articleTransferRows.Where(x => !string.IsNullOrWhiteSpace(x.InternaSifra)).GroupBy(x => x.InternaSifra, StringComparer.OrdinalIgnoreCase).Where(x => x.Count() > 1))
+
+            foreach (var group in _articleTransferRows.Where(x => !string.IsNullOrWhiteSpace(x.InternaSifra)).GroupBy(x => x.InternaSifra.Trim(), StringComparer.OrdinalIgnoreCase).Where(x => x.Count() > 1))
                 _articleTransferErrors.Add(new ArticleTransferError { RowNumber = 0, ColumnName = "Interna šifra", Message = $"Interna šifra '{group.Key}' se pojavljuje više puta u editoru." });
 
-            _articleTransferValidated = _articleTransferErrors.Count == 0;
+            foreach (var group in _articleTransferRows.Where(x => !string.IsNullOrWhiteSpace(x.Artikl)).GroupBy(x => BuildArticleNormativ(x.Artikl, x.Normativ), StringComparer.OrdinalIgnoreCase).Where(x => x.Count() > 1))
+                _articleTransferErrors.Add(new ArticleTransferError { RowNumber = 0, ColumnName = "Naziv / Normativ", Message = $"Naziv za prodaju '{group.Key}' se pojavljuje više puta u editoru." });
+
+            int errorCount = _articleTransferErrors.Count(x => x.Type == "Greška");
+            int warningCount = _articleTransferErrors.Count(x => x.Type == "Upozorenje");
+
+            _articleTransferValidated = errorCount == 0;
             BtnTransferApply.IsEnabled = _articleTransferValidated;
-            ArticleTransferErrorTitle.Text = $"Greške ({_articleTransferErrors.Count})";
-            ArticleTransferValidationSummary.Text = _articleTransferValidated ? $"Ispravno: {_articleTransferRows.Count} | Greške: 0" : $"Redova: {_articleTransferRows.Count} | Greške: {_articleTransferErrors.Count}";
-            ArticleTransferFooter.Text = _articleTransferValidated ? "Validacija uspješna. Podaci su spremni za primjenu." : "Ispravite navedene greške i ponovo pokrenite validaciju.";
+
+            ArticleTransferErrorTitle.Text = $"Greške ({errorCount}) | Upozorenja ({warningCount})";
+            ArticleTransferValidationSummary.Text = $"Redova: {_articleTransferRows.Count} | Greške: {errorCount} | Upozorenja: {warningCount}";
+
+            if (errorCount > 0)
+                ArticleTransferFooter.Text = "Ispravite navedene greške prije primjene podataka.";
+            else if (warningCount > 0)
+                ArticleTransferFooter.Text = "Nema grešaka. Pregledajte upozorenja prije primjene podataka.";
+            else
+                ArticleTransferFooter.Text = "Validacija uspješna. Podaci su spremni za primjenu.";
+
             return _articleTransferValidated;
         }
 
@@ -1960,12 +2128,39 @@ namespace Caupo.Views
             }
         }
 
-        private void ArticleTransferDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
+        private async void ArticleTransferDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
-            ResetTransferValidation();
+            ArticleTransferErrorGrid.IsHitTestVisible = true;
+            ArticleTransferErrorGrid.Opacity = 1;
+
+            if (e.EditAction != DataGridEditAction.Commit)
+                return;
+
+            if (e.Row.Item is not ArticleTransferRow row)
+                return;
+
+            string? field = e.Column.Header?.ToString();
+
+            if (field != null && row.DefaultedFields.Contains(field))
+                row.DefaultedFields.Remove(field);
+
+            await Dispatcher.InvokeAsync(async () =>
+            {
+                if (field == "Cijena" && TryParseArticlePrice(row.Cijena, out decimal cijena))
+                    row.Cijena = cijena.ToString("0.00", CultureInfo.InvariantCulture);
+
+                await ValidateArticleTransferAsync();
+            }, System.Windows.Threading.DispatcherPriority.Background);
         }
 
-        private void ArticleTransferErrorGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+
+        private void ArticleTransferDataGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
+        {
+            ArticleTransferErrorGrid.IsHitTestVisible = false;
+            ArticleTransferErrorGrid.Opacity = 0.60;
+        }
+
+        private async void ArticleTransferErrorGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (ArticleTransferErrorGrid.SelectedItem is not ArticleTransferError error || error.RowNumber < 2)
                 return;
@@ -1975,9 +2170,84 @@ namespace Caupo.Views
                 return;
 
             var item = _articleTransferRows[index];
+
+            int columnIndex = error.ColumnName switch
+            {
+                "ID" => 0,
+                "Šifra" => 1,
+                "Interna šifra" => 2,
+                "Naziv" => 3,
+                "Cijena" => 4,
+                "Vrsta" => 5,
+                "Kategorija" => 6,
+                "Jedinica" => 7,
+                "Porez" => 8,
+                "Normativ" => 9,
+                "Naziv / Normativ" => 9,
+                "Pozicija" => 10,
+                _ => -1
+            };
+
+            if (error.ColumnName == "Normativ" || error.ColumnName == "Naziv / Normativ")
+                item.EnableNormativCorrection();
+
             ArticleTransferDataGrid.SelectedItem = item;
             ArticleTransferDataGrid.ScrollIntoView(item);
+
+            if (columnIndex < 0 || columnIndex >= ArticleTransferDataGrid.Columns.Count)
+                return;
+
+            var column = ArticleTransferDataGrid.Columns[columnIndex];
+
+            ArticleTransferDataGrid.CurrentCell = new DataGridCellInfo(item, column);
+            ArticleTransferDataGrid.ScrollIntoView(item, column);
             ArticleTransferDataGrid.Focus();
+            ArticleTransferDataGrid.BeginEdit();
+
+            await Dispatcher.InvokeAsync(() =>
+            {
+                DataGridCell? cell = GetDataGridCell(ArticleTransferDataGrid, item, columnIndex);
+                if (cell == null)
+                    return;
+
+                TextBox? textBox = FindVisualChild<TextBox>(cell);
+                if (textBox != null)
+                {
+                    textBox.Focus();
+                    Keyboard.Focus(textBox);
+                    textBox.SelectAll();
+                    return;
+                }
+
+                ComboBox? comboBox = FindVisualChild<ComboBox>(cell);
+                if (comboBox != null)
+                {
+                    comboBox.Focus();
+                    Keyboard.Focus(comboBox);
+                    //comboBox.IsDropDownOpen = true;
+                }
+            }, System.Windows.Threading.DispatcherPriority.Loaded);
+        }
+
+        private void ArticleTransferComboBox_DropDownClosed(object sender, EventArgs e)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                ArticleTransferDataGrid.CommitEdit(DataGridEditingUnit.Cell, true);
+                ArticleTransferDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
+            }), System.Windows.Threading.DispatcherPriority.Background);
+        }
+
+        private static DataGridCell? GetDataGridCell(DataGrid dataGrid, object item, int columnIndex)
+        {
+            if (dataGrid.ItemContainerGenerator.ContainerFromItem(item) is not DataGridRow row)
+                return null;
+
+            DataGridCellsPresenter? presenter = FindVisualChild<DataGridCellsPresenter>(row);
+            if (presenter == null)
+                return null;
+
+            return presenter.ItemContainerGenerator.ContainerFromIndex(columnIndex) as DataGridCell;
         }
 
         private void BtnTransferClose_Click(object sender, RoutedEventArgs e)
@@ -2018,7 +2288,26 @@ namespace Caupo.Views
             while (source != null && source is not DataGridCell)
                 source = VisualTreeHelper.GetParent(source);
 
-            if (source is not DataGridCell cell || cell.IsEditing || cell.IsReadOnly)
+            if (source is not DataGridCell cell)
+            {
+                if (dataGrid.CurrentCell.Item != null && dataGrid.CurrentCell.Column != null)
+                {
+                    int columnIndex = dataGrid.Columns.IndexOf(dataGrid.CurrentCell.Column);
+                    DataGridCell? currentCell = GetDataGridCell(dataGrid, dataGrid.CurrentCell.Item, columnIndex);
+
+                    if (currentCell != null && FindVisualChild<ComboBox>(currentCell) is ComboBox comboBox && comboBox.IsDropDownOpen)
+                        comboBox.IsDropDownOpen = false;
+                    else
+                    {
+                        dataGrid.CommitEdit(DataGridEditingUnit.Cell, true);
+                        dataGrid.CommitEdit(DataGridEditingUnit.Row, true);
+                    }
+                }
+
+                return;
+            }
+
+            if (cell.IsEditing || cell.IsReadOnly)
                 return;
 
             if (!cell.IsFocused)
@@ -2059,6 +2348,20 @@ namespace Caupo.Views
         {
             if (sender is not DataGrid dataGrid)
                 return;
+
+            if (e.Key == Key.Escape)
+            {
+                dataGrid.CancelEdit(DataGridEditingUnit.Cell);
+                dataGrid.CancelEdit(DataGridEditingUnit.Row);
+
+                ArticleTransferErrorGrid.IsHitTestVisible = true;
+                ArticleTransferErrorGrid.Opacity = 1;
+                ArticleTransferErrorGrid.UnselectAll();
+                ArticleTransferErrorGrid.SelectedItem = null;
+
+                e.Handled = true;
+                return;
+            }
 
             if (e.Key != Key.Up && e.Key != Key.Down && e.Key != Key.Left && e.Key != Key.Right && e.Key != Key.Enter)
                 return;

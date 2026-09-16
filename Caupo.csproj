@@ -209,6 +209,7 @@
     <None Remove="Images\logodsoft.png" />
     <None Remove="Images\logowhite.svg" />
     <None Remove="Images\main.png" />
+    <None Remove="Images\noimage.png" />
     <None Remove="Images\ok.png" />
     <None Remove="Images\red.png" />
     <None Remove="Images\tablegreen.svg" />
@@ -350,6 +351,9 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Images\main.png" />
+    <Resource Include="Images\noimage.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Images\ok.png" />
     <Resource Include="Images\red.png" />
     <Resource Include="Images\tablegreen.svg">
