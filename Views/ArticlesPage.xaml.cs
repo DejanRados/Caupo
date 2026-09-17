@@ -12,9 +12,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
-using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -31,136 +29,18 @@ namespace Caupo.Views
     /// </summary>
     public partial class ArticlesPage : UserControl, IKeyboardInputReceiver
     {
-        public ArticlesPage()
-        {
-            this.DataContext = new ArticlesViewModel();
 
-            InitializeComponent();
 
-            lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
-            BatchEditGrid.IsVisibleChanged += (s, e) => UpdateOverlayBlur();
-            ArticleEditGrid.IsVisibleChanged += (s, e) => UpdateOverlayBlur();
-            ArticleTransferGrid.IsVisibleChanged += (s, e) => UpdateOverlayBlur();
-            ArticleImportMapperGrid.IsVisibleChanged += (s, e) => UpdateOverlayBlur();
-
-            if (DataContext is ArticlesViewModel viewModel)
-            {
-                viewModel.PropertyChanged += ArticlesViewModel_PropertyChanged;
-                viewModel.ErrorOccurred += ViewModel_ErrorOccurred;
-            }
-        }
-
-        private void ArticlesViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName != nameof(ArticlesViewModel.BrojOznacenihArtikala))
-                return;
-
-            if (sender is not ArticlesViewModel viewModel)
-                return;
-
-            _updatingArticleCheckBoxes = true;
-            SelectAllArticlesCheckBox.IsChecked = viewModel.AreAllVisibleArticlesChecked();
-            _updatingArticleCheckBoxes = false;
-
-            UpdateBatchEditButton();
-        }
-
+        private bool _isDraggingArticleTransferFloatingBar;
+        private Point _articleTransferFloatingBarDragStart;
+        private Point _articleTransferFloatingBarStartPosition;
         private bool _isEditingArticle;
         private int? _editingArticleId;
         private ArticleImportSourceData? _articleImportSource;
         private List<ArticleImportMapping>? _articleImportMappings;
 
-        private VirtualKeyboard virtualKeyboard;
         private TextBox? FocusedTextBox = null;
 
-        public void ReceiveKey(string key)
-        {
-
-            if (FocusedTextBox != null)
-            {
-                switch (key)
-                {
-                    case "\uE72B":
-
-                        if (FocusedTextBox.Text.Length > 0)
-                        {
-                            int pos = FocusedTextBox.SelectionStart;
-                            if (pos > 0)
-                            {
-                                FocusedTextBox.Text =
-                                    FocusedTextBox.Text.Remove(pos - 1, 1);
-                                FocusedTextBox.SelectionStart = pos - 1;
-                            }
-                        }
-
-
-
-                        break;
-
-                    case "\uE75D":
-                        InsertIntoFocused("\u0020");
-                        break;
-                    case "Sakrij":
-                        FocusedTextBox = null;
-                        ListaArtikala.Focus();
-                        MainWindow.Instance.HideKeyboard();
-                        break;
-                    case "Enter":
-                        FocusedTextBox = null;
-                        ListaArtikala.Focus();
-                        MainWindow.Instance.HideKeyboard();
-                        break;
-                    case "Reset":
-                        FocusedTextBox.Text = "";
-
-                        break;
-
-                    default:
-                        InsertIntoFocused(key);
-                        break;
-                }
-
-                return;
-            }
-
-
-        }
-        private void InsertIntoFocused(string text)
-        {
-            if (FocusedTextBox == null)
-                return;
-
-            int pos = FocusedTextBox.SelectionStart;
-            FocusedTextBox.Text = FocusedTextBox.Text.Insert(pos, text);
-            FocusedTextBox.SelectionStart = pos + text.Length;
-        }
-        private void KeyboardButton_Click(object sender, RoutedEventArgs e)
-        {
-            MainWindow.Instance.ShowKeyboard();
-
-        }
-        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                FocusedTextBox = sender as TextBox;
-                FocusedTextBox.Clear();
-                FocusedTextBox.SelectAll();
-                MainWindow.Instance.ShowKeyboard();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("TextBox_GotFocus salje: " + ex);
-            }
-
-
-        }
-        private void TextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-
-            FocusedTextBox = null;
-
-        }
 
         private bool _updatingArticleCheckBoxes;
 
@@ -229,6 +109,413 @@ namespace Caupo.Views
             }
         }
 
+
+        private readonly ObservableCollection<ArticleTransferRow> _articleTransferRows = new();
+        private readonly ObservableCollection<ArticleTransferError> _articleTransferErrors = new();
+        private bool _articleTransferValidated;
+
+
+        public sealed class ArticleTransferError
+        {
+            public string Type { get; set; } = "Greška";
+            public int RowNumber { get; set; }
+            public string ColumnName { get; set; } = string.Empty;
+            public string Message { get; set; } = string.Empty;
+        }
+
+
+        private static T? FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(parent, i);
+
+                if (child is T result)
+                    return result;
+
+                T? nested = FindVisualChild<T>(child);
+
+                if (nested != null)
+                    return nested;
+            }
+
+            return null;
+        }
+
+
+        private static T? FindVisualParent<T>(DependencyObject? child) where T : DependencyObject
+        {
+            while (child != null)
+            {
+                if (child is T parent)
+                    return parent;
+
+                child = VisualTreeHelper.GetParent(child);
+            }
+
+            return null;
+        }
+
+
+        // ============================================================================
+        // METODE
+        // ============================================================================
+
+        #region INICIJALIZACIJA I VIEWMODEL
+
+        // Inicijalizuje stranicu, ViewModel, prikaz prijavljenog korisnika i praćenje overlay prozora.
+        public ArticlesPage()
+        {
+            this.DataContext = new ArticlesViewModel();
+
+            InitializeComponent();
+            ConfigureArticleTransferFloatingMenuBar();
+            lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
+            BatchEditGrid.IsVisibleChanged += (s, e) => UpdateOverlayBlur();
+            ArticleEditGrid.IsVisibleChanged += (s, e) => UpdateOverlayBlur();
+            ArticleTransferGrid.IsVisibleChanged += (s, e) => UpdateOverlayBlur();
+            ArticleImportMapperGrid.IsVisibleChanged += (s, e) => UpdateOverlayBlur();
+
+            if (DataContext is ArticlesViewModel viewModel)
+            {
+                viewModel.PropertyChanged += ArticlesViewModel_PropertyChanged;
+                viewModel.ErrorOccurred += ViewModel_ErrorOccurred;
+            }
+        }
+
+        // Reaguje na promjenu broja označenih artikala i usklađuje stanje glavnog checkboxa i dugmeta za grupno uređivanje.
+        private void ArticlesViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != nameof(ArticlesViewModel.BrojOznacenihArtikala))
+                return;
+
+            if (sender is not ArticlesViewModel viewModel)
+                return;
+
+            _updatingArticleCheckBoxes = true;
+            SelectAllArticlesCheckBox.IsChecked = viewModel.AreAllVisibleArticlesChecked();
+            _updatingArticleCheckBoxes = false;
+
+            UpdateBatchEditButton();
+        }
+
+        // Prikazuje grešku iz ViewModela i označava odgovarajuća polja editora artikla.
+        private void ViewModel_ErrorOccurred(object? sender, string? errorMessage)
+        {
+            if (!string.IsNullOrWhiteSpace(errorMessage))
+            {
+                if (errorMessage.StartsWith("Šifra ", StringComparison.OrdinalIgnoreCase) || errorMessage.Contains(", Šifra ", StringComparison.OrdinalIgnoreCase))
+                    SetArticleFieldError(ArticleCodeTextBox);
+
+                if (errorMessage.Contains("Interna šifra", StringComparison.OrdinalIgnoreCase))
+                    SetArticleFieldError(ArticleInternalCodeTextBox);
+
+                if (errorMessage.Contains("Naziv za prodaju", StringComparison.OrdinalIgnoreCase))
+                {
+                    SetArticleFieldError(ArticleNameTextBox);
+                    if (ArticleNormativPanel.Visibility == Visibility.Visible)
+                        SetArticleFieldError(ArticleNormativComboBox);
+                }
+            }
+
+            MyMessageBox myMessageBox = new MyMessageBox
+            {
+                WindowStartupLocation = WindowStartupLocation.CenterScreen
+            };
+            myMessageBox.MessageTitle.Text = "GREŠKA";
+            myMessageBox.MessageText.Text = errorMessage;
+            myMessageBox.ShowDialog();
+        }
+
+        // Uključuje ili uklanja blur glavnog sadržaja zavisno od toga da li je neki overlay editor otvoren.
+        private void UpdateOverlayBlur()
+        {
+            bool overlayVisible = BatchEditGrid.Visibility == Visibility.Visible || ArticleEditGrid.Visibility == Visibility.Visible || ArticleTransferGrid.Visibility == Visibility.Visible || ArticleImportMapperGrid.Visibility == Visibility.Visible;
+            MainContent.Effect = overlayVisible ? new BlurEffect { Radius = 8 } : null;
+        }
+
+        #endregion
+
+
+        #region VIRTUALNA TASTATURA
+
+        // Prima znak sa virtualne tastature i primjenjuje ga na trenutno fokusirani TextBox.
+        public void ReceiveKey(string key)
+        {
+
+            if (FocusedTextBox != null)
+            {
+                switch (key)
+                {
+                    case "\uE72B":
+
+                        if (FocusedTextBox.Text.Length > 0)
+                        {
+                            int pos = FocusedTextBox.SelectionStart;
+                            if (pos > 0)
+                            {
+                                FocusedTextBox.Text =
+                                    FocusedTextBox.Text.Remove(pos - 1, 1);
+                                FocusedTextBox.SelectionStart = pos - 1;
+                            }
+                        }
+
+
+                        break;
+
+                    case "\uE75D":
+                        InsertIntoFocused("\u0020");
+                        break;
+                    case "Sakrij":
+                        FocusedTextBox = null;
+                        ListaArtikala.Focus();
+                        MainWindow.Instance.HideKeyboard();
+                        break;
+                    case "Enter":
+                        FocusedTextBox = null;
+                        ListaArtikala.Focus();
+                        MainWindow.Instance.HideKeyboard();
+                        break;
+                    case "Reset":
+                        FocusedTextBox.Text = "";
+
+                        break;
+
+                    default:
+                        InsertIntoFocused(key);
+                        break;
+                }
+
+                return;
+            }
+
+
+        }
+
+        // Umeće tekst na trenutnu poziciju kursora u fokusiranom TextBoxu.
+        private void InsertIntoFocused(string text)
+        {
+            if (FocusedTextBox == null)
+                return;
+
+            int pos = FocusedTextBox.SelectionStart;
+            FocusedTextBox.Text = FocusedTextBox.Text.Insert(pos, text);
+            FocusedTextBox.SelectionStart = pos + text.Length;
+        }
+
+        // Otvara virtualnu tastaturu.
+        private void KeyboardButton_Click(object sender, RoutedEventArgs e)
+        {
+            MainWindow.Instance.ShowKeyboard();
+
+        }
+
+        // Pamti fokusirani TextBox i otvara virtualnu tastaturu.
+        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (sender is not TextBox textBox)
+                    return;
+
+                FocusedTextBox = textBox;
+                FocusedTextBox.Clear();
+                FocusedTextBox.SelectAll();
+                MainWindow.Instance.ShowKeyboard();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("TextBox_GotFocus salje: " + ex);
+            }
+
+
+        }
+
+        // Uklanja referencu na TextBox koji je izgubio fokus.
+        private void TextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+
+            FocusedTextBox = null;
+
+        }
+
+        #endregion
+
+
+        #region NAVIGACIJA STRANICE
+
+        // Vraća korisnika na početnu stranicu.
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            var page = new HomePage();
+            page.DataContext = new HomeViewModel();
+            PageNavigator.NavigateWithFade(page);
+        }
+
+        // Otvara stranicu za upravljanje kategorijama artikala.
+        private void btnKategorija_Click(object sender, RoutedEventArgs e)
+        {
+            var page = new CategoriesPage();
+            page.DataContext = new CategoriesViewModel();
+            PageNavigator.NavigateWithFade(page);
+        }
+
+        #endregion
+
+
+        #region LISTA ARTIKALA I SELEKCIJA
+
+        // Osigurava da klik na red odmah postavi taj artikl kao selektovani.
+        private void ListaArtikala_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            DependencyObject? source = e.OriginalSource as DependencyObject;
+
+            while (source != null && source is not DataGridRow)
+                source = VisualTreeHelper.GetParent(source);
+
+            if (source is DataGridRow row && !row.IsSelected)
+            {
+                row.IsSelected = true;
+                ListaArtikala.SelectedItem = row.Item;
+                ListaArtikala.CurrentItem = row.Item;
+            }
+        }
+
+        // Sinhronizuje selektovani red DataGrida sa SelectedArticle u ViewModelu.
+        private void ListaArtikala_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is not DataGrid dataGrid || dataGrid.SelectedItem is not DatabaseTables.TblArtikli selectedItem)
+                return;
+
+            if (DataContext is ArticlesViewModel viewModel)
+                viewModel.SelectedArticle = selectedItem;
+
+            dataGrid.ScrollIntoView(selectedItem);
+        }
+
+        // Postavlja stanje checkboxa reda prema selekciji sačuvanoj u ViewModelu.
+        private void ArticleCheckBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (sender is not CheckBox checkBox || checkBox.Tag is not DatabaseTables.TblArtikli article)
+                return;
+
+            if (DataContext is not ArticlesViewModel viewModel)
+                return;
+
+            _updatingArticleCheckBoxes = true;
+            checkBox.IsChecked = viewModel.IsArticleChecked(article);
+            _updatingArticleCheckBoxes = false;
+        }
+
+        // Označava pojedinačni artikl za grupno uređivanje.
+        private void ArticleCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            if (_updatingArticleCheckBoxes)
+                return;
+
+            if (sender is not CheckBox checkBox || checkBox.Tag is not DatabaseTables.TblArtikli article)
+                return;
+
+            if (DataContext is not ArticlesViewModel viewModel)
+                return;
+
+            viewModel.SetArticleChecked(article, true);
+            RefreshSelectAllCheckBox(viewModel);
+            UpdateBatchEditButton();
+        }
+
+        // Uklanja pojedinačni artikl iz grupne selekcije.
+        private void ArticleCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (_updatingArticleCheckBoxes)
+                return;
+
+            if (sender is not CheckBox checkBox || checkBox.Tag is not DatabaseTables.TblArtikli article)
+                return;
+
+            if (DataContext is not ArticlesViewModel viewModel)
+                return;
+
+            viewModel.SetArticleChecked(article, false);
+            RefreshSelectAllCheckBox(viewModel);
+            UpdateBatchEditButton();
+        }
+
+        // Označava sve trenutno vidljive artikle.
+        private void SelectAllArticlesCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            if (_updatingArticleCheckBoxes)
+                return;
+
+            if (DataContext is not ArticlesViewModel viewModel)
+                return;
+
+            viewModel.SetAllVisibleArticlesChecked(true);
+            RefreshVisibleArticleCheckBoxes(viewModel);
+            UpdateBatchEditButton();
+        }
+
+        // Poništava oznaku svih trenutno vidljivih artikala.
+        private void SelectAllArticlesCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (_updatingArticleCheckBoxes)
+                return;
+
+            if (DataContext is not ArticlesViewModel viewModel)
+                return;
+
+            viewModel.SetAllVisibleArticlesChecked(false);
+            RefreshVisibleArticleCheckBoxes(viewModel);
+            UpdateBatchEditButton();
+        }
+
+        // Osvježava checkboxe vidljivih redova nakon promjene podataka ili selekcije.
+        private void RefreshVisibleArticleCheckBoxes(ArticlesViewModel viewModel)
+        {
+            _updatingArticleCheckBoxes = true;
+
+            foreach (var article in ListaArtikala.Items.OfType<DatabaseTables.TblArtikli>())
+            {
+                if (ListaArtikala.ItemContainerGenerator.ContainerFromItem(article) is not DataGridRow row)
+                    continue;
+
+                var cellContent = ListaArtikala.Columns[^1].GetCellContent(row);
+
+                if (cellContent == null)
+                    continue;
+
+                CheckBox? checkBox = FindVisualChildren<CheckBox>(cellContent).FirstOrDefault();
+
+                if (checkBox != null)
+                    checkBox.IsChecked = viewModel.IsArticleChecked(article);
+            }
+
+            SelectAllArticlesCheckBox.IsChecked = viewModel.AreAllVisibleArticlesChecked();
+
+            _updatingArticleCheckBoxes = false;
+        }
+
+        // Usklađuje glavni checkbox sa stanjem vidljivih artikala.
+        private void RefreshSelectAllCheckBox(ArticlesViewModel viewModel)
+        {
+            _updatingArticleCheckBoxes = true;
+            SelectAllArticlesCheckBox.IsChecked = viewModel.AreAllVisibleArticlesChecked();
+            _updatingArticleCheckBoxes = false;
+        }
+
+        // Omogućava grupno uređivanje samo kada postoji barem jedan označen artikl.
+        private void UpdateBatchEditButton()
+        {
+            if (DataContext is ArticlesViewModel viewModel)
+                BtnBatchEdit.IsEnabled = viewModel.BrojOznacenihArtikala > 0;
+        }
+
+        #endregion
+
+
+        #region UREĐIVANJE POJEDINAČNOG ARTIKLA
+
+        // Puni ComboBox kontrole vrijednostima potrebnim za unos ili uređivanje artikla.
         private void ConfigureArticleEditOptions(ArticlesViewModel viewModel)
         {
             ArticleTypeComboBox.ItemsSource = new List<ArticleTypeOption>
@@ -249,6 +536,7 @@ namespace Caupo.Views
             ArticleConsumptionTaxPanel.Visibility = isCroatia ? Visibility.Visible : Visibility.Collapsed;
         }
 
+        // Pretvara tekst normativa u decimalnu vrijednost nezavisno od decimalnog separatora.
         private static decimal? ParseArticleNormativ(string? value)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -258,6 +546,7 @@ namespace Caupo.Views
             return decimal.TryParse(normalized, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal result) ? result : null;
         }
 
+        // Formira naziv za prodaju kombinovanjem naziva artikla i normativa kada normativ nije 1.
         private static string BuildArticleNormativ(string? articleName, string? normativText)
         {
             string name = articleName?.Trim() ?? string.Empty;
@@ -269,6 +558,7 @@ namespace Caupo.Views
             return $"{name} {normativ.Value.ToString("0.00", CultureInfo.InvariantCulture)}";
         }
 
+        // Osvježava prikaz naziva za prodaju prema trenutnom nazivu i normativu.
         private void UpdateArticleNormativLabel()
         {
             if (ArticleNormativLabel == null || ArticleNameTextBox == null || ArticleNormativComboBox == null)
@@ -287,6 +577,7 @@ namespace Caupo.Views
             ArticleNormativLabel.Content = normativ.HasValue ? BuildArticleNormativ(ArticleNameTextBox.Text, selectedNormativ.Normativ) : ArticleNameTextBox.Text.Trim();
         }
 
+        // Obrađuje izbor normativa i omogućava dodavanje nove vrijednosti normativa.
         private async void ArticleNormativComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ArticleEditComboBox_SelectionChanged(sender, e);
@@ -348,12 +639,14 @@ namespace Caupo.Views
             ArticleNormativComboBox.SelectedItem = ArticleNormativComboBox.Items.OfType<TblNormativPica>().FirstOrDefault(x => ParseArticleNormativ(x.Normativ) == newValue.Value);
         }
 
+        // Osvježava naziv za prodaju i stanje validacije kada se promijeni naziv artikla.
         private void ArticleNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             UpdateArticleNormativLabel();
             ArticleEditTextBox_TextChanged(sender, e);
         }
 
+        // Prilagođava kategorije i prikaz normativa izabranoj vrsti artikla.
         private void ArticleTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ArticleEditComboBox_SelectionChanged(sender, e);
@@ -381,18 +674,21 @@ namespace Caupo.Views
                 ArticleNormativLabel.Content = ArticleNameTextBox.Text.Trim();
         }
 
+        // Vizuelno označava kontrolu koja sadrži neispravan podatak.
         private void SetArticleFieldError(Control control)
         {
             control.BorderBrush = Brushes.Red;
             control.BorderThickness = new Thickness(0, 0, 0, 2);
         }
 
+        // Vraća standardni izgled kontrole nakon ispravke podatka.
         private void ClearArticleFieldError(Control control)
         {
             control.BorderBrush = Application.Current.Resources["GlobalFontColor"] as Brush;
             control.BorderThickness = new Thickness(0, 0, 0, 1);
         }
 
+        // Uklanja sva vizuelna upozorenja sa editora artikla.
         private void ClearArticleEditErrors()
         {
             ClearArticleFieldError(ArticleNameTextBox);
@@ -407,12 +703,14 @@ namespace Caupo.Views
             ClearArticleFieldError(ArticlePositionTextBox);
         }
 
+        // Uklanja oznaku greške sa TextBoxa kada korisnik unese vrijednost.
         private void ArticleEditTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (sender is TextBox textBox && !string.IsNullOrWhiteSpace(textBox.Text))
                 ClearArticleFieldError(textBox);
         }
 
+        // Uklanja oznaku greške sa ComboBoxa kada je izabrana validna vrijednost.
         private void ArticleEditComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (sender is not ComboBox comboBox || comboBox.SelectedItem == null)
@@ -432,476 +730,7 @@ namespace Caupo.Views
                 ClearArticleFieldError(comboBox);
         }
 
-        private void ConfigureBatchUnit(ArticlesViewModel viewModel)
-        {
-            var units = new List<BatchUnitOption>
-            {
-                new BatchUnitOption (null, "Ne mijenjaj")
-            };
-
-            units.AddRange(
-                viewModel.JediniceMjere
-                    .OrderBy(x => x.IdJedinice)
-                    .Select(x => new BatchUnitOption(x.IdJedinice, x.ToString()))
-            );
-
-            BatchUnitComboBox.ItemsSource = units;
-            BatchUnitComboBox.SelectedIndex = 0;
-        }
-        private void ConfigureBatchConsumptionTax()
-        {
-            bool isCroatia = string.Equals(Settings.Default.Country, "Hrvatska", StringComparison.OrdinalIgnoreCase);
-
-            BatchConsumptionTaxPanel.Visibility = isCroatia ? Visibility.Visible : Visibility.Collapsed;
-            BatchConsumptionTaxComboBox.SelectedIndex = 0;
-        }
-        private void ConfigureBatchTax(ArticlesViewModel viewModel)
-        {
-            var taxes = new List<BatchTaxOption>
-    {
-        new BatchTaxOption (null, "Ne mijenjaj")
-    };
-
-            taxes.AddRange(
-                viewModel.PoreskeStope
-                    .OrderBy(x => x.IdStope)
-                    .Select(x => new BatchTaxOption(x.IdStope, x.ToString()))
-            );
-
-            BatchTaxComboBox.ItemsSource = taxes;
-            BatchTaxComboBox.SelectedIndex = 0;
-        }
-        private void ConfigureBatchCategory(ArticlesViewModel viewModel)
-        {
-            var selectedArticles = viewModel.Artikli
-                .Where(viewModel.IsArticleChecked)
-                .ToList();
-
-            var articleTypes = selectedArticles
-                .Select(x => x.VrstaArtikla)
-                .Distinct()
-                .ToList();
-
-            if (articleTypes.Count != 1 || !articleTypes[0].HasValue)
-            {
-                BatchCategoryComboBox.ItemsSource = new List<BatchCategoryOption>
-        {
-            new BatchCategoryOption (null, "Nije dostupno - različite vrste artikala")
-        };
-
-                BatchCategoryComboBox.SelectedIndex = 0;
-                BatchCategoryComboBox.IsEnabled = false;
-                return;
-            }
-
-            int articleType = articleTypes[0]!.Value;
-
-            var categories = new List<BatchCategoryOption>
-    {
-        new BatchCategoryOption (null, "Ne mijenjaj")
-    };
-
-            categories.AddRange(
-                viewModel.Kategorije
-                    .Where(x => x.VrstaArtikla == articleType)
-                    .OrderBy(x => x.Kategorija)
-                    .Select(x => new BatchCategoryOption(x.IdKategorije, x.Kategorija ?? string.Empty))
-            );
-
-            BatchCategoryComboBox.ItemsSource = categories;
-            BatchCategoryComboBox.SelectedIndex = 0;
-            BatchCategoryComboBox.IsEnabled = true;
-        }
-        private void ArticleCheckBox_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (sender is not CheckBox checkBox || checkBox.Tag is not DatabaseTables.TblArtikli article)
-                return;
-
-            if (DataContext is not ArticlesViewModel viewModel)
-                return;
-
-            _updatingArticleCheckBoxes = true;
-            checkBox.IsChecked = viewModel.IsArticleChecked(article);
-            _updatingArticleCheckBoxes = false;
-        }
-
-        private void ArticleCheckBox_Checked(object sender, RoutedEventArgs e)
-        {
-            if (_updatingArticleCheckBoxes)
-                return;
-
-            if (sender is not CheckBox checkBox || checkBox.Tag is not DatabaseTables.TblArtikli article)
-                return;
-
-            if (DataContext is not ArticlesViewModel viewModel)
-                return;
-
-            viewModel.SetArticleChecked(article, true);
-            RefreshSelectAllCheckBox(viewModel);
-            UpdateBatchEditButton();
-        }
-
-        private void ArticleCheckBox_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (_updatingArticleCheckBoxes)
-                return;
-
-            if (sender is not CheckBox checkBox || checkBox.Tag is not DatabaseTables.TblArtikli article)
-                return;
-
-            if (DataContext is not ArticlesViewModel viewModel)
-                return;
-
-            viewModel.SetArticleChecked(article, false);
-            RefreshSelectAllCheckBox(viewModel);
-            UpdateBatchEditButton();
-        }
-
-        private void SelectAllArticlesCheckBox_Checked(object sender, RoutedEventArgs e)
-        {
-            if (_updatingArticleCheckBoxes)
-                return;
-
-            if (DataContext is not ArticlesViewModel viewModel)
-                return;
-
-            viewModel.SetAllVisibleArticlesChecked(true);
-            RefreshVisibleArticleCheckBoxes(viewModel);
-            UpdateBatchEditButton();
-        }
-
-        private void SelectAllArticlesCheckBox_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (_updatingArticleCheckBoxes)
-                return;
-
-            if (DataContext is not ArticlesViewModel viewModel)
-                return;
-
-            viewModel.SetAllVisibleArticlesChecked(false);
-            RefreshVisibleArticleCheckBoxes(viewModel);
-            UpdateBatchEditButton();
-        }
-
-        private void RefreshVisibleArticleCheckBoxes(ArticlesViewModel viewModel)
-        {
-            _updatingArticleCheckBoxes = true;
-
-            foreach (var article in ListaArtikala.Items.OfType<DatabaseTables.TblArtikli>())
-            {
-                if (ListaArtikala.ItemContainerGenerator.ContainerFromItem(article) is not DataGridRow row)
-                    continue;
-
-                var cellContent = ListaArtikala.Columns[^1].GetCellContent(row);
-
-                if (cellContent == null)
-                    continue;
-
-                CheckBox? checkBox = FindVisualChildren<CheckBox>(cellContent).FirstOrDefault();
-
-                if (checkBox != null)
-                    checkBox.IsChecked = viewModel.IsArticleChecked(article);
-            }
-
-            SelectAllArticlesCheckBox.IsChecked = viewModel.AreAllVisibleArticlesChecked();
-
-            _updatingArticleCheckBoxes = false;
-        }
-
-        private void RefreshSelectAllCheckBox(ArticlesViewModel viewModel)
-        {
-            _updatingArticleCheckBoxes = true;
-            SelectAllArticlesCheckBox.IsChecked = viewModel.AreAllVisibleArticlesChecked();
-            _updatingArticleCheckBoxes = false;
-        }
-
-        private void UpdateBatchEditButton()
-        {
-            if (DataContext is ArticlesViewModel viewModel)
-                BtnBatchEdit.IsEnabled = viewModel.BrojOznacenihArtikala > 0;
-        }
-
-        private void UpdateOverlayBlur()
-        {
-            bool overlayVisible = BatchEditGrid.Visibility == Visibility.Visible || ArticleEditGrid.Visibility == Visibility.Visible || ArticleTransferGrid.Visibility == Visibility.Visible || ArticleImportMapperGrid.Visibility == Visibility.Visible;
-            MainContent.Effect = overlayVisible ? new BlurEffect { Radius = 8 } : null;
-        }
-
-        private void BtnArticleImportMapperClose_Click(object sender, RoutedEventArgs e)
-        {
-            ArticleImportMapperGrid.Visibility = Visibility.Collapsed;
-        }
-
-        private void BtnBatchEdit_Click(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is not ArticlesViewModel viewModel || viewModel.BrojOznacenihArtikala == 0)
-                return;
-
-            BatchEditSelectedCountText.Text = $"Označeno: {viewModel.BrojOznacenihArtikala} artikala";
-
-            BatchValueTextBox.Clear();
-            BatchPriceOperationComboBox.SelectedIndex = 0;
-            BatchActiveComboBox.SelectedIndex = 0;
-            BatchValueLabel.Text = "Nova cijena";
-
-            ConfigureBatchCategory(viewModel);
-            ConfigureBatchTax(viewModel);
-            ConfigureBatchConsumptionTax();
-            ConfigureBatchUnit(viewModel);
-
-            BatchEditGrid.Visibility = Visibility.Visible;
-            BatchValueTextBox.Focus();
-        }
-
-        private void BtnBatchEditCancel_Click(object sender, RoutedEventArgs e)
-        {
-            BatchEditGrid.Visibility = Visibility.Collapsed;
-        }
-
-        private async void BtnBatchEditApply_Click(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is not ArticlesViewModel viewModel || viewModel.BrojOznacenihArtikala == 0)
-                return;
-
-            bool changePrice = !string.IsNullOrWhiteSpace(BatchValueTextBox.Text);
-            bool changeActive = BatchActiveComboBox.SelectedIndex > 0;
-
-            BatchCategoryOption? selectedCategory = BatchCategoryComboBox.SelectedItem as BatchCategoryOption;
-            bool changeCategory = BatchCategoryComboBox.IsEnabled && selectedCategory?.CategoryId != null;
-
-            BatchTaxOption? selectedTax = BatchTaxComboBox.SelectedItem as BatchTaxOption;
-            bool changeTax = selectedTax?.TaxId != null;
-
-            bool changeConsumptionTax = BatchConsumptionTaxPanel.Visibility == Visibility.Visible && BatchConsumptionTaxComboBox.SelectedIndex > 0;
-
-            BatchUnitOption? selectedUnit = BatchUnitComboBox.SelectedItem as BatchUnitOption;
-            bool changeUnit = selectedUnit?.UnitId != null;
-
-            if (!changePrice && !changeActive && !changeCategory && !changeTax && !changeConsumptionTax && !changeUnit)
-            {
-                ShowBatchEditMessage("GRUPNO UREĐIVANJE", "Niste odabrali nijednu promjenu.");
-                return;
-            }
-
-            decimal value = 0m;
-
-            if (changePrice && (!TryParseBatchValue(BatchValueTextBox.Text, out value) || value <= 0))
-            {
-                ShowBatchEditMessage("GREŠKA", "Unesite ispravnu vrijednost veću od 0.");
-                BatchValueTextBox.Focus();
-                BatchValueTextBox.SelectAll();
-                return;
-            }
-
-            int operation = BatchPriceOperationComboBox.SelectedIndex;
-
-            if (changePrice && (operation < 0 || operation > 2))
-                return;
-
-            if (changePrice && operation == 2 && value >= 100m)
-            {
-                ShowBatchEditMessage("GREŠKA", "Postotak smanjenja mora biti manji od 100%.");
-                BatchValueTextBox.Focus();
-                BatchValueTextBox.SelectAll();
-                return;
-            }
-
-            var selectedIds = viewModel.Artikli
-                .Where(viewModel.IsArticleChecked)
-                .Select(x => x.IdArtikla)
-                .ToList();
-
-            if (selectedIds.Count == 0)
-                return;
-
-            int? selectedArticleId = viewModel.SelectedArticle?.IdArtikla;
-
-            try
-            {
-                await using var db = new AppDbContext();
-
-                var articles = await db.Artikli
-                    .Where(x => selectedIds.Contains(x.IdArtikla))
-                    .ToListAsync();
-
-                foreach (var article in articles)
-                {
-                    if (changePrice)
-                    {
-                        if (operation == 0)
-                        {
-                            article.Cijena = value;
-                        }
-                        else if (article.Cijena.HasValue)
-                        {
-                            decimal newPrice = operation == 1
-                                ? article.Cijena.Value * (1m + value / 100m)
-                                : article.Cijena.Value * (1m - value / 100m);
-
-                            article.Cijena = RoundPriceUpToTenCents(newPrice);
-                        }
-                    }
-
-                    if (changeActive)
-                        article.Aktivan = BatchActiveComboBox.SelectedIndex == 1;
-
-                    if (changeCategory && selectedCategory?.CategoryId != null)
-                        article.Kategorija = selectedCategory.CategoryId.Value;
-
-                    if (changeTax && selectedTax?.TaxId != null)
-                        article.PoreskaStopa = selectedTax.TaxId.Value;
-
-                    if (changeConsumptionTax)
-                        article.PorezNaPotrosnju = BatchConsumptionTaxComboBox.SelectedIndex == 1;
-
-                    if (changeUnit && selectedUnit?.UnitId != null)
-                        article.JedinicaMjere = selectedUnit.UnitId.Value;
-                }
-
-                await db.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("[ARTICLES] Batch save: " + ex);
-                ShowBatchEditMessage("GREŠKA", "Grupna promjena artikala nije spremljena.");
-                return;
-            }
-
-            await viewModel.LoadArticlesAsync();
-
-            if (selectedArticleId.HasValue)
-                viewModel.SelectedArticle = viewModel.Artikli.FirstOrDefault(x => x.IdArtikla == selectedArticleId.Value);
-
-            BatchEditGrid.Visibility = Visibility.Collapsed;
-            RefreshVisibleArticleCheckBoxes(viewModel);
-            RefreshSelectAllCheckBox(viewModel);
-            UpdateBatchEditButton();
-        }
-
-        private static decimal RoundPriceUpToTenCents(decimal price)
-        {
-            return Math.Ceiling(price * 10m) / 10m;
-        }
-
-        private static bool TryParseBatchValue(string? text, out decimal value)
-        {
-            value = 0m;
-
-            if (string.IsNullOrWhiteSpace(text))
-                return false;
-
-            text = text.Trim();
-
-            if (decimal.TryParse(text, NumberStyles.Number, CultureInfo.CurrentCulture, out value))
-                return true;
-
-            string normalized = text.Replace(',', '.');
-            return decimal.TryParse(normalized, NumberStyles.Number, CultureInfo.InvariantCulture, out value);
-        }
-
-        private static void ShowBatchEditMessage(string title, string message)
-        {
-            var dialog = new MyMessageBox
-            {
-                WindowStartupLocation = WindowStartupLocation.CenterScreen
-            };
-
-            dialog.MessageTitle.Text = title;
-            dialog.MessageText.Text = message;
-            dialog.ShowDialog();
-        }
-
-        private void BatchPriceOperationComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (BatchValueLabel == null || BatchPriceOperationComboBox.SelectedIndex < 0)
-                return;
-
-            BatchValueLabel.Text = BatchPriceOperationComboBox.SelectedIndex == 0 ? "Nova cijena" : "Postotak";
-        }
-
-
-
-
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            var page = new HomePage();
-            page.DataContext = new HomeViewModel();
-            PageNavigator.NavigateWithFade(page);
-        }
-
-        public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
-        {
-            if (depObj == null)
-                yield break;
-
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
-            {
-                DependencyObject? child = VisualTreeHelper.GetChild(depObj, i);
-                if (child == null)
-                    continue;
-
-                if (child is T matchedChild)
-                    yield return matchedChild;
-
-                foreach (T childOfChild in FindVisualChildren<T>(child))
-                    yield return childOfChild;
-            }
-        }
-        private void ViewModel_ErrorOccurred(object? sender, string? errorMessage)
-        {
-            if (!string.IsNullOrWhiteSpace(errorMessage))
-            {
-                if (errorMessage.StartsWith("Šifra ", StringComparison.OrdinalIgnoreCase) || errorMessage.Contains(", Šifra ", StringComparison.OrdinalIgnoreCase))
-                    SetArticleFieldError(ArticleCodeTextBox);
-
-                if (errorMessage.Contains("Interna šifra", StringComparison.OrdinalIgnoreCase))
-                    SetArticleFieldError(ArticleInternalCodeTextBox);
-
-                if (errorMessage.Contains("Naziv za prodaju", StringComparison.OrdinalIgnoreCase))
-                {
-                    SetArticleFieldError(ArticleNameTextBox);
-                    if (ArticleNormativPanel.Visibility == Visibility.Visible)
-                        SetArticleFieldError(ArticleNormativComboBox);
-                }
-            }
-
-            MyMessageBox myMessageBox = new MyMessageBox
-            {
-                WindowStartupLocation = WindowStartupLocation.CenterScreen
-            };
-            myMessageBox.MessageTitle.Text = "GREŠKA";
-            myMessageBox.MessageText.Text = errorMessage;
-            myMessageBox.ShowDialog();
-        }
-
-        private void ListaArtikala_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            DependencyObject? source = e.OriginalSource as DependencyObject;
-
-            while (source != null && source is not DataGridRow)
-                source = VisualTreeHelper.GetParent(source);
-
-            if (source is DataGridRow row && !row.IsSelected)
-            {
-                row.IsSelected = true;
-                ListaArtikala.SelectedItem = row.Item;
-                ListaArtikala.CurrentItem = row.Item;
-            }
-        }
-
-
-
-        private void ListaArtikala_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (sender is not DataGrid dataGrid || dataGrid.SelectedItem is not DatabaseTables.TblArtikli selectedItem)
-                return;
-
-            if (DataContext is ArticlesViewModel viewModel)
-                viewModel.SelectedArticle = selectedItem;
-
-            dataGrid.ScrollIntoView(selectedItem);
-        }
-
+        // Otvara editor i učitava podatke trenutno selektovanog artikla.
         private async void BtnEdit_Click(object sender, RoutedEventArgs e)
         {
             if (DataContext is not ArticlesViewModel viewModel || viewModel.SelectedArticle == null)
@@ -943,6 +772,7 @@ namespace Caupo.Views
             ArticleNameTextBox.Focus();
         }
 
+        // Otvara editor za novi artikl i postavlja početne vrijednosti.
         private async void BtnAdd_Click(object sender, RoutedEventArgs e)
         {
             if (DataContext is not ArticlesViewModel viewModel)
@@ -980,12 +810,14 @@ namespace Caupo.Views
             ArticleNameTextBox.Focus();
         }
 
+        // Zatvara editor artikla bez spremanja promjena.
         private void BtnArticleEditCancel_Click(object sender, RoutedEventArgs e)
         {
             ClearArticleEditErrors();
             ArticleEditGrid.Visibility = Visibility.Collapsed;
         }
 
+        // Validira podatke i sprema novi ili izmijenjeni artikl.
         private async void BtnArticleEditSave_Click(object sender, RoutedEventArgs e)
         {
             if (DataContext is not ArticlesViewModel viewModel)
@@ -1154,12 +986,14 @@ namespace Caupo.Views
             _editingArticleId = null;
         }
 
+        // Pretvara tekst cijene u decimalnu vrijednost.
         private static bool TryParseArticlePrice(string text, out decimal value)
         {
             string normalized = text.Trim().Replace(',', '.');
             return decimal.TryParse(normalized, NumberStyles.Number, CultureInfo.InvariantCulture, out value);
         }
 
+        // Prikazuje standardnu Caupo poruku za operacije nad artiklima.
         private static void ShowArticleEditMessage(string title, string message)
         {
             MyMessageBox myMessageBox = new MyMessageBox();
@@ -1169,6 +1003,7 @@ namespace Caupo.Views
             myMessageBox.ShowDialog();
         }
 
+        // Briše nekorišten artikl ili deaktivira artikl koji je već korišten na računima.
         private async void BtnDelete_Click(object sender, RoutedEventArgs e)
         {
             if (DataContext is not ArticlesViewModel viewModel || viewModel.SelectedArticle == null)
@@ -1213,37 +1048,299 @@ namespace Caupo.Views
                 await viewModel.DeleteArticle(article.IdArtikla);
         }
 
-        private readonly ObservableCollection<ArticleTransferRow> _articleTransferRows = new();
-        private readonly ObservableCollection<ArticleTransferError> _articleTransferErrors = new();
-        private bool _articleTransferValidated;
+        #endregion
 
-        
 
-     
+        #region GRUPNO UREĐIVANJE POSTOJEĆIH ARTIKALA
 
-        public sealed class ArticleTransferError
+        // Puni izbor jedinica mjere za grupno uređivanje postojećih artikala.
+        private void ConfigureBatchUnit(ArticlesViewModel viewModel)
         {
-            public string Type { get; set; } = "Greška";
-            public int RowNumber { get; set; }
-            public string ColumnName { get; set; } = string.Empty;
-            public string Message { get; set; } = string.Empty;
+            var units = new List<BatchUnitOption>
+            {
+                new BatchUnitOption (null, "Ne mijenjaj")
+            };
+
+            units.AddRange(
+                viewModel.JediniceMjere
+                    .OrderBy(x => x.IdJedinice)
+                    .Select(x => new BatchUnitOption(x.IdJedinice, x.ToString()))
+            );
+
+            BatchUnitComboBox.ItemsSource = units;
+            BatchUnitComboBox.SelectedIndex = 0;
         }
 
-        private void BtnExport_Click(object sender, RoutedEventArgs e)
+        // Podešava grupni izbor poreza na potrošnju prema državi.
+        private void ConfigureBatchConsumptionTax()
         {
-            if (DataContext is not ArticlesViewModel viewModel)
+            bool isCroatia = string.Equals(Settings.Default.Country, "Hrvatska", StringComparison.OrdinalIgnoreCase);
+
+            BatchConsumptionTaxPanel.Visibility = isCroatia ? Visibility.Visible : Visibility.Collapsed;
+            BatchConsumptionTaxComboBox.SelectedIndex = 0;
+        }
+
+        // Puni izbor poreskih stopa za grupno uređivanje.
+        private void ConfigureBatchTax(ArticlesViewModel viewModel)
+        {
+            var taxes = new List<BatchTaxOption>
+    {
+        new BatchTaxOption (null, "Ne mijenjaj")
+    };
+
+            taxes.AddRange(
+                viewModel.PoreskeStope
+                    .OrderBy(x => x.IdStope)
+                    .Select(x => new BatchTaxOption(x.IdStope, x.ToString()))
+            );
+
+            BatchTaxComboBox.ItemsSource = taxes;
+            BatchTaxComboBox.SelectedIndex = 0;
+        }
+
+        // Puni kategorije za grupno uređivanje samo kada označeni artikli pripadaju istoj vrsti.
+        private void ConfigureBatchCategory(ArticlesViewModel viewModel)
+        {
+            var selectedArticles = viewModel.Artikli
+                .Where(viewModel.IsArticleChecked)
+                .ToList();
+
+            var articleTypes = selectedArticles
+                .Select(x => x.VrstaArtikla)
+                .Distinct()
+                .ToList();
+
+            if (articleTypes.Count != 1 || !articleTypes[0].HasValue)
+            {
+                BatchCategoryComboBox.ItemsSource = new List<BatchCategoryOption>
+        {
+            new BatchCategoryOption (null, "Nije dostupno - različite vrste artikala")
+        };
+
+                BatchCategoryComboBox.SelectedIndex = 0;
+                BatchCategoryComboBox.IsEnabled = false;
+                return;
+            }
+
+            int articleType = articleTypes[0]!.Value;
+
+            var categories = new List<BatchCategoryOption>
+    {
+        new BatchCategoryOption (null, "Ne mijenjaj")
+    };
+
+            categories.AddRange(
+                viewModel.Kategorije
+                    .Where(x => x.VrstaArtikla == articleType)
+                    .OrderBy(x => x.Kategorija)
+                    .Select(x => new BatchCategoryOption(x.IdKategorije, x.Kategorija ?? string.Empty))
+            );
+
+            BatchCategoryComboBox.ItemsSource = categories;
+            BatchCategoryComboBox.SelectedIndex = 0;
+            BatchCategoryComboBox.IsEnabled = true;
+        }
+
+        // Otvara editor grupnih promjena za označene postojeće artikle.
+        private void BtnBatchEdit_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is not ArticlesViewModel viewModel || viewModel.BrojOznacenihArtikala == 0)
                 return;
 
-            LoadTransferRowsFromCaupo(viewModel);
-            OpenArticleTransferEditor("Izvoz artikala", "Artikli su učitani iz Caupa. Možete ih urediti, validirati i zatim izvesti u XLSX.");
+            BatchEditSelectedCountText.Text = $"Označeno: {viewModel.BrojOznacenihArtikala} artikala";
+
+            BatchValueTextBox.Clear();
+            BatchPriceOperationComboBox.SelectedIndex = 0;
+            BatchActiveComboBox.SelectedIndex = 0;
+            BatchValueLabel.Text = "Nova cijena";
+
+            ConfigureBatchCategory(viewModel);
+            ConfigureBatchTax(viewModel);
+            ConfigureBatchConsumptionTax();
+            ConfigureBatchUnit(viewModel);
+
+            BatchEditGrid.Visibility = Visibility.Visible;
+            BatchValueTextBox.Focus();
         }
 
-        /*  private void BtnImport_Click(object sender, RoutedEventArgs e)
-          {
-              OpenArticleTransferEditor("Uvoz artikala", "Uvezite XLSX fajl. Podaci se prvo učitavaju u privremeni editor i ne mijenjaju bazu dok ne kliknete Primijeni u Caupo.");
-              BtnTransferLoadFile_Click(sender, e);
-          }*/
+        // Zatvara grupni editor bez primjene novih promjena.
+        private void BtnBatchEditCancel_Click(object sender, RoutedEventArgs e)
+        {
+            BatchEditGrid.Visibility = Visibility.Collapsed;
+        }
 
+        // Primjenjuje odabrane grupne promjene na označene artikle u bazi.
+        private async void BtnBatchEditApply_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is not ArticlesViewModel viewModel || viewModel.BrojOznacenihArtikala == 0)
+                return;
+
+            bool changePrice = !string.IsNullOrWhiteSpace(BatchValueTextBox.Text);
+            bool changeActive = BatchActiveComboBox.SelectedIndex > 0;
+
+            BatchCategoryOption? selectedCategory = BatchCategoryComboBox.SelectedItem as BatchCategoryOption;
+            bool changeCategory = BatchCategoryComboBox.IsEnabled && selectedCategory?.CategoryId != null;
+
+            BatchTaxOption? selectedTax = BatchTaxComboBox.SelectedItem as BatchTaxOption;
+            bool changeTax = selectedTax?.TaxId != null;
+
+            bool changeConsumptionTax = BatchConsumptionTaxPanel.Visibility == Visibility.Visible && BatchConsumptionTaxComboBox.SelectedIndex > 0;
+
+            BatchUnitOption? selectedUnit = BatchUnitComboBox.SelectedItem as BatchUnitOption;
+            bool changeUnit = selectedUnit?.UnitId != null;
+
+            if (!changePrice && !changeActive && !changeCategory && !changeTax && !changeConsumptionTax && !changeUnit)
+            {
+                ShowBatchEditMessage("GRUPNO UREĐIVANJE", "Niste odabrali nijednu promjenu.");
+                return;
+            }
+
+            decimal value = 0m;
+
+            if (changePrice && (!TryParseBatchValue(BatchValueTextBox.Text, out value) || value <= 0))
+            {
+                ShowBatchEditMessage("GREŠKA", "Unesite ispravnu vrijednost veću od 0.");
+                BatchValueTextBox.Focus();
+                BatchValueTextBox.SelectAll();
+                return;
+            }
+
+            int operation = BatchPriceOperationComboBox.SelectedIndex;
+
+            if (changePrice && (operation < 0 || operation > 2))
+                return;
+
+            if (changePrice && operation == 2 && value >= 100m)
+            {
+                ShowBatchEditMessage("GREŠKA", "Postotak smanjenja mora biti manji od 100%.");
+                BatchValueTextBox.Focus();
+                BatchValueTextBox.SelectAll();
+                return;
+            }
+
+            var selectedIds = viewModel.Artikli
+                .Where(viewModel.IsArticleChecked)
+                .Select(x => x.IdArtikla)
+                .ToList();
+
+            if (selectedIds.Count == 0)
+                return;
+
+            int? selectedArticleId = viewModel.SelectedArticle?.IdArtikla;
+
+            try
+            {
+                await using var db = new AppDbContext();
+
+                var articles = await db.Artikli
+                    .Where(x => selectedIds.Contains(x.IdArtikla))
+                    .ToListAsync();
+
+                foreach (var article in articles)
+                {
+                    if (changePrice)
+                    {
+                        if (operation == 0)
+                        {
+                            article.Cijena = value;
+                        }
+                        else if (article.Cijena.HasValue)
+                        {
+                            decimal newPrice = operation == 1
+                                ? article.Cijena.Value * (1m + value / 100m)
+                                : article.Cijena.Value * (1m - value / 100m);
+
+                            article.Cijena = RoundPriceUpToTenCents(newPrice);
+                        }
+                    }
+
+                    if (changeActive)
+                        article.Aktivan = BatchActiveComboBox.SelectedIndex == 1;
+
+                    if (changeCategory && selectedCategory?.CategoryId != null)
+                        article.Kategorija = selectedCategory.CategoryId.Value;
+
+                    if (changeTax && selectedTax?.TaxId != null)
+                        article.PoreskaStopa = selectedTax.TaxId.Value;
+
+                    if (changeConsumptionTax)
+                        article.PorezNaPotrosnju = BatchConsumptionTaxComboBox.SelectedIndex == 1;
+
+                    if (changeUnit && selectedUnit?.UnitId != null)
+                        article.JedinicaMjere = selectedUnit.UnitId.Value;
+                }
+
+                await db.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[ARTICLES] Batch save: " + ex);
+                ShowBatchEditMessage("GREŠKA", "Grupna promjena artikala nije spremljena.");
+                return;
+            }
+
+            await viewModel.LoadArticlesAsync();
+
+            if (selectedArticleId.HasValue)
+                viewModel.SelectedArticle = viewModel.Artikli.FirstOrDefault(x => x.IdArtikla == selectedArticleId.Value);
+
+            BatchEditGrid.Visibility = Visibility.Collapsed;
+            RefreshVisibleArticleCheckBoxes(viewModel);
+            RefreshSelectAllCheckBox(viewModel);
+            UpdateBatchEditButton();
+        }
+
+        // Zaokružuje izračunatu cijenu naviše na deset centi.
+        private static decimal RoundPriceUpToTenCents(decimal price)
+        {
+            return Math.Ceiling(price * 10m) / 10m;
+        }
+
+        // Pretvara vrijednost unesenu u grupnom editoru u decimalni broj.
+        private static bool TryParseBatchValue(string? text, out decimal value)
+        {
+            value = 0m;
+
+            if (string.IsNullOrWhiteSpace(text))
+                return false;
+
+            text = text.Trim();
+
+            if (decimal.TryParse(text, NumberStyles.Number, CultureInfo.CurrentCulture, out value))
+                return true;
+
+            string normalized = text.Replace(',', '.');
+            return decimal.TryParse(normalized, NumberStyles.Number, CultureInfo.InvariantCulture, out value);
+        }
+
+        // Prikazuje standardnu poruku grupnog editora.
+        private static void ShowBatchEditMessage(string title, string message)
+        {
+            var dialog = new MyMessageBox
+            {
+                WindowStartupLocation = WindowStartupLocation.CenterScreen
+            };
+
+            dialog.MessageTitle.Text = title;
+            dialog.MessageText.Text = message;
+            dialog.ShowDialog();
+        }
+
+        // Mijenja opis polja vrijednosti prema odabranoj operaciji nad cijenom.
+        private void BatchPriceOperationComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (BatchValueLabel == null || BatchPriceOperationComboBox.SelectedIndex < 0)
+                return;
+
+            BatchValueLabel.Text = BatchPriceOperationComboBox.SelectedIndex == 0 ? "Nova cijena" : "Postotak";
+        }
+
+        #endregion
+
+
+        #region UVOZ ARTIKALA - OTVARANJE I PREPOZNAVANJE FORMATA
+
+        // Otvara XLSX ili CSV datoteku i bira direktan Caupo import ili univerzalno mapiranje.
         private void BtnImport_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog dialog = new()
@@ -1290,6 +1387,7 @@ namespace Caupo.Views
             }
         }
 
+        // Učitava prepoznati Caupo format direktno u privremeni transfer editor.
         private async void LoadCaupoArticleImport(ArticleImportSourceData source)
         {
             ArticlesViewModel viewModel = (ArticlesViewModel)DataContext;
@@ -1300,7 +1398,6 @@ namespace Caupo.Views
             {
                 _articleTransferRows.Add(new ArticleTransferRow(viewModel.Kategorije)
                 {
-                    IdArtikla = int.TryParse(row.GetString("IdArtikla"), out int id) ? id : 0,
                     Sifra = row.GetString("Sifra"),
                     InternaSifra = row.GetString("InternaSifra"),
                     Artikl = row.GetString("Artikl"),
@@ -1323,9 +1420,10 @@ namespace Caupo.Views
                 "Uvoz artikala",
                 $"Caupo format · Učitano {_articleTransferRows.Count} artikala. Pregledajte podatke prije validacije i spremanja."
             );
-            
+
         }
 
+        // Pretvara ID vrste iz Caupo fajla u naziv vrste prikazan u transfer editoru.
         private static string ResolveImportVrsta(string value)
         {
             return value switch
@@ -1337,6 +1435,7 @@ namespace Caupo.Views
             };
         }
 
+        // Pretvara ID jedinice mjere u njen prikazni naziv kada je moguće.
         private static string ResolveImportJedinica(string value, ArticlesViewModel viewModel)
         {
             if (!int.TryParse(value, out int id))
@@ -1345,6 +1444,7 @@ namespace Caupo.Views
             return viewModel.JediniceMjere.FirstOrDefault(x => x.IdJedinice == id)?.ToString() ?? value;
         }
 
+        // Pretvara ID poreske stope u njen prikazni naziv kada je moguće.
         private static string ResolveImportPorez(string value, ArticlesViewModel viewModel)
         {
             if (!int.TryParse(value, out int id))
@@ -1353,6 +1453,7 @@ namespace Caupo.Views
             return viewModel.PoreskeStope.FirstOrDefault(x => x.IdStope == id)?.ToString() ?? value;
         }
 
+        // Pretvara ID kategorije u njen prikazni naziv kada je moguće.
         private static string ResolveImportKategorija(string value, ArticlesViewModel viewModel)
         {
             if (!int.TryParse(value, out int id))
@@ -1361,6 +1462,12 @@ namespace Caupo.Views
             return viewModel.Kategorije.FirstOrDefault(x => x.IdKategorije == id)?.ToString() ?? value;
         }
 
+        #endregion
+
+
+        #region UVOZ ARTIKALA - MAPIRANJE KOLONA
+
+        // Kreira listu izvornih kolona koje korisnik može povezati sa Caupo poljima.
         private List<ArticleImportMappingOption> CreateArticleImportMappingOptions(ArticleImportSourceData source)
         {
             List<ArticleImportMappingOption> result = new();
@@ -1381,6 +1488,7 @@ namespace Caupo.Views
             return result;
         }
 
+        // Pamti odabrano mapiranje kolone i prikazuje primjer podatka iz izvora.
         private void ArticleImportMapperComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (_articleImportSource == null || _articleImportSource.Rows.Count == 0 || sender is not ComboBox comboBox)
@@ -1441,6 +1549,7 @@ namespace Caupo.Views
                 ArticleImportMapper.MapSourceColumn(mapping, columnName);
         }
 
+        // Priprema do tri primjera vrijednosti za svaku kolonu uvoznog fajla.
         private List<ArticleImportColumnPreview> CreateArticleImportColumnPreviews(ArticleImportSourceData source)
         {
             List<ArticleImportColumnPreview> result = new();
@@ -1464,6 +1573,8 @@ namespace Caupo.Views
 
             return result;
         }
+
+        // Puni sve ComboBox kontrole mapera dostupnim kolonama iz izvornog fajla.
         private void LoadArticleImportMapperColumns(ArticleImportSourceData source)
         {
             List<ArticleImportMappingOption> options = CreateArticleImportMappingOptions(source);
@@ -1493,7 +1604,6 @@ namespace Caupo.Views
             }
 
 
-
             TextBlock[] exampleTexts =
                     {
                 ImportCodeExampleText,
@@ -1515,6 +1625,7 @@ namespace Caupo.Views
                 exampleText.Text = string.Empty;
         }
 
+        // Provjerava mapiranje, primjenjuje podrazumijevane vrijednosti i otvara transfer editor.
         private void BtnArticleImportMapperContinue_Click(object sender, RoutedEventArgs e)
         {
             if (_articleImportSource == null || _articleImportMappings == null)
@@ -1617,7 +1728,7 @@ namespace Caupo.Views
             {
                 var transferRow = new ArticleTransferRow(viewModel.Kategorije)
                 {
-                    IdArtikla = 0,
+
                     Sifra = row.GetString("Šifra"),
                     InternaSifra = row.GetString("Interna šifra"),
                     Artikl = row.GetString("Naziv"),
@@ -1664,6 +1775,7 @@ namespace Caupo.Views
             );
         }
 
+        // Prikazuje poruku vezanu za mapiranje uvoznog fajla.
         private void ShowArticleImportMapperMessage(string message)
         {
             MyMessageBox messageBox = new();
@@ -1671,6 +1783,29 @@ namespace Caupo.Views
             messageBox.MessageText.Text = message;
             messageBox.ShowDialog();
         }
+
+        // Zatvara mapper kolona bez nastavka uvoza.
+        private void BtnArticleImportMapperClose_Click(object sender, RoutedEventArgs e)
+        {
+            ArticleImportMapperGrid.Visibility = Visibility.Collapsed;
+        }
+
+        #endregion
+
+
+        #region TRANSFER EDITOR - OTVARANJE, UČITAVANJE I IZVOZ
+
+        // Učitava postojeće Caupo artikle u transfer editor radi pregleda i izvoza.
+        private void BtnExport_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is not ArticlesViewModel viewModel)
+                return;
+
+            LoadTransferRowsFromCaupo(viewModel);
+            OpenArticleTransferEditor("Izvoz artikala", "Artikli su učitani iz Caupa. Možete ih urediti, validirati i zatim izvesti u XLSX.");
+        }
+
+        // Priprema i prikazuje transfer editor sa zadatim naslovom i opisom.
         private async void OpenArticleTransferEditor(string title, string description)
         {
             ArticleTransferTitle.Text = title;
@@ -1683,6 +1818,7 @@ namespace Caupo.Views
             await ValidateArticleTransferAsync();
         }
 
+        // Pretvara postojeće Caupo artikle u privremene redove transfer editora.
         private void LoadTransferRowsFromCaupo(ArticlesViewModel viewModel)
         {
             _articleTransferRows.Clear();
@@ -1696,7 +1832,7 @@ namespace Caupo.Views
 
                 _articleTransferRows.Add(new ArticleTransferRow(viewModel.Kategorije)
                 {
-                    IdArtikla = article.IdArtikla,
+
                     Sifra = article.Sifra ?? string.Empty,
                     InternaSifra = article.InternaSifra ?? string.Empty,
                     Artikl = article.Artikl ?? string.Empty,
@@ -1714,6 +1850,7 @@ namespace Caupo.Views
             }
         }
 
+        // Učitava podržanu datoteku u transfer editor.
         private void BtnTransferLoadFile_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog { Filter = "Excel Files (*.xlsx)|*.xlsx|All Files (*.*)|*.*" };
@@ -1746,7 +1883,7 @@ namespace Caupo.Views
 
                     _articleTransferRows.Add(new ArticleTransferRow(((ArticlesViewModel)DataContext).Kategorije)
                     {
-                        IdArtikla = id,
+
                         Sifra = row.Cell(headers["Šifra"]).GetString().Trim(),
                         InternaSifra = row.Cell(headers["Interna šifra"]).GetString().Trim(),
                         Artikl = row.Cell(headers["Naziv"]).GetString().Trim(),
@@ -1774,11 +1911,13 @@ namespace Caupo.Views
             }
         }
 
+        // Otvara izbor formata za izvoz podataka iz transfer editora.
         private void BtnTransferSaveFile_Click(object sender, RoutedEventArgs e)
         {
             ArticleTransferExportPopup.IsOpen = !ArticleTransferExportPopup.IsOpen;
         }
 
+        // Traži odredište i izvozi trenutne transfer redove u XLSX.
         private void BtnTransferExportXlsx_Click(object sender, RoutedEventArgs e)
         {
             ArticleTransferExportPopup.IsOpen = false;
@@ -1809,6 +1948,7 @@ namespace Caupo.Views
             }
         }
 
+        // Traži odredište i izvozi trenutne transfer redove u CSV.
         private void BtnTransferExportCsv_Click(object sender, RoutedEventArgs e)
         {
             ArticleTransferExportPopup.IsOpen = false;
@@ -1839,12 +1979,13 @@ namespace Caupo.Views
             }
         }
 
+        // Upisuje transfer redove u Caupo XLSX format.
         private void ExportArticlesToXlsx(string filePath)
         {
             using var workbook = new XLWorkbook();
             var sheet = workbook.Worksheets.Add("Artikli");
 
-            string[] headers = { "IdArtikla", "Sifra", "InternaSifra", "Artikl", "Cijena", "VrstaArtikla", "Kategorija", "JedinicaMjere", "PoreskaStopa", "Normativ", "Pozicija", "Aktivan", "PorezNaPotrosnju", "Slika" };
+            string[] headers = { "Sifra", "InternaSifra", "Artikl", "Cijena", "VrstaArtikla", "Kategorija", "JedinicaMjere", "PoreskaStopa", "Normativ", "Pozicija", "Aktivan", "PorezNaPotrosnju", "Slika" };
 
             for (int i = 0; i < headers.Length; i++)
                 sheet.Cell(1, i + 1).Value = headers[i];
@@ -1853,20 +1994,19 @@ namespace Caupo.Views
 
             foreach (var item in _articleTransferRows)
             {
-                sheet.Cell(r, 1).Value = item.IdArtikla == 0 ? string.Empty : item.IdArtikla.ToString();
-                sheet.Cell(r, 2).Value = item.Sifra;
-                sheet.Cell(r, 3).Value = item.InternaSifra;
-                sheet.Cell(r, 4).Value = item.Artikl;
-                sheet.Cell(r, 5).Value = item.Cijena;
-                sheet.Cell(r, 6).Value = item.Vrsta;
-                sheet.Cell(r, 7).Value = item.Kategorija;
-                sheet.Cell(r, 8).Value = item.Jedinica;
-                sheet.Cell(r, 9).Value = item.Porez;
-                sheet.Cell(r, 10).Value = item.Normativ;
-                sheet.Cell(r, 11).Value = item.Pozicija;
-                sheet.Cell(r, 12).Value = item.Aktivan ? "DA" : "NE";
-                sheet.Cell(r, 13).Value = item.PorezNaPotrosnju ? "DA" : "NE";
-                sheet.Cell(r, 14).Value = item.Slika;
+                sheet.Cell(r, 1).Value = item.Sifra;
+                sheet.Cell(r, 2).Value = item.InternaSifra;
+                sheet.Cell(r, 3).Value = item.Artikl;
+                sheet.Cell(r, 4).Value = item.Cijena;
+                sheet.Cell(r, 5).Value = item.Vrsta;
+                sheet.Cell(r, 6).Value = item.Kategorija;
+                sheet.Cell(r, 7).Value = item.Jedinica;
+                sheet.Cell(r, 8).Value = item.Porez;
+                sheet.Cell(r, 9).Value = item.Normativ;
+                sheet.Cell(r, 10).Value = item.Pozicija;
+                sheet.Cell(r, 11).Value = item.Aktivan ? "DA" : "NE";
+                sheet.Cell(r, 12).Value = item.PorezNaPotrosnju ? "DA" : "NE";
+                sheet.Cell(r, 13).Value = item.Slika;
                 r++;
             }
 
@@ -1876,12 +2016,12 @@ namespace Caupo.Views
             workbook.SaveAs(filePath);
         }
 
-
+        // Upisuje transfer redove u Caupo CSV format.
         private void ExportArticlesToCsv(string filePath)
         {
             using StreamWriter writer = new(filePath, false, new UTF8Encoding(true));
 
-            string[] headers = { "IdArtikla", "Sifra", "InternaSifra", "Artikl", "Cijena", "VrstaArtikla", "Kategorija", "JedinicaMjere", "PoreskaStopa", "Normativ", "Pozicija", "Aktivan", "PorezNaPotrosnju", "Slika" };
+            string[] headers = { "Sifra", "InternaSifra", "Artikl", "Cijena", "VrstaArtikla", "Kategorija", "JedinicaMjere", "PoreskaStopa", "Normativ", "Pozicija", "Aktivan", "PorezNaPotrosnju", "Slika" };
 
             writer.WriteLine(string.Join(";", headers.Select(EscapeCsvValue)));
 
@@ -1889,26 +2029,26 @@ namespace Caupo.Views
             {
                 string[] values =
                 {
-            item.IdArtikla == 0 ? string.Empty : item.IdArtikla.ToString(),
-            item.Sifra,
-            item.InternaSifra,
-            item.Artikl,
-            item.Cijena,
-            item.Vrsta,
-            item.Kategorija,
-            item.Jedinica,
-            item.Porez,
-            item.Normativ,
-            item.Pozicija,
-            item.Aktivan ? "DA" : "NE",
-            item.PorezNaPotrosnju ? "DA" : "NE",
-            item.Slika
-        };
+                    item.Sifra,
+                    item.InternaSifra,
+                    item.Artikl,
+                    item.Cijena,
+                    item.Vrsta,
+                    item.Kategorija,
+                    item.Jedinica,
+                    item.Porez,
+                    item.Normativ,
+                    item.Pozicija,
+                    item.Aktivan ? "DA" : "NE",
+                    item.PorezNaPotrosnju ? "DA" : "NE",
+                    item.Slika
+                };
 
                 writer.WriteLine(string.Join(";", values.Select(EscapeCsvValue)));
             }
         }
 
+        // Sigurno formatira jednu vrijednost za zapis u CSV.
         private static string EscapeCsvValue(string? value)
         {
             string text = value ?? string.Empty;
@@ -1922,15 +2062,39 @@ namespace Caupo.Views
             return text;
         }
 
+        // Zatvara transfer editor i čisti njegov privremeni sadržaj.
+        private void BtnTransferClose_Click(object sender, RoutedEventArgs e)
+        {
+            ArticleTransferGrid.Visibility = Visibility.Collapsed;
+            _articleTransferRows.Clear();
+            _articleTransferErrors.Clear();
+            ResetTransferValidation();
+        }
+
+        // Vraća transfer editor u početno stanje validacije.
+        private void ResetTransferValidation()
+        {
+            _articleTransferValidated = false;
+            BtnTransferApply.IsEnabled = false;
+            _articleTransferErrors.Clear();
+            ArticleTransferErrorTitle.Text = "Greške (0)";
+            ArticleTransferValidationSummary.Text = "Nije validirano";
+        }
+
+        #endregion
+
+
+        #region TRANSFER EDITOR - VALIDACIJA I PRIMJENA
+
+        // Ručno pokreće validaciju transfer redova ako je handler još povezan iz XAML-a.
         private async void BtnTransferValidate_Click(object sender, RoutedEventArgs e)
         {
             await ValidateArticleTransferAsync();
         }
 
+        // Validira sve transfer redove, označava greške i upozorenja te određuje da li je import dozvoljen.
         private async Task<bool> ValidateArticleTransferAsync()
         {
-            //ArticleTransferDataGrid.CommitEdit(DataGridEditingUnit.Cell, true);
-            //ArticleTransferDataGrid.CommitEdit(DataGridEditingUnit.Row, true);
             _articleTransferErrors.Clear();
 
             if (DataContext is not ArticlesViewModel viewModel)
@@ -1953,22 +2117,37 @@ namespace Caupo.Views
                     _articleTransferErrors.Add(new ArticleTransferError { RowNumber = rowNumber, ColumnName = field, Message = message });
                 }
 
-                if (string.IsNullOrWhiteSpace(row.Sifra)) Error("Šifra", "Šifra artikla nije unesena.");
-                if (string.IsNullOrWhiteSpace(row.InternaSifra)) Error("Interna šifra", "Interna šifra nije unesena.");
-                if (string.IsNullOrWhiteSpace(row.Artikl)) Error("Naziv", "Naziv artikla nije unesen.");
-                if (!TryParseArticlePrice(row.Cijena, out decimal cijena) || cijena <= 0) Error("Cijena", $"Artikl '{row.Artikl}' mora imati cijenu veću od 0.");
+                if (string.IsNullOrWhiteSpace(row.Sifra))
+                    Error("Šifra", "Šifra artikla nije unesena.");
+
+                if (string.IsNullOrWhiteSpace(row.InternaSifra))
+                    Error("Interna šifra", "Interna šifra nije unesena.");
+
+                if (string.IsNullOrWhiteSpace(row.Artikl))
+                    Error("Naziv", "Naziv artikla nije unesen.");
+
+                if (!TryParseArticlePrice(row.Cijena, out decimal cijena) || cijena <= 0)
+                    Error("Cijena", $"Artikl '{row.Artikl}' mora imati cijenu veću od 0.");
 
                 int? typeId = MapTransferType(row.Vrsta);
-                if (typeId == null) Error("Vrsta", $"Za artikl '{row.Artikl}' izaberite Piće, Hrana ili Ostalo.");
+
+                if (typeId == null)
+                    Error("Vrsta", $"Za artikl '{row.Artikl}' izaberite Piće, Hrana ili Ostalo.");
 
                 var category = typeId == null ? null : viewModel.Kategorije.FirstOrDefault(x => x.VrstaArtikla == typeId && string.Equals(x.Kategorija?.Trim(), row.Kategorija?.Trim(), StringComparison.OrdinalIgnoreCase));
-                if (category == null) Error("Kategorija", $"Kategorija '{row.Kategorija}' ne pripada izabranoj vrsti artikla.");
+
+                if (category == null)
+                    Error("Kategorija", $"Kategorija '{row.Kategorija}' ne pripada izabranoj vrsti artikla.");
 
                 var unit = viewModel.JediniceMjere.FirstOrDefault(x => string.Equals(x.ToString().Trim(), row.Jedinica?.Trim(), StringComparison.OrdinalIgnoreCase));
-                if (unit == null) Error("Jedinica", $"Jedinica mjere '{row.Jedinica}' ne postoji u Caupu.");
+
+                if (unit == null)
+                    Error("Jedinica", $"Jedinica mjere '{row.Jedinica}' ne postoji u Caupu.");
 
                 var tax = viewModel.PoreskeStope.FirstOrDefault(x => string.Equals(x.ToString().Trim(), row.Porez?.Trim(), StringComparison.OrdinalIgnoreCase));
-                if (tax == null) Error("Porez", $"Poreska stopa '{row.Porez}' ne postoji ili nije aktivna.");
+
+                if (tax == null)
+                    Error("Porez", $"Poreska stopa '{row.Porez}' ne postoji ili nije aktivna.");
 
                 decimal? normativ = ParseArticleNormativ(row.Normativ);
 
@@ -1985,28 +2164,25 @@ namespace Caupo.Views
                         Error("Normativ", $"Artikl '{row.Artikl}' vrste '{row.Vrsta}' mora imati normativ 1.");
                 }
 
-                if (!int.TryParse(row.Pozicija, out int pozicija) || pozicija <= 0) Error("Pozicija", $"Artikl '{row.Artikl}' mora imati ispravnu poziciju.");
+                if (!int.TryParse(row.Pozicija, out int pozicija) || pozicija <= 0)
+                    Error("Pozicija", $"Artikl '{row.Artikl}' mora imati ispravnu poziciju.");
 
                 string artiklNormativ = BuildArticleNormativ(row.Artikl, typeId == 0 ? row.Normativ : "1");
 
-                var duplicateCode = dbArticles.FirstOrDefault(x => x.IdArtikla != row.IdArtikla && string.Equals(x.Sifra?.Trim(), row.Sifra?.Trim(), StringComparison.OrdinalIgnoreCase));
-                if (duplicateCode != null) Error("Šifra", $"Šifra '{row.Sifra}' već pripada artiklu '{duplicateCode.Artikl}'.");
+                var duplicateCode = dbArticles.FirstOrDefault(x => string.Equals(x.Sifra?.Trim(), row.Sifra?.Trim(), StringComparison.OrdinalIgnoreCase));
 
-                var duplicateInternal = dbArticles.FirstOrDefault(x => x.IdArtikla != row.IdArtikla && string.Equals(x.InternaSifra?.Trim(), row.InternaSifra?.Trim(), StringComparison.OrdinalIgnoreCase));
-                if (duplicateInternal != null) Error("Interna šifra", $"Interna šifra '{row.InternaSifra}' već pripada artiklu '{duplicateInternal.Artikl}'.");
+                if (duplicateCode != null)
+                    Error("Šifra", $"Šifra '{row.Sifra}' već pripada artiklu '{duplicateCode.Artikl}'.");
 
-                var duplicateNorm = dbArticles.FirstOrDefault(x => x.IdArtikla != row.IdArtikla && string.Equals(x.ArtiklNormativ?.Trim(), artiklNormativ.Trim(), StringComparison.OrdinalIgnoreCase));
-                if (duplicateNorm != null) Error("Naziv / Normativ", $"Naziv za prodaju '{artiklNormativ}' već postoji kod artikla '{duplicateNorm.Artikl}'.");
+                var duplicateInternal = dbArticles.FirstOrDefault(x => string.Equals(x.InternaSifra?.Trim(), row.InternaSifra?.Trim(), StringComparison.OrdinalIgnoreCase));
 
-                if (row.IdArtikla > 0)
-                {
-                    var original = dbArticles.FirstOrDefault(x => x.IdArtikla == row.IdArtikla);
+                if (duplicateInternal != null)
+                    Error("Interna šifra", $"Interna šifra '{row.InternaSifra}' već pripada artiklu '{duplicateInternal.Artikl}'.");
 
-                    if (original == null)
-                        Error("ID", $"Artikl ID {row.IdArtikla} više ne postoji u bazi.");
-                    else if (!string.Equals(original.Artikl, row.Artikl, StringComparison.Ordinal) && await viewModel.HasArticleBeenSold(original.Sifra))
-                        Error("Naziv", $"Naziv artikla '{original.Artikl}' se ne može mijenjati jer je artikl već prodavan.");
-                }
+                var duplicateNorm = dbArticles.FirstOrDefault(x => string.Equals(x.ArtiklNormativ?.Trim(), artiklNormativ.Trim(), StringComparison.OrdinalIgnoreCase));
+
+                if (duplicateNorm != null)
+                    Error("Naziv / Normativ", $"Naziv za prodaju '{artiklNormativ}' već postoji kod artikla '{duplicateNorm.Artikl}'.");
 
                 void Warning(string field, string message)
                 {
@@ -2033,7 +2209,6 @@ namespace Caupo.Views
                     Warning("Normativ", $"Za artikl '{row.Artikl}' normativ nije pronađen u izvoru. Caupo je automatski postavio {row.Normativ}.");
 
                 row.RefreshValidationState();
-
             }
 
             foreach (var group in _articleTransferRows.Where(x => !string.IsNullOrWhiteSpace(x.Sifra)).GroupBy(x => x.Sifra.Trim(), StringComparer.OrdinalIgnoreCase).Where(x => x.Count() > 1))
@@ -2064,6 +2239,7 @@ namespace Caupo.Views
             return _articleTransferValidated;
         }
 
+        // Upisuje sve validne transfer redove kao nove artikle, osvježava listu i fokusira prvi uvezeni artikl.
         private async void BtnTransferApply_Click(object sender, RoutedEventArgs e)
         {
             if (!await ValidateArticleTransferAsync() || DataContext is not ArticlesViewModel viewModel)
@@ -2074,23 +2250,20 @@ namespace Caupo.Views
                 await using var db = new AppDbContext();
                 await using var transaction = await db.Database.BeginTransactionAsync();
 
+                TblArtikli? firstImportedArticle = null;
+
                 foreach (var row in _articleTransferRows)
                 {
-                    TblArtikli article;
-                    if (row.IdArtikla > 0)
-                    {
-                        article = await db.Artikli.FirstAsync(x => x.IdArtikla == row.IdArtikla);
-                    }
-                    else
-                    {
-                        article = new TblArtikli();
-                        db.Artikli.Add(article);
-                    }
+                    var article = new TblArtikli();
+                    db.Artikli.Add(article);
+
+                    firstImportedArticle ??= article;
 
                     int typeId = MapTransferType(row.Vrsta)!.Value;
                     var category = viewModel.Kategorije.First(x => x.VrstaArtikla == typeId && string.Equals(x.Kategorija?.Trim(), row.Kategorija.Trim(), StringComparison.OrdinalIgnoreCase));
                     var unit = viewModel.JediniceMjere.First(x => string.Equals(x.ToString().Trim(), row.Jedinica.Trim(), StringComparison.OrdinalIgnoreCase));
                     var tax = viewModel.PoreskeStope.First(x => string.Equals(x.ToString().Trim(), row.Porez.Trim(), StringComparison.OrdinalIgnoreCase));
+
                     TryParseArticlePrice(row.Cijena, out decimal price);
                     decimal normativ = typeId == 0 ? ParseArticleNormativ(row.Normativ)!.Value : 1m;
                     int.TryParse(row.Pozicija, out int position);
@@ -2108,26 +2281,68 @@ namespace Caupo.Views
                     article.Aktivan = row.Aktivan;
                     article.PorezNaPotrosnju = string.Equals(Settings.Default.Country, "Hrvatska", StringComparison.OrdinalIgnoreCase) && row.PorezNaPotrosnju;
                     article.ArtiklNormativ = BuildArticleNormativ(article.Artikl, typeId == 0 ? row.Normativ : "1");
+                    article.Slika = string.IsNullOrWhiteSpace(row.Slika) ? null : row.Slika.Trim();
                 }
 
+                int importedCount = _articleTransferRows.Count;
+
                 await db.SaveChangesAsync();
+
+                int firstImportedId = firstImportedArticle!.IdArtikla;
+
                 await transaction.CommitAsync();
+
                 await viewModel.LoadArticlesAsync();
-                ArticleTransferFooter.Text = $"Primijenjeno {_articleTransferRows.Count} artikala. Baza je uspješno ažurirana.";
-                LoadTransferRowsFromCaupo(viewModel);
-                ResetTransferValidation();
-                ShowArticleEditMessage("POTVRDA", "Artikli su uspješno primijenjeni u Caupo.");
+
+                TblArtikli? firstImported = viewModel.Artikli.FirstOrDefault(x => x.IdArtikla == firstImportedId);
+
+                if (firstImported != null)
+                {
+                    viewModel.SelectedArticle = firstImported;
+                    ListaArtikala.SelectedItem = firstImported;
+                    ListaArtikala.CurrentItem = firstImported;
+                    ListaArtikala.ScrollIntoView(firstImported);
+                }
+
+                ShowArticleEditMessage("POTVRDA", $"Uspješno je uvezeno {importedCount} artikala.");
+                BtnTransferClose_Click(sender, e);
             }
             catch (Exception ex)
             {
                 Debug.WriteLine("[ARTICLES] Import editor apply: " + ex);
-                _articleTransferErrors.Add(new ArticleTransferError { RowNumber = 0, ColumnName = "Baza", Message = "Import nije izvršen. Nijedan artikl nije promijenjen." });
+
+                _articleTransferErrors.Add(new ArticleTransferError
+                {
+                    RowNumber = 0,
+                    ColumnName = "Baza",
+                    Message = "Import nije izvršen. Nijedan artikl nije dodan."
+                });
+
                 ArticleTransferErrorTitle.Text = $"Greške ({_articleTransferErrors.Count})";
-                ArticleTransferFooter.Text = "Import nije izvršen. Nijedan artikl nije promijenjen.";
+                ArticleTransferFooter.Text = "Import nije izvršen. Nijedan artikl nije dodan.";
                 BtnTransferApply.IsEnabled = false;
             }
         }
 
+        // Pretvara tekstualnu vrstu iz transfer editora u interni ID vrste artikla.
+        private static int? MapTransferType(string? value)
+        {
+            return value?.Trim().ToLowerInvariant() switch { "piće" => 0, "pice" => 0, "hrana" => 1, "ostalo" => 2, _ => null };
+        }
+
+        // Pretvara tekstualnu vrijednost iz transfera u bool uz zadanu podrazumijevanu vrijednost.
+        private static bool ParseTransferBool(string? value, bool defaultValue)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return defaultValue;
+            return value.Trim().ToLowerInvariant() switch { "da" => true, "true" => true, "1" => true, "ne" => false, "false" => false, "0" => false, _ => defaultValue };
+        }
+
+        #endregion
+
+
+        #region TRANSFER EDITOR - UREĐIVANJE DATAGRIDA
+
+        // Nakon završetka izmjene ćelije formatira posebna polja i ponovo validira podatke.
         private async void ArticleTransferDataGrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             ArticleTransferErrorGrid.IsHitTestVisible = true;
@@ -2153,82 +2368,14 @@ namespace Caupo.Views
             }, System.Windows.Threading.DispatcherPriority.Background);
         }
 
-
+        // Privremeno onemogućava listu grešaka dok korisnik uređuje ćeliju.
         private void ArticleTransferDataGrid_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
         {
             ArticleTransferErrorGrid.IsHitTestVisible = false;
             ArticleTransferErrorGrid.Opacity = 0.60;
         }
 
-        private async void ArticleTransferErrorGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (ArticleTransferErrorGrid.SelectedItem is not ArticleTransferError error || error.RowNumber < 2)
-                return;
-
-            int index = error.RowNumber - 2;
-            if (index < 0 || index >= _articleTransferRows.Count)
-                return;
-
-            var item = _articleTransferRows[index];
-
-            int columnIndex = error.ColumnName switch
-            {
-                "ID" => 0,
-                "Šifra" => 1,
-                "Interna šifra" => 2,
-                "Naziv" => 3,
-                "Cijena" => 4,
-                "Vrsta" => 5,
-                "Kategorija" => 6,
-                "Jedinica" => 7,
-                "Porez" => 8,
-                "Normativ" => 9,
-                "Naziv / Normativ" => 9,
-                "Pozicija" => 10,
-                _ => -1
-            };
-
-            if (error.ColumnName == "Normativ" || error.ColumnName == "Naziv / Normativ")
-                item.EnableNormativCorrection();
-
-            ArticleTransferDataGrid.SelectedItem = item;
-            ArticleTransferDataGrid.ScrollIntoView(item);
-
-            if (columnIndex < 0 || columnIndex >= ArticleTransferDataGrid.Columns.Count)
-                return;
-
-            var column = ArticleTransferDataGrid.Columns[columnIndex];
-
-            ArticleTransferDataGrid.CurrentCell = new DataGridCellInfo(item, column);
-            ArticleTransferDataGrid.ScrollIntoView(item, column);
-            ArticleTransferDataGrid.Focus();
-            ArticleTransferDataGrid.BeginEdit();
-
-            await Dispatcher.InvokeAsync(() =>
-            {
-                DataGridCell? cell = GetDataGridCell(ArticleTransferDataGrid, item, columnIndex);
-                if (cell == null)
-                    return;
-
-                TextBox? textBox = FindVisualChild<TextBox>(cell);
-                if (textBox != null)
-                {
-                    textBox.Focus();
-                    Keyboard.Focus(textBox);
-                    textBox.SelectAll();
-                    return;
-                }
-
-                ComboBox? comboBox = FindVisualChild<ComboBox>(cell);
-                if (comboBox != null)
-                {
-                    comboBox.Focus();
-                    Keyboard.Focus(comboBox);
-                    //comboBox.IsDropDownOpen = true;
-                }
-            }, System.Windows.Threading.DispatcherPriority.Loaded);
-        }
-
+        // Potvrđuje izmjenu ComboBox ćelije nakon zatvaranja padajuće liste.
         private void ArticleTransferComboBox_DropDownClosed(object sender, EventArgs e)
         {
             Dispatcher.BeginInvoke(new Action(() =>
@@ -2238,46 +2385,7 @@ namespace Caupo.Views
             }), System.Windows.Threading.DispatcherPriority.Background);
         }
 
-        private static DataGridCell? GetDataGridCell(DataGrid dataGrid, object item, int columnIndex)
-        {
-            if (dataGrid.ItemContainerGenerator.ContainerFromItem(item) is not DataGridRow row)
-                return null;
-
-            DataGridCellsPresenter? presenter = FindVisualChild<DataGridCellsPresenter>(row);
-            if (presenter == null)
-                return null;
-
-            return presenter.ItemContainerGenerator.ContainerFromIndex(columnIndex) as DataGridCell;
-        }
-
-        private void BtnTransferClose_Click(object sender, RoutedEventArgs e)
-        {
-            ArticleTransferGrid.Visibility = Visibility.Collapsed;
-            _articleTransferRows.Clear();
-            _articleTransferErrors.Clear();
-            ResetTransferValidation();
-        }
-
-        private void ResetTransferValidation()
-        {
-            _articleTransferValidated = false;
-            BtnTransferApply.IsEnabled = false;
-            _articleTransferErrors.Clear();
-            ArticleTransferErrorTitle.Text = "Greške (0)";
-            ArticleTransferValidationSummary.Text = "Nije validirano";
-        }
-
-        private static int? MapTransferType(string? value)
-        {
-            return value?.Trim().ToLowerInvariant() switch { "piće" => 0, "pice" => 0, "hrana" => 1, "ostalo" => 2, _ => null };
-        }
-
-        private static bool ParseTransferBool(string? value, bool defaultValue)
-        {
-            if (string.IsNullOrWhiteSpace(value)) return defaultValue;
-            return value.Trim().ToLowerInvariant() switch { "da" => true, "true" => true, "1" => true, "ne" => false, "false" => false, "0" => false, _ => defaultValue };
-        }
-
+        // Upravlja ulaskom u edit mode i klikovima izvan ćelije bez ometanja CheckBox i ComboBox kontrola.
         private void ArticleTransferDataGrid_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is not DataGrid dataGrid)
@@ -2285,23 +2393,21 @@ namespace Caupo.Views
 
             DependencyObject? source = e.OriginalSource as DependencyObject;
 
+            if (FindVisualParent<CheckBox>(source) != null)
+                return;
+
             while (source != null && source is not DataGridCell)
                 source = VisualTreeHelper.GetParent(source);
 
             if (source is not DataGridCell cell)
             {
+                if (FindVisualParent<ComboBoxItem>(e.OriginalSource as DependencyObject) != null)
+                    return;
+
                 if (dataGrid.CurrentCell.Item != null && dataGrid.CurrentCell.Column != null)
                 {
-                    int columnIndex = dataGrid.Columns.IndexOf(dataGrid.CurrentCell.Column);
-                    DataGridCell? currentCell = GetDataGridCell(dataGrid, dataGrid.CurrentCell.Item, columnIndex);
-
-                    if (currentCell != null && FindVisualChild<ComboBox>(currentCell) is ComboBox comboBox && comboBox.IsDropDownOpen)
-                        comboBox.IsDropDownOpen = false;
-                    else
-                    {
-                        dataGrid.CommitEdit(DataGridEditingUnit.Cell, true);
-                        dataGrid.CommitEdit(DataGridEditingUnit.Row, true);
-                    }
+                    dataGrid.CommitEdit(DataGridEditingUnit.Cell, true);
+                    dataGrid.CommitEdit(DataGridEditingUnit.Row, true);
                 }
 
                 return;
@@ -2325,25 +2431,7 @@ namespace Caupo.Views
             e.Handled = true;
         }
 
-        private static T? FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
-        {
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
-            {
-                DependencyObject child = VisualTreeHelper.GetChild(parent, i);
-
-                if (child is T result)
-                    return result;
-
-                T? nested = FindVisualChild<T>(child);
-
-                if (nested != null)
-                    return nested;
-            }
-
-            return null;
-        }
-
-
+        // Omogućava navigaciju tastaturom kroz ćelije transfer editora i pravilno potvrđivanje izmjena.
         private void ArticleTransferDataGrid_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (sender is not DataGrid dataGrid)
@@ -2467,19 +2555,340 @@ namespace Caupo.Views
             }), System.Windows.Threading.DispatcherPriority.Input);
         }
 
-        private static T? FindVisualParent<T>(DependencyObject? child) where T : DependencyObject
+        // Briše samo privremeni transfer red i ponovo validira preostale podatke.
+        private async void ArticleTransferDeleteRow_Click(object sender, RoutedEventArgs e)
         {
-            while (child != null)
-            {
-                if (child is T parent)
-                    return parent;
+            if (sender is not Button button || button.DataContext is not ArticleTransferRow row)
+                return;
 
-                child = VisualTreeHelper.GetParent(child);
+            _articleTransferRows.Remove(row);
+
+            if (_articleTransferRows.Count == 0)
+            {
+                BtnTransferClose_Click(sender, e);
+                return;
             }
 
-            return null;
+            await ValidateArticleTransferAsync();
         }
 
+        #endregion
+
+
+        #region TRANSFER EDITOR - SELEKCIJA I GRUPNO UREĐIVANJE
+
+        // Označava sve transfer redove za grupno uređivanje.
+        private void ArticleTransferSelectAll_Checked(object sender, RoutedEventArgs e)
+        {
+            foreach (var row in _articleTransferRows)
+                row.IsSelected = true;
+
+            UpdateArticleTransferSelection();
+        }
+
+        // Poništava grupnu selekciju svih transfer redova.
+        private void ArticleTransferSelectAll_Unchecked(object sender, RoutedEventArgs e)
+        {
+            foreach (var row in _articleTransferRows)
+                row.IsSelected = false;
+
+            UpdateArticleTransferSelection();
+        }
+
+        // Osvježava FloatingMenuBar nakon promjene pojedinačnog checkboxa.
+        private void ArticleTransferRowCheckBox_Changed(object sender, RoutedEventArgs e)
+        {
+            UpdateArticleTransferSelection();
+        }
+
+        // Ažurira broj označenih redova te prikazuje, skriva i resetuje FloatingMenuBar.
+        private void UpdateArticleTransferSelection()
+        {
+            int selectedCount = _articleTransferRows.Count(x => x.IsSelected);
+
+            ArticleTransferFloatingMenuBar.SetSelectedCount(selectedCount);
+
+            if (selectedCount > 0)
+            {
+                ConfigureArticleTransferFloatingMenuBarCategories();
+                ArticleTransferFloatingBar.Visibility = Visibility.Visible;
+                return;
+            }
+
+            ArticleTransferFloatingBar.Visibility = Visibility.Collapsed;
+            ArticleTransferFloatingBar.HorizontalAlignment = HorizontalAlignment.Right;
+            ArticleTransferFloatingBar.VerticalAlignment = VerticalAlignment.Top;
+            ArticleTransferFloatingBar.Margin = new Thickness(0, 150, 45, 0);
+        }
+
+        // Povezuje FloatingMenuBar sa grupnim akcijama transfer editora.
+        private void ConfigureArticleTransferFloatingMenuBar()
+        {
+            ArticleTransferFloatingMenuBar.TypeSelected += ArticleTransferFloatingMenuBar_TypeSelected;
+            ArticleTransferFloatingMenuBar.CategorySelected += ArticleTransferFloatingMenuBar_CategorySelected;
+            ArticleTransferFloatingMenuBar.UnitSelected += ArticleTransferFloatingMenuBar_UnitSelected;
+            ArticleTransferFloatingMenuBar.FinishRequested += ArticleTransferFloatingMenuBar_FinishRequested;
+
+            ArticleTransferFloatingMenuBar.DragStarted += ArticleTransferFloatingBarTitle_MouseLeftButtonDown;
+            ArticleTransferFloatingMenuBar.DragMoved += ArticleTransferFloatingBarTitle_MouseMove;
+            ArticleTransferFloatingMenuBar.DragFinished += ArticleTransferFloatingBarTitle_MouseLeftButtonUp;
+
+            if (DataContext is ArticlesViewModel viewModel)
+                ArticleTransferFloatingMenuBar.SetUnits(viewModel.JediniceMjere.OrderBy(x => x.IdJedinice).Select(x => x.ToString()));
+        }
+
+        // Primjenjuje izabranu vrstu na sve označene transfer redove.
+        private async void ArticleTransferFloatingMenuBar_TypeSelected(object? sender, string type)
+        {
+            var selectedRows = _articleTransferRows.Where(x => x.IsSelected).ToList();
+
+            if (selectedRows.Count == 0)
+                return;
+
+            foreach (var row in selectedRows)
+            {
+                row.Vrsta = type;
+                row.DefaultedFields.Remove("Vrsta");
+            }
+
+            await ValidateArticleTransferAsync();
+            UpdateArticleTransferSelection();
+        }
+
+        // Priprema kategorije za označene redove kada svi pripadaju istoj vrsti.
+        private void ConfigureArticleTransferFloatingMenuBarCategories()
+        {
+            var selectedRows = _articleTransferRows.Where(x => x.IsSelected).ToList();
+
+            if (selectedRows.Count == 0)
+            {
+                ArticleTransferFloatingMenuBar.SetCategories(Array.Empty<string>());
+                return;
+            }
+
+            string type = selectedRows[0].Vrsta;
+
+            if (selectedRows.Any(x => !string.Equals(x.Vrsta, type, StringComparison.OrdinalIgnoreCase)))
+            {
+                ArticleTransferFloatingMenuBar.SetCategories(Array.Empty<string>());
+                return;
+            }
+
+            ArticleTransferFloatingMenuBar.SetCategories(selectedRows[0].AvailableCategories);
+        }
+
+        // Primjenjuje izabranu kategoriju na sve označene transfer redove.
+        private async void ArticleTransferFloatingMenuBar_CategorySelected(object? sender, string category)
+        {
+            var selectedRows = _articleTransferRows.Where(x => x.IsSelected).ToList();
+
+            if (selectedRows.Count == 0)
+                return;
+
+            string type = selectedRows[0].Vrsta;
+
+            if (selectedRows.Any(x => !string.Equals(x.Vrsta, type, StringComparison.OrdinalIgnoreCase)))
+            {
+                ShowArticleEditMessage("UPOZORENJE", "Kategoriju nije moguće grupno promijeniti jer označeni artikli nisu iste vrste. Svi označeni artikli moraju biti iste vrste.");
+                return;
+            }
+
+            foreach (var row in selectedRows)
+            {
+                row.Kategorija = category;
+                row.DefaultedFields.Remove("Kategorija");
+            }
+
+            await ValidateArticleTransferAsync();
+            UpdateArticleTransferSelection();
+        }
+
+        // Primjenjuje izabranu jedinicu mjere na sve označene transfer redove.
+        private async void ArticleTransferFloatingMenuBar_UnitSelected(object? sender, string unit)
+        {
+            var selectedRows = _articleTransferRows.Where(x => x.IsSelected).ToList();
+
+            if (selectedRows.Count == 0)
+                return;
+
+            foreach (var row in selectedRows)
+            {
+                row.Jedinica = unit;
+                row.DefaultedFields.Remove("Jedinica");
+            }
+
+            await ValidateArticleTransferAsync();
+            UpdateArticleTransferSelection();
+        }
+
+        // Završava grupno uređivanje i uklanja oznake sa svih transfer redova.
+        private void ArticleTransferFloatingMenuBar_FinishRequested(object? sender, EventArgs e)
+        {
+            foreach (var row in _articleTransferRows)
+                row.IsSelected = false;
+
+            UpdateArticleTransferSelection();
+        }
+
+        #endregion
+
+
+        #region TRANSFER EDITOR - FLOATING BAR
+
+        // Započinje povlačenje FloatingBara i pamti njegovu stvarnu početnu poziciju.
+        private void ArticleTransferFloatingBarTitle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            _isDraggingArticleTransferFloatingBar = true;
+            _articleTransferFloatingBarDragStart = e.GetPosition(this);
+            _articleTransferFloatingBarStartPosition = ArticleTransferFloatingBar.TranslatePoint(new Point(0, 0), this);
+
+            e.Handled = true;
+        }
+
+        // Pomjera FloatingBar unutar granica stranice dok korisnik vuče naslovnu traku.
+        private void ArticleTransferFloatingBarTitle_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!_isDraggingArticleTransferFloatingBar || e.LeftButton != MouseButtonState.Pressed)
+                return;
+
+            Point currentPosition = e.GetPosition(this);
+
+            double left = _articleTransferFloatingBarStartPosition.X + currentPosition.X - _articleTransferFloatingBarDragStart.X;
+            double top = _articleTransferFloatingBarStartPosition.Y + currentPosition.Y - _articleTransferFloatingBarDragStart.Y;
+
+            double maxLeft = Math.Max(0, ActualWidth - ArticleTransferFloatingBar.ActualWidth);
+            double maxTop = Math.Max(0, ActualHeight - ArticleTransferFloatingBar.ActualHeight);
+
+            left = Math.Max(0, Math.Min(left, maxLeft));
+            top = Math.Max(0, Math.Min(top, maxTop));
+
+            ArticleTransferFloatingBar.HorizontalAlignment = HorizontalAlignment.Left;
+            ArticleTransferFloatingBar.VerticalAlignment = VerticalAlignment.Top;
+            ArticleTransferFloatingBar.Margin = new Thickness(left, top, 0, 0);
+        }
+
+        // Završava povlačenje FloatingBara.
+        private void ArticleTransferFloatingBarTitle_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (!_isDraggingArticleTransferFloatingBar)
+                return;
+
+            _isDraggingArticleTransferFloatingBar = false;
+            e.Handled = true;
+        }
+
+        #endregion
+
+
+        #region TRANSFER EDITOR - LISTA GREŠAKA
+
+        // Premješta fokus na ćeliju povezanu sa izabranom greškom ili upozorenjem.
+        private async void ArticleTransferErrorGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ArticleTransferErrorGrid.SelectedItem is not ArticleTransferError error || error.RowNumber < 2)
+                return;
+
+            int index = error.RowNumber - 2;
+            if (index < 0 || index >= _articleTransferRows.Count)
+                return;
+
+            var item = _articleTransferRows[index];
+
+            int columnIndex = error.ColumnName switch
+            {
+                "Šifra" => 1,
+                "Interna šifra" => 2,
+                "Naziv" => 3,
+                "Cijena" => 4,
+                "Vrsta" => 5,
+                "Kategorija" => 6,
+                "Jedinica" => 7,
+                "Porez" => 8,
+                "Normativ" => 9,
+                "Naziv / Normativ" => 9,
+                "Pozicija" => 10,
+                _ => -1
+            };
+
+            if (error.ColumnName == "Normativ" || error.ColumnName == "Naziv / Normativ")
+                item.EnableNormativCorrection();
+
+            ArticleTransferDataGrid.SelectedItem = item;
+            ArticleTransferDataGrid.ScrollIntoView(item);
+
+            if (columnIndex < 0 || columnIndex >= ArticleTransferDataGrid.Columns.Count)
+                return;
+
+            var column = ArticleTransferDataGrid.Columns[columnIndex];
+
+            ArticleTransferDataGrid.CurrentCell = new DataGridCellInfo(item, column);
+            ArticleTransferDataGrid.ScrollIntoView(item, column);
+            ArticleTransferDataGrid.Focus();
+            ArticleTransferDataGrid.BeginEdit();
+
+            await Dispatcher.InvokeAsync(() =>
+            {
+                DataGridCell? cell = GetDataGridCell(ArticleTransferDataGrid, item, columnIndex);
+                if (cell == null)
+                    return;
+
+                TextBox? textBox = FindVisualChild<TextBox>(cell);
+                if (textBox != null)
+                {
+                    textBox.Focus();
+                    Keyboard.Focus(textBox);
+                    textBox.SelectAll();
+                    return;
+                }
+
+                ComboBox? comboBox = FindVisualChild<ComboBox>(cell);
+                if (comboBox != null)
+                {
+                    comboBox.Focus();
+                    Keyboard.Focus(comboBox);
+                }
+            }, System.Windows.Threading.DispatcherPriority.Loaded);
+        }
+
+        #endregion
+
+
+        #region VISUAL TREE I DATAGRID POMOĆNE METODE
+
+        // Rekurzivno pronalazi sve vizuelne potomke zadatog WPF tipa.
+        public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
+        {
+            if (depObj == null)
+                yield break;
+
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+            {
+                DependencyObject? child = VisualTreeHelper.GetChild(depObj, i);
+                if (child == null)
+                    continue;
+
+                if (child is T matchedChild)
+                    yield return matchedChild;
+
+                foreach (T childOfChild in FindVisualChildren<T>(child))
+                    yield return childOfChild;
+            }
+        }
+
+        // Pronalazi konkretnu DataGrid ćeliju za zadati red i kolonu preko indeksa.
+        private static DataGridCell? GetDataGridCell(DataGrid dataGrid, object item, int columnIndex)
+        {
+            if (dataGrid.ItemContainerGenerator.ContainerFromItem(item) is not DataGridRow row)
+                return null;
+
+            DataGridCellsPresenter? presenter = FindVisualChild<DataGridCellsPresenter>(row);
+            if (presenter == null)
+                return null;
+
+            return presenter.ItemContainerGenerator.ContainerFromIndex(columnIndex) as DataGridCell;
+        }
+
+        // Pronalazi konkretnu DataGrid ćeliju za zadati red i kolonu.
         private static DataGridCell? GetDataGridCell(DataGrid dataGrid, object item, DataGridColumn column)
         {
             if (dataGrid.ItemContainerGenerator.ContainerFromItem(item) is not DataGridRow row)
@@ -2494,15 +2903,8 @@ namespace Caupo.Views
 
             return presenter.ItemContainerGenerator.ContainerFromIndex(columnIndex) as DataGridCell;
         }
-        private void btnKategorija_Click(object sender, RoutedEventArgs e)
-        {
-            var page = new CategoriesPage();
-            page.DataContext = new CategoriesViewModel();
-            PageNavigator.NavigateWithFade(page);
-        }
 
-
-
+        #endregion
 
     }
 }

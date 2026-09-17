@@ -4,7 +4,7 @@
     {
         private static readonly string[] CaupoArticleColumns =
              {
-                "IdArtikla",
+                
                 "Sifra",
                 "InternaSifra",
                 "Artikl",

@@ -6,6 +6,7 @@
              xmlns:system="clr-namespace:System;assembly=mscorlib"
              xmlns:local="clr-namespace:Caupo.ViewModels"
              xmlns:loc="clr-namespace:Caupo.Helpers"
+             xmlns:controls="clr-namespace:Caupo.UserControls"
              xmlns:articleImport="clr-namespace:Caupo.ArticleImport"
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
              mc:Ignorable="d"
@@ -1381,7 +1382,7 @@
 
                         <Button Grid.Column="0"
                         Height="44"
-                        Style="{StaticResource SecondaryButtonStyle}"
+                        Style="{StaticResource CancelButtonStyle}"
                         Click="BtnBatchEditCancel_Click">
 
                             <TextBlock Text="Odustani"
@@ -1690,7 +1691,7 @@
 
                         <Button Grid.Column="0" Click="BtnArticleEditCancel_Click"
                         Height="44"
-                        Style="{StaticResource SecondaryButtonStyle}">
+                        Style="{StaticResource CancelButtonStyle}">
                             <TextBlock Text="Odustani"
                                Foreground="{DynamicResource GlobalFontColor}"/>
                         </Button>
@@ -2180,24 +2181,39 @@
                     </DataGrid.Resources>
 
                     <DataGrid.Columns>
+                        <!-- CHECKBOX -->
+                        <DataGridTemplateColumn Width="100" CanUserSort="False" CanUserResize="False">
+                            <DataGridTemplateColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="#BB323232"/>
+                                    <Setter Property="Foreground" Value="#F5F5F5"/>
+                                    <Setter Property="MinHeight" Value="45"/>
+                                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                    <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                    <Setter Property="BorderBrush" Value="Transparent"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="FontWeight" Value="Normal"/>
+                                    <Setter Property="SnapsToDevicePixels" Value="True"/>
+                                    <Setter Property="OverridesDefaultStyle" Value="True"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="DataGridColumnHeader">
+                                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="1" SnapsToDevicePixels="True">
+                                                    <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </DataGridTemplateColumn.HeaderStyle>
 
-                        <!-- ID -->
-                        <DataGridTemplateColumn Header="ID" Width="60" IsReadOnly="True">
+                            <DataGridTemplateColumn.Header>
+                                <CheckBox Width="42" Height="42" Margin="0" Style="{StaticResource ArticleTouchCheckBoxStyle}" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip="Označi sve artikle za grupno uređivanje" Checked="ArticleTransferSelectAll_Checked" Unchecked="ArticleTransferSelectAll_Unchecked"/>
+                            </DataGridTemplateColumn.Header>
+
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-
-                                    <TextBlock Text="{Binding IdArtikla}">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock" BasedOn="{StaticResource TransferCellTextStyle}">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IdError}" Value="True">
-                                                        <Setter Property="Foreground" Value="#B85450"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-
+                                    <CheckBox HorizontalAlignment="Left" Style="{StaticResource ArticleTouchCheckBoxStyle}" IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Checked="ArticleTransferRowCheckBox_Changed" Unchecked="ArticleTransferRowCheckBox_Changed"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
@@ -2603,6 +2619,15 @@
                             </DataGridTemplateColumn.CellEditingTemplate>
 
                         </DataGridTemplateColumn>
+                       
+                        <!-- Dugme X -->
+                        <DataGridTemplateColumn Header="" Width="50" IsReadOnly="True">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource CloseAppButtonStyle}" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="0" Margin="1" ToolTip="Izbriši red" Click="ArticleTransferDeleteRow_Click"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
                     </DataGrid.Columns>
 
@@ -2678,6 +2703,25 @@
             </Grid>
 
         </Grid>
+        <!-- ================================================= -->
+        <!-- FLOATINGBAR                                -->
+        <!-- ================================================= -->
+
+        <Border x:Name="ArticleTransferFloatingBar"
+            Panel.ZIndex="1400"
+            Width="290"
+            VerticalAlignment="Top"
+            HorizontalAlignment="Right"
+            Margin="0,150,45,0"
+            Background="Transparent"
+            BorderThickness="0"
+            Visibility="Collapsed">
+
+            <controls:FloatingMenuBar x:Name="ArticleTransferFloatingMenuBar"
+                              HorizontalAlignment="Stretch"
+                              VerticalAlignment="Top"/>
+
+        </Border>
 
     </Grid>
 

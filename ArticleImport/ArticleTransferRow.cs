@@ -24,7 +24,7 @@ namespace Caupo.ArticleImport
             _categories = categories.ToList();
         }
 
-        public int IdArtikla { get; set; }
+        
         public string Sifra { get; set; } = string.Empty;
         public string InternaSifra { get; set; } = string.Empty;
         public string Artikl { get; set; } = string.Empty;
@@ -93,6 +93,20 @@ namespace Caupo.ArticleImport
             }
         }
 
+        private bool _isSelected;
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected == value)
+                    return;
+
+                _isSelected = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string Porez { get; set; } = string.Empty;
 
         public string Normativ
@@ -143,7 +157,7 @@ namespace Caupo.ArticleImport
         public HashSet<string> ErrorFields { get; } = new(StringComparer.OrdinalIgnoreCase);
         public HashSet<string> WarningFields { get; } = new(StringComparer.OrdinalIgnoreCase);
 
-        public bool IdError => ErrorFields.Contains("ID");
+       
 
         public bool SifraError => ErrorFields.Contains("Šifra");
         public bool SifraWarning => WarningFields.Contains("Šifra");
@@ -177,7 +191,7 @@ namespace Caupo.ArticleImport
 
         public void RefreshValidationState()
         {
-            OnPropertyChanged(nameof(IdError));
+           
 
             OnPropertyChanged(nameof(SifraError));
             OnPropertyChanged(nameof(SifraWarning));

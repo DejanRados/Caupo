@@ -1,0 +1,362 @@
+﻿<UserControl x:Class="Caupo.UserControls.FloatingMenuBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignWidth="280"
+             d:DesignHeight="500"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Top">
+
+    <UserControl.Resources>
+
+        <!-- Glavna stavka FloatingMenuBar menija. -->
+        <Style x:Key="FloatingMenuButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Padding" Value="14,0,10,0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+
+                        <Border x:Name="ButtonBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Opacity="0.85">
+
+                            <ContentPresenter Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="1"/>
+                            </Trigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.65"/>
+                            </Trigger>
+
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Podstavka otvorenog menija. -->
+        <Style x:Key="FloatingSubMenuButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+
+                        <Grid Background="{DynamicResource GlobalBackgroundColor}">
+
+                            <!-- Blaga pozadina odvaja podmeni od glavnog menija. -->
+                            <Border x:Name="SubMenuBackground"
+                                    Background="{DynamicResource GlobalFontColor}"
+                                    Opacity="0.08"/>
+
+                            <Grid Margin="28,0,10,0">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="18"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Mali kružić ispred svake podstavke. -->
+                                <Ellipse Width="5"
+                                         Height="5"
+                                         Fill="{DynamicResource GlobalFontColor}"
+                                         HorizontalAlignment="Left"
+                                         VerticalAlignment="Center"
+                                         Opacity="0.65"/>
+
+                                <ContentPresenter Grid.Column="1"
+                                                  HorizontalAlignment="Left"
+                                                  VerticalAlignment="Center"/>
+
+                            </Grid>
+
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="SubMenuBackground" Property="Opacity" Value="0.16"/>
+                            </Trigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="SubMenuBackground" Property="Opacity" Value="0.24"/>
+                            </Trigger>
+
+                        </ControlTemplate.Triggers>
+
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </UserControl.Resources>
+
+    <!-- Glavni okvir FloatingMenuBara. -->
+    <Border Background="{DynamicResource GlobalBackgroundColor}"
+            BorderBrush="{DynamicResource GlobalFontColor}"
+            BorderThickness="1"
+            CornerRadius="8">
+
+        <StackPanel>
+
+            <!-- ================================================= -->
+            <!-- NASLOV / DRAG POVRŠINA                            -->
+            <!-- ================================================= -->
+
+            <Border x:Name="TitleBar"
+                    Height="64"
+                    Background="{DynamicResource GlobalBackgroundColor}"
+                    BorderBrush="{DynamicResource GlobalFontColor}"
+                    BorderThickness="0,0,0,1"
+                    CornerRadius="7,7,0,0"
+                    Cursor="SizeAll"
+                    MouseLeftButtonDown="TitleBar_MouseLeftButtonDown"
+                    MouseMove="TitleBar_MouseMove"
+                    MouseLeftButtonUp="TitleBar_MouseLeftButtonUp">
+
+                <Grid>
+
+                    <!-- Blago izdvojena površina headera. -->
+                    <Border Background="{DynamicResource GlobalFontColor}"
+                            CornerRadius="7,7,0,0"
+                            Opacity="0.10"/>
+
+                    <Grid Margin="14,7,12,7">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Naslov. -->
+                        <TextBlock Grid.Row="0"
+                                   Grid.Column="0"
+                                   Text="Grupno uređivanje"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="15"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center"/>
+
+                        <!-- Broj selektovanih artikala. -->
+                        <TextBlock x:Name="SelectedCountText"
+                                   Grid.Row="0"
+                                   Grid.Column="1"
+                                   Text="Selektovano: 0"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center"
+                                   Margin="10,0,0,0"/>
+
+                        <!-- Kratko objašnjenje. -->
+                        <TextBlock Grid.Row="1"
+                                   Grid.Column="0"
+                                   Grid.ColumnSpan="2"
+                                   Text="Promijenite podatke za označene artikle"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="11"
+                                   Opacity="0.70"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"/>
+
+                    </Grid>
+
+                </Grid>
+
+            </Border>
+
+            <!-- ================================================= -->
+            <!-- VRSTA                                             -->
+            <!-- ================================================= -->
+
+            <Button x:Name="TypeButton"
+                    Style="{StaticResource FloatingMenuButtonStyle}"
+                    Click="TypeButton_Click">
+
+                <Grid>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="25"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Postavi vrstu" VerticalAlignment="Center"/>
+
+                    <TextBlock x:Name="TypeArrow"
+                               Grid.Column="1"
+                               Text="&#xE70D;"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="12"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               RenderTransformOrigin="0.5,0.5">
+
+                        <TextBlock.RenderTransform>
+                            <RotateTransform x:Name="TypeArrowTransform"/>
+                        </TextBlock.RenderTransform>
+
+                    </TextBlock>
+
+                </Grid>
+
+            </Button>
+
+            <StackPanel x:Name="TypePanel"
+                        Background="{DynamicResource GlobalBackgroundColor}"
+                        Visibility="Collapsed"/>
+
+            <!-- ================================================= -->
+            <!-- KATEGORIJA                                        -->
+            <!-- ================================================= -->
+
+            <Button x:Name="CategoryButton"
+                    Style="{StaticResource FloatingMenuButtonStyle}"
+                    Click="CategoryButton_Click">
+
+                <Grid>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="25"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Postavi kategoriju" VerticalAlignment="Center"/>
+
+                    <TextBlock Grid.Column="1"
+                               Text="&#xE70D;"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="12"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               RenderTransformOrigin="0.5,0.5">
+
+                        <TextBlock.RenderTransform>
+                            <RotateTransform x:Name="CategoryArrowTransform"/>
+                        </TextBlock.RenderTransform>
+
+                    </TextBlock>
+
+                </Grid>
+
+            </Button>
+
+            <StackPanel x:Name="CategoryPanel"
+                        Background="{DynamicResource GlobalBackgroundColor}"
+                        Visibility="Collapsed"/>
+
+            <!-- ================================================= -->
+            <!-- JEDINICA MJERE                                    -->
+            <!-- ================================================= -->
+
+            <Button x:Name="UnitButton"
+                    Style="{StaticResource FloatingMenuButtonStyle}"
+                    Click="UnitButton_Click">
+
+                <Grid>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="25"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Postavi jedinicu mjere" VerticalAlignment="Center"/>
+
+                    <TextBlock Grid.Column="1"
+                               Text="&#xE70D;"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="12"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               RenderTransformOrigin="0.5,0.5">
+
+                        <TextBlock.RenderTransform>
+                            <RotateTransform x:Name="UnitArrowTransform"/>
+                        </TextBlock.RenderTransform>
+
+                    </TextBlock>
+
+                </Grid>
+
+            </Button>
+
+            <StackPanel x:Name="UnitPanel"
+                        Background="{DynamicResource GlobalBackgroundColor}"
+                        Visibility="Collapsed"/>
+
+            <!-- ================================================= -->
+            <!-- OSTALE KOMANDE                                    -->
+            <!-- ================================================= -->
+
+            <Button x:Name="TaxButton"
+                    Content="Postavi poresku stopu"
+                    Style="{StaticResource FloatingMenuButtonStyle}"/>
+
+            <Button x:Name="NormativButton"
+                    Content="Postavi normativ"
+                    Style="{StaticResource FloatingMenuButtonStyle}"/>
+
+            <Button x:Name="StatusButton"
+                    Content="Postavi status"
+                    Style="{StaticResource FloatingMenuButtonStyle}"/>
+
+            <Button x:Name="ConsumptionTaxButton"
+                    Content="Postavi porez na potrošnju"
+                    Style="{StaticResource FloatingMenuButtonStyle}"/>
+
+            <!-- ================================================= -->
+            <!-- ZAVRŠETAK GRUPNOG UREĐIVANJA                      -->
+            <!-- ================================================= -->
+
+            <Button x:Name="FinishButton"
+                    Content="Završi"
+                    Style="{StaticResource CancelButtonStyle}"
+                    Height="44"
+                    Margin="10"
+                    Click="FinishButton_Click"/>
+
+        </StackPanel>
+
+    </Border>
+
+</UserControl>
