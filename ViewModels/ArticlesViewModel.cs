@@ -706,11 +706,12 @@ namespace Caupo.ViewModels
         public async Task<bool> UpdateArticle(TblArtikli artikl)
         {
             await using var db = new AppDbContext();
-
+            Debug.WriteLine ($"[ARTICLE EDIT] Id={artikl.IdArtikla}, Sifra='{artikl.Sifra}', Interna='{artikl.InternaSifra}', ArtiklNormativ='{artikl.ArtiklNormativ}'");
             var duplicateArticle = await db.Artikli.FirstOrDefaultAsync(a => a.IdArtikla != artikl.IdArtikla && (a.Sifra == artikl.Sifra || a.InternaSifra == artikl.InternaSifra || a.ArtiklNormativ == artikl.ArtiklNormativ));
 
             if (duplicateArticle != null)
             {
+                Debug.WriteLine ($"[ARTICLE EDIT] DUPLIKAT: Id={duplicateArticle.IdArtikla}, Sifra='{duplicateArticle.Sifra}', Interna='{duplicateArticle.InternaSifra}', ArtiklNormativ='{duplicateArticle.ArtiklNormativ}'");
                 string poruka = string.Empty;
 
                 if (duplicateArticle.Sifra == artikl.Sifra)
@@ -889,13 +890,13 @@ namespace Caupo.ViewModels
             VrstaArtikla.Add("Ostalo");
         }
 
-        public async Task<bool> HasArticleBeenSold(string? sifra)
+        public async Task<bool> HasArticleBeenSold(int idArtikla)
         {
-            if (string.IsNullOrWhiteSpace(sifra))
+            if(idArtikla <= 0)
                 return false;
 
-            await using var db = new AppDbContext();
-            return await db.RacunStavka.AnyAsync(x => x.Sifra == sifra);
+            await using var db = new AppDbContext ();
+            return await db.RacunStavka.AnyAsync (x => x.IdArtikla == idArtikla);
         }
 
         public async Task LoadJediniceMjere()

@@ -58,6 +58,7 @@ namespace Caupo.Fiscal.Croatia
                     {
                         BrojRacuna = receipt.BrojRacuna,
                         Artikl = item.Name,
+                        IdArtikla = item.ArtiklId.Value,
                         Sifra = item.Sifra,
                         Kolicina = item.Quantity ?? 0m,
                         Cijena = item.UnitPrice,
@@ -139,6 +140,7 @@ namespace Caupo.Fiscal.Croatia
                         BrojRacuna = builtInvoice.LocalReceiptNumber,
                         Artikl = item.Artikl,
                         Sifra = item.Sifra,
+                        IdArtikla = item.IdArtikla,
                         Kolicina = -Math.Abs(item.Kolicina ?? 0m),
                         Cijena = item.Cijena,
                         PoreskaStopa = item.PoreskaStopa,

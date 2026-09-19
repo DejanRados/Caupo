@@ -824,6 +824,8 @@ namespace Caupo.Data
             public string? Artikl { get; set; }
             public string? Sifra { get; set; }
 
+            public int IdArtikla { get; set; }
+
             private decimal? _kolicina;
             public decimal? Kolicina
             {

@@ -1,9 +1,9 @@
-﻿using Caupo.Helpers;
+﻿using Caupo.Fiscal.Croatia;
+using Caupo.Helpers;
 using Caupo.Models;
 using Caupo.Properties;
 using Caupo.Services;
 using Caupo.ViewModels;
-using Caupo.Fiscal.Croatia;
 using Syncfusion.SfSkinManager;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -23,15 +23,9 @@ namespace Caupo
         // GLOBALNE VARIJABLE
         // =====================================================
 
-        public static KitchenDisplayViewModel GlobalKitchenVM { get; set; }
-            = null!;
+        public static KitchenDisplayViewModel GlobalKitchenVM { get; set; } = null!;
+        public static string CurrentTheme { get; set; } = Settings.Default.Tema;
 
-
-        public static string CurrentTheme { get; set; }
-         = Settings.Default.Tema;
-
-
-       
 
         // =====================================================
         // SERVICES
@@ -49,8 +43,7 @@ namespace Caupo
         // CONSTANTS
         // =====================================================
 
-        private const string ElevationStateFile =
-            "elevation_state.json";
+        private const string ElevationStateFile = "elevation_state.json";
 
 
         // =====================================================
@@ -59,22 +52,12 @@ namespace Caupo
 
         public App()
         {
-            DispatcherUnhandledException +=
-                App_DispatcherUnhandledException;
+            DispatcherUnhandledException += App_DispatcherUnhandledException;
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
 
-
-            AppDomain.CurrentDomain.UnhandledException +=
-                CurrentDomain_UnhandledException;
-
-
-            TaskScheduler.UnobservedTaskException +=
-                TaskScheduler_UnobservedTaskException;
-
-
-            Syncfusion.Licensing
-                .SyncfusionLicenseProvider
-                .RegisterLicense (
-                    "Ngo9BigBOggjHTQxAR8 / V1NNaF5cXmBCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWXtcc3VWRWlYV0d3X0tWYUA =");
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense (
+                "Ngo9BigBOggjHTQxAR8 / V1NNaF5cXmBCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWXtcc3VWRWlYV0d3X0tWYUA =");
         }
 
 
@@ -82,8 +65,7 @@ namespace Caupo
         // STARTUP
         // =====================================================
 
-        protected override async void OnStartup(
-            StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
             // =================================================
             // 1. TEMA PRIJE OTVARANJA WINDOWA
@@ -106,50 +88,25 @@ namespace Caupo
             try
             {
                 DataFolderService.Initialize ();
+                CashRegisterConfigurationService.PrepareStartupDatabasePath ();
 
-
-                CashRegisterConfigurationService
-                    .PrepareStartupDatabasePath ();
-
-
-                Debug.WriteLine (
-                    $"[DATA] Tip kase = " +
-                    $"{CashRegisterConfigurationService.CashRegisterType}");
-
-
-                Debug.WriteLine (
-                    $"[DATA] DbPath = " +
-                    $"{Settings.Default.DbPath}");
-
-
-                Debug.WriteLine (
-                    $"[DATA] Globals.CurrentDbPath = " +
-                    $"{Globals.CurrentDbPath}");
-
-
-                Debug.WriteLine (
-                    $"[DATA] Database = " +
-                    $"{DataFolderService.CurrentDatabasePath}");
-
+                Debug.WriteLine ($"[DATA] Tip kase = {CashRegisterConfigurationService.CashRegisterType}");
+                Debug.WriteLine ($"[DATA] DbPath = {Settings.Default.DbPath}");
+                Debug.WriteLine ($"[DATA] Globals.CurrentDbPath = {Globals.CurrentDbPath}");
+                Debug.WriteLine ($"[DATA] Database = {DataFolderService.CurrentDatabasePath}");
 
                 /*
                  * Globalni KitchenDisplayViewModel kreiramo tek
                  * nakon što je određen tip kase i ispravan DbPath.
                  */
 
-                GlobalKitchenVM =
-                    new KitchenDisplayViewModel ();
+                GlobalKitchenVM = new KitchenDisplayViewModel ();
 
-
-                Debug.WriteLine (
-                    "[APP] GlobalKitchenVM inicijalizovan " +
-                    "nakon DB konfiguracije.");
+                Debug.WriteLine ("[APP] GlobalKitchenVM inicijalizovan nakon DB konfiguracije.");
             }
             catch(Exception ex)
             {
-                Debug.WriteLine (
-                    $"[DATA] Greška pri inicijalizaciji: {ex}");
-
+                Debug.WriteLine ($"[DATA] Greška pri inicijalizaciji: {ex}");
 
                 MessageBox.Show (
                     "Nije moguće pripremiti bazu podataka."
@@ -160,15 +117,27 @@ namespace Caupo
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
 
-
                 Shutdown ();
-
                 return;
             }
 
 
             // =================================================
-            // 4. WPF STARTUP
+            // 4. BIBLIOTEKA SLIKA ARTIKALA
+            // =================================================
+
+            try
+            {
+                ArticleImageStorage.Initialize ();
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine ($"[IMAGES] Greška pri inicijalizaciji: {ex}");
+            }
+
+
+            // =================================================
+            // 5. WPF STARTUP
             // =================================================
 
             /*
@@ -181,14 +150,10 @@ namespace Caupo
 
 
             // =================================================
-            // 5. PROVJERA ADMIN / ELEVATION STATE
+            // 6. PROVJERA ADMIN / ELEVATION STATE
             // =================================================
 
-            string tempPath =
-                Path.Combine (
-                    Path.GetTempPath (),
-                    ElevationStateFile);
-
+            string tempPath = Path.Combine (Path.GetTempPath (), ElevationStateFile);
 
             /*
              * Ako elevation_state.json postoji i Caupo
@@ -196,116 +161,63 @@ namespace Caupo
              * služi samo za kreiranje mrežnog share-a.
              */
 
-            if(File.Exists (tempPath) &&
-               AdminHelper.IsAdministrator ())
+            if(File.Exists (tempPath) && AdminHelper.IsAdministrator ())
             {
                 try
                 {
-                    string json =
-                        await File.ReadAllTextAsync (
-                            tempPath);
-
-
-                    ElevationState? state =
-                        JsonSerializer
-                            .Deserialize<ElevationState> (
-                                json);
-
+                    string json = await File.ReadAllTextAsync (tempPath);
+                    ElevationState? state = JsonSerializer.Deserialize<ElevationState> (json);
 
                     if(state == null)
-                    {
-                        throw new InvalidOperationException (
-                            "Elevation state nije moguće učitati.");
-                    }
+                        throw new InvalidOperationException ("Elevation state nije moguće učitati.");
 
+                    if(string.IsNullOrWhiteSpace (state.FolderPath))
+                        throw new InvalidOperationException ("Folder za mrežni share nije definisan.");
 
-                    if(string.IsNullOrWhiteSpace (
-                        state.FolderPath))
-                    {
-                        throw new InvalidOperationException (
-                            "Folder za mrežni share nije definisan.");
-                    }
+                    if(string.IsNullOrWhiteSpace (state.ShareName))
+                        throw new InvalidOperationException ("Naziv mrežnog share-a nije definisan.");
 
+                    Debug.WriteLine ("[SHARE] Admin mode.");
+                    Debug.WriteLine ($"[SHARE] Folder: {state.FolderPath}");
+                    Debug.WriteLine ($"[SHARE] Share name: {state.ShareName}");
 
-                    if(string.IsNullOrWhiteSpace (
-                        state.ShareName))
-                    {
-                        throw new InvalidOperationException (
-                            "Naziv mrežnog share-a nije definisan.");
-                    }
+                    var service = new ShareService ();
 
+                    await service.CreateAndShareFolderAsync (state.FolderPath, state.ShareName);
 
-                    Debug.WriteLine (
-                        "[SHARE] Admin mode.");
-
-
-                    Debug.WriteLine (
-                        $"[SHARE] Folder: {state.FolderPath}");
-
-
-                    Debug.WriteLine (
-                        $"[SHARE] Share name: {state.ShareName}");
-
-
-                    var service =
-                        new ShareService ();
-
-
-                    await service
-                        .CreateAndShareFolderAsync (
-                            state.FolderPath,
-                            state.ShareName);
-
-
-                    Debug.WriteLine (
-                        "[SHARE] Share kreiran.");
-
+                    Debug.WriteLine ("[SHARE] Share kreiran.");
 
                     try
                     {
-                        File.Delete (
-                            tempPath);
+                        File.Delete (tempPath);
                     }
                     catch(Exception ex)
                     {
-                        Debug.WriteLine (
-                            "[SHARE] Ne mogu obrisati " +
-                            $"elevation state: {ex.Message}");
+                        Debug.WriteLine ($"[SHARE] Ne mogu obrisati elevation state: {ex.Message}");
                     }
-
 
                     /*
                      * Administratorski posao je završen.
                      * Vraćamo Caupo u normalni user mode.
                      */
 
-                    Debug.WriteLine (
-                        "[SHARE] Restart aplikacije " +
-                        "u normalnom modu.");
-
+                    Debug.WriteLine ("[SHARE] Restart aplikacije u normalnom modu.");
 
                     AdminHelper.RestartAsUser ();
-
                     return;
                 }
                 catch(Exception ex)
                 {
-                    Debug.WriteLine (
-                        $"[SHARE] Greška tokom elevation procesa: {ex}");
-
+                    Debug.WriteLine ($"[SHARE] Greška tokom elevation procesa: {ex}");
 
                     try
                     {
                         if(File.Exists (tempPath))
-                        {
-                            File.Delete (
-                                tempPath);
-                        }
+                            File.Delete (tempPath);
                     }
                     catch
                     {
                     }
-
 
                     MessageBox.Show (
                         "Nije moguće pripremiti mrežni folder."
@@ -316,16 +228,14 @@ namespace Caupo
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
 
-
                     Shutdown ();
-
                     return;
                 }
             }
 
 
             // =================================================
-            // 6. GLAVNA KASA - NETWORK SHARE
+            // 7. GLAVNA KASA - NETWORK SHARE
             // =================================================
 
             if(EnsureMainCashRegisterShare ())
@@ -340,42 +250,41 @@ namespace Caupo
 
 
             // =================================================
-            // 7. PRIMJENA TEME NA KREIRANE WINDOWE
+            // 8. PRIMJENA TEME NA KREIRANE WINDOWE
             // =================================================
 
-            ApplyTheme (
-                CurrentTheme);
+            ApplyTheme (CurrentTheme);
 
 
             // =================================================
-            // 8. GLOBALNI WINDOW HANDLER
+            // 9. GLOBALNI WINDOW HANDLER
             // =================================================
 
             EventManager.RegisterClassHandler (
                 typeof (Window),
                 Window.LoadedEvent,
-                new RoutedEventHandler (
-                    OnWindowLoaded));
+                new RoutedEventHandler (OnWindowLoaded));
 
 
             // =================================================
-            // 9. NAVIGACIJA
+            // 10. NAVIGACIJA
             // =================================================
 
             InitializeNavigation ();
 
 
             // =================================================
-            // 10. BACKUP
+            // 11. BACKUP
             // =================================================
 
             InitializeBackup ();
 
+
             // =================================================
-            // 11. HRVATSKA - NAKNADNA FISKALIZACIJA
+            // 12. HRVATSKA - NAKNADNA FISKALIZACIJA
             // =================================================
 
-            InitializeCroatiaFiscalWorker();
+            InitializeCroatiaFiscalWorker ();
         }
 
 
@@ -385,33 +294,34 @@ namespace Caupo
 
         private void InitializeCroatiaFiscalWorker()
         {
-            if (!string.Equals(Settings.Default.Country, "Hrvatska", StringComparison.OrdinalIgnoreCase))
+            if(!string.Equals (Settings.Default.Country, "Hrvatska", StringComparison.OrdinalIgnoreCase))
             {
-                Debug.WriteLine("[HR] Naknadna fiskalizacija se ne pokreće - država nije Hrvatska.");
+                Debug.WriteLine ("[HR] Naknadna fiskalizacija se ne pokreće - država nije Hrvatska.");
                 return;
             }
 
-            if (!CashRegisterConfigurationService.IsMainCashRegister)
+            if(!CashRegisterConfigurationService.IsMainCashRegister)
             {
-                Debug.WriteLine("[HR] Dodatna kasa - worker naknadne fiskalizacije se ne pokreće.");
+                Debug.WriteLine ("[HR] Dodatna kasa - worker naknadne fiskalizacije se ne pokreće.");
                 return;
             }
 
             try
             {
-                _croatiaFiscalWorker = new CroatiaSubsequentFiscalizationWorker();
-                _croatiaFiscalWorker.Start();
+                _croatiaFiscalWorker = new CroatiaSubsequentFiscalizationWorker ();
+                _croatiaFiscalWorker.Start ();
 
-                Debug.WriteLine("[HR] Worker naknadne fiskalizacije pokrenut.");
+                Debug.WriteLine ("[HR] Worker naknadne fiskalizacije pokrenut.");
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Debug.WriteLine("[HR] Greška pri pokretanju workera naknadne fiskalizacije: " + ex);
+                Debug.WriteLine ("[HR] Greška pri pokretanju workera naknadne fiskalizacije: " + ex);
 
-                _croatiaFiscalWorker?.Dispose();
+                _croatiaFiscalWorker?.Dispose ();
                 _croatiaFiscalWorker = null;
             }
         }
+
 
         // =====================================================
         // GLAVNA KASA - NETWORK SHARE
@@ -419,10 +329,7 @@ namespace Caupo
 
         private bool EnsureMainCashRegisterShare()
         {
-            string currentDbPath =
-                Settings.Default.DbPath?.Trim ()
-                ?? string.Empty;
-
+            string currentDbPath = Settings.Default.DbPath?.Trim () ?? string.Empty;
 
             /*
              * Tip kase određuje Settings.Default.CashRegisterType.
@@ -431,55 +338,32 @@ namespace Caupo
              * Secondary -> dodatna kasa
              */
 
-            if(!CashRegisterConfigurationService
-                .IsMainCashRegister)
+            if(!CashRegisterConfigurationService.IsMainCashRegister)
             {
-                Debug.WriteLine (
-                    "[SHARE] Dodatna kasa - " +
-                    "share se ne provjerava.");
-
-
-                Debug.WriteLine (
-                    $"[SHARE] DbPath: {currentDbPath}");
-
+                Debug.WriteLine ("[SHARE] Dodatna kasa - share se ne provjerava.");
+                Debug.WriteLine ($"[SHARE] DbPath: {currentDbPath}");
 
                 return false;
             }
 
+            const string shareName = "DsoftData";
 
-            const string shareName =
-                "DsoftData";
-
-
-            Debug.WriteLine (
-                "[SHARE] Tip kase: Glavna kasa.");
-
-
-            Debug.WriteLine (
-                $"[SHARE] Provjeravam share: {shareName}");
+            Debug.WriteLine ("[SHARE] Tip kase: Glavna kasa.");
+            Debug.WriteLine ($"[SHARE] Provjeravam share: {shareName}");
 
 
             // =================================================
             // SHARE VEĆ POSTOJI
             // =================================================
 
-            if(IsWindowsShareAvailable (
-                shareName))
+            if(IsWindowsShareAvailable (shareName))
             {
-                string networkPath =
-                    $@"\\{Environment.MachineName}\{shareName}";
+                string networkPath = $@"\\{Environment.MachineName}\{shareName}";
 
-
-                Debug.WriteLine (
-                    $"[SHARE] Share već postoji: {shareName}");
-
-
-                Debug.WriteLine (
-                    $"[SHARE] Mrežna putanja: {networkPath}");
-
+                Debug.WriteLine ($"[SHARE] Share već postoji: {shareName}");
+                Debug.WriteLine ($"[SHARE] Mrežna putanja: {networkPath}");
 
                 StartDiscoveryService ();
-
 
                 return false;
             }
@@ -489,17 +373,11 @@ namespace Caupo
             // SHARE NE POSTOJI
             // =================================================
 
-            Debug.WriteLine (
-                $"[SHARE] Share {shareName} ne postoji.");
-
+            Debug.WriteLine ($"[SHARE] Share {shareName} ne postoji.");
 
             if(AdminHelper.IsAdministrator ())
             {
-                Debug.WriteLine (
-                    "[SHARE] Caupo je već pokrenut " +
-                    "kao administrator.");
-
-
+                Debug.WriteLine ("[SHARE] Caupo je već pokrenut kao administrator.");
                 return false;
             }
 
@@ -510,10 +388,7 @@ namespace Caupo
 
             try
             {
-                RestartAsAdministratorForShare (
-                    DataFolderService.LocalDataFolder,
-                    shareName);
-
+                RestartAsAdministratorForShare (DataFolderService.LocalDataFolder, shareName);
 
                 /*
                  * Nova admin instanca je pokrenuta.
@@ -522,20 +397,16 @@ namespace Caupo
 
                 Shutdown ();
 
-
                 return true;
             }
-            catch(Win32Exception ex)
-                when(ex.NativeErrorCode == 1223)
+            catch(Win32Exception ex) when(ex.NativeErrorCode == 1223)
             {
                 /*
                  * Windows error 1223:
                  * korisnik je odbio / otkazao UAC.
                  */
 
-                Debug.WriteLine (
-                    "[SHARE] Korisnik je otkazao UAC.");
-
+                Debug.WriteLine ("[SHARE] Korisnik je otkazao UAC.");
 
                 MessageBox.Show (
                     "Za pripremu glavne kase potrebno je jednom "
@@ -548,17 +419,13 @@ namespace Caupo
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
 
-
                 Shutdown ();
-
 
                 return true;
             }
             catch(Exception ex)
             {
-                Debug.WriteLine (
-                    $"[SHARE] Greška kod elevation procesa: {ex}");
-
+                Debug.WriteLine ($"[SHARE] Greška kod elevation procesa: {ex}");
 
                 MessageBox.Show (
                     "Nije moguće pripremiti mrežnu bazu."
@@ -569,9 +436,7 @@ namespace Caupo
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
 
-
                 Shutdown ();
-
 
                 return true;
             }
@@ -590,27 +455,16 @@ namespace Caupo
 
             if(_discoveryService != null)
             {
-                Debug.WriteLine (
-                    "[DISCOVERY] Servis već radi.");
-
-
+                Debug.WriteLine ("[DISCOVERY] Servis već radi.");
                 return;
             }
 
-
             try
             {
-                _discoveryService =
-                    new CaupoDiscoveryService ();
+                _discoveryService = new CaupoDiscoveryService ();
+                _discoveryService.StartMainCashRegisterListener ();
 
-
-                _discoveryService
-                    .StartMainCashRegisterListener ();
-
-
-                Debug.WriteLine (
-                    "[DISCOVERY] Caupo glavna kasa " +
-                    "dostupna za pronalaženje.");
+                Debug.WriteLine ("[DISCOVERY] Caupo glavna kasa dostupna za pronalaženje.");
             }
             catch(Exception ex)
             {
@@ -619,9 +473,7 @@ namespace Caupo
                  * pokretanje glavne kase.
                  */
 
-                Debug.WriteLine (
-                    $"[DISCOVERY] Greška pri pokretanju servisa: {ex}");
-
+                Debug.WriteLine ($"[DISCOVERY] Greška pri pokretanju servisa: {ex}");
 
                 try
                 {
@@ -631,9 +483,7 @@ namespace Caupo
                 {
                 }
 
-
-                _discoveryService =
-                    null;
+                _discoveryService = null;
             }
         }
 
@@ -642,98 +492,48 @@ namespace Caupo
         // PROVJERA POSTOJI LI WINDOWS SHARE
         // =====================================================
 
-        private static bool IsWindowsShareAvailable(
-            string shareName)
+        private static bool IsWindowsShareAvailable(string shareName)
         {
             try
             {
-                var startInfo =
-                    new ProcessStartInfo
-                    {
-                        FileName =
-                            "net.exe",
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "net.exe",
+                    Arguments = "share",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                };
 
-                        Arguments =
-                            "share",
-
-                        UseShellExecute =
-                            false,
-
-                        RedirectStandardOutput =
-                            true,
-
-                        RedirectStandardError =
-                            true,
-
-                        CreateNoWindow =
-                            true,
-
-                        WindowStyle =
-                            ProcessWindowStyle.Hidden
-                    };
-
-
-                using Process? process =
-                    Process.Start (
-                        startInfo);
-
+                using Process? process = Process.Start (startInfo);
 
                 if(process == null)
                 {
-                    Debug.WriteLine (
-                        "[SHARE] Ne mogu pokrenuti net.exe.");
-
-
+                    Debug.WriteLine ("[SHARE] Ne mogu pokrenuti net.exe.");
                     return false;
                 }
 
-
-                string output =
-                    process.StandardOutput
-                        .ReadToEnd ();
-
-
-                string error =
-                    process.StandardError
-                        .ReadToEnd ();
-
+                string output = process.StandardOutput.ReadToEnd ();
+                string error = process.StandardError.ReadToEnd ();
 
                 process.WaitForExit ();
 
+                Debug.WriteLine ($"[SHARE] net share ExitCode: {process.ExitCode}");
 
-                Debug.WriteLine (
-                    $"[SHARE] net share ExitCode: {process.ExitCode}");
+                if(!string.IsNullOrWhiteSpace (error))
+                    Debug.WriteLine ($"[SHARE] net share error: {error}");
 
+                bool exists = output.Contains (shareName, StringComparison.OrdinalIgnoreCase);
 
-                if(!string.IsNullOrWhiteSpace (
-                    error))
-                {
-                    Debug.WriteLine (
-                        $"[SHARE] net share error: {error}");
-                }
-
-
-                bool exists =
-                    output.Contains (
-                        shareName,
-                        StringComparison.OrdinalIgnoreCase);
-
-
-                Debug.WriteLine (
-                    $"[SHARE] Provjera share-a {shareName}: "
-                    + (exists
-                        ? "POSTOJI"
-                        : "NE POSTOJI"));
-
+                Debug.WriteLine ($"[SHARE] Provjera share-a {shareName}: " + (exists ? "POSTOJI" : "NE POSTOJI"));
 
                 return exists;
             }
             catch(Exception ex)
             {
-                Debug.WriteLine (
-                    $"[SHARE] Greška kod provjere share-a: {ex}");
-
-
+                Debug.WriteLine ($"[SHARE] Greška kod provjere share-a: {ex}");
                 return false;
             }
         }
@@ -743,80 +543,39 @@ namespace Caupo
         // RESTART KAO ADMINISTRATOR ZA SHARE
         // =====================================================
 
-        private static void RestartAsAdministratorForShare(
-            string folderPath,
-            string shareName)
+        private static void RestartAsAdministratorForShare(string folderPath, string shareName)
         {
-            Debug.WriteLine (
-                "[SHARE] Pripremam restart kao administrator...");
+            Debug.WriteLine ("[SHARE] Pripremam restart kao administrator...");
 
-
-            var state =
-                new ElevationState
-                {
-                    FolderPath =
-                        folderPath,
-
-                    ShareName =
-                        shareName
-                };
-
-
-            string tempPath =
-                Path.Combine (
-                    Path.GetTempPath (),
-                    ElevationStateFile);
-
-
-            string json =
-                JsonSerializer.Serialize (
-                    state);
-
-
-            File.WriteAllText (
-                tempPath,
-                json);
-
-
-            Debug.WriteLine (
-                $"[SHARE] Elevation state: {tempPath}");
-
-
-            string? executable =
-                Environment.ProcessPath;
-
-
-            if(string.IsNullOrWhiteSpace (
-                executable))
+            var state = new ElevationState
             {
-                throw new InvalidOperationException (
-                    "Nije moguće pronaći Caupo.exe.");
-            }
+                FolderPath = folderPath,
+                ShareName = shareName
+            };
 
+            string tempPath = Path.Combine (Path.GetTempPath (), ElevationStateFile);
+            string json = JsonSerializer.Serialize (state);
 
-            var startInfo =
-                new ProcessStartInfo
-                {
-                    FileName =
-                        executable,
+            File.WriteAllText (tempPath, json);
 
-                    UseShellExecute =
-                        true,
+            Debug.WriteLine ($"[SHARE] Elevation state: {tempPath}");
 
-                    Verb =
-                        "runas",
+            string? executable = Environment.ProcessPath;
 
-                    WorkingDirectory =
-                        AppContext.BaseDirectory
-                };
+            if(string.IsNullOrWhiteSpace (executable))
+                throw new InvalidOperationException ("Nije moguće pronaći Caupo.exe.");
 
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = executable,
+                UseShellExecute = true,
+                Verb = "runas",
+                WorkingDirectory = AppContext.BaseDirectory
+            };
 
-            Debug.WriteLine (
-                "[SHARE] Pokrećem Caupo kao administrator...");
+            Debug.WriteLine ("[SHARE] Pokrećem Caupo kao administrator...");
 
-
-            Process.Start (
-                startInfo);
+            Process.Start (startInfo);
         }
 
 
@@ -826,59 +585,35 @@ namespace Caupo
 
         private static void InitializeTheme()
         {
-            string tema =
-                Settings.Default.Tema?.Trim ()
-                ?? string.Empty;
-
+            string tema = Settings.Default.Tema?.Trim () ?? string.Empty;
 
             /*
              * Ako user.config ne postoji ili tema
              * još nije postavljena, koristimo tamnu temu.
              */
 
-            if(string.IsNullOrWhiteSpace (
-                tema))
+            if(string.IsNullOrWhiteSpace (tema))
             {
-                tema =
-                    "Tamna";
+                tema = "Tamna";
 
-
-                Settings.Default.Tema =
-                    tema;
-
-
+                Settings.Default.Tema = tema;
                 Settings.Default.Save ();
 
-
-                Debug.WriteLine (
-                    "[THEME] Tema nije bila postavljena. " +
-                    "Default = Tamna");
+                Debug.WriteLine ("[THEME] Tema nije bila postavljena. Default = Tamna");
             }
 
+            CurrentTheme = tema;
 
-            CurrentTheme =
-                tema;
+            SfSkinManager.ApplyThemeAsDefaultStyle = true;
 
+            SfSkinManager.ApplicationTheme = string.Equals (
+                CurrentTheme,
+                "Tamna",
+                StringComparison.OrdinalIgnoreCase)
+                ? new Theme ("Office2019Black")
+                : new Theme ("Office2019Colorful");
 
-            SfSkinManager.ApplyThemeAsDefaultStyle =
-                true;
-
-
-            SfSkinManager.ApplicationTheme =
-                string.Equals (
-                    CurrentTheme,
-                    "Tamna",
-                    StringComparison.OrdinalIgnoreCase)
-
-                    ? new Theme (
-                        "Office2019Black")
-
-                    : new Theme (
-                        "Office2019Colorful");
-
-
-            Debug.WriteLine (
-                $"[THEME] InitializeTheme = {CurrentTheme}");
+            Debug.WriteLine ($"[THEME] InitializeTheme = {CurrentTheme}");
         }
 
 
@@ -886,65 +621,38 @@ namespace Caupo
         // APPLY THEME
         // =====================================================
 
-        public static void ApplyTheme(
-            string tema)
+        public static void ApplyTheme(string tema)
         {
-            if(string.IsNullOrWhiteSpace (
-                tema))
+            if(string.IsNullOrWhiteSpace (tema))
             {
-                tema =
-                    "Tamna";
+                tema = "Tamna";
 
-
-                Settings.Default.Tema =
-                    tema;
-
-
+                Settings.Default.Tema = tema;
                 Settings.Default.Save ();
             }
 
+            CurrentTheme = tema;
 
-            CurrentTheme =
-                tema;
+            bool darkTheme = string.Equals (
+                tema,
+                "Tamna",
+                StringComparison.OrdinalIgnoreCase);
 
-
-            bool darkTheme =
-                string.Equals (
-                    tema,
-                    "Tamna",
-                    StringComparison.OrdinalIgnoreCase);
-
-
-            Theme syncfusionTheme =
-                darkTheme
-
-                    ? new Theme (
-                        "Office2019Black")
-
-                    : new Theme (
-                        "Office2019Colorful");
-
+            Theme syncfusionTheme = darkTheme
+                ? new Theme ("Office2019Black")
+                : new Theme ("Office2019Colorful");
 
             /*
              * ApplicationTheme je važan i za windowe
              * koji će biti kreirani nakon promjene teme.
              */
 
-            SfSkinManager.ApplicationTheme =
-                syncfusionTheme;
+            SfSkinManager.ApplicationTheme = syncfusionTheme;
 
+            foreach(Window window in Current.Windows)
+                SfSkinManager.SetTheme (window, syncfusionTheme);
 
-            foreach(Window window
-                in Current.Windows)
-            {
-                SfSkinManager.SetTheme (
-                    window,
-                    syncfusionTheme);
-            }
-
-
-            Debug.WriteLine (
-                $"[THEME] ApplyTheme = {tema}");
+            Debug.WriteLine ($"[THEME] ApplyTheme = {tema}");
         }
 
 
@@ -954,37 +662,18 @@ namespace Caupo
 
         private static void InitializeCulture()
         {
-            var culture =
-                (CultureInfo)
-                CultureInfo.InvariantCulture.Clone ();
+            var culture = (CultureInfo)CultureInfo.InvariantCulture.Clone ();
 
+            culture.NumberFormat.NumberDecimalSeparator = ".";
+            culture.NumberFormat.CurrencyDecimalSeparator = ".";
 
-            culture.NumberFormat
-                .NumberDecimalSeparator =
-                ".";
+            Thread.CurrentThread.CurrentCulture = culture;
+            Thread.CurrentThread.CurrentUICulture = culture;
 
-
-            culture.NumberFormat
-                .CurrencyDecimalSeparator =
-                ".";
-
-
-            Thread.CurrentThread.CurrentCulture =
-                culture;
-
-
-            Thread.CurrentThread.CurrentUICulture =
-                culture;
-
-
-            FrameworkElement.LanguageProperty
-                .OverrideMetadata (
-                    typeof (FrameworkElement),
-                    new FrameworkPropertyMetadata (
-                        System.Windows.Markup
-                            .XmlLanguage
-                            .GetLanguage (
-                                culture.IetfLanguageTag)));
+            FrameworkElement.LanguageProperty.OverrideMetadata (
+                typeof (FrameworkElement),
+                new FrameworkPropertyMetadata (
+                    System.Windows.Markup.XmlLanguage.GetLanguage (culture.IetfLanguageTag)));
         }
 
 
@@ -1001,27 +690,18 @@ namespace Caupo
              * MainWindow i MainViewModel ga više ne mijenjaju.
              */
 
-            PageNavigator.Navigate =
-                page =>
+            PageNavigator.Navigate = page =>
+            {
+                if(Application.Current.MainWindow?.DataContext is not MainViewModel viewModel)
                 {
-                    if(Application.Current.MainWindow?
-                           .DataContext
-                       is not MainViewModel viewModel)
-                    {
-                        Debug.WriteLine (
-                            "[NAVIGATION] MainViewModel nije dostupan.");
+                    Debug.WriteLine ("[NAVIGATION] MainViewModel nije dostupan.");
+                    return;
+                }
 
-                        return;
-                    }
+                viewModel.CurrentPage = page;
+            };
 
-
-                    viewModel.CurrentPage =
-                        page;
-                };
-
-
-            Debug.WriteLine (
-                "[NAVIGATION] PageNavigator inicijalizovan.");
+            Debug.WriteLine ("[NAVIGATION] PageNavigator inicijalizovan.");
         }
 
 
@@ -1037,62 +717,30 @@ namespace Caupo
                  * Backup radi samo na glavnoj kasi.
                  */
 
-                if(!CashRegisterConfigurationService
-                    .IsMainCashRegister)
+                if(!CashRegisterConfigurationService.IsMainCashRegister)
                 {
-                    Debug.WriteLine (
-                        "[BACKUP] Dodatna kasa - " +
-                        "backup se ne pokreće.");
-
-
-                    Debug.WriteLine (
-                        $"[BACKUP] Mrežna baza: " +
-                        $"{Settings.Default.DbPath}");
-
+                    Debug.WriteLine ("[BACKUP] Dodatna kasa - backup se ne pokreće.");
+                    Debug.WriteLine ($"[BACKUP] Mrežna baza: {Settings.Default.DbPath}");
 
                     return;
                 }
 
+                string dbPath = DataFolderService.CurrentDatabasePath;
+                string backupPath = Settings.Default.BackupUrl;
 
-                string dbPath =
-                    DataFolderService
-                        .CurrentDatabasePath;
+                Debug.WriteLine ($"[BACKUP] Baza: {dbPath}");
+                Debug.WriteLine ($"[BACKUP] Backup folder: {backupPath}");
 
-
-                string backupPath =
-                    Settings.Default.BackupUrl;
-
-
-                Debug.WriteLine (
-                    $"[BACKUP] Baza: {dbPath}");
-
-
-                Debug.WriteLine (
-                    $"[BACKUP] Backup folder: {backupPath}");
-
-
-                if(string.IsNullOrWhiteSpace (
-                    backupPath))
+                if(string.IsNullOrWhiteSpace (backupPath))
                 {
-                    Debug.WriteLine (
-                        "[BACKUP] BackupUrl nije postavljen.");
-
-
+                    Debug.WriteLine ("[BACKUP] BackupUrl nije postavljen.");
                     return;
                 }
 
+                // _backupService = new DatabaseBackupService(dbPath, backupPath);
+                // _backupService.Start();
 
-            //    _backupService =
-            //       new DatabaseBackupService (
-            //            dbPath,
-            //           backupPath);
-
-
-             //   _backupService.Start ();
-
-
-                Debug.WriteLine (
-                    "[BACKUP] Backup servis pokrenut.");
+                Debug.WriteLine ("[BACKUP] Backup servis pokrenut.");
             }
             catch(Exception ex)
             {
@@ -1101,8 +749,7 @@ namespace Caupo
                  * spriječiti pokretanje POS-a.
                  */
 
-                Debug.WriteLine (
-                    $"[BACKUP] Greška: {ex}");
+                Debug.WriteLine ($"[BACKUP] Greška: {ex}");
             }
         }
 
@@ -1111,9 +758,7 @@ namespace Caupo
         // WINDOW LOADED
         // =====================================================
 
-        private void OnWindowLoaded(
-            object sender,
-            RoutedEventArgs e)
+        private void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
             /*
              * Rezervisano za globalnu obradu
@@ -1128,19 +773,14 @@ namespace Caupo
 
         private void App_DispatcherUnhandledException(
             object sender,
-            System.Windows.Threading
-                .DispatcherUnhandledExceptionEventArgs e)
+            System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
             Debug.WriteLine (
                 "[UI Thread Exception]"
                 + Environment.NewLine
                 + e.Exception);
 
-
-            WriteCrashLog (
-                "UI Thread Exception",
-                e.Exception);
-
+            WriteCrashLog ("UI Thread Exception", e.Exception);
 
             MessageBox.Show (
                 "Došlo je do greške u aplikaciji."
@@ -1151,36 +791,25 @@ namespace Caupo
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
 
-
             /*
              * Zadržavamo postojeće ponašanje.
              */
 
-            e.Handled =
-                true;
+            e.Handled = true;
         }
 
 
-        private void CurrentDomain_UnhandledException(
-            object sender,
-            UnhandledExceptionEventArgs e)
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            if(e.ExceptionObject
-               is not Exception ex)
-            {
+            if(e.ExceptionObject is not Exception ex)
                 return;
-            }
-
 
             Debug.WriteLine (
                 "[Non-UI Exception]"
                 + Environment.NewLine
                 + ex);
 
-
-            WriteCrashLog (
-                "Non-UI Exception",
-                ex);
+            WriteCrashLog ("Non-UI Exception", ex);
         }
 
 
@@ -1193,11 +822,7 @@ namespace Caupo
                 + Environment.NewLine
                 + e.Exception);
 
-
-            WriteCrashLog (
-                "Async Task Exception",
-                e.Exception);
-
+            WriteCrashLog ("Async Task Exception", e.Exception);
 
             e.SetObserved ();
         }
@@ -1207,48 +832,32 @@ namespace Caupo
         // CRASH LOG
         // =====================================================
 
-        private static void WriteCrashLog(
-            string source,
-            Exception exception)
+        private static void WriteCrashLog(string source, Exception exception)
         {
             try
             {
-                string logFolder =
-                    Path.Combine (
-                        Environment.GetFolderPath (
-                            Environment.SpecialFolder
-                                .LocalApplicationData),
-                        "Dsoft",
-                        "Caupo",
-                        "Logs");
+                string logFolder = Path.Combine (
+                    Environment.GetFolderPath (Environment.SpecialFolder.LocalApplicationData),
+                    "Dsoft",
+                    "Caupo",
+                    "Logs");
 
+                Directory.CreateDirectory (logFolder);
 
-                Directory.CreateDirectory (
-                    logFolder);
-
-
-                string logFile =
-                    Path.Combine (
-                        logFolder,
-                        "crash.log");
-
+                string logFile = Path.Combine (logFolder, "crash.log");
 
                 string log =
                     Environment.NewLine
                     + "========================================"
                     + Environment.NewLine
-                    + DateTime.Now.ToString (
-                        "yyyy-MM-dd HH:mm:ss")
+                    + DateTime.Now.ToString ("yyyy-MM-dd HH:mm:ss")
                     + Environment.NewLine
                     + source
                     + Environment.NewLine
                     + exception
                     + Environment.NewLine;
 
-
-                File.AppendAllText (
-                    logFile,
-                    log);
+                File.AppendAllText (logFile, log);
             }
             catch
             {
@@ -1264,8 +873,7 @@ namespace Caupo
         // EXIT
         // =====================================================
 
-        protected override void OnExit(
-            ExitEventArgs e)
+        protected override void OnExit(ExitEventArgs e)
         {
             // =================================================
             // DISCOVERY
@@ -1275,25 +883,18 @@ namespace Caupo
             {
                 if(_discoveryService != null)
                 {
-                    Debug.WriteLine (
-                        "[DISCOVERY] Gasim discovery servis.");
-
+                    Debug.WriteLine ("[DISCOVERY] Gasim discovery servis.");
 
                     _discoveryService.Stop ();
-
-
                     _discoveryService.Dispose ();
-
-
-                    _discoveryService =
-                        null;
+                    _discoveryService = null;
                 }
             }
             catch(Exception ex)
             {
-                Debug.WriteLine (
-                    $"[DISCOVERY] Dispose error: {ex}");
+                Debug.WriteLine ($"[DISCOVERY] Dispose error: {ex}");
             }
+
 
             // =================================================
             // HRVATSKA - NAKNADNA FISKALIZACIJA
@@ -1301,18 +902,18 @@ namespace Caupo
 
             try
             {
-                if (_croatiaFiscalWorker != null)
+                if(_croatiaFiscalWorker != null)
                 {
-                    Debug.WriteLine("[HR] Gasim worker naknadne fiskalizacije.");
+                    Debug.WriteLine ("[HR] Gasim worker naknadne fiskalizacije.");
 
-                    _croatiaFiscalWorker.StopAsync().GetAwaiter().GetResult();
-                    _croatiaFiscalWorker.Dispose();
+                    _croatiaFiscalWorker.StopAsync ().GetAwaiter ().GetResult ();
+                    _croatiaFiscalWorker.Dispose ();
                     _croatiaFiscalWorker = null;
                 }
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Debug.WriteLine("[HR] Worker dispose error: " + ex);
+                Debug.WriteLine ("[HR] Worker dispose error: " + ex);
             }
 
 
@@ -1322,21 +923,15 @@ namespace Caupo
 
             try
             {
-               // _backupService?.Dispose ();
-
-
-              //  _backupService = null;
+                // _backupService?.Dispose();
+                // _backupService = null;
             }
             catch(Exception ex)
             {
-                Debug.WriteLine (
-                    $"[BACKUP] Dispose error: {ex}");
+                Debug.WriteLine ($"[BACKUP] Dispose error: {ex}");
             }
 
-
-            base.OnExit (
-                e);
+            base.OnExit (e);
         }
     }
 }
-

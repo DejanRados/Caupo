@@ -54,6 +54,7 @@ namespace Caupo.Fiscal.Federation
                         BrojRacuna = receipt.BrojRacuna,
                         Artikl = item.Name,
                         Sifra = item.Sifra,
+                        IdArtikla = item.ArtiklId.Value,
                         Kolicina = item.Quantity ?? 0m,
                         Cijena = item.UnitPrice,
                         PoreskaStopa = item.PoreskaStopa,

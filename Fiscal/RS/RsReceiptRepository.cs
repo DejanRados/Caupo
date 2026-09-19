@@ -66,6 +66,8 @@ namespace Caupo.Fiscal.RS
 
                         Sifra = item.Sifra,
 
+                        IdArtikla = item.ArtiklId.Value,
+
                         Kolicina = item.Quantity ?? 0m,
 
                         Cijena = item.UnitPrice,

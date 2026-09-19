@@ -51,12 +51,17 @@ namespace Caupo.ArticleImport
 
                 _vrsta = value;
 
-                if (_vrsta != "Piće")
+                if(_vrsta != "Piće")
+                {
+                    Jedinica = "kom";
                     Normativ = "1";
-                else if (string.Equals(Jedinica, "kom", StringComparison.OrdinalIgnoreCase))
+                }
+                else if(string.Equals (Jedinica, "kom", StringComparison.OrdinalIgnoreCase))
+                {
                     Normativ = "1";
+                }
 
-                OnPropertyChanged();
+                OnPropertyChanged ();
                 OnPropertyChanged(nameof(CanEditNormativ));
                 RefreshCategories();
             }
@@ -107,7 +112,20 @@ namespace Caupo.ArticleImport
             }
         }
 
-        public string Porez { get; set; } = string.Empty;
+        private string _porez = string.Empty;
+
+        public string Porez
+        {
+            get => _porez;
+            set
+            {
+                if(_porez == value)
+                    return;
+
+                _porez = value;
+                OnPropertyChanged ();
+            }
+        }
 
         public string Normativ
         {
@@ -124,7 +142,20 @@ namespace Caupo.ArticleImport
 
         public string Pozicija { get; set; } = string.Empty;
         public bool Aktivan { get; set; } = true;
-        public bool PorezNaPotrosnju { get; set; }
+
+        private bool _porezNaPotrosnju;
+        public bool PorezNaPotrosnju
+        {
+            get => _porezNaPotrosnju;
+            set
+            {
+                if(_porezNaPotrosnju == value)
+                    return;
+
+                _porezNaPotrosnju = value;
+                OnPropertyChanged ();
+            }
+        }
 
         public string Slika
         {
@@ -183,7 +214,7 @@ namespace Caupo.ArticleImport
         public bool PorezError => ErrorFields.Contains("Porez");
         public bool PorezWarning => WarningFields.Contains("Porez");
 
-        public bool NormativError => ErrorFields.Contains("Normativ") || ErrorFields.Contains("Naziv / Normativ");
+        public bool NormativError => ErrorFields.Contains("Normativ");
         public bool NormativWarning => WarningFields.Contains("Normativ");
 
         public bool PozicijaError => ErrorFields.Contains("Pozicija");

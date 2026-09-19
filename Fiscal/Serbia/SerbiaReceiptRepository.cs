@@ -51,6 +51,7 @@ namespace Caupo.Fiscal.Serbia
                     {
                         BrojRacuna = racun.BrojRacuna,
                         Artikl = item.Name,
+                        IdArtikla = item.ArtiklId.Value,
                         Sifra = item.Sifra,
                         Kolicina = item.Quantity ?? 0m,
                         Cijena = item.UnitPrice,

@@ -159,6 +159,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
+                            <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
                         <Grid.ColumnDefinitions>
@@ -177,12 +178,11 @@
 
                         <!-- Broj selektovanih artikala. -->
                         <TextBlock x:Name="SelectedCountText"
-                                   Grid.Row="0"
+                                   Grid.Row="3"
                                    Grid.Column="1"
                                    Text="Selektovano: 0"
                                    Foreground="{DynamicResource GlobalFontColor}"
                                    FontSize="12"
-                                   FontWeight="SemiBold"
                                    VerticalAlignment="Center"
                                    Margin="10,0,0,0"/>
 
@@ -202,7 +202,41 @@
                 </Grid>
 
             </Border>
+            <!-- ================================================= -->
+            <!-- CIJENA                                           -->
+            <!-- ================================================= -->
 
+
+            <Button x:Name="PriceButton" Style="{StaticResource FloatingMenuButtonStyle}" Click="PriceButton_Click">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="25"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Postavi cijenu" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" Text="&#xE70D;" Foreground="{DynamicResource GlobalFontColor}" FontFamily="Segoe MDL2 Assets" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                        <TextBlock.RenderTransform>
+                            <RotateTransform x:Name="PriceArrowTransform"/>
+                        </TextBlock.RenderTransform>
+                    </TextBlock>
+                </Grid>
+            </Button>
+
+            <StackPanel x:Name="PricePanel" Background="{DynamicResource GlobalBackgroundColor}" Visibility="Collapsed">
+                <TextBlock Text="Unesite željenu cijenu za selektovane artikle:" Foreground="{DynamicResource GlobalFontColor}" TextWrapping="Wrap" Margin="12,10,12,6"/>
+
+                <Grid Margin="12,0,12,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox x:Name="PriceTextBox" Style="{DynamicResource TextBoxCustom}"  Grid.Column="0" Height="40" Padding="8,0" FontSize="15" VerticalContentAlignment="Center" KeyDown="PriceTextBox_KeyDown"/>
+
+                    <Button Grid.Column="2" Content="OK" Height="40" Style="{StaticResource SecondaryButtonStyle}" Click="PriceOKButton_Click"/>
+                </Grid>
+            </StackPanel>
             <!-- ================================================= -->
             <!-- VRSTA                                             -->
             <!-- ================================================= -->
@@ -325,24 +359,86 @@
                         Visibility="Collapsed"/>
 
             <!-- ================================================= -->
-            <!-- OSTALE KOMANDE                                    -->
+            <!-- PORESKA STOPA -->
             <!-- ================================================= -->
 
-            <Button x:Name="TaxButton"
-                    Content="Postavi poresku stopu"
-                    Style="{StaticResource FloatingMenuButtonStyle}"/>
+            <Button x:Name="TaxButton" Style="{StaticResource FloatingMenuButtonStyle}" Click="TaxButton_Click">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="25"/>
+                    </Grid.ColumnDefinitions>
 
-            <Button x:Name="NormativButton"
-                    Content="Postavi normativ"
-                    Style="{StaticResource FloatingMenuButtonStyle}"/>
+                    <TextBlock Text="Postavi poresku stopu" VerticalAlignment="Center"/>
 
-            <Button x:Name="StatusButton"
-                    Content="Postavi status"
-                    Style="{StaticResource FloatingMenuButtonStyle}"/>
+                    <TextBlock Grid.Column="1" Text="&#xE70D;" Foreground="{DynamicResource GlobalFontColor}" FontFamily="Segoe MDL2 Assets" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                        <TextBlock.RenderTransform>
+                            <RotateTransform x:Name="TaxArrowTransform"/>
+                        </TextBlock.RenderTransform>
+                    </TextBlock>
+                </Grid>
+            </Button>
 
-            <Button x:Name="ConsumptionTaxButton"
-                    Content="Postavi porez na potrošnju"
-                    Style="{StaticResource FloatingMenuButtonStyle}"/>
+            <StackPanel x:Name="TaxPanel" Background="{DynamicResource GlobalBackgroundColor}" Visibility="Collapsed"/>
+
+
+            <!-- ================================================= -->
+            <!-- Normativ -->
+            <!-- ================================================= -->
+            <Button x:Name="NormativButton" Style="{StaticResource FloatingMenuButtonStyle}" Click="NormativButton_Click">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="25"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Text="Postavi normativ" VerticalAlignment="Center"/>
+
+                    <TextBlock Grid.Column="1" Text="&#xE70D;" Foreground="{DynamicResource GlobalFontColor}" FontFamily="Segoe MDL2 Assets" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                        <TextBlock.RenderTransform>
+                            <RotateTransform x:Name="NormativArrowTransform"/>
+                        </TextBlock.RenderTransform>
+                    </TextBlock>
+                </Grid>
+            </Button>
+
+            <StackPanel x:Name="NormativPanel" Background="{DynamicResource GlobalBackgroundColor}" Visibility="Collapsed"/>
+            <!-- ================================================= -->
+            <!-- PNP -->
+            <!-- ================================================= -->
+            <Button x:Name="ConsumptionTaxButton" Style="{StaticResource FloatingMenuButtonStyle}" Click="ConsumptionTaxButton_Click">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="25"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Porez na potrošnju" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" Text="&#xE70D;" Foreground="{DynamicResource GlobalFontColor}" FontFamily="Segoe MDL2 Assets" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                        <TextBlock.RenderTransform>
+                            <RotateTransform x:Name="ConsumptionTaxArrowTransform"/>
+                        </TextBlock.RenderTransform>
+                    </TextBlock>
+                </Grid>
+            </Button>
+
+            <StackPanel x:Name="ConsumptionTaxPanel" Background="{DynamicResource GlobalBackgroundColor}" Visibility="Collapsed"/>
+
+
+            <!-- ================================================= -->
+            <!-- Brisanje -->
+            <!-- ================================================= -->
+            <Button Style="{StaticResource FloatingMenuButtonStyle}" Click="DeleteSelectedButton_Click">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="25"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Izbriši označene" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" Text="&#xE74D;" Foreground="{DynamicResource GlobalFontColor}" FontFamily="Segoe MDL2 Assets" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+            </Button>
+
+           
 
             <!-- ================================================= -->
             <!-- ZAVRŠETAK GRUPNOG UREĐIVANJA                      -->

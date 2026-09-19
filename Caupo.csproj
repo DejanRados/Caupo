@@ -27,6 +27,357 @@
     <None Remove="Assets\Fonts\password.ttf" />
     <None Remove="Data\poreskestope.json" />
     <None Remove="Data\sysFormWPF.db" />
+    <None Remove="Images\Articles\Default\0000_Baileys-Logo-500x281-1.png" />
+    <None Remove="Images\Articles\Default\0003_Smirnoff-Logo-500x281-1.png" />
+    <None Remove="Images\Articles\Default\0005_Jim-Beam-logo-500x281-1.png" />
+    <None Remove="Images\Articles\Default\0007_Metaxa-Logo-500x281.png" />
+    <None Remove="Images\Articles\Default\0009_Martini-Logo-1-500x281-1.png" />
+    <None Remove="Images\Articles\Default\0010_Corona-Extra-Logo-500x281-1.png" />
+    <None Remove="Images\Articles\Default\0011_Lowenbrau-Logo-500x281-1.png" />
+    <None Remove="Images\Articles\Default\0040_Jameson-Logo.png" />
+    <None Remove="Images\Articles\Default\0054_Foster#U2019s-Logo.png" />
+    <None Remove="Images\Articles\Default\Absolut-logo-tumb.png" />
+    <None Remove="Images\Articles\Default\ajvar.png" />
+    <None Remove="Images\Articles\Default\Amstel-logo-tumb.png" />
+    <None Remove="Images\Articles\Default\apartman.png" />
+    <None Remove="Images\Articles\Default\apatinsko pivo.png" />
+    <None Remove="Images\Articles\Default\aquaviva.png" />
+    <None Remove="Images\Articles\Default\badel.png" />
+    <None Remove="Images\Articles\Default\baileys.png" />
+    <None Remove="Images\Articles\Default\baklava.png" />
+    <None Remove="Images\Articles\Default\balantajn viski.png" />
+    <None Remove="Images\Articles\Default\Ballantine.png" />
+    <None Remove="Images\Articles\Default\bambus.png" />
+    <None Remove="Images\Articles\Default\bananasplit.png" />
+    <None Remove="Images\Articles\Default\Bavaria-logo-500x281.png" />
+    <None Remove="Images\Articles\Default\bavaria.png" />
+    <None Remove="Images\Articles\Default\becka.png" />
+    <None Remove="Images\Articles\Default\becks.png" />
+    <None Remove="Images\Articles\Default\beefeater.png" />
+    <None Remove="Images\Articles\Default\biftek.png" />
+    <None Remove="Images\Articles\Default\biftek_u_sosu.png" />
+    <None Remove="Images\Articles\Default\blitva.png" />
+    <None Remove="Images\Articles\Default\bologneze.png" />
+    <None Remove="Images\Articles\Default\brancin.png" />
+    <None Remove="Images\Articles\Default\burn.png" />
+    <None Remove="Images\Articles\Default\buteljabijelo.png" />
+    <None Remove="Images\Articles\Default\Campari.png" />
+    <None Remove="Images\Articles\Default\cappuccino.png" />
+    <None Remove="Images\Articles\Default\cappy.png" />
+    <None Remove="Images\Articles\Default\cappy_breskva.png" />
+    <None Remove="Images\Articles\Default\cappy_jabuka.png" />
+    <None Remove="Images\Articles\Default\cappy_jagoda.png" />
+    <None Remove="Images\Articles\Default\cappy_narandza.png" />
+    <None Remove="Images\Articles\Default\cappy_ribizla.png" />
+    <None Remove="Images\Articles\Default\Captain-Morgan.png" />
+    <None Remove="Images\Articles\Default\Carlsberg-Logo.png" />
+    <None Remove="Images\Articles\Default\carlsberg.png" />
+    <None Remove="Images\Articles\Default\cedevita.png" />
+    <None Remove="Images\Articles\Default\cedevitalimun.png" />
+    <None Remove="Images\Articles\Default\cevapi.png" />
+    <None Remove="Images\Articles\Default\cheeseburger.png" />
+    <None Remove="Images\Articles\Default\chickenburger.png" />
+    <None Remove="Images\Articles\Default\ChickenFingers.png" />
+    <None Remove="Images\Articles\Default\chivas regal.png" />
+    <None Remove="Images\Articles\Default\cicvara.png" />
+    <None Remove="Images\Articles\Default\cijedjena narandza.png" />
+    <None Remove="Images\Articles\Default\Coca-Cola-Logo.png" />
+    <None Remove="Images\Articles\Default\cocacola.png" />
+    <None Remove="Images\Articles\Default\cockta.png" />
+    <None Remove="Images\Articles\Default\cordon_bleu.png" />
+    <None Remove="Images\Articles\Default\cosmopolitan votka.png" />
+    <None Remove="Images\Articles\Default\Courvoisier-Logo-tumb.png" />
+    <None Remove="Images\Articles\Default\crni djordje.png" />
+    <None Remove="Images\Articles\Default\cufte_u_sosu.png" />
+    <None Remove="Images\Articles\Default\debrecinka_kobasica.png" />
+    <None Remove="Images\Articles\Default\dimljeni_vrat.png" />
+    <None Remove="Images\Articles\Default\djus.png" />
+    <None Remove="Images\Articles\Default\djuvec.png" />
+    <None Remove="Images\Articles\Default\dnevni.png" />
+    <None Remove="Images\Articles\Default\dorucak_1.png" />
+    <None Remove="Images\Articles\Default\dorucak_2.png" />
+    <None Remove="Images\Articles\Default\dvokrevetna.png" />
+    <None Remove="Images\Articles\Default\eraclea10.png" />
+    <None Remove="Images\Articles\Default\eraclea11.png" />
+    <None Remove="Images\Articles\Default\eraclea15.png" />
+    <None Remove="Images\Articles\Default\eraclea20.png" />
+    <None Remove="Images\Articles\Default\eraclea23.png" />
+    <None Remove="Images\Articles\Default\eraclea4.png" />
+    <None Remove="Images\Articles\Default\eraclea6.png" />
+    <None Remove="Images\Articles\Default\eraclea9.png" />
+    <None Remove="Images\Articles\Default\espreso.png" />
+    <None Remove="Images\Articles\Default\espresso.png" />
+    <None Remove="Images\Articles\Default\Estrella-Logo-tumb.png" />
+    <None Remove="Images\Articles\Default\exotic kisela.png" />
+    <None Remove="Images\Articles\Default\fanta.png" />
+    <None Remove="Images\Articles\Default\fasirana_snicla.png" />
+    <None Remove="Images\Articles\Default\Finlandia-Logo-tumb.png" />
+    <None Remove="Images\Articles\Default\fish_paprikas.png" />
+    <None Remove="Images\Articles\Default\fosters.png" />
+    <None Remove="Images\Articles\Default\fructalorange.png" />
+    <None Remove="Images\Articles\Default\fructal_apple.png" />
+    <None Remove="Images\Articles\Default\fructal_chery.png" />
+    <None Remove="Images\Articles\Default\fructal_strawberry.png" />
+    <None Remove="Images\Articles\Default\fuze.png" />
+    <None Remove="Images\Articles\Default\gazdina sljiva.png" />
+    <None Remove="Images\Articles\Default\gazdina.png" />
+    <None Remove="Images\Articles\Default\gemist.png" />
+    <None Remove="Images\Articles\Default\giros_1.png" />
+    <None Remove="Images\Articles\Default\giros_2.png" />
+    <None Remove="Images\Articles\Default\gordons.png" />
+    <None Remove="Images\Articles\Default\gorki list.png" />
+    <None Remove="Images\Articles\Default\govedja-kobasica.png" />
+    <None Remove="Images\Articles\Default\govedja-prsuta-ramstek.png" />
+    <None Remove="Images\Articles\Default\grah.png" />
+    <None Remove="Images\Articles\Default\grah2.png" />
+    <None Remove="Images\Articles\Default\grasak.png" />
+    <None Remove="Images\Articles\Default\gravce.png" />
+    <None Remove="Images\Articles\Default\Guinness-Logo-tumb.png" />
+    <None Remove="Images\Articles\Default\gulas.png" />
+    <None Remove="Images\Articles\Default\gusti borovnica.png" />
+    <None Remove="Images\Articles\Default\gusti breskva.png" />
+    <None Remove="Images\Articles\Default\gusti jabuka.png" />
+    <None Remove="Images\Articles\Default\gusti jagoda.png" />
+    <None Remove="Images\Articles\Default\gusti kruska.png" />
+    <None Remove="Images\Articles\Default\gusti visnja.png" />
+    <None Remove="Images\Articles\Default\hamandeggs.png" />
+    <None Remove="Images\Articles\Default\hamburger.png" />
+    <None Remove="Images\Articles\Default\heineken pivo.png" />
+    <None Remove="Images\Articles\Default\Heineken-Logo.png" />
+    <None Remove="Images\Articles\Default\heineken.png" />
+    <None Remove="Images\Articles\Default\Hennessy-Logo.png" />
+    <None Remove="Images\Articles\Default\hljeb.png" />
+    <None Remove="Images\Articles\Default\hot-chocolate.png" />
+    <None Remove="Images\Articles\Default\icetea.png" />
+    <None Remove="Images\Articles\Default\jabuka.png" />
+    <None Remove="Images\Articles\Default\jack daniels.png" />
+    <None Remove="Images\Articles\Default\Jacobs-logo-tumb.png" />
+    <None Remove="Images\Articles\Default\Jagermeister-Logo.png" />
+    <None Remove="Images\Articles\Default\jameson.png" />
+    <None Remove="Images\Articles\Default\jamnica.png" />
+    <None Remove="Images\Articles\Default\jana.png" />
+    <None Remove="Images\Articles\Default\janalimun.png" />
+    <None Remove="Images\Articles\Default\jananatandza.png" />
+    <None Remove="Images\Articles\Default\jednokrevetna.png" />
+    <None Remove="Images\Articles\Default\jeger.png" />
+    <None Remove="Images\Articles\Default\jelen pivo.png" />
+    <None Remove="Images\Articles\Default\Jelen.png" />
+    <None Remove="Images\Articles\Default\jetrica.png" />
+    <None Remove="Images\Articles\Default\johnny walker.png" />
+    <None Remove="Images\Articles\Default\juicy.png" />
+    <None Remove="Images\Articles\Default\kafa domaca.png" />
+    <None Remove="Images\Articles\Default\kajmak.png" />
+    <None Remove="Images\Articles\Default\karadjordjeva.png" />
+    <None Remove="Images\Articles\Default\Karlovacko.png" />
+    <None Remove="Images\Articles\Default\kisela.png" />
+    <None Remove="Images\Articles\Default\kiseljak.png" />
+    <None Remove="Images\Articles\Default\kiwi.png" />
+    <None Remove="Images\Articles\Default\knjazmilospng.png" />
+    <None Remove="Images\Articles\Default\kobasica.png" />
+    <None Remove="Images\Articles\Default\kola litar.png" />
+    <None Remove="Images\Articles\Default\kola.png" />
+    <None Remove="Images\Articles\Default\koljenica.png" />
+    <None Remove="Images\Articles\Default\kratosija.png" />
+    <None Remove="Images\Articles\Default\krempita.png" />
+    <None Remove="Images\Articles\Default\krmenadla.png" />
+    <None Remove="Images\Articles\Default\krompir-salata.png" />
+    <None Remove="Images\Articles\Default\krompir_restovani.png" />
+    <None Remove="Images\Articles\Default\Krusovice-Logo-tumb-1.png" />
+    <None Remove="Images\Articles\Default\kulen.png" />
+    <None Remove="Images\Articles\Default\lav pivo.png" />
+    <None Remove="Images\Articles\Default\lav.png" />
+    <None Remove="Images\Articles\Default\Lavov.png" />
+    <None Remove="Images\Articles\Default\ledeni caj brusnica.png" />
+    <None Remove="Images\Articles\Default\lepinja.png" />
+    <None Remove="Images\Articles\Default\leskovacki_ustipak.png" />
+    <None Remove="Images\Articles\Default\leskovacki_voz.png" />
+    <None Remove="Images\Articles\Default\lignje.png" />
+    <None Remove="Images\Articles\Default\lignje_frigane.png" />
+    <None Remove="Images\Articles\Default\lignje_pohane.png" />
+    <None Remove="Images\Articles\Default\lignje_przene.png" />
+    <None Remove="Images\Articles\Default\lignje_punjene.png" />
+    <None Remove="Images\Articles\Default\liker visnja.png" />
+    <None Remove="Images\Articles\Default\limunada.png" />
+    <None Remove="Images\Articles\Default\lonac.png" />
+    <None Remove="Images\Articles\Default\majoneza.png" />
+    <None Remove="Images\Articles\Default\martini.png" />
+    <None Remove="Images\Articles\Default\meduska.png" />
+    <None Remove="Images\Articles\Default\mesni_ustipci.png" />
+    <None Remove="Images\Articles\Default\mijesano_meso.png" />
+    <None Remove="Images\Articles\Default\milka kapucino.png" />
+    <None Remove="Images\Articles\Default\mlijeko.png" />
+    <None Remove="Images\Articles\Default\monogram.png" />
+    <None Remove="Images\Articles\Default\monster-energy.png" />
+    <None Remove="Images\Articles\Default\monster.png" />
+    <None Remove="Images\Articles\Default\mostarsko.png" />
+    <None Remove="Images\Articles\Default\mrkva.png" />
+    <None Remove="Images\Articles\Default\muckalica.png" />
+    <None Remove="Images\Articles\Default\multi sola.png" />
+    <None Remove="Images\Articles\Default\musaka.png" />
+    <None Remove="Images\Articles\Default\narandza.png" />
+    <None Remove="Images\Articles\Default\narezak.png" />
+    <None Remove="Images\Articles\Default\natur_snicla.png" />
+    <None Remove="Images\Articles\Default\nektar limun.png" />
+    <None Remove="Images\Articles\Default\nektar pivo.png" />
+    <None Remove="Images\Articles\Default\nektar.png" />
+    <None Remove="Images\Articles\Default\nes.png" />
+    <None Remove="Images\Articles\Default\Nescafe-Logo.png" />
+    <None Remove="Images\Articles\Default\nescafe.png" />
+    <None Remove="Images\Articles\Default\nesCOCONUT.png" />
+    <None Remove="Images\Articles\Default\NesCokolada.png" />
+    <None Remove="Images\Articles\Default\nesHAZELNUT.png" />
+    <None Remove="Images\Articles\Default\nesIRISH.png" />
+    <None Remove="Images\Articles\Default\nesKARAMEL.png" />
+    <None Remove="Images\Articles\Default\Nestea-logo-tumb.png" />
+    <None Remove="Images\Articles\Default\nestea.png" />
+    <None Remove="Images\Articles\Default\niksicko pivo.png" />
+    <None Remove="Images\Articles\Default\Niksicko.png" />
+    <None Remove="Images\Articles\Default\nocenje.png" />
+    <None Remove="Images\Articles\Default\obrok.png" />
+    <None Remove="Images\Articles\Default\odrezak.png" />
+    <None Remove="Images\Articles\Default\omelet.png" />
+    <None Remove="Images\Articles\Default\orada.png" />
+    <None Remove="Images\Articles\Default\orahovac.png" />
+    <None Remove="Images\Articles\Default\orangina.png" />
+    <None Remove="Images\Articles\Default\oranguna.png" />
+    <None Remove="Images\Articles\Default\Ozujsko.png" />
+    <None Remove="Images\Articles\Default\pago.png" />
+    <None Remove="Images\Articles\Default\palacinke.png" />
+    <None Remove="Images\Articles\Default\Pan.png" />
+    <None Remove="Images\Articles\Default\panceta.png" />
+    <None Remove="Images\Articles\Default\paprikas.png" />
+    <None Remove="Images\Articles\Default\pariska_snicla.png" />
+    <None Remove="Images\Articles\Default\pariske-snicle.png" />
+    <None Remove="Images\Articles\Default\pastrmka.png" />
+    <None Remove="Images\Articles\Default\Paulaner-logo-tumb.png" />
+    <None Remove="Images\Articles\Default\paulaner.png" />
+    <None Remove="Images\Articles\Default\pekarski_krompir.png" />
+    <None Remove="Images\Articles\Default\pelin.png" />
+    <None Remove="Images\Articles\Default\pepsi.png" />
+    <None Remove="Images\Articles\Default\Perrier-logo-tumb.png" />
+    <None Remove="Images\Articles\Default\Pfeffer Steak.png" />
+    <None Remove="Images\Articles\Default\pilece_belo.png" />
+    <None Remove="Images\Articles\Default\pileci-medaljoni.png" />
+    <None Remove="Images\Articles\Default\pileci_batak.png" />
+    <None Remove="Images\Articles\Default\piletina-na-beck.png" />
+    <None Remove="Images\Articles\Default\piletina_na_zaru.png" />
+    <None Remove="Images\Articles\Default\piletina_pohovana.png" />
+    <None Remove="Images\Articles\Default\piletina_pohovana_sos.png" />
+    <None Remove="Images\Articles\Default\piletina_raznjici.png" />
+    <None Remove="Images\Articles\Default\PivoAle.png" />
+    <None Remove="Images\Articles\Default\PivoMalt.png" />
+    <None Remove="Images\Articles\Default\Pivo_karlovacko.png" />
+    <None Remove="Images\Articles\Default\pizza-eggs.png" />
+    <None Remove="Images\Articles\Default\pizza-margarita.png" />
+    <None Remove="Images\Articles\Default\pizza_1.png" />
+    <None Remove="Images\Articles\Default\pizza_2.png" />
+    <None Remove="Images\Articles\Default\pizza_capricciosa.png" />
+    <None Remove="Images\Articles\Default\pizza_feferoni.png" />
+    <None Remove="Images\Articles\Default\Pizza_Frutti.png" />
+    <None Remove="Images\Articles\Default\Pizza_Fungi.png" />
+    <None Remove="Images\Articles\Default\pizza_quattro_stagioni.png" />
+    <None Remove="Images\Articles\Default\pizza_slanina.png" />
+    <None Remove="Images\Articles\Default\pizza_sunka.png" />
+    <None Remove="Images\Articles\Default\pizza_tuna.png" />
+    <None Remove="Images\Articles\Default\pizza_vegetariana.png" />
+    <None Remove="Images\Articles\Default\plata.png" />
+    <None Remove="Images\Articles\Default\pljeskavica.png" />
+    <None Remove="Images\Articles\Default\pohani-sir.png" />
+    <None Remove="Images\Articles\Default\pomfrit.png" />
+    <None Remove="Images\Articles\Default\povrce_na_zaru.png" />
+    <None Remove="Images\Articles\Default\preminger.png" />
+    <None Remove="Images\Articles\Default\prsut.png" />
+    <None Remove="Images\Articles\Default\punjena-paprika.png" />
+    <None Remove="Images\Articles\Default\puskinvodka.png" />
+    <None Remove="Images\Articles\Default\puskinvodkared.png" />
+    <None Remove="Images\Articles\Default\radenska.png" />
+    <None Remove="Images\Articles\Default\rakija.png" />
+    <None Remove="Images\Articles\Default\RakijaJabuka.png" />
+    <None Remove="Images\Articles\Default\RakijaLoza.png" />
+    <None Remove="Images\Articles\Default\RakijaViljamovkaBadel.png" />
+    <None Remove="Images\Articles\Default\RakijaViljamovkaFructal.png" />
+    <None Remove="Images\Articles\Default\ramstek.png" />
+    <None Remove="Images\Articles\Default\raznjici.png" />
+    <None Remove="Images\Articles\Default\raznjici_pileci.png" />
+    <None Remove="Images\Articles\Default\raznjici_teleci.png" />
+    <None Remove="Images\Articles\Default\redbul.png" />
+    <None Remove="Images\Articles\Default\redbull.png" />
+    <None Remove="Images\Articles\Default\riza.png" />
+    <None Remove="Images\Articles\Default\rizoto.png" />
+    <None Remove="Images\Articles\Default\rodeo.png" />
+    <None Remove="Images\Articles\Default\rooster.png" />
+    <None Remove="Images\Articles\Default\ruskasalata.png" />
+    <None Remove="Images\Articles\Default\salama.png" />
+    <None Remove="Images\Articles\Default\salata_1.png" />
+    <None Remove="Images\Articles\Default\salata_2.png" />
+    <None Remove="Images\Articles\Default\salata_3.jpg" />
+    <None Remove="Images\Articles\Default\salata_3.png" />
+    <None Remove="Images\Articles\Default\salata_pileca.png" />
+    <None Remove="Images\Articles\Default\SAMPINJONI.png" />
+    <None Remove="Images\Articles\Default\sandwich_1.png" />
+    <None Remove="Images\Articles\Default\sandwich_2.png" />
+    <None Remove="Images\Articles\Default\sandwich_3.png" />
+    <None Remove="Images\Articles\Default\sarajevsko.png" />
+    <None Remove="Images\Articles\Default\sarma.png" />
+    <None Remove="Images\Articles\Default\Schweppes-logo-tumb.png" />
+    <None Remove="Images\Articles\Default\schweppes.png" />
+    <None Remove="Images\Articles\Default\sensation.png" />
+    <None Remove="Images\Articles\Default\sir_1.png" />
+    <None Remove="Images\Articles\Default\sir_2.png" />
+    <None Remove="Images\Articles\Default\sir_3.png" />
+    <None Remove="Images\Articles\Default\sir_4.png" />
+    <None Remove="Images\Articles\Default\sir_5.png" />
+    <None Remove="Images\Articles\Default\sir_dimljeni.png" />
+    <None Remove="Images\Articles\Default\siscevap.png" />
+    <None Remove="Images\Articles\Default\sladoled.png" />
+    <None Remove="Images\Articles\Default\sladoled_1.png" />
+    <None Remove="Images\Articles\Default\sladoled_2.png" />
+    <None Remove="Images\Articles\Default\sladoled_3.png" />
+    <None Remove="Images\Articles\Default\sladoled_4.png" />
+    <None Remove="Images\Articles\Default\smederevka-1l.png" />
+    <None Remove="Images\Articles\Default\smirnoff.png" />
+    <None Remove="Images\Articles\Default\somersby.png" />
+    <None Remove="Images\Articles\Default\sprite.png" />
+    <None Remove="Images\Articles\Default\stella.png" />
+    <None Remove="Images\Articles\Default\stock.png" />
+    <None Remove="Images\Articles\Default\supa_1.png" />
+    <None Remove="Images\Articles\Default\supa_2.png" />
+    <None Remove="Images\Articles\Default\supa_3.png" />
+    <None Remove="Images\Articles\Default\supa_4.png" />
+    <None Remove="Images\Articles\Default\sveps biterlemon.png" />
+    <None Remove="Images\Articles\Default\sveps tangerina.png" />
+    <None Remove="Images\Articles\Default\sveps tonik.png" />
+    <None Remove="Images\Articles\Default\taksa.png" />
+    <None Remove="Images\Articles\Default\tea.png" />
+    <None Remove="Images\Articles\Default\tekila.png" />
+    <None Remove="Images\Articles\Default\teleca_snicla.png" />
+    <None Remove="Images\Articles\Default\Teleci_medaljoni.png" />
+    <None Remove="Images\Articles\Default\toceno.png" />
+    <None Remove="Images\Articles\Default\TopliObrok.png" />
+    <None Remove="Images\Articles\Default\torta.png" />
+    <None Remove="Images\Articles\Default\tuborg pivo.png" />
+    <None Remove="Images\Articles\Default\tuborg.png" />
+    <None Remove="Images\Articles\Default\TurskaKafa.png" />
+    <None Remove="Images\Articles\Default\ustipci.png" />
+    <None Remove="Images\Articles\Default\ustipci_sa_kajmakom.png" />
+    <None Remove="Images\Articles\Default\Velkopopovicky-Kozel-Logo-tumb-1.png" />
+    <None Remove="Images\Articles\Default\vinjak.png" />
+    <None Remove="Images\Articles\Default\vino bijelo.png" />
+    <None Remove="Images\Articles\Default\vino crno.png" />
+    <None Remove="Images\Articles\Default\VinoGrasevina.png" />
+    <None Remove="Images\Articles\Default\VinoGrasevina_1L.png" />
+    <None Remove="Images\Articles\Default\VinoMalvazija.png" />
+    <None Remove="Images\Articles\Default\VinoMerlot.png" />
+    <None Remove="Images\Articles\Default\vino_bijelo_0187.png" />
+    <None Remove="Images\Articles\Default\vino_crno_0187.png" />
+    <None Remove="Images\Articles\Default\vlahovo.png" />
+    <None Remove="Images\Articles\Default\vocna_salata.png" />
+    <None Remove="Images\Articles\Default\voda flasirana.png" />
+    <None Remove="Images\Articles\Default\VodaJana.png" />
+    <None Remove="Images\Articles\Default\vranac.png" />
+    <None Remove="Images\Articles\Default\xl-energy-drink.png" />
+    <None Remove="Images\Articles\Default\zajecarsko pivo.png" />
+    <None Remove="Images\Articles\Default\Zajecarsko.png" />
     <None Remove="Images\caupodark.svg" />
     <None Remove="Images\caupolight.svg" />
     <None Remove="Images\caupologo.png" />
@@ -230,6 +581,1059 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Data\sysFormWPF.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\0000_Baileys-Logo-500x281-1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\0003_Smirnoff-Logo-500x281-1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\0005_Jim-Beam-logo-500x281-1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\0007_Metaxa-Logo-500x281.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\0009_Martini-Logo-1-500x281-1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\0010_Corona-Extra-Logo-500x281-1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\0011_Lowenbrau-Logo-500x281-1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\0040_Jameson-Logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\0054_Foster#U2019s-Logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Absolut-logo-tumb.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\ajvar.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Amstel-logo-tumb.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\apartman.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\apatinsko pivo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\aquaviva.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\badel.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\baileys.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\baklava.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\balantajn viski.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Ballantine.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\bambus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\bananasplit.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Bavaria-logo-500x281.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\bavaria.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\becka.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\becks.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\beefeater.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\biftek.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\biftek_u_sosu.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\blitva.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\bologneze.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\brancin.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\burn.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\buteljabijelo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Campari.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\cappuccino.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\cappy.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\cappy_breskva.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\cappy_jabuka.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\cappy_jagoda.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\cappy_narandza.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\cappy_ribizla.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Captain-Morgan.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Carlsberg-Logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\carlsberg.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\cedevita.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\cedevitalimun.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\cevapi.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\cheeseburger.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\chickenburger.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\ChickenFingers.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\chivas regal.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\cicvara.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\cijedjena narandza.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Coca-Cola-Logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\cocacola.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\cockta.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\cordon_bleu.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\cosmopolitan votka.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Courvoisier-Logo-tumb.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\crni djordje.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\cufte_u_sosu.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\debrecinka_kobasica.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\dimljeni_vrat.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\djus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\djuvec.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\dnevni.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\dorucak_1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\dorucak_2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\dvokrevetna.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\eraclea10.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\eraclea11.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\eraclea15.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\eraclea20.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\eraclea23.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\eraclea4.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\eraclea6.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\eraclea9.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\espreso.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\espresso.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Estrella-Logo-tumb.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\exotic kisela.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\fanta.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\fasirana_snicla.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Finlandia-Logo-tumb.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\fish_paprikas.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\fosters.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\fructalorange.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\fructal_apple.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\fructal_chery.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\fructal_strawberry.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\fuze.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\gazdina sljiva.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\gazdina.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\gemist.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\giros_1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\giros_2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\gordons.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\gorki list.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\govedja-kobasica.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\govedja-prsuta-ramstek.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\grah.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\grah2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\grasak.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\gravce.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Guinness-Logo-tumb.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\gulas.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\gusti borovnica.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\gusti breskva.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\gusti jabuka.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\gusti jagoda.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\gusti kruska.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\gusti visnja.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\hamandeggs.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\hamburger.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\heineken pivo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Heineken-Logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\heineken.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Hennessy-Logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\hljeb.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\hot-chocolate.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\icetea.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\jabuka.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\jack daniels.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Jacobs-logo-tumb.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Jagermeister-Logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\jameson.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\jamnica.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\jana.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\janalimun.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\jananatandza.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\jednokrevetna.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\jeger.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\jelen pivo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Jelen.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\jetrica.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\johnny walker.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\juicy.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\kafa domaca.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\kajmak.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\karadjordjeva.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Karlovacko.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\kisela.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\kiseljak.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\kiwi.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\knjazmilospng.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\kobasica.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\kola litar.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\kola.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\koljenica.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\kratosija.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\krempita.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\krmenadla.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\krompir-salata.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\krompir_restovani.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Krusovice-Logo-tumb-1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\kulen.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\lav pivo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\lav.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Lavov.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\ledeni caj brusnica.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\lepinja.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\leskovacki_ustipak.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\leskovacki_voz.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\lignje.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\lignje_frigane.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\lignje_pohane.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\lignje_przene.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\lignje_punjene.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\liker visnja.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\limunada.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\lonac.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\majoneza.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\martini.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\meduska.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\mesni_ustipci.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\mijesano_meso.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\milka kapucino.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\mlijeko.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\monogram.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\monster-energy.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\monster.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\mostarsko.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\mrkva.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\muckalica.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\multi sola.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\musaka.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\narandza.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\narezak.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\natur_snicla.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\nektar limun.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\nektar pivo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\nektar.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\nes.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Nescafe-Logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\nescafe.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\nesCOCONUT.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\NesCokolada.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\nesHAZELNUT.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\nesIRISH.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\nesKARAMEL.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Nestea-logo-tumb.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\nestea.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\niksicko pivo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Niksicko.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\nocenje.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\obrok.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\odrezak.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\omelet.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\orada.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\orahovac.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\orangina.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\oranguna.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Ozujsko.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pago.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\palacinke.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Pan.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\panceta.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\paprikas.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pariska_snicla.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pariske-snicle.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pastrmka.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Paulaner-logo-tumb.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\paulaner.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pekarski_krompir.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pelin.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pepsi.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Perrier-logo-tumb.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Pfeffer Steak.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pilece_belo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pileci-medaljoni.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pileci_batak.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\piletina-na-beck.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\piletina_na_zaru.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\piletina_pohovana.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\piletina_pohovana_sos.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\piletina_raznjici.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\PivoAle.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\PivoMalt.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Pivo_karlovacko.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pizza-eggs.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pizza-margarita.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pizza_1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pizza_2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pizza_capricciosa.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pizza_feferoni.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Pizza_Frutti.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Pizza_Fungi.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pizza_quattro_stagioni.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pizza_slanina.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pizza_sunka.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pizza_tuna.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pizza_vegetariana.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\plata.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pljeskavica.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pohani-sir.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\pomfrit.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\povrce_na_zaru.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\preminger.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\prsut.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\punjena-paprika.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\puskinvodka.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\puskinvodkared.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\radenska.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\rakija.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\RakijaJabuka.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\RakijaLoza.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\RakijaViljamovkaBadel.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\RakijaViljamovkaFructal.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\ramstek.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\raznjici.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\raznjici_pileci.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\raznjici_teleci.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\redbul.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\redbull.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\riza.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\rizoto.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\rodeo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\rooster.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\ruskasalata.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\salama.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\salata_1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\salata_2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\salata_3.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\salata_3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\salata_pileca.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\SAMPINJONI.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\sandwich_1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\sandwich_2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\sandwich_3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\sarajevsko.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\sarma.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Schweppes-logo-tumb.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\schweppes.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\sensation.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\sir_1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\sir_2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\sir_3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\sir_4.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\sir_5.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\sir_dimljeni.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\siscevap.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\sladoled.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\sladoled_1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\sladoled_2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\sladoled_3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\sladoled_4.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\smederevka-1l.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\smirnoff.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\somersby.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\sprite.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\stella.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\stock.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\supa_1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\supa_2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\supa_3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\supa_4.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\sveps biterlemon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\sveps tangerina.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\sveps tonik.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\taksa.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\tea.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\tekila.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\teleca_snicla.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Teleci_medaljoni.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\toceno.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\TopliObrok.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\torta.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\tuborg pivo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\tuborg.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\TurskaKafa.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\ustipci.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\ustipci_sa_kajmakom.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Velkopopovicky-Kozel-Logo-tumb-1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\vinjak.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\vino bijelo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\vino crno.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\VinoGrasevina.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\VinoGrasevina_1L.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\VinoMalvazija.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\VinoMerlot.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\vino_bijelo_0187.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\vino_crno_0187.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\vlahovo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\vocna_salata.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\voda flasirana.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\VodaJana.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\vranac.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\xl-energy-drink.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\zajecarsko pivo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\Articles\Default\Zajecarsko.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
