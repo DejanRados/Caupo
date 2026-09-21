@@ -1,212 +1,208 @@
 ﻿using Caupo.Data;
-using Caupo.Fiscal;
+using Caupo.Models;
 using Caupo.Properties;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Windows;
-using System.Windows.Media;
-using Caupo.Models;
 using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.ViewModels
 {
     public class OrdersViewModel : INotifyPropertyChanged
     {
-        private ObservableCollection<RacunStavka> _stavkeRacuna = new ObservableCollection<RacunStavka> ();
+        private readonly KasaViewModel _kasaViewModel;
+        private ObservableCollection<RacunStavka> _stavkeRacuna = [];
+        private ObservableCollection<TblNarudzbe> _narudzbe = [];
+        private ObservableCollection<TblNarudzbeStavke> _narudzbeStavke = [];
+        private string? _imagePathSaveButton;
+        private string? _imagePathDeleteButton;
+        private int? _idStola;
+        private string? _imeStola;
+        private string? _sala;
+
         public ObservableCollection<RacunStavka> StavkeRacuna
         {
             get => _stavkeRacuna;
             set
             {
-                _stavkeRacuna = value;
-                OnPropertyChanged (nameof (StavkeRacuna));
+                if (ReferenceEquals(_stavkeRacuna, value))
+                    return;
 
-
+                _stavkeRacuna = value ?? [];
+                OnPropertyChanged();
             }
         }
 
-        private ObservableCollection<DatabaseTables.TblNarudzbe> _narudzbe = new ObservableCollection<TblNarudzbe> ();
-
-        public ObservableCollection<DatabaseTables.TblNarudzbe> Narudzbe
+        public ObservableCollection<TblNarudzbe> Narudzbe
         {
             get => _narudzbe;
             set
             {
-                _narudzbe = value;
-                OnPropertyChanged (nameof (Narudzbe));
+                if (ReferenceEquals(_narudzbe, value))
+                    return;
 
-
+                _narudzbe = value ?? [];
+                OnPropertyChanged();
             }
         }
 
-        private ObservableCollection<DatabaseTables.TblNarudzbeStavke> _narudzbeStavke = new ObservableCollection<TblNarudzbeStavke> ();
-
-        public ObservableCollection<DatabaseTables.TblNarudzbeStavke> NarudzbeStavke
+        public ObservableCollection<TblNarudzbeStavke> NarudzbeStavke
         {
             get => _narudzbeStavke;
             set
             {
-                _narudzbeStavke = value;
-                OnPropertyChanged (nameof (NarudzbeStavke));
+                if (ReferenceEquals(_narudzbeStavke, value))
+                    return;
 
-
+                _narudzbeStavke = value ?? [];
+                OnPropertyChanged();
             }
         }
 
-
-        private string? _imagePathSaveButton;
         public string? ImagePathSaveButton
         {
-            get { return _imagePathSaveButton; }
-            set
+            get => _imagePathSaveButton;
+            private set
             {
+                if (_imagePathSaveButton == value)
+                    return;
+
                 _imagePathSaveButton = value;
-                OnPropertyChanged (nameof (ImagePathSaveButton));
+                OnPropertyChanged();
             }
         }
 
-        private string? _imagePathDeleteButton;
         public string? ImagePathDeleteButton
         {
-            get { return _imagePathDeleteButton; }
-            set
+            get => _imagePathDeleteButton;
+            private set
             {
+                if (_imagePathDeleteButton == value)
+                    return;
+
                 _imagePathDeleteButton = value;
-                OnPropertyChanged (nameof (ImagePathDeleteButton));
+                OnPropertyChanged();
             }
         }
 
-        private Brush? _fontColor;
-        public Brush? FontColor
-        {
-            get { return _fontColor; }
-            set
-            {
-                if(_fontColor != value)
-                {
-                    _fontColor = value;
-                    OnPropertyChanged (nameof (FontColor));
-                }
-            }
-        }
-
-        private Brush? _backColor;
-        public Brush? BackColor
-        {
-            get { return _backColor; }
-            set
-            {
-                if(_backColor != value)
-                {
-                    _backColor = value;
-                    OnPropertyChanged (nameof (BackColor));
-                }
-            }
-        }
-
-        private int? _idStola;
         public int? IdStola
         {
-            get { return _idStola; }
+            get => _idStola;
             set
             {
-                if(_idStola != value)
-                {
-                    _idStola = value;
-                    OnPropertyChanged (nameof (IdStola));
-                }
+                if (_idStola == value)
+                    return;
+
+                _idStola = value;
+                OnPropertyChanged();
             }
         }
-        private string? _imeStola;
+
         public string? ImeStola
         {
-            get { return _imeStola; }
+            get => _imeStola;
             set
             {
-                if(_imeStola != value)
-                {
-                    _imeStola = value;
-                    OnPropertyChanged (nameof (ImeStola));
-                }
+                if (_imeStola == value)
+                    return;
+
+                _imeStola = value;
+                OnPropertyChanged();
             }
         }
 
-        private string? _sala;
         public string? Sala
         {
-            get { return _sala; }
+            get => _sala;
             set
             {
-                if(_sala != value)
-                {
-                    _sala = value;
-                    OnPropertyChanged (nameof (Sala));
-                }
+                if (_sala == value)
+                    return;
+
+                _sala = value;
+                OnPropertyChanged();
             }
         }
 
-
-
-        private KasaViewModel _kasaViewModel;
-        public OrdersViewModel(KasaViewModel kasaViewModel)
+        public sealed class OccupiedTableInfo
         {
+            public int IdStola { get; init; }
+            public string Sala { get; init; } = string.Empty;
+            public string? KonobarId { get; init; }
+            public string? Konobar { get; init; }
+            public decimal Total { get; init; }
+        }
 
+        
+
+        public OrdersViewModel(KasaViewModel? kasaViewModel = null)
+        {
             _kasaViewModel = kasaViewModel;
-            if(kasaViewModel != null)
-            {
-                StavkeRacuna = _kasaViewModel.StavkeRacuna ?? new ObservableCollection<RacunStavka> ();
+            StavkeRacuna = kasaViewModel != null
+                ? new ObservableCollection<RacunStavka>(kasaViewModel.StavkeRacuna)
+                : new ObservableCollection<RacunStavka>();
 
-                Debug.WriteLine (" Prenesene StavkeRacuna iz kase --- " + StavkeRacuna.Count);
-            }
-            else
-            {
-
-                StavkeRacuna = new ObservableCollection<RacunStavka> ();
-            }
-            SetColors ();
-
+            SetImages();
         }
 
-
-
-
-        public void SetColors()
+        public async Task<List<OccupiedTableInfo>> LoadOccupiedTablesAsync()
         {
+            await using var db = new AppDbContext();
 
-            string tema = Settings.Default.Tema;
-            Debug.WriteLine ("Aktivna tema koju vidi viewmodel je : " + tema);
-            if(tema == "Tamna")
-            {
-                ImagePathSaveButton = "pack://application:,,,/Images/Dark/save.png";
-                ImagePathDeleteButton = "pack://application:,,,/Images/Dark/delete.png";
-                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
-                Application.Current.Resources["GlobalFontColor"] = FontColor;
-                BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
+            var stavke = await db.NarudzbeStavke
+                .AsNoTracking()
+                .Where(x => x.IdNarudzbe != null && !string.IsNullOrEmpty(x.Sala))
+                .ToListAsync();
 
+            if (stavke.Count == 0)
+                return [];
 
-            }
-            else
-            {
-                ImagePathSaveButton = "pack://application:,,,/Images/Light/save.png";
-                ImagePathDeleteButton = "pack://application:,,,/Images/Light/delete.png";
-                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
-                Application.Current.Resources["GlobalFontColor"] = FontColor;
-                BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
-                //FontColorAdv = new System.Windows.Media.Color();
-                //FontColorAdv = System.Windows.Media.Color.FromRgb(50, 50, 50);
-            }
+            var radnici = await db.Radnici
+                .AsNoTracking()
+                .ToDictionaryAsync(r => r.IdRadnika, r => r.Radnik);
+
+            return stavke
+                .GroupBy(x => new
+                {
+                    IdStola = x.IdNarudzbe!.Value,
+                    Sala = x.Sala!
+                })
+                .Select(g =>
+                {
+                    string? konobarId = g.Select(x => x.Konobar).FirstOrDefault(x => !string.IsNullOrEmpty(x));
+                    string? konobar = null;
+
+                    if (int.TryParse(konobarId, out int idRadnika))
+                        radnici.TryGetValue(idRadnika, out konobar);
+
+                    return new OccupiedTableInfo
+                    {
+                        IdStola = g.Key.IdStola,
+                        Sala = g.Key.Sala,
+                        KonobarId = konobarId,
+                        Konobar = konobar,
+                        Total = g.Sum(x => (x.UnitPrice ?? 0m) * (x.Quantity ?? 0m))
+                    };
+                })
+                .ToList();
         }
 
+        private void SetImages()
+        {
+            bool tamna = string.Equals(Settings.Default.Tema, "Tamna", StringComparison.OrdinalIgnoreCase);
+            string folder = tamna ? "Dark" : "Light";
+
+            ImagePathSaveButton = $"pack://application:,,,/Images/{folder}/save.png";
+            ImagePathDeleteButton = $"pack://application:,,,/Images/{folder}/delete.png";
+        }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
-            PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
-
-
 }

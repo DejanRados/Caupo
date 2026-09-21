@@ -416,9 +416,7 @@
                 <Setter Property="Background" Value="#F7F8FA"/>
                 <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
                 <Setter Property="BorderThickness" Value="3"/>
-                <Setter Property="Padding" Value="12"/>
-                <Setter Property="FontWeight" Value="SemiBold"/>
-                <Setter Property="FontSize" Value="16"/>
+                <Setter Property="Padding" Value="0"/>
                 <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
 
@@ -432,46 +430,92 @@
                         CornerRadius="10"
                         SnapsToDevicePixels="True">
 
-                                <StackPanel Orientation="Vertical"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="32"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="30"/>
+                                    </Grid.RowDefinitions>
 
-                                    <TextBlock Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TableName}"
-                                   FontSize="14"
+                                    <!-- HEADER -->
+                                    <Grid Grid.Row="0" Margin="10,3,8,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TableName}"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       TextTrimming="CharacterEllipsis"
+                                       VerticalAlignment="Center"/>
+
+                                        <Ellipse Grid.Column="1"
+                                     Width="9"
+                                     Height="9"
+                                     Fill="{TemplateBinding BorderBrush}"
+                                     VerticalAlignment="Center"
+                                     Margin="6,0,0,0"/>
+                                    </Grid>
+
+                                    <!-- TOTAL -->
+                                    <TextBlock Grid.Row="1"
+                                   Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Total}"
+                                   FontSize="20"
                                    FontWeight="SemiBold"
-                                   TextWrapping="Wrap"
-                                   TextAlignment="Center"
-                                   Margin="5"
-                                   HorizontalAlignment="Center"/>
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   TextAlignment="Center"/>
 
-                                    <TextBlock Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Waiter}"
-                                   FontSize="12"
-                                   FontWeight="Normal"
-                                   TextWrapping="Wrap"
-                                   TextAlignment="Center"
-                                   Margin="5"
-                                   HorizontalAlignment="Center"/>
+                                    <!-- FOOTER -->
+                                    <Border Grid.Row="2"
+                                        BorderBrush="#22000000"
+                                        BorderThickness="0,1,0,0"
+                                        Margin="8,0">
 
-                                    <TextBlock Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Total}"
-                                   FontSize="13"
-                                   FontWeight="SemiBold"
-                                   HorizontalAlignment="Center"/>
-                                </StackPanel>
+                                        <StackPanel x:Name="WaiterPanel" 
+                                        Orientation="Horizontal"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center">
+
+                                            <TextBlock Text="&#xEA8C;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="11"
+                                               VerticalAlignment="Top"
+                                               Margin="0,0,5,0"/>
+
+                                            <TextBlock Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Waiter}"
+                                               FontSize="11"
+                                               FontWeight="Normal"
+                                               TextTrimming="CharacterEllipsis"
+                                               VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
                             </Border>
 
                             <ControlTemplate.Triggers>
+
+                                <Trigger Property="IsOccupied" Value="False">
+                                    <Setter TargetName="WaiterPanel" Property="Visibility" Value="Collapsed"/>
+                                </Trigger>
+
+                                <!-- HOVER -->
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter TargetName="Root" Property="Background" Value="#EAF5F5"/>
                                 </Trigger>
 
+                                <!-- PRITISNUT -->
                                 <Trigger Property="IsPressed" Value="True">
                                     <Setter TargetName="Root" Property="Background" Value="#D5EBEC"/>
                                 </Trigger>
 
+                                <!-- DISABLED -->
                                 <Trigger Property="IsEnabled" Value="False">
                                     <Setter TargetName="Root" Property="Opacity" Value="0.45"/>
                                     <Setter Property="Cursor" Value="Arrow"/>
                                 </Trigger>
+
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Setter.Value>

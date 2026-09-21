@@ -18,8 +18,7 @@ namespace Caupo.ViewModels
         // STAVKE ZA FISKALIZACIJU
         // ============================================================
 
-        private ObservableCollection<RacunStavka> _stavkeRacuna =
-            new ObservableCollection<RacunStavka> ();
+        private ObservableCollection<RacunStavka> _stavkeRacuna = new ObservableCollection<RacunStavka>();
 
         public ObservableCollection<RacunStavka> StavkeRacuna
         {
@@ -27,31 +26,15 @@ namespace Caupo.ViewModels
             set
             {
                 _stavkeRacuna = value;
-                OnPropertyChanged (nameof (StavkeRacuna));
+                OnPropertyChanged(nameof(StavkeRacuna));
             }
         }
-
 
         // ============================================================
         // NARUDŽBE
         // ============================================================
 
-        private ObservableCollection<TblNarudzbe> _narudzbe =
-            new ObservableCollection<TblNarudzbe> ();
-
-        public ObservableCollection<TblNarudzbe> Narudzbe
-        {
-            get => _narudzbe;
-            set
-            {
-                _narudzbe = value;
-                OnPropertyChanged (nameof (Narudzbe));
-            }
-        }
-
-
-        private ObservableCollection<TblNarudzbeStavke> _narudzbeStavke =
-            new ObservableCollection<TblNarudzbeStavke> ();
+        private ObservableCollection<TblNarudzbeStavke> _narudzbeStavke = new ObservableCollection<TblNarudzbeStavke>();
 
         public ObservableCollection<TblNarudzbeStavke> NarudzbeStavke
         {
@@ -59,10 +42,9 @@ namespace Caupo.ViewModels
             set
             {
                 _narudzbeStavke = value;
-                OnPropertyChanged (nameof (NarudzbeStavke));
+                OnPropertyChanged(nameof(NarudzbeStavke));
             }
         }
-
 
         private TblNarudzbeStavke? _selectedStavka;
 
@@ -72,10 +54,9 @@ namespace Caupo.ViewModels
             set
             {
                 _selectedStavka = value;
-                OnPropertyChanged (nameof (SelectedStavka));
+                OnPropertyChanged(nameof(SelectedStavka));
             }
         }
-
 
         private TblNarudzbeStavke? _selectedStavkaRacunGost;
 
@@ -85,17 +66,15 @@ namespace Caupo.ViewModels
             set
             {
                 _selectedStavkaRacunGost = value;
-                OnPropertyChanged (nameof (SelectedStavkaRacunGost));
+                OnPropertyChanged(nameof(SelectedStavkaRacunGost));
             }
         }
-
 
         // ============================================================
         // GOST RAČUN
         // ============================================================
 
-        private ObservableCollection<TblNarudzbeStavke> _gostRacunStavke =
-            new ObservableCollection<TblNarudzbeStavke> ();
+        private ObservableCollection<TblNarudzbeStavke> _gostRacunStavke = new ObservableCollection<TblNarudzbeStavke>();
 
         public ObservableCollection<TblNarudzbeStavke> GostRacunStavke
         {
@@ -103,98 +82,9 @@ namespace Caupo.ViewModels
             set
             {
                 _gostRacunStavke = value;
-                OnPropertyChanged (nameof (GostRacunStavke));
+                OnPropertyChanged(nameof(GostRacunStavke));
             }
         }
-
-
-        // ============================================================
-        // KUHINJA / ŠANK
-        // ============================================================
-
-        private ObservableCollection<TblNarudzbeStavke> _kuhinjaStavke =
-            new ObservableCollection<TblNarudzbeStavke> ();
-
-        public ObservableCollection<TblNarudzbeStavke> KuhinjaStavke
-        {
-            get => _kuhinjaStavke;
-            set
-            {
-                _kuhinjaStavke = value;
-                OnPropertyChanged (nameof (KuhinjaStavke));
-            }
-        }
-
-
-        private ObservableCollection<TblNarudzbeStavke> _sankStavke =
-            new ObservableCollection<TblNarudzbeStavke> ();
-
-        public ObservableCollection<TblNarudzbeStavke> SankStavke
-        {
-            get => _sankStavke;
-            set
-            {
-                _sankStavke = value;
-                OnPropertyChanged (nameof (SankStavke));
-            }
-        }
-
-
-        // ============================================================
-        // IKONE
-        // ============================================================
-
-        private string? _imagePathReceiptButton;
-
-        public string? ImagePathReceiptButton
-        {
-            get => _imagePathReceiptButton;
-            set
-            {
-                _imagePathReceiptButton = value;
-                OnPropertyChanged (nameof (ImagePathReceiptButton));
-            }
-        }
-
-
-        private string? _imagePathSaveButton;
-
-        public string? ImagePathSaveButton
-        {
-            get => _imagePathSaveButton;
-            set
-            {
-                _imagePathSaveButton = value;
-                OnPropertyChanged (nameof (ImagePathSaveButton));
-            }
-        }
-
-
-        private string? _imagePathDeleteButton;
-
-        public string? ImagePathDeleteButton
-        {
-            get => _imagePathDeleteButton;
-            set
-            {
-                _imagePathDeleteButton = value;
-                OnPropertyChanged (nameof (ImagePathDeleteButton));
-            }
-        }
-
-
-        private string? _imagePathFiskalniButton;
-
-        public string? ImagePathFiskalniButton
-        {
-            get => _imagePathFiskalniButton;
-            set
-            {
-                _imagePathFiskalniButton = value;
-                OnPropertyChanged (nameof (ImagePathFiskalniButton));
-            }
-        }
-
 
         // ============================================================
         // STO / SALA
@@ -207,14 +97,13 @@ namespace Caupo.ViewModels
             get => _idStola;
             set
             {
-                if(_idStola != value)
+                if (_idStola != value)
                 {
                     _idStola = value;
-                    OnPropertyChanged (nameof (IdStola));
+                    OnPropertyChanged(nameof(IdStola));
                 }
             }
         }
-
 
         private string? _imeStola;
 
@@ -223,14 +112,13 @@ namespace Caupo.ViewModels
             get => _imeStola;
             set
             {
-                if(_imeStola != value)
+                if (_imeStola != value)
                 {
                     _imeStola = value;
-                    OnPropertyChanged (nameof (ImeStola));
+                    OnPropertyChanged(nameof(ImeStola));
                 }
             }
         }
-
 
         private string? _sala;
 
@@ -239,14 +127,13 @@ namespace Caupo.ViewModels
             get => _sala;
             set
             {
-                if(_sala != value)
+                if (_sala != value)
                 {
                     _sala = value;
-                    OnPropertyChanged (nameof (Sala));
+                    OnPropertyChanged(nameof(Sala));
                 }
             }
         }
-
 
         // ============================================================
         // UKUPNO
@@ -259,14 +146,13 @@ namespace Caupo.ViewModels
             get => _totalSum;
             set
             {
-                if(_totalSum != value)
+                if (_totalSum != value)
                 {
                     _totalSum = value;
-                    OnPropertyChanged (nameof (TotalSum));
+                    OnPropertyChanged(nameof(TotalSum));
                 }
             }
         }
-
 
         private decimal? _totalSumGostRacun;
 
@@ -275,31 +161,29 @@ namespace Caupo.ViewModels
             get => _totalSumGostRacun;
             set
             {
-                if(_totalSumGostRacun != value)
+                if (_totalSumGostRacun != value)
                 {
                     _totalSumGostRacun = value;
-                    OnPropertyChanged (nameof (TotalSumGostRacun));
+                    OnPropertyChanged(nameof(TotalSumGostRacun));
                 }
             }
         }
-
 
         // ============================================================
         // KUPCI
         // ============================================================
 
-        private ObservableCollection<TblKupci>? _kupci;
+        private ObservableCollection<TblKupci> _kupci = new ObservableCollection<TblKupci>();
 
-        public ObservableCollection<TblKupci>? Kupci
+        public ObservableCollection<TblKupci> Kupci
         {
             get => _kupci;
             set
             {
                 _kupci = value;
-                OnPropertyChanged (nameof (Kupci));
+                OnPropertyChanged(nameof(Kupci));
             }
         }
-
 
         private TblKupci? _selectedKupac;
 
@@ -309,83 +193,44 @@ namespace Caupo.ViewModels
             set
             {
                 _selectedKupac = value;
-                OnPropertyChanged (nameof (SelectedKupac));
+                OnPropertyChanged(nameof(SelectedKupac));
             }
         }
 
-
-        public decimal KolicinaZaPrebaciti { get; set; } = 1;
-
-
         private readonly OrdersViewModel? _ordersViewModel;
-
 
         // ============================================================
         // CONSTRUCTOR
         // ============================================================
 
-        public OrderViewModel(
-            OrdersViewModel? ordersViewModel)
+        public OrderViewModel(OrdersViewModel? ordersViewModel)
         {
-            _ordersViewModel =
-                ordersViewModel;
+            _ordersViewModel = ordersViewModel;
 
-            _idStola =
-                _ordersViewModel?.IdStola;
+            _idStola = _ordersViewModel?.IdStola;
+            _imeStola = _ordersViewModel?.ImeStola;
+            _sala = _ordersViewModel?.Sala;
 
-            _imeStola =
-                _ordersViewModel?.ImeStola;
-
-            _sala =
-                _ordersViewModel?.Sala;
-
-            StavkeRacuna =
-                _ordersViewModel?.StavkeRacuna
-                ?? new ObservableCollection<RacunStavka> ();
-
-            NarudzbeStavke =
-                new ObservableCollection<TblNarudzbeStavke> ();
-
-            GostRacunStavke =
-                new ObservableCollection<TblNarudzbeStavke> ();
-
-            Kupci =
-                new ObservableCollection<TblKupci> ();
-
-            Start ();
+            StavkeRacuna = _ordersViewModel?.StavkeRacuna ?? new ObservableCollection<RacunStavka>();
+            NarudzbeStavke = new ObservableCollection<TblNarudzbeStavke>();
+            GostRacunStavke = new ObservableCollection<TblNarudzbeStavke>();
+            Kupci = new ObservableCollection<TblKupci>();
         }
 
-
         // ============================================================
-        // START
+        // INITIALIZE
         // ============================================================
 
-        public async void Start()
+        public async Task InitializeAsync()
         {
-            try
-            {
-                Debug.WriteLine (
-                    "U ViewModelu imamo sala za ubaciti u bazu: " +
-                    _sala);
+            Debug.WriteLine($"[ORDER] Otvaranje stola: Id={IdStola}, Sala={Sala}, Naziv={ImeStola}");
 
-                await LoadOrdersItemsAsync (
-                    _idStola,
-                    _sala);
+            await ProcessNewRoundAsync();
+            await ReloadNarudzbeStavkeAsync();
+            await LoadKupciAsync();
 
-                await LoadKupciAsync ();
-
-                await SetColors ();
-
-                await UpdateTotalSum ();
-            }
-            catch(Exception ex)
-            {
-                Debug.WriteLine (
-                    "[ORDER VM] Start greška: " +
-                    ex);
-            }
+            UpdateTotalSum();
         }
-
 
         // ============================================================
         // KUPCI
@@ -395,848 +240,421 @@ namespace Caupo.ViewModels
         {
             try
             {
-                using var db =
-                    new AppDbContext ();
+                await using var db = new AppDbContext();
 
-                var kupci =
-                    await db.Kupci
-                        .Where (
-                            k =>
-                                !string.IsNullOrEmpty (
-                                    k.Kupac))
-                        .ToListAsync ();
+                var kupci = await db.Kupci
+                    .AsNoTracking()
+                    .Where(k => !string.IsNullOrEmpty(k.Kupac))
+                    .ToListAsync();
 
-                Kupci?.Clear ();
+                Kupci.Clear();
 
-                foreach(var kupac in kupci)
-                {
-                    Kupci?.Add (
-                        kupac);
-                }
+                foreach (var kupac in kupci)
+                    Kupci.Add(kupac);
 
-                SelectedKupac =
-                    Kupci?.FirstOrDefault ();
+                SelectedKupac = Kupci.FirstOrDefault();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (
-                    ex.ToString ());
+                Debug.WriteLine("[ORDER] Greška pri učitavanju kupaca: " + ex);
             }
         }
-
 
         // ============================================================
         // UKUPNO
         // ============================================================
 
-        public async Task UpdateTotalSum()
+        public void UpdateTotalSum()
         {
-            await Task.Delay (1);
-
-            TotalSum =
-                Math.Round (
-                    NarudzbeStavke.Sum (
-                        item =>
-                            item.TotalAmount ?? 0m),
-                    2);
-
-            TotalSumGostRacun =
-                Math.Round (
-                    GostRacunStavke.Sum (
-                        item =>
-                            item.TotalAmount ?? 0m),
-                    2);
+            TotalSum = Math.Round(NarudzbeStavke.Sum(item => item.TotalAmount ?? 0m), 2);
+            TotalSumGostRacun = Math.Round(GostRacunStavke.Sum(item => item.TotalAmount ?? 0m), 2);
         }
-
 
         // ============================================================
         // PREBACIVANJE NA GOST RAČUN
         // ============================================================
 
-        public async Task PrebaciStavku(
-            TblNarudzbeStavke stavka,
-            decimal kolicina)
+        public void PrebaciStavku(TblNarudzbeStavke stavka, decimal kolicina)
         {
-            if(stavka == null)
+            if (stavka == null)
                 return;
 
-            if(kolicina <= 0)
+            if (kolicina <= 0)
                 return;
 
-            SelectedStavka =
-                stavka;
+            SelectedStavka = stavka;
 
-            decimal dostupnaKolicina =
-                stavka.Quantity ?? 0m;
+            decimal dostupnaKolicina = stavka.Quantity ?? 0m;
 
-            if(kolicina >
-               dostupnaKolicina)
+            if (kolicina > dostupnaKolicina)
+                kolicina = dostupnaKolicina;
+
+            if (kolicina <= 0)
+                return;
+
+            var existingItem = GostRacunStavke.FirstOrDefault(s => s.Sifra == stavka.Sifra && s.Name == stavka.Name);
+
+            if (existingItem != null)
             {
-                kolicina =
-                    dostupnaKolicina;
-            }
-
-            if(kolicina <= 0)
-                return;
-
-
-            var existingItem =
-                GostRacunStavke
-                    .FirstOrDefault (
-                        s =>
-                            s.Sifra == stavka.Sifra &&
-                            s.Name == stavka.Name);
-
-
-            if(existingItem != null)
-            {
-                existingItem.Quantity =
-                    (existingItem.Quantity ?? 0m)
-                    + kolicina;
+                existingItem.Quantity = (existingItem.Quantity ?? 0m) + kolicina;
             }
             else
             {
-                var stavkaZaPrebaciti =
-                    new TblNarudzbeStavke
-                    {
-                        Name =
-                            stavka.Name,
+                var stavkaZaPrebaciti = new TblNarudzbeStavke
+                {
+                    Name = stavka.Name,
+                    Label = stavka.Label,
+                    UnitPrice = stavka.UnitPrice,
+                    Quantity = kolicina,
+                    BrojRacuna = stavka.BrojRacuna,
+                    Sifra = stavka.Sifra,
+                    Proizvod = stavka.Proizvod,
+                    JedinicaMjere = stavka.JedinicaMjere,
+                    Naziv = stavka.Naziv,
+                    Printed = stavka.Printed,
+                    Konobar = Globals.ulogovaniKorisnik.IdRadnika.ToString(),
+                    IdNarudzbe = stavka.IdNarudzbe,
+                    Sala = stavka.Sala
+                };
 
-                        Label =
-                            stavka.Label,
-
-                        UnitPrice =
-                            stavka.UnitPrice,
-
-                        Quantity =
-                            kolicina,
-
-                        BrojRacuna =
-                            stavka.BrojRacuna,
-
-                        Sifra =
-                            stavka.Sifra,
-
-                        Proizvod =
-                            stavka.Proizvod,
-
-                        JedinicaMjere =
-                            stavka.JedinicaMjere,
-
-                        Naziv =
-                            stavka.Naziv,
-
-                        Printed =
-                            stavka.Printed,
-
-                        Konobar =
-                            Globals
-                                .ulogovaniKorisnik
-                                .IdRadnika
-                                .ToString (),
-
-                        IdNarudzbe =
-                            stavka.IdNarudzbe,
-
-                        Sala =
-                            stavka.Sala
-                    };
-
-                GostRacunStavke.Add (
-                    stavkaZaPrebaciti);
+                GostRacunStavke.Add(stavkaZaPrebaciti);
             }
 
+            stavka.Quantity = dostupnaKolicina - kolicina;
 
-            stavka.Quantity =
-                dostupnaKolicina -
-                kolicina;
+            if ((stavka.Quantity ?? 0m) <= 0m)
+                NarudzbeStavke.Remove(stavka);
 
-
-            if((stavka.Quantity ?? 0m) <= 0m)
-            {
-                NarudzbeStavke.Remove (
-                    stavka);
-            }
-
-
-            await UpdateTotalSum ();
+            UpdateTotalSum();
         }
-
 
         // ============================================================
         // VRAĆANJE SA GOST RAČUNA
         // ============================================================
 
-        public async Task VratiStavku(
-            TblNarudzbeStavke stavka,
-            decimal kolicina)
+        public void VratiStavku(TblNarudzbeStavke stavka, decimal kolicina)
         {
-            if(stavka == null)
+            if (stavka == null)
                 return;
 
-            if(kolicina <= 0)
+            if (kolicina <= 0)
                 return;
 
-            decimal dostupnaKolicina =
-                stavka.Quantity ?? 0m;
+            decimal dostupnaKolicina = stavka.Quantity ?? 0m;
 
-            if(kolicina >
-               dostupnaKolicina)
+            if (kolicina > dostupnaKolicina)
+                kolicina = dostupnaKolicina;
+
+            if (kolicina <= 0)
+                return;
+
+            var existingItem = NarudzbeStavke.FirstOrDefault(s => s.Sifra == stavka.Sifra && s.Name == stavka.Name);
+
+            if (existingItem != null)
             {
-                kolicina =
-                    dostupnaKolicina;
-            }
-
-            if(kolicina <= 0)
-                return;
-
-
-            var existingItem =
-                NarudzbeStavke
-                    .FirstOrDefault (
-                        s =>
-                            s.Sifra == stavka.Sifra &&
-                            s.Name == stavka.Name);
-
-
-            if(existingItem != null)
-            {
-                existingItem.Quantity =
-                    (existingItem.Quantity ?? 0m)
-                    + kolicina;
+                existingItem.Quantity = (existingItem.Quantity ?? 0m) + kolicina;
             }
             else
             {
-                var stavkaZaPrebaciti =
-                    new TblNarudzbeStavke
-                    {
-                        Name =
-                            stavka.Name,
+                var stavkaZaPrebaciti = new TblNarudzbeStavke
+                {
+                    Name = stavka.Name,
+                    Label = stavka.Label,
+                    UnitPrice = stavka.UnitPrice,
+                    Quantity = kolicina,
+                    BrojRacuna = stavka.BrojRacuna,
+                    Sifra = stavka.Sifra,
+                    Proizvod = stavka.Proizvod,
+                    JedinicaMjere = stavka.JedinicaMjere,
+                    Naziv = stavka.Naziv,
+                    Printed = stavka.Printed,
+                    Konobar = Globals.ulogovaniKorisnik.IdRadnika.ToString(),
+                    IdNarudzbe = stavka.IdNarudzbe,
+                    Sala = stavka.Sala
+                };
 
-                        Label =
-                            stavka.Label,
-
-                        UnitPrice =
-                            stavka.UnitPrice,
-
-                        Quantity =
-                            kolicina,
-
-                        BrojRacuna =
-                            stavka.BrojRacuna,
-
-                        Sifra =
-                            stavka.Sifra,
-
-                        Proizvod =
-                            stavka.Proizvod,
-
-                        JedinicaMjere =
-                            stavka.JedinicaMjere,
-
-                        Naziv =
-                            stavka.Naziv,
-
-                        Printed =
-                            stavka.Printed,
-
-                        Konobar =
-                            Globals
-                                .ulogovaniKorisnik
-                                .IdRadnika
-                                .ToString (),
-
-                        IdNarudzbe =
-                            stavka.IdNarudzbe,
-
-                        Sala =
-                            stavka.Sala
-                    };
-
-                NarudzbeStavke.Add (
-                    stavkaZaPrebaciti);
+                NarudzbeStavke.Add(stavkaZaPrebaciti);
             }
 
+            stavka.Quantity = dostupnaKolicina - kolicina;
 
-            stavka.Quantity =
-                dostupnaKolicina -
-                kolicina;
+            if ((stavka.Quantity ?? 0m) <= 0m)
+                GostRacunStavke.Remove(stavka);
 
-
-            if((stavka.Quantity ?? 0m) <= 0m)
-            {
-                GostRacunStavke.Remove (
-                    stavka);
-            }
-
-
-            await UpdateTotalSum ();
+            UpdateTotalSum();
         }
 
-
         // ============================================================
-        // BOJE
+        // NOVA RUNDA
         // ============================================================
 
-        public async Task SetColors()
+        private async Task ProcessNewRoundAsync()
         {
-            await Task.Delay (1);
+            if (StavkeRacuna.Count == 0)
+                return;
 
-            string tema =
-                Settings.Default.Tema;
+            if (IdStola == null)
+                throw new InvalidOperationException("Nije definisan sto za novu rundu.");
 
-            if(tema == "Tamna")
-            {
-                ImagePathReceiptButton =
-                    "pack://application:,,,/Images/Dark/receipt.svg";
+            if (string.IsNullOrWhiteSpace(Sala))
+                throw new InvalidOperationException("Nije definisana sala za novu rundu.");
 
-                ImagePathSaveButton =
-                    "pack://application:,,,/Images/Dark/save.png";
+            var noveStavke = StavkeRacuna.ToList();
 
-                ImagePathDeleteButton =
-                    "pack://application:,,,/Images/Dark/delete.png";
-            }
-            else
-            {
-                ImagePathReceiptButton =
-                    "pack://application:,,,/Images/Light/receipt.svg";
+            await SaveNewRoundAsync(noveStavke);
 
-                ImagePathSaveButton =
-                    "pack://application:,,,/Images/Light/save.png";
+            StavkeRacuna.Clear();
 
-                ImagePathDeleteButton =
-                    "pack://application:,,,/Images/Light/delete.png";
-            }
+            await PrintNewRoundAsync(noveStavke);
         }
 
-
-        // ============================================================
-        // UČITAVANJE / SNIMANJE NARUDŽBE
-        // ============================================================
-
-        public async Task LoadOrdersItemsAsync(
-            int? id,
-            string? sala)
+        private async Task SaveNewRoundAsync(List<RacunStavka> stavke)
         {
-            try
+            await using var db = new AppDbContext();
+
+            foreach (var item in stavke)
             {
-                // ----------------------------------------------------
-                // 1. Print novih blokova
-                // ----------------------------------------------------
-
-                var sankStavke =
-                    StavkeRacuna
-                        .Where (
-                            item =>
-                                item.Proizvod == 0 &&
-                                item.Printed != "DA")
-                        .ToList ();
-
-                var kuhinjaStavke =
-                    StavkeRacuna
-                        .Where (
-                            item =>
-                                item.Proizvod == 1 &&
-                                item.Printed != "DA")
-                        .ToList ();
-
-
-                if(kuhinjaStavke.Any ())
+                var narudzbaStavka = new TblNarudzbeStavke
                 {
-                    var printer =
-                        new BlokPrinter (
-                            kuhinjaStavke,
-                            "Kuhinja",
-                            _idStola?.ToString ()
-                                ?? "0",
-                            _imeStola ?? "");
+                    Name = item.Name,
+                    Label = item.PoreskaStopa?.ToString() ?? "",
+                    UnitPrice = item.UnitPrice,
+                    Quantity = item.Quantity,
+                    BrojRacuna = item.BrojRacuna,
+                    Sifra = item.Sifra,
+                    Proizvod = item.Proizvod,
+                    JedinicaMjere = item.JedinicaMjere,
+                    Naziv = item.Naziv,
+                    Printed = "DA",
+                    Konobar = Globals.ulogovaniKorisnik.IdRadnika.ToString(),
+                    IdNarudzbe = IdStola,
+                    Sala = Sala
+                };
 
-                    await printer.Print ();
-                }
-
-
-                if(sankStavke.Any ())
-                {
-                    var printer =
-                        new BlokPrinter (
-                            sankStavke,
-                            "Sank",
-                            _idStola?.ToString ()
-                                ?? "0",
-                            _imeStola ?? "");
-
-                    await printer.Print ();
-                }
-
-
-                // ----------------------------------------------------
-                // 2. Snimi nove stavke u bazu
-                // ----------------------------------------------------
-
-                if(StavkeRacuna.Any ())
-                {
-                    using var db =
-                        new AppDbContext ();
-
-                    foreach(var item in
-                            StavkeRacuna)
-                    {
-                        var narudzbaStavka =
-                            new TblNarudzbeStavke
-                            {
-                                Name =
-                                    item.Name,
-
-                                // Lokalni ID poreske stope.
-                                Label =
-                                    item.PoreskaStopa
-                                        ?.ToString ()
-                                    ?? "",
-
-                                UnitPrice =
-                                    item.UnitPrice,
-
-                                Quantity =
-                                    item.Quantity,
-
-                                BrojRacuna =
-                                    item.BrojRacuna,
-
-                                Sifra =
-                                    item.Sifra,
-
-                                Proizvod =
-                                    item.Proizvod,
-
-                                JedinicaMjere =
-                                    item.JedinicaMjere,
-
-                                Naziv =
-                                    item.Naziv,
-
-                                Printed =
-                                    "DA",
-
-                                Konobar =
-                                    Globals
-                                        .ulogovaniKorisnik
-                                        .IdRadnika
-                                        .ToString (),
-
-                                IdNarudzbe =
-                                    id,
-
-                                Sala =
-                                    sala
-                            };
-
-                        db.NarudzbeStavke.Add (
-                            narudzbaStavka);
-                    }
-
-                    await db.SaveChangesAsync ();
-
-                    StavkeRacuna.Clear ();
-                }
-
-
-                // ----------------------------------------------------
-                // 3. Ponovo učitaj stanje narudžbe
-                // ----------------------------------------------------
-
-                await ReloadNarudzbeStavkeAsync ();
-
-                await UpdateTotalSum ();
+                db.NarudzbeStavke.Add(narudzbaStavka);
             }
-            catch(Exception ex)
+
+            await db.SaveChangesAsync();
+
+            Debug.WriteLine($"[ORDER] Nova runda spremljena. Sto={IdStola}, Sala={Sala}, Stavki={stavke.Count}");
+        }
+
+        private async Task PrintNewRoundAsync(List<RacunStavka> stavke)
+        {
+            var kuhinjaStavke = stavke.Where(item => item.Proizvod == 1 && item.Printed != "DA").ToList();
+            var sankStavke = stavke.Where(item => item.Proizvod == 0 && item.Printed != "DA").ToList();
+
+            if (kuhinjaStavke.Count > 0)
             {
-                Debug.WriteLine (
-                    "[ORDER VM] LoadOrdersItemsAsync: " +
-                    ex);
+                try
+                {
+                    var printer = new BlokPrinter(kuhinjaStavke, "Kuhinja", IdStola?.ToString() ?? "0", ImeStola ?? "");
+                    await printer.Print();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("[ORDER] Greška kuhinjskog bloka: " + ex);
+                }
+            }
+
+            if (sankStavke.Count > 0)
+            {
+                try
+                {
+                    var printer = new BlokPrinter(sankStavke, "Sank", IdStola?.ToString() ?? "0", ImeStola ?? "");
+                    await printer.Print();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("[ORDER] Greška bloka za šank: " + ex);
+                }
             }
         }
 
+        // ============================================================
+        // UČITAVANJE STAVKI NARUDŽBE
+        // ============================================================
 
         private async Task ReloadNarudzbeStavkeAsync()
         {
-            using var db =
-                new AppDbContext ();
+            await using var db = new AppDbContext();
 
+            var podaci = await db.NarudzbeStavke
+                .AsNoTracking()
+                .Where(x => x.IdNarudzbe == IdStola && x.Sala == Sala)
+                .ToListAsync();
 
-            var podaci =
-                await db.NarudzbeStavke
-                    .Where (
-                        x =>
-                            x.IdNarudzbe == IdStola &&
-                            x.Sala == Sala)
-                    .ToListAsync ();
+            var groupedData = podaci
+                .GroupBy(x => new
+                {
+                    x.Sifra,
+                    x.Naziv,
+                    x.Name,
+                    x.UnitPrice,
+                    x.Label,
+                    x.Proizvod,
+                    x.JedinicaMjere
+                })
+                .Select(g => new TblNarudzbeStavke
+                {
+                    Name = g.Key.Name,
+                    Label = g.Key.Label,
+                    UnitPrice = g.Key.UnitPrice,
+                    Quantity = g.Sum(x => x.Quantity ?? 0m),
+                    BrojRacuna = g.First().BrojRacuna,
+                    Sifra = g.Key.Sifra,
+                    Proizvod = g.Key.Proizvod,
+                    JedinicaMjere = g.Key.JedinicaMjere,
+                    Naziv = g.Key.Naziv,
+                    Printed = g.First().Printed,
+                    Konobar = g.First().Konobar,
+                    IdNarudzbe = g.First().IdNarudzbe,
+                    Sala = g.First().Sala
+                })
+                .ToList();
 
+            NarudzbeStavke.Clear();
 
-            var groupedData =
-                podaci
-                    .GroupBy (
-                        x =>
-                            new
-                            {
-                                x.Sifra,
-                                x.Naziv,
-                                x.Name,
-                                x.UnitPrice,
-                                x.Label,
-                                x.Proizvod,
-                                x.JedinicaMjere
-                            })
-                    .Select (
-                        g =>
-                            new TblNarudzbeStavke
-                            {
-                                Name =
-                                    g.Key.Name,
-
-                                Label =
-                                    g.Key.Label,
-
-                                UnitPrice =
-                                    g.Key.UnitPrice,
-
-                                Quantity =
-                                    g.Sum (
-                                        x =>
-                                            x.Quantity ?? 0m),
-
-                                BrojRacuna =
-                                    g.First ()
-                                        .BrojRacuna,
-
-                                Sifra =
-                                    g.Key.Sifra,
-
-                                Proizvod =
-                                    g.Key.Proizvod,
-
-                                JedinicaMjere =
-                                    g.Key.JedinicaMjere,
-
-                                Naziv =
-                                    g.Key.Naziv,
-
-                                Printed =
-                                    g.First ()
-                                        .Printed,
-
-                                Konobar =
-                                    g.First ()
-                                        .Konobar,
-
-                                IdNarudzbe =
-                                    g.First ()
-                                        .IdNarudzbe,
-
-                                Sala =
-                                    g.First ()
-                                        .Sala
-                            })
-                    .ToList ();
-
-
-            NarudzbeStavke.Clear ();
-
-            foreach(var item in
-                    groupedData)
-            {
-                NarudzbeStavke.Add (
-                    item);
-            }
+            foreach (var item in groupedData)
+                NarudzbeStavke.Add(item);
         }
 
-
         // ============================================================
-        // KREIRANJE NEUTRALNIH STAVKI ZA GOST RAČUN
+        // KREIRANJE STAVKI ZA GOST RAČUN
         // ============================================================
 
-        public async Task KreirajStavkeRacunaPodjela()
+        private void KreirajStavkeRacunaPodjela()
         {
-            StavkeRacuna.Clear ();
+            StavkeRacuna.Clear();
 
-            foreach(var item in
-                    GostRacunStavke)
+            foreach (var item in GostRacunStavke)
             {
-                var stavka =
-                    new RacunStavka
-                    {
-                        Name =
-                            item.Name,
+                var stavka = new RacunStavka
+                {
+                    Name = item.Name,
+                    Sifra = item.Sifra,
+                    BrojRacuna = item.BrojRacuna,
+                    Naziv = item.Naziv,
+                    PoreskaStopa = int.TryParse(item.Label, out int poreskaStopa) ? poreskaStopa : null,
+                    UnitPrice = item.UnitPrice,
+                    Proizvod = item.Proizvod,
+                    Printed = item.Printed,
+                    JedinicaMjere = item.JedinicaMjere,
+                    Quantity = item.Quantity
+                };
 
-                        Sifra =
-                            item.Sifra,
-
-                        BrojRacuna =
-                            item.BrojRacuna,
-
-                        Naziv =
-                            item.Naziv,
-
-                        PoreskaStopa =
-                            GetPoreskaStopaId (
-                                item.Sifra),
-
-                        UnitPrice =
-                            item.UnitPrice,
-
-                        Proizvod =
-                            item.Proizvod,
-
-                        Printed =
-                            item.Printed,
-
-                        JedinicaMjere =
-                            item.JedinicaMjere,
-
-                        Quantity =
-                            item.Quantity
-                    };
-
-                StavkeRacuna.Add (
-                    stavka);
+                StavkeRacuna.Add(stavka);
             }
-
-            await UpdateTotalSum ();
         }
 
-
         // ============================================================
-        // KREIRANJE NEUTRALNIH STAVKI ZA CIJELI RAČUN
+        // KREIRANJE STAVKI ZA CIJELI RAČUN
         // ============================================================
 
-        public async Task KreirajStavkeRacunaUkupno()
+        private void KreirajStavkeRacunaUkupno()
         {
-            StavkeRacuna.Clear ();
+            StavkeRacuna.Clear();
 
-            foreach(var item in
-                    NarudzbeStavke)
+            foreach (var item in NarudzbeStavke)
             {
-                var stavka =
-                    new RacunStavka
-                    {
-                        Name =
-                            item.Name,
+                var stavka = new RacunStavka
+                {
+                    Name = item.Name,
+                    Sifra = item.Sifra,
+                    BrojRacuna = item.BrojRacuna,
+                    Naziv = item.Naziv,
+                    PoreskaStopa = int.TryParse(item.Label, out int poreskaStopa) ? poreskaStopa : null,
+                    UnitPrice = item.UnitPrice,
+                    Proizvod = item.Proizvod,
+                    Printed = item.Printed,
+                    JedinicaMjere = item.JedinicaMjere,
+                    Quantity = item.Quantity
+                };
 
-                        Sifra =
-                            item.Sifra,
-
-                        BrojRacuna =
-                            item.BrojRacuna,
-
-                        Naziv =
-                            item.Naziv,
-
-                        PoreskaStopa =
-                            GetPoreskaStopaId (
-                                item.Sifra),
-
-                        UnitPrice =
-                            item.UnitPrice,
-
-                        Proizvod =
-                            item.Proizvod,
-
-                        Printed =
-                            item.Printed,
-
-                        JedinicaMjere =
-                            item.JedinicaMjere,
-
-                        Quantity =
-                            item.Quantity
-                    };
-
-                StavkeRacuna.Add (
-                    stavka);
+                StavkeRacuna.Add(stavka);
             }
-
-            await UpdateTotalSum ();
         }
-
-
-        // ============================================================
-        // PORESKA STOPA
-        // ============================================================
-
-        private int? GetPoreskaStopaId(
-            string? sifra)
-        {
-            if(string.IsNullOrWhiteSpace (
-                sifra))
-            {
-                return null;
-            }
-
-            using var db =
-                new AppDbContext ();
-
-            return db.Artikli
-                .Where (
-                    a =>
-                        a.Sifra == sifra)
-                .Select (
-                    a =>
-                        a.PoreskaStopa)
-                .FirstOrDefault ();
-        }
-
 
         // ============================================================
         // FISKALIZACIJA
         // ============================================================
 
-        public async Task<FiscalResult> IzdajRacunAsync(
-            int selectedNacinPlacanjaIndex,
-            bool gostRacun)
+        public async Task<FiscalResult> IzdajRacunAsync(int selectedNacinPlacanjaIndex, bool gostRacun)
         {
             try
             {
-                if(gostRacun)
+                if (gostRacun)
                 {
-                    if(GostRacunStavke.Count == 0)
-                    {
-                        return FiscalResult.Failed (
-                            "Nema stavki za izdavanje računa.");
-                    }
+                    if (GostRacunStavke.Count == 0)
+                        return FiscalResult.Failed("Nema stavki za izdavanje računa.");
 
-                    await KreirajStavkeRacunaPodjela ();
+                    KreirajStavkeRacunaPodjela();
                 }
                 else
                 {
-                    if(NarudzbeStavke.Count == 0)
-                    {
-                        return FiscalResult.Failed (
-                            "Nema stavki za izdavanje računa.");
-                    }
+                    if (NarudzbeStavke.Count == 0)
+                        return FiscalResult.Failed("Nema stavki za izdavanje računa.");
 
-                    await KreirajStavkeRacunaUkupno ();
+                    KreirajStavkeRacunaUkupno();
                 }
 
+                if (StavkeRacuna.Count == 0)
+                    return FiscalResult.Failed("Nema pripremljenih stavki za fiskalizaciju.");
 
-                if(StavkeRacuna.Count == 0)
+                FiscalPaymentType paymentType = selectedNacinPlacanjaIndex switch
                 {
-                    return FiscalResult.Failed (
-                        "Nema pripremljenih stavki za fiskalizaciju.");
-                }
+                    0 => FiscalPaymentType.Cash,
+                    1 => FiscalPaymentType.Card,
+                    2 => FiscalPaymentType.Check,
+                    3 => FiscalPaymentType.WireTransfer,
+                    _ => throw new FiscalException("Nepoznat način plaćanja.")
+                };
 
+                FiscalBuyer? buyer = null;
 
-                FiscalPaymentType paymentType =
-                    selectedNacinPlacanjaIndex switch
-                    {
-                        0 => FiscalPaymentType.Cash,
-                        1 => FiscalPaymentType.Card,
-                        2 => FiscalPaymentType.Check,
-                        3 => FiscalPaymentType.WireTransfer,
-
-                        _ => throw new FiscalException (
-                            "Nepoznat način plaćanja.")
-                    };
-
-
-                FiscalBuyer? buyer =
-                    null;
-
-                if(SelectedKupac != null)
+                if (SelectedKupac != null)
                 {
-                    buyer =
-                        new FiscalBuyer
-                        {
-                            Name =
-                                SelectedKupac.Kupac,
-
-                            TaxId =
-                                SelectedKupac.JIB,
-
-                            Address =
-                                SelectedKupac.Adresa,
-
-                            City =
-                                SelectedKupac.Mjesto
-                        };
+                    buyer = new FiscalBuyer
+                    {
+                        Name = SelectedKupac.Kupac,
+                        TaxId = SelectedKupac.JIB,
+                        Address = SelectedKupac.Adresa,
+                        City = SelectedKupac.Mjesto
+                    };
                 }
 
+                var request = new FiscalRequest
+                {
+                    Items = StavkeRacuna.ToList(),
 
-                var request =
-                    new FiscalRequest
+                    Buyer = buyer,
+
+                    Cashier = new FiscalCashier
                     {
-                        Items =
-                            StavkeRacuna.ToList (),
+                        Id = Globals.ulogovaniKorisnik.IdRadnika,
+                        Name = Globals.ulogovaniKorisnik.Radnik,
+                        IdentificationNumber = Globals.ulogovaniKorisnik.IB
+                    },
 
-                        Buyer =
-                            buyer,
+                    PaymentType = paymentType,
+                    TotalAmount = gostRacun ? TotalSumGostRacun ?? 0m : TotalSum ?? 0m,
+                    InvoiceType = "Normal",
+                    TransactionType = "Sale"
+                };
 
-                        Cashier =
-                            new FiscalCashier
-                            {
-                                Id =
-                                    Globals
-                                        .ulogovaniKorisnik
-                                        .IdRadnika,
+                IFiscalService fiscalService = FiscalServiceFactory.Create(Settings.Default.Country);
+                FiscalResult result = await fiscalService.IzdajRacunAsync(request);
 
-                                Name =
-                                    Globals
-                                        .ulogovaniKorisnik
-                                        .Radnik,
-
-                                IdentificationNumber =
-                                    Globals
-                                        .ulogovaniKorisnik
-                                        .IB
-                            },
-
-                        PaymentType =
-                            paymentType,
-
-                        TotalAmount =
-                            gostRacun
-                                ? TotalSumGostRacun ?? 0m
-                                : TotalSum ?? 0m,
-
-                        InvoiceType =
-                            "Normal",
-
-                        TransactionType =
-                            "Sale"
-                    };
-
-
-                IFiscalService fiscalService =
-                    FiscalServiceFactory.Create (
-                        Settings.Default.Country);
-
-
-                FiscalResult result =
-                    await fiscalService
-                        .IzdajRacunAsync (
-                            request);
-
-
-                Debug.WriteLine (
-                    $"[ORDER FISKALNI] " +
-                    $"Success={result.Success}, " +
-                    $"Fiscalized={result.Fiscalized}, " +
-                    $"Saved={result.SavedToDatabase}, " +
-                    $"Printed={result.Printed}, " +
-                    $"FiscalNumber={result.FiscalNumber}");
-
+                Debug.WriteLine($"[ORDER FISKALNI] Success={result.Success}, Fiscalized={result.Fiscalized}, Saved={result.SavedToDatabase}, Printed={result.Printed}, FiscalNumber={result.FiscalNumber}");
 
                 return result;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (
-                    "[ORDER FISKALNI] Greška: " +
-                    ex);
-
-                return FiscalResult.Failed (
-                    ex.Message);
+                Debug.WriteLine("[ORDER FISKALNI] Greška: " + ex);
+                return FiscalResult.Failed(ex.Message);
             }
         }
-
 
         // ============================================================
         // ZAVRŠETAK PODIJELJENOG RAČUNA
@@ -1246,87 +664,54 @@ namespace Caupo.ViewModels
         {
             try
             {
-                using var db =
-                    new AppDbContext ();
+                await using var db = new AppDbContext();
 
-
-                foreach(var gostStavka in
-                        GostRacunStavke.ToList ())
+                foreach (var gostStavka in GostRacunStavke.ToList())
                 {
-                    decimal preostaloZaBrisanje =
-                        gostStavka.Quantity ?? 0m;
+                    decimal preostaloZaBrisanje = gostStavka.Quantity ?? 0m;
 
-                    if(preostaloZaBrisanje <= 0m)
+                    if (preostaloZaBrisanje <= 0m)
                         continue;
 
+                    var dbStavke = await db.NarudzbeStavke
+                        .Where(x => x.IdNarudzbe == IdStola && x.Sala == Sala && x.Sifra == gostStavka.Sifra)
+                        .OrderBy(x => x.IdStavke)
+                        .ToListAsync();
 
-                    var dbStavke =
-                        await db.NarudzbeStavke
-                            .Where (
-                                x =>
-                                    x.IdNarudzbe == IdStola &&
-                                    x.Sala == Sala &&
-                                    x.Sifra == gostStavka.Sifra)
-                            .OrderBy (
-                                x =>
-                                    x.IdStavke)
-                            .ToListAsync ();
-
-
-                    foreach(var dbStavka in
-                            dbStavke)
+                    foreach (var dbStavka in dbStavke)
                     {
-                        if(preostaloZaBrisanje <= 0m)
+                        if (preostaloZaBrisanje <= 0m)
                             break;
 
-                        decimal dbKolicina =
-                            dbStavka.Quantity ?? 0m;
+                        decimal dbKolicina = dbStavka.Quantity ?? 0m;
 
-
-                        if(preostaloZaBrisanje >=
-                           dbKolicina)
+                        if (preostaloZaBrisanje >= dbKolicina)
                         {
-                            preostaloZaBrisanje -=
-                                dbKolicina;
-
-                            db.NarudzbeStavke.Remove (
-                                dbStavka);
+                            preostaloZaBrisanje -= dbKolicina;
+                            db.NarudzbeStavke.Remove(dbStavka);
                         }
                         else
                         {
-                            dbStavka.Quantity =
-                                dbKolicina -
-                                preostaloZaBrisanje;
-
-                            preostaloZaBrisanje =
-                                0m;
+                            dbStavka.Quantity = dbKolicina - preostaloZaBrisanje;
+                            preostaloZaBrisanje = 0m;
                         }
                     }
                 }
 
+                await db.SaveChangesAsync();
 
-                await db.SaveChangesAsync ();
+                GostRacunStavke.Clear();
+                StavkeRacuna.Clear();
 
-
-                GostRacunStavke.Clear ();
-
-                StavkeRacuna.Clear ();
-
-
-                await ReloadNarudzbeStavkeAsync ();
-
-                await UpdateTotalSum ();
+                await ReloadNarudzbeStavkeAsync();
+                UpdateTotalSum();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (
-                    "[ORDER] Greška pri završavanju gost računa: " +
-                    ex);
-
+                Debug.WriteLine("[ORDER] Greška pri završavanju gost računa: " + ex);
                 throw;
             }
         }
-
 
         // ============================================================
         // ZAVRŠETAK CIJELOG RAČUNA
@@ -1336,64 +721,40 @@ namespace Caupo.ViewModels
         {
             try
             {
-                using var db =
-                    new AppDbContext ();
+                await using var db = new AppDbContext();
 
+                var stavkeZaBrisanje = await db.NarudzbeStavke
+                    .Where(x => x.IdNarudzbe == IdStola && x.Sala == Sala)
+                    .ToListAsync();
 
-                var stavkeZaBrisanje =
-                    await db.NarudzbeStavke
-                        .Where (
-                            x =>
-                                x.IdNarudzbe == IdStola &&
-                                x.Sala == Sala)
-                        .ToListAsync ();
-
-
-                if(stavkeZaBrisanje.Any ())
+                if (stavkeZaBrisanje.Any())
                 {
-                    db.NarudzbeStavke.RemoveRange (
-                        stavkeZaBrisanje);
-
-                    await db.SaveChangesAsync ();
+                    db.NarudzbeStavke.RemoveRange(stavkeZaBrisanje);
+                    await db.SaveChangesAsync();
                 }
 
+                StavkeRacuna.Clear();
+                GostRacunStavke.Clear();
+                NarudzbeStavke.Clear();
 
-                StavkeRacuna.Clear ();
-
-                GostRacunStavke.Clear ();
-
-                NarudzbeStavke.Clear ();
-
-
-                await UpdateTotalSum ();
+                UpdateTotalSum();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (
-                    "[ORDER] Greška pri završavanju cijelog računa: " +
-                    ex);
-
+                Debug.WriteLine("[ORDER] Greška pri završavanju cijelog računa: " + ex);
                 throw;
             }
         }
-
 
         // ============================================================
         // PROPERTY CHANGED
         // ============================================================
 
-        public event PropertyChangedEventHandler?
-            PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-
-        protected virtual void OnPropertyChanged(
-            [CallerMemberName]
-            string? propertyName = null)
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
-            PropertyChanged?.Invoke (
-                this,
-                new PropertyChangedEventArgs (
-                    propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

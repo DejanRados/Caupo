@@ -29,7 +29,7 @@ namespace Caupo.Views
     /// <summary>
     /// Interaction logic for ArticlesPage.xaml
     /// </summary>
-    public partial class ArticlesPage : UserControl, IKeyboardInputReceiver
+    public partial class ArticlesPage : UserControl
     {
 
         private int _articleTransferSelectionAnchorIndex = -1;
@@ -44,7 +44,7 @@ namespace Caupo.Views
         private ArticleImportSourceData? _articleImportSource;
         private List<ArticleImportMapping>? _articleImportMappings;
 
-        private TextBox? FocusedTextBox = null;
+       
 
 
         private bool _updatingArticleCheckBoxes;
@@ -244,104 +244,32 @@ namespace Caupo.Views
 
         #region VIRTUALNA TASTATURA
 
-        // Prima znak sa virtualne tastature i primjenjuje ga na trenutno fokusirani TextBox.
-        public void ReceiveKey(string key)
-        {
-
-            if(FocusedTextBox != null)
-            {
-                switch(key)
-                {
-                    case "\uE72B":
-
-                        if(FocusedTextBox.Text.Length > 0)
-                        {
-                            int pos = FocusedTextBox.SelectionStart;
-                            if(pos > 0)
-                            {
-                                FocusedTextBox.Text =
-                                    FocusedTextBox.Text.Remove (pos - 1, 1);
-                                FocusedTextBox.SelectionStart = pos - 1;
-                            }
-                        }
-
-
-                        break;
-
-                    case "\uE75D":
-                        InsertIntoFocused ("\u0020");
-                        break;
-                    case "Sakrij":
-                        FocusedTextBox = null;
-                        ListaArtikala.Focus ();
-                        MainWindow.Instance.HideKeyboard ();
-                        break;
-                    case "Enter":
-                        FocusedTextBox = null;
-                        ListaArtikala.Focus ();
-                        MainWindow.Instance.HideKeyboard ();
-                        break;
-                    case "Reset":
-                        FocusedTextBox.Text = "";
-
-                        break;
-
-                    default:
-                        InsertIntoFocused (key);
-                        break;
-                }
-
-                return;
-            }
-
-
-        }
-
-        // Umeće tekst na trenutnu poziciju kursora u fokusiranom TextBoxu.
-        private void InsertIntoFocused(string text)
-        {
-            if(FocusedTextBox == null)
-                return;
-
-            int pos = FocusedTextBox.SelectionStart;
-            FocusedTextBox.Text = FocusedTextBox.Text.Insert (pos, text);
-            FocusedTextBox.SelectionStart = pos + text.Length;
-        }
-
-        // Otvara virtualnu tastaturu.
         private void KeyboardButton_Click(object sender, RoutedEventArgs e)
         {
-            MainWindow.Instance.ShowKeyboard ();
-
+            MainWindow.Instance.ShowKeyboard();
         }
 
-        // Pamti fokusirani TextBox i otvara virtualnu tastaturu.
+
         private void TextBox_GotFocus(object sender, RoutedEventArgs e)
         {
             try
             {
-                if(sender is not TextBox textBox)
+                if (sender is not TextBox textBox)
                     return;
 
-                FocusedTextBox = textBox;
-                FocusedTextBox.Clear ();
-                FocusedTextBox.SelectAll ();
-                MainWindow.Instance.ShowKeyboard ();
+                textBox.SelectAll();
+
+                MainWindow.Instance.ShowKeyboard();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine ("TextBox_GotFocus salje: " + ex);
+                Debug.WriteLine("TextBox_GotFocus salje: " + ex);
             }
-
-
         }
 
-        // Uklanja referencu na TextBox koji je izgubio fokus.
+
         private void TextBox_LostFocus(object sender, RoutedEventArgs e)
         {
-
-            FocusedTextBox = null;
-
         }
 
         #endregion

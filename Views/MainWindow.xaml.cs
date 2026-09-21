@@ -129,38 +129,11 @@ namespace Caupo
         // KEYBOARD KEY PRESSED
         // =====================================================
 
-        private void Keyboard_KeyPressed(
-            string key)
+        private void Keyboard_KeyPressed(string key)
         {
-            // =================================================
-            // MY INPUT BOX
-            // =================================================
-
-            MyInputBox? inputBox =
-                Application.Current.Windows
-                    .OfType<MyInputBox> ()
-                    .FirstOrDefault (
-                        w => w.IsActive);
-
-
-            if(inputBox?.FocusedTextBox != null)
+            if (MainContent.Content is IKeyboardInputReceiver receiver)
             {
-                inputBox.ReceiveKey (
-                    key);
-
-                return;
-            }
-
-
-            // =================================================
-            // TRENUTNA STRANICA
-            // =================================================
-
-            if(MainContent.Content
-               is IKeyboardInputReceiver receiver)
-            {
-                receiver.ReceiveKey (
-                    key);
+                receiver.ReceiveKey(key);
             }
         }
 

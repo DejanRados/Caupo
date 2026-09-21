@@ -4,68 +4,197 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Caupo.ViewModels"
-       xmlns:syncfusionskin ="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF" 
+        xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
         mc:Ignorable="d"
-        Loaded="Window_Loaded"  >
+        Loaded="Window_Loaded">
 
     <Grid x:Name="MainContent">
         <Grid.RowDefinitions>
             <RowDefinition Height="56"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="55" Background="#323232" Grid.Row="0" >
+
+        <!-- HEADER -->
+        <Grid Grid.Row="0"
+              
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Top"
+              Background="#323232">
+
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="0.2*"/>
             </Grid.ColumnDefinitions>
-            <Image Source="pack://application:,,,/Images/dsoftlogosmall.png" Width="50" Height="50" Grid.Column="0" HorizontalAlignment="Left" Margin="20,0,0,0"/>
-            <Label x:Name="lblApp" Content="Caupo - Stolovi" Foreground="#fafafa" FontSize="25" Grid.Column="0" HorizontalAlignment="Center"  VerticalAlignment="Center"/>
-            <Label x:Name="lblUlogovaniKorisnik" Content="Ime i prezime" Foreground="#fafafa" FontSize="16" Grid.Column="1" HorizontalAlignment="Right"  VerticalAlignment="Center"/>
-            <Button x:Name="CloseButton" Style="{StaticResource CloseButtonStyle}"  VerticalAlignment="Top" HorizontalAlignment="Right" Padding="0" Margin="1" Click="CloseButton_Click" Grid.Column="2" />
+
+            <Image Grid.Column="0"
+                   Source="pack://application:,,,/Images/dsoftlogosmall.png"
+                   Width="50"
+                   Height="50"
+                   HorizontalAlignment="Left"
+                   Margin="20,0,0,0"/>
+
+            <Label x:Name="lblApp"
+                   Grid.Column="0"
+                   Content="Caupo - Stolovi"
+                   Foreground="#fafafa"
+                   FontSize="25"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"/>
+
+            <Label x:Name="lblUlogovaniKorisnik"
+                   Grid.Column="1"
+                   Content="Ime i prezime"
+                   Foreground="#fafafa"
+                   FontSize="16"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Center"/>
+
+            <Button x:Name="CloseButton"
+                    Grid.Column="2"
+                    Style="{StaticResource CloseButtonStyle}"
+                    VerticalAlignment="Top"
+                    HorizontalAlignment="Right"
+                    Padding="0"
+                    Margin="1"
+                    Click="CloseButton_Click"/>
         </Grid>
+
+        <!-- SADRŽAJ -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.95*"/>
-                <ColumnDefinition Width="0.1*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="160"/>
             </Grid.ColumnDefinitions>
 
-            <TabControl x:Name="tabControl"  SelectionChanged="tabControl_SelectionChanged" Background="#11000000"  Foreground="{DynamicResource GlobalFontColor}" Margin="5" >
-                    <!-- Prvi tab -->
-                <TabItem Header="Sala 1" SnapsToDevicePixels="False" UseLayoutRounding="True">
-                    <Viewbox Stretch="Uniform" Grid.Column="0" >
-                        <Canvas x:Name="CanvasPanel" Background="Transparent" MouseDown="CanvasPanel_MouseDoubleClick" Width="1000" Height="700" >
-                            <!-- Dugmadi će biti dodavana dinamički ovde -->
-                        </Canvas>
-                    </Viewbox>
-                </TabItem>
+            <!-- SALE I STOLOVI -->
+            <TabControl x:Name="tabControl"
+                        Grid.Column="0"
+                        
+                        SelectionChanged="tabControl_SelectionChanged"
+                        Background="#11000000"
+                        Foreground="{DynamicResource GlobalFontColor}"
+                        Margin="5">
 
-                    <!-- Tab koji služi kao "+" -->
-                <TabItem x:Name="TabAdd" Header="&#xE710;"  FontFamily="Segoe MDL2 Assets" Height="70"   Foreground="{DynamicResource GlobalFontColor}" />
-                </TabControl>
+                <!-- Sve stvarne sale kreiraju se dinamički -->
+                <TabItem x:Name="TabAdd"
+                         Header="&#xE710;"
+                         FontFamily="Segoe MDL2 Assets"
+                         Width="65"
+                         Height="65"
+                         FontSize="18"
+                         Foreground="{DynamicResource GlobalFontColor}"/>
+            </TabControl>
 
-         
-         
-            <WrapPanel Orientation="Vertical"  Grid.Column="1" Background="#323232" Margin="-1" VerticalAlignment="Stretch">
+            <!-- DESNI TOOLBAR -->
+            <StackPanel Grid.Column="1"
+            Background="#323232"
+            Margin="-1"
+            VerticalAlignment="Stretch">
 
-                <Viewbox Stretch="Uniform" MinWidth="120" MaxWidth="180" MaxHeight="110" Margin="5"  HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                <Button Style="{StaticResource PrimaryButtonStyle}"   Margin="10"  x:Name="SaveAddButton"    Padding="5"       Foreground="{DynamicResource GlobalFontColor}"      Click="SaveButton_Click"  >
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5">
-                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" Padding="10,5" FontSize="20"  FontWeight="ExtraLight" Text="&#xEB4B;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <TextBlock Text="Spremi"  VerticalAlignment="Center" Foreground="{DynamicResource GlobalFontColor}" Width="60"  />
+                <!-- NORMALNI REŽIM -->
+                <Button x:Name="EditLayoutButton"
+            Style="{StaticResource PrimaryButtonStyle}"
+            Height="65"
+            Margin="10,15,10,5"
+            Padding="5"
+            Click="EditLayoutButton_Click">
+
+                    <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+
+                        <TextBlock FontFamily="Segoe MDL2 Assets"
+                       Text="&#xE70F;"
+                       FontSize="20"
+                       Margin="0,0,10,0"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       VerticalAlignment="Center"/>
+
+                        <TextBlock Text="Uredi" FontSize="18"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
-                </Viewbox>
-                <Viewbox Stretch="Uniform" MinWidth="120" MaxWidth="180" MaxHeight="110"  Margin="5"  HorizontalAlignment="Stretch"  VerticalAlignment="Top">
-                    <Button Style="{StaticResource CancelButtonStyle}" BorderBrush="#ff3232" Margin=" 10" x:Name="CancelAddButton"  Padding="5"        Foreground="#ababab"      Click="DeleteButton_Click" >
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5">
-                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="20"  FontWeight="ExtraLight" Text="&#60039;" Foreground="#f5f5f5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <TextBlock Text="Obriši"  VerticalAlignment="Center" FontWeight="Light"  Foreground="#F5F5F5" Width="60" />
+
+                <!-- REŽIM UREĐIVANJA -->
+                <StackPanel x:Name="LayoutEditPanel"
+                Visibility="Collapsed">
+
+                    <Button x:Name="AddTableButton"
+                Style="{StaticResource PrimaryButtonStyle}"
+                Height="65"
+                Margin="10,15,10,5"
+                Padding="5"
+                Click="AddTableButton_Click">
+
+                        <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+
+                            <TextBlock FontFamily="Segoe MDL2 Assets"
+                           Text="&#xE710;"
+                           FontSize="20"
+                           Margin="0,0,10,0"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           VerticalAlignment="Center"/>
+
+                            <TextBlock Text="Dodaj sto" FontSize="18"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-                </Viewbox>
 
-            </WrapPanel>
+                    <Button x:Name="DeleteLayoutButton"
+                Style="{StaticResource DestructiveButtonStyle}"
+                Height="65"
+                Margin="10,5"
+                Padding="5"
+                Click="DeleteButton_Click">
+
+                        <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+
+                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                           Text="&#60039;"
+                           FontSize="20"
+                           Margin="0,0,10,0"
+                           Foreground="#F5F5F5"
+                           VerticalAlignment="Center"/>
+
+                            <TextBlock Text="Obriši" FontSize="18"
+                           Foreground="#F5F5F5"
+                           VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="SaveAddButton"
+                Style="{StaticResource PrimaryButtonStyle}"
+                Height="65"
+                Margin="10,5"
+                Padding="5"
+                Click="SaveButton_Click">
+
+                        <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+
+                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                           Text="&#xEB4B;"
+                           FontSize="20"
+                           Margin="0,0,10,0"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           VerticalAlignment="Center"/>
+
+                            <TextBlock Text="Spremi" FontSize="18"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                </StackPanel>
+            </StackPanel>
         </Grid>
     </Grid>
 </UserControl>

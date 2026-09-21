@@ -1,4 +1,7 @@
 ﻿using Caupo.Data;
+using Caupo.Fiscal;
+using Caupo.Fiscal.Common;
+using Caupo.Helpers;
 using Caupo.Models;
 using Caupo.Properties;
 using Microsoft.EntityFrameworkCore;
@@ -6,10 +9,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Windows;
-using System.Windows.Media;
 using static Caupo.Data.DatabaseTables;
-using Brush = System.Windows.Media.Brush;
 
 namespace Caupo.ViewModels
 {
@@ -28,9 +28,6 @@ namespace Caupo.ViewModels
 
         private int? _selectedCategoryId;
         private string? _firstLetterFilter;
-
-        private Brush? _fontColor;
-        private Brush? _backColor;
 
         private string? _imagePathPiceButton;
         private string? _imagePathHranaButton;
@@ -58,34 +55,7 @@ namespace Caupo.ViewModels
 
         #endregion
 
-
         #region APPEARANCE
-
-        public Brush? FontColor
-        {
-            get => _fontColor;
-            set
-            {
-                if (Equals(_fontColor, value))
-                    return;
-
-                _fontColor = value;
-                OnPropertyChanged(nameof(FontColor));
-            }
-        }
-
-        public Brush? BackColor
-        {
-            get => _backColor;
-            set
-            {
-                if (Equals(_backColor, value))
-                    return;
-
-                _backColor = value;
-                OnPropertyChanged(nameof(BackColor));
-            }
-        }
 
         public string? ImagePathPiceButton
         {
@@ -180,7 +150,6 @@ namespace Caupo.ViewModels
 
         #endregion
 
-
         #region ARTIKLI
 
         public ObservableCollection<TblArtikli> PrikazaniArtikli => _prikazaniArtikli;
@@ -188,7 +157,6 @@ namespace Caupo.ViewModels
         public ObservableCollection<TblKategorije> PrikazaneKategorije => _prikazaneKategorije;
 
         #endregion
-
 
         #region CATEGORY
 
@@ -207,34 +175,15 @@ namespace Caupo.ViewModels
                 if (_selectedCategory == value)
                     return;
 
-                var ukupno = Stopwatch.StartNew();
-
-                Debug.WriteLine($"[PERF KASA] ===== PROMJENA {_selectedCategory} -> {value} =====");
-
                 _selectedCategory = value;
                 _selectedCategoryId = null;
                 _firstLetterFilter = null;
 
-                var sw = Stopwatch.StartNew();
-
                 OnPropertyChanged(nameof(SelectedCategory));
                 OnPropertyChanged(nameof(SelectedCategoryId));
 
-                sw.Stop();
-                Debug.WriteLine($"[PERF KASA] PropertyChanged: {sw.Elapsed.TotalMilliseconds:F2} ms");
-
-                sw.Restart();
                 RefreshCategories();
-                sw.Stop();
-                Debug.WriteLine($"[PERF KASA] RefreshCategories: {sw.Elapsed.TotalMilliseconds:F2} ms");
-
-                sw.Restart();
                 RefreshArticles();
-                sw.Stop();
-                Debug.WriteLine($"[PERF KASA] RefreshArticles: {sw.Elapsed.TotalMilliseconds:F2} ms");
-
-                ukupno.Stop();
-                Debug.WriteLine($"[PERF KASA] ViewModel UKUPNO: {ukupno.Elapsed.TotalMilliseconds:F2} ms");
             }
         }
 
@@ -255,7 +204,6 @@ namespace Caupo.ViewModels
         }
 
         #endregion
-
 
         #region RACUN
 
@@ -306,15 +254,12 @@ namespace Caupo.ViewModels
             }
         }
 
-        private void StavkeRacuna_CollectionChanged(
-            object? sender,
-            NotifyCollectionChangedEventArgs e)
+        private void StavkeRacuna_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             UpdateTotalSum();
         }
 
         #endregion
-
 
         #region KUPCI
 
@@ -340,13 +285,11 @@ namespace Caupo.ViewModels
 
                 OnPropertyChanged(nameof(SelectedKupac));
 
-                Debug.WriteLine(
-                    $"[KASA] SelectedKupac = {_selectedKupac?.Kupac ?? "(nema)"}");
+                Debug.WriteLine($"[KASA] SelectedKupac = {_selectedKupac?.Kupac ?? "(nema)"}");
             }
         }
 
         #endregion
-
 
         #region MULTI USER
 
@@ -397,8 +340,7 @@ namespace Caupo.ViewModels
             {
                 pokusaj = 3;
 
-                Debug.WriteLine(
-                    "[KASA] Multi-user login aktivan. Pokušaji resetovani na 3.");
+                Debug.WriteLine("[KASA] Multi-user login aktivan. Pokušaji resetovani na 3.");
             }
 
             MultiUserVisibilityChanged?.Invoke(IsMultiUserVisible);
@@ -406,17 +348,20 @@ namespace Caupo.ViewModels
 
         #endregion
 
+        public sealed class KasaFiscalResult
+        {
+            public FiscalResult Result { get; init; } = null!;
+            public string? Warning { get; init; }
+        }
 
         #region CONSTRUCTOR
 
         public KasaViewModel()
         {
-            _stavkeRacuna.CollectionChanged +=
-                StavkeRacuna_CollectionChanged;
+            _stavkeRacuna.CollectionChanged += StavkeRacuna_CollectionChanged;
         }
 
         #endregion
-
 
         #region INITIALIZATION
 
@@ -436,18 +381,13 @@ namespace Caupo.ViewModels
                 await LoadCategoriesAsync();
                 await LoadKupciAsync();
 
-                Debug.WriteLine(
-                    $"[KASA] Initialize završen. " +
-                    $"Artikli={_sviArtikli.Count}, " +
-                    $"Kategorije={_sveKategorije.Count}, " +
-                    $"Kupci={Kupci.Count}");
+                Debug.WriteLine($"[KASA] Initialize završen. Artikli={_sviArtikli.Count}, Kategorije={_sveKategorije.Count}, Kupci={Kupci.Count}");
             }
             catch (Exception ex)
             {
                 _initialized = false;
 
-                Debug.WriteLine(
-                    "[KASA] InitializeAsync GREŠKA: " + ex);
+                Debug.WriteLine("[KASA] InitializeAsync GREŠKA: " + ex);
             }
         }
 
@@ -466,7 +406,6 @@ namespace Caupo.ViewModels
 
         #endregion
 
-
         #region SETTINGS / THEME
 
         public Task CheckMultiUser()
@@ -480,25 +419,19 @@ namespace Caupo.ViewModels
             {
                 string? multiUser = Settings.Default.MultiUser;
 
-                IsMultiUser =
-                    string.Equals(
-                        multiUser,
-                        "DA",
-                        StringComparison.OrdinalIgnoreCase);
+                IsMultiUser = string.Equals(multiUser, "DA", StringComparison.OrdinalIgnoreCase);
 
                 if (!IsMultiUser)
                     IsLoggedIn = true;
 
-                Debug.WriteLine(
-                    $"[KASA] MultiUser = {IsMultiUser}");
+                Debug.WriteLine($"[KASA] MultiUser = {IsMultiUser}");
             }
             catch (Exception ex)
             {
                 IsMultiUser = false;
                 IsLoggedIn = true;
 
-                Debug.WriteLine(
-                    "[KASA] CheckMultiUserAsync: " + ex);
+                Debug.WriteLine("[KASA] CheckMultiUserAsync: " + ex);
             }
 
             return Task.CompletedTask;
@@ -508,87 +441,45 @@ namespace Caupo.ViewModels
         {
             string? tema = Settings.Default.Tema;
 
-            bool tamna =
-                string.Equals(
-                    tema,
-                    "Tamna",
-                    StringComparison.OrdinalIgnoreCase);
+            bool tamna = string.Equals(tema, "Tamna", StringComparison.OrdinalIgnoreCase);
 
             if (tamna)
             {
-                ImagePathPiceButton =
-                    "pack://application:,,,/Images/Dark/drink.svg";
+                ImagePathPiceButton = "pack://application:,,,/Images/Dark/drink.svg";
 
-                ImagePathHranaButton =
-                    "pack://application:,,,/Images/Dark/food.svg";
+                ImagePathHranaButton = "pack://application:,,,/Images/Dark/food.svg";
 
-                ImagePathOstaloButton =
-                    "pack://application:,,,/Images/Dark/another.svg";
+                ImagePathOstaloButton = "pack://application:,,,/Images/Dark/another.svg";
 
-                ImagePathPiceSelectedButton =
-                    "pack://application:,,,/Images/Light/drink.svg";
+                ImagePathPiceSelectedButton = "pack://application:,,,/Images/Light/drink.svg";
 
-                ImagePathHranaSelectedButton =
-                    "pack://application:,,,/Images/Light/food.svg";
+                ImagePathHranaSelectedButton = "pack://application:,,,/Images/Light/food.svg";
 
-                ImagePathOstaloSelectedButton =
-                    "pack://application:,,,/Images/Light/another.svg";
+                ImagePathOstaloSelectedButton = "pack://application:,,,/Images/Light/another.svg";
 
-                ImagePathCategoryButton =
-                    "pack://application:,,,/Images/Dark/category.svg";
-
-                FontColor =
-                    new SolidColorBrush(
-                        Color.FromRgb(212, 212, 212));
-
-                BackColor =
-                    new SolidColorBrush(
-                        Color.FromRgb(50, 50, 50));
+                ImagePathCategoryButton = "pack://application:,,,/Images/Dark/category.svg";
             }
             else
             {
-                ImagePathPiceButton =
-                    "pack://application:,,,/Images/Light/drink.svg";
+                ImagePathPiceButton = "pack://application:,,,/Images/Light/drink.svg";
 
-                ImagePathHranaButton =
-                    "pack://application:,,,/Images/Light/food.svg";
+                ImagePathHranaButton = "pack://application:,,,/Images/Light/food.svg";
 
-                ImagePathOstaloButton =
-                    "pack://application:,,,/Images/Light/another.svg";
+                ImagePathOstaloButton = "pack://application:,,,/Images/Light/another.svg";
 
-                ImagePathPiceSelectedButton =
-                    "pack://application:,,,/Images/Dark/drink.svg";
+                ImagePathPiceSelectedButton = "pack://application:,,,/Images/Dark/drink.svg";
 
-                ImagePathHranaSelectedButton =
-                    "pack://application:,,,/Images/Dark/food.svg";
+                ImagePathHranaSelectedButton = "pack://application:,,,/Images/Dark/food.svg";
 
-                ImagePathOstaloSelectedButton =
-                    "pack://application:,,,/Images/Dark/another.svg";
+                ImagePathOstaloSelectedButton = "pack://application:,,,/Images/Dark/another.svg";
 
-                ImagePathCategoryButton =
-                    "pack://application:,,,/Images/Light/category.svg";
-
-                FontColor =
-                    new SolidColorBrush(
-                        Color.FromRgb(50, 50, 50));
-
-                BackColor =
-                    new SolidColorBrush(
-                        Color.FromRgb(212, 212, 212));
-            }
-
-            if (Application.Current != null &&
-                FontColor != null)
-            {
-                Application.Current.Resources["GlobalFontColor"] =
-                    FontColor;
+                ImagePathCategoryButton = "pack://application:,,,/Images/Light/category.svg";
             }
 
             return Task.CompletedTask;
         }
 
         #endregion
-
 
         #region LOAD DATA
 
@@ -619,8 +510,7 @@ namespace Caupo.ViewModels
         {
             try
             {
-                await using var db =
-                    new AppDbContext();
+                await using var db = new AppDbContext();
 
                 _sveKategorije = await db.Kategorije
                     .AsNoTracking()
@@ -630,13 +520,11 @@ namespace Caupo.ViewModels
 
                 RefreshCategories();
 
-                Debug.WriteLine(
-                    $"[KASA] Kategorije učitane: {_sveKategorije.Count}");
+                Debug.WriteLine($"[KASA] Kategorije učitane: {_sveKategorije.Count}");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(
-                    "[KASA] LoadCategoriesAsync: " + ex);
+                Debug.WriteLine("[KASA] LoadCategoriesAsync: " + ex);
             }
         }
 
@@ -644,47 +532,34 @@ namespace Caupo.ViewModels
         {
             try
             {
-                await using var db =
-                    new AppDbContext();
+                await using var db = new AppDbContext();
 
                 var kupci = await db.Kupci
                     .AsNoTracking()
-                    .Where(k =>
-                        k.Kupac != null &&
-                        k.Kupac != "")
+                    .Where(k => k.Kupac != null && k.Kupac != "")
                     .OrderBy(k => k.Kupac)
                     .ToListAsync();
 
-                Kupci =
-                    new ObservableCollection<TblKupci>(kupci);
+                Kupci = new ObservableCollection<TblKupci>(kupci);
 
                 // Standardni POS kupac.
                 SelectedKupac =
                     Kupci.FirstOrDefault(k =>
-                        string.Equals(
-                            k.Kupac?.Trim(),
-                            "Gradjani",
-                            StringComparison.OrdinalIgnoreCase))
-                    ?? Kupci.FirstOrDefault();
+                        string.Equals(k.Kupac?.Trim(), "Gradjani", StringComparison.OrdinalIgnoreCase)) ?? Kupci.FirstOrDefault();
 
-                Debug.WriteLine(
-                    $"[KASA] Kupci učitani: {Kupci.Count}");
+                Debug.WriteLine($"[KASA] Kupci učitani: {Kupci.Count}");
 
-                Debug.WriteLine(
-                    $"[KASA] Default kupac: " +
-                    $"{SelectedKupac?.Kupac ?? "(nema)"}");
+                Debug.WriteLine($"[KASA] Default kupac: {SelectedKupac?.Kupac ?? "(nema)"}");
             }
             catch (Exception ex)
             {
                 SelectedKupac = null;
 
-                Debug.WriteLine(
-                    "[KASA] LoadKupciAsync: " + ex);
+                Debug.WriteLine("[KASA] LoadKupciAsync: " + ex);
             }
         }
 
         #endregion
-
 
         #region FILTER
 
@@ -724,28 +599,23 @@ namespace Caupo.ViewModels
                 PrikazaneKategorije.Add(kategorija);
         }
 
-        public void FilterByCategory(
-            int categoryId)
+        public void FilterByCategory(int categoryId)
         {
             _firstLetterFilter = null;
 
-            SelectedCategoryId =
-                categoryId;
+            SelectedCategoryId = categoryId;
         }
 
-        public void FilterByFirstLetter(
-            string firstLetter)
+        public void FilterByFirstLetter(string firstLetter)
         {
             if (string.IsNullOrWhiteSpace(firstLetter))
                 return;
 
             _selectedCategoryId = null;
 
-            _firstLetterFilter =
-                firstLetter.Trim();
+            _firstLetterFilter = firstLetter.Trim();
 
-            OnPropertyChanged(
-                nameof(SelectedCategoryId));
+            OnPropertyChanged(nameof(SelectedCategoryId));
 
             RefreshArticles();
         }
@@ -755,233 +625,319 @@ namespace Caupo.ViewModels
             _selectedCategoryId = null;
             _firstLetterFilter = null;
 
-            OnPropertyChanged(
-                nameof(SelectedCategoryId));
+            OnPropertyChanged(nameof(SelectedCategoryId));
 
             RefreshArticles();
         }
 
         #endregion
 
-
         #region RACUN OPERATIONS
 
-        public void DodajStavkuRacuna(
-            RacunStavka stavka)
+        public void DodajArtikl(TblArtikli artikl, decimal kolicina)
+        {
+            if (artikl == null || kolicina <= 0)
+                return;
+
+            var postojecaStavka = NadjiStavkuZaPovecanje(artikl.Sifra);
+
+            if (postojecaStavka != null)
+            {
+                UpdateStavkuRacunaPlus(postojecaStavka, kolicina);
+                return;
+            }
+
+            var stavka = new RacunStavka
+            {
+                ArtiklId = artikl.IdArtikla,
+                Name = artikl.Artikl,
+                Sifra = artikl.Sifra,
+                Naziv = artikl.ArtiklNormativ,
+                UnitPrice = artikl.Cijena,
+                Proizvod = artikl.VrstaArtikla,
+                JedinicaMjere = artikl.JedinicaMjere,
+                Quantity = kolicina,
+                PoreskaStopa = artikl.PoreskaStopa,
+                PorezNaPotrosnju = artikl.PorezNaPotrosnju
+            };
+
+            DodajStavkuRacuna(stavka);
+        }
+
+        public void DodajStavkuRacuna(RacunStavka stavka)
         {
             if (stavka == null)
                 return;
 
             StavkeRacuna.Add(stavka);
-
-            UpdateTotalSum();
         }
 
-        public RacunStavka? NadjiStavkuZaPovecanje(
-            string sifra)
+        public RacunStavka? NadjiStavkuZaPovecanje(string sifra)
         {
             if (string.IsNullOrWhiteSpace(sifra))
                 return null;
 
-            return StavkeRacuna
-                .LastOrDefault(item =>
-                    item.Sifra == sifra &&
-                    string.IsNullOrWhiteSpace(
-                        item.Note));
+            return StavkeRacuna.LastOrDefault(item => item.Sifra == sifra && string.IsNullOrWhiteSpace(item.Note));
         }
 
-        public bool StavkaPostoji(
-            string sifra)
+        public bool StavkaPostoji(string sifra)
         {
             if (string.IsNullOrWhiteSpace(sifra))
                 return false;
 
-            return StavkeRacuna.Any(
-                item =>
-                    item.Sifra == sifra);
+            return StavkeRacuna.Any(item => item.Sifra == sifra);
         }
 
         public void UpdateTotalSum()
         {
-            TotalSum =
-                Math.Round(
-                    StavkeRacuna.Sum(
-                        item =>
-                            item.TotalAmount ?? 0m),
-                    2,
-                    MidpointRounding.AwayFromZero);
+            TotalSum = Math.Round(StavkeRacuna.Sum(item => item.TotalAmount ?? 0m), 2, MidpointRounding.AwayFromZero);
         }
 
-        public void UpdateStavkuRacunaPlus(
-            RacunStavka stavka,
-            decimal kolicina)
+        public void UpdateStavkuRacunaPlus(RacunStavka stavka, decimal kolicina)
         {
-            if (stavka == null ||
-                kolicina <= 0)
-            {
+            if (stavka == null || kolicina <= 0)
                 return;
-            }
 
-            stavka.Quantity =
-                (stavka.Quantity ?? 0m) +
-                kolicina;
-
+            stavka.Quantity = (stavka.Quantity ?? 0m) + kolicina;
             UpdateTotalSum();
         }
 
-        public Task UpdateStavkuRacunaMinus(
-            RacunStavka stavka,
-            decimal kolicina)
+        public void UpdateStavkuRacunaMinus(RacunStavka stavka, decimal kolicina)
         {
-            if (stavka == null ||
-                kolicina <= 0)
-            {
-                return Task.CompletedTask;
-            }
+            if (stavka == null || kolicina <= 0)
+                return;
 
-            decimal novaKolicina =
-                (stavka.Quantity ?? 0m) -
-                kolicina;
+            decimal novaKolicina = (stavka.Quantity ?? 0m) - kolicina;
 
             if (novaKolicina <= 0)
             {
                 StavkeRacuna.Remove(stavka);
 
-                if (ReferenceEquals(
-                    SelectedStavka,
-                    stavka))
-                {
+                if (ReferenceEquals(SelectedStavka, stavka))
                     SelectedStavka = null;
-                }
             }
             else
             {
-                stavka.Quantity =
-                    novaKolicina;
+                stavka.Quantity = novaKolicina;
+                UpdateTotalSum();
             }
-
-            UpdateTotalSum();
-
-            return Task.CompletedTask;
         }
 
         public void ClearRacun()
         {
             StavkeRacuna.Clear();
             SelectedStavka = null;
-
-            UpdateTotalSum();
         }
 
         #endregion
 
+        public async Task<TblRadnici?> PrijaviRadnikaAsync(string pin)
+        {
+            if (string.IsNullOrWhiteSpace(pin))
+                return null;
+
+            await using var db = new AppDbContext();
+            var radnik = await db.Radnici.AsNoTracking().FirstOrDefaultAsync(r => r.Lozinka == pin.Trim());
+
+            if (radnik != null)
+                IsLoggedIn = true;
+
+            return radnik;
+        }
+
+        public async Task<KasaFiscalResult> FiskalizujAsync(int nacinPlacanja)
+        {
+            if (StavkeRacuna.Count == 0)
+                throw new InvalidOperationException("Račun nema stavki.");
+
+            var stavkeZaFiskalizaciju = StavkeRacuna.ToList();
+            decimal ukupnoZaFiskalizaciju = Math.Round(stavkeZaFiskalizaciju.Sum(item => item.TotalAmount ?? 0m), 2, MidpointRounding.AwayFromZero);
+
+            FiscalPaymentType paymentType = nacinPlacanja switch
+            {
+                0 => FiscalPaymentType.Cash,
+                1 => FiscalPaymentType.Card,
+                2 => FiscalPaymentType.Check,
+                3 => FiscalPaymentType.WireTransfer,
+                _ => throw new FiscalException("Odaberite ispravan način plaćanja.")
+            };
+
+            FiscalBuyer? buyer = null;
+
+            if (SelectedKupac != null)
+            {
+                buyer = new FiscalBuyer
+                {
+                    Name = SelectedKupac.Kupac,
+                    TaxId = SelectedKupac.JIB,
+                    Address = SelectedKupac.Adresa,
+                    City = SelectedKupac.Mjesto
+                };
+            }
+
+            var fiscalRequest = new FiscalRequest
+            {
+                Items = stavkeZaFiskalizaciju,
+                Buyer = buyer,
+                Cashier = new FiscalCashier
+                {
+                    Id = Globals.ulogovaniKorisnik.IdRadnika,
+                    Name = Globals.ulogovaniKorisnik.Radnik,
+                    IdentificationNumber = Globals.ulogovaniKorisnik.IB
+                },
+                PaymentType = paymentType,
+                TotalAmount = ukupnoZaFiskalizaciju,
+                InvoiceType = "Normal",
+                TransactionType = "Sale"
+            };
+
+            IFiscalService fiscalService = FiscalServiceFactory.Create(Settings.Default.Country);
+            FiscalResult result = await fiscalService.IzdajRacunAsync(fiscalRequest);
+
+            Debug.WriteLine($"[FISKALNI] Success={result.Success}, Fiscalized={result.Fiscalized}, Saved={result.SavedToDatabase}, Printed={result.Printed}, FiscalNumber={result.FiscalNumber}");
+
+            if (result.FiscalizationStatus != FiscalizationStatus.Unknown && (result.Success || result.Fiscalized))
+            {
+                ClearRacun();
+
+                if (result.SavedToDatabase)
+                {
+                    try
+                    {
+                        await PrintajBlokoveAsync(stavkeZaFiskalizaciju);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("[FISKALNI] Greška pri printanju blokova: " + ex);
+                        string blokWarning = $"Račun je izdan, ali blok za kuhinju/šank nije isprintan: {ex.Message}";
+                        string? warning = BuildFiscalWarning(result);
+                        warning = string.IsNullOrWhiteSpace(warning) ? blokWarning : warning + Environment.NewLine + blokWarning;
+
+                        return new KasaFiscalResult
+                        {
+                            Result = result,
+                            Warning = warning
+                        };
+                    }
+                }
+            }
+
+            return new KasaFiscalResult
+            {
+                Result = result,
+                Warning = BuildFiscalWarning(result)
+            };
+        }
+
+        private static async Task PrintajBlokoveAsync(IEnumerable<RacunStavka> stavke)
+        {
+            var sankStavke = stavke.Where(s => s.Proizvod == 0 && s.Printed != "DA").ToList();
+            var kuhinjaStavke = stavke.Where(s => s.Proizvod == 1 && s.Printed != "DA").ToList();
+
+            if (kuhinjaStavke.Any())
+            {
+                var printer = new BlokPrinter(kuhinjaStavke, "Kuhinja", "Kasa", "Kasa");
+                await printer.Print();
+            }
+
+            if (sankStavke.Any())
+            {
+                var printer = new BlokPrinter(sankStavke, "Sank", "Kasa", "Kasa");
+                await printer.Print();
+            }
+        }
+
+        private static string? BuildFiscalWarning(FiscalResult result)
+        {
+            var warnings = new List<string>();
+
+            if (!result.Fiscalized)
+                warnings.Add("Račun je lokalno obrađen, ali fiskalizacija nije potvrđena.");
+
+            if (!result.SavedToDatabase)
+                warnings.Add("Račun nije spremljen u lokalnu bazu.");
+
+            if (!result.Printed)
+                warnings.Add("Račun nije isprintan.");
+
+            if (!string.IsNullOrWhiteSpace(result.ErrorMessage))
+                warnings.Add(result.ErrorMessage);
+
+            return warnings.Count == 0 ? null : string.Join(Environment.NewLine, warnings.Distinct());
+        }
 
         #region ARTICLE POSITION
 
         // Ostavljeno radi kompatibilnosti.
-        public async Task UpdateArticlePosition(
-            TblArtikli artikl)
+        public async Task UpdateArticlePosition(TblArtikli artikl)
         {
             if (artikl == null)
                 return;
 
             try
             {
-                await using var db =
-                    new AppDbContext();
-
-                var existing =
-                    await db.Artikli.FindAsync(
-                        artikl.IdArtikla);
+                await using var db = new AppDbContext();
+                var existing = await db.Artikli.FindAsync(artikl.IdArtikla);
 
                 if (existing == null)
                     return;
 
-                existing.Pozicija =
-                    artikl.Pozicija;
-
+                existing.Pozicija = artikl.Pozicija;
                 await db.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(
-                    "[KASA] UpdateArticlePosition: " + ex);
+                Debug.WriteLine("[KASA] UpdateArticlePosition: " + ex);
             }
         }
 
-        public async Task SwapArticlePositionsAsync(
-            TblArtikli first,
-            TblArtikli second)
+        public async Task SwapArticlePositionsAsync(TblArtikli first, TblArtikli second)
         {
-            if (first == null ||
-                second == null ||
-                first.IdArtikla == second.IdArtikla)
-            {
+            if (first == null || second == null || first.IdArtikla == second.IdArtikla)
                 return;
-            }
 
             try
             {
-                int? firstPosition =
-                    first.Pozicija;
+                int? firstPosition = first.Pozicija;
 
-                int? secondPosition =
-                    second.Pozicija;
+                int? secondPosition = second.Pozicija;
 
-                await using var db =
-                    new AppDbContext();
+                await using var db = new AppDbContext();
 
-                var firstDb =
-                    await db.Artikli.FindAsync(
-                        first.IdArtikla);
+                var firstDb = await db.Artikli.FindAsync(first.IdArtikla);
 
-                var secondDb =
-                    await db.Artikli.FindAsync(
-                        second.IdArtikla);
+                var secondDb = await db.Artikli.FindAsync(second.IdArtikla);
 
-                if (firstDb == null ||
-                    secondDb == null)
-                {
+                if (firstDb == null || secondDb == null)
                     return;
-                }
 
-                firstDb.Pozicija =
-                    secondPosition;
+                firstDb.Pozicija = secondPosition;
 
-                secondDb.Pozicija =
-                    firstPosition;
+                secondDb.Pozicija = firstPosition;
 
                 await db.SaveChangesAsync();
 
-                first.Pozicija =
-                    secondPosition;
+                first.Pozicija = secondPosition;
 
-                second.Pozicija =
-                    firstPosition;
+                second.Pozicija = firstPosition;
 
                 RefreshArticles();
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(
-                    "[KASA] SwapArticlePositionsAsync: " + ex);
+                Debug.WriteLine("[KASA] SwapArticlePositionsAsync: " + ex);
             }
         }
 
         #endregion
 
-
         #region INotifyPropertyChanged
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected virtual void OnPropertyChanged(
-            string propertyName)
+        protected virtual void OnPropertyChanged(string propertyName)
         {
-            PropertyChanged?.Invoke(
-                this,
-                new PropertyChangedEventArgs(
-                    propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         #endregion

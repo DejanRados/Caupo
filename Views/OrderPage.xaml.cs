@@ -17,197 +17,138 @@ namespace Caupo.Views
         private readonly OrderViewModel orderViewModel;
         private readonly OrdersViewModel ordersViewModel;
 
-
-        public OrderPage(
-            OrdersViewModel _ordersViewModel)
+        public OrderPage(OrdersViewModel _ordersViewModel)
         {
-            ordersViewModel =
-                _ordersViewModel;
+            InitializeComponent();
 
-            orderViewModel =
-                new OrderViewModel (
-                    ordersViewModel);
+            ordersViewModel = _ordersViewModel;
+            orderViewModel = new OrderViewModel(ordersViewModel);
+            DataContext = orderViewModel;
 
-            DataContext =
-                orderViewModel;
+            lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
 
-            InitializeComponent ();
-
-            lblUlogovaniKorisnik.Content =
-                Globals
-                    .ulogovaniKorisnik
-                    .Radnik;
+            Loaded += OrderPage_Loaded;
         }
 
+        private async void OrderPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            Loaded -= OrderPage_Loaded;
+
+            try
+            {
+                await orderViewModel.InitializeAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[ORDER] Greška pri inicijalizaciji: " + ex);
+                //ShowMessage("GREŠKA", $"Nije moguće učitati narudžbu:{Environment.NewLine}{ex.Message}");
+            }
+        }
 
         // ============================================================
         // PREBACI STAVKU NA GOST RAČUN
         // ============================================================
 
-        private async void ListnarudzbeStavke_PreviewMouseLeftButtonUp(
-            object sender,
-            MouseButtonEventArgs e)
+        private void ListnarudzbeStavke_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if(sender is not DataGrid listView)
+            if (sender is not DataGrid listView)
                 return;
 
-            if(listView.SelectedItem
-               is not DatabaseTables.TblNarudzbeStavke clickedItem)
+            if (listView.SelectedItem is not DatabaseTables.TblNarudzbeStavke clickedItem)
+                return;
+
+            if (DataContext is not OrderViewModel viewModel)
+                return;
+
+            BorderRacunStavke.Visibility = Visibility.Visible;
+            ViewKolicina.Visibility = Visibility.Visible;
+            lblIznosGostRacun.Visibility = Visibility.Visible;
+            ListGostRacunStavke.Visibility = Visibility.Visible;
+
+            if (!decimal.TryParse(txtKolicina.Text, out decimal kolicina))
             {
+                MessageBox.Show("Molimo unesite validnu količinu.");
                 return;
             }
 
-            if(DataContext
-               is not OrderViewModel viewModel)
+            if (kolicina <= 0)
             {
+                MessageBox.Show("Količina mora biti veća od 0.");
                 return;
             }
 
-
-            BorderRacunStavke.Visibility =
-                Visibility.Visible;
-
-            ViewKolicina.Visibility =
-                Visibility.Visible;
-
-            lblIznosGostRacun.Visibility =
-                Visibility.Visible;
-
-            ListGostRacunStavke.Visibility =
-                Visibility.Visible;
-
-
-            if(!decimal.TryParse (
-                   txtKolicina.Text,
-                   out decimal kolicina))
-            {
-                MessageBox.Show (
-                    "Molimo unesite validnu količinu.");
-
-                return;
-            }
-
-
-            if(kolicina <= 0)
-            {
-                MessageBox.Show (
-                    "Količina mora biti veća od 0.");
-
-                return;
-            }
-
-
-            await viewModel.PrebaciStavku (
-                clickedItem,
-                kolicina);
+            viewModel.PrebaciStavku(clickedItem, kolicina);
         }
-
 
         // ============================================================
         // ZATVARANJE
         // ============================================================
 
-        private void CloseButton_Click(
-            object? sender,
-            RoutedEventArgs? e)
+        private void CloseButton_Click(object? sender, RoutedEventArgs? e)
         {
-            if(Globals.forma == "Kasa")
+            if (Globals.forma == "Kasa")
             {
-                var page =
-                    new KasaPage
-                    {
-                        DataContext =
-                            new KasaViewModel ()
-                    };
+                var page = new KasaPage
+                {
+                    DataContext = new KasaViewModel()
+                };
 
-                PageNavigator.NavigateWithFade (
-                    page);
+                PageNavigator.NavigateWithFade(page);
             }
             else
             {
-                var page =
-                    new OrdersPage (null)
-                    {
-                        DataContext =
-                            new OrdersViewModel (null)
-                    };
+                var page = new OrdersPage(null)
+                {
+                    DataContext = new OrdersViewModel(null)
+                };
 
-                PageNavigator.NavigateWithFade (
-                    page);
+                PageNavigator.NavigateWithFade(page);
             }
         }
-
 
         // ============================================================
         // IZDAVANJE RAČUNA
         // ============================================================
 
-        private async void BtnRacun_Click(
-            object sender,
-            RoutedEventArgs e)
+        private async void BtnRacun_Click(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine (
-                "[ORDER] BtnRacun_Click pokrenut");
+            Debug.WriteLine("[ORDER] BtnRacun_Click pokrenut");
 
-
-            if(DataContext
-               is not OrderViewModel viewModel)
+            if (DataContext is not OrderViewModel viewModel)
             {
-                Debug.WriteLine (
-                    "[ORDER] DataContext nije OrderViewModel.");
-
+                Debug.WriteLine("[ORDER] DataContext nije OrderViewModel.");
                 return;
             }
 
-
-            RacunIdikator.Visibility =
-                Visibility.Visible;
-
+            RacunIdikator.Visibility = Visibility.Visible;
 
             try
             {
-                bool gostRacun =
-                    viewModel.GostRacunStavke.Count > 0;
+                bool gostRacun = viewModel.GostRacunStavke.Count > 0;
 
+                Debug.WriteLine(gostRacun
+                    ? "[ORDER] Izdajem podijeljeni račun."
+                    : "[ORDER] Izdajem cijeli račun.");
 
-                Debug.WriteLine (
-                    gostRacun
-                        ? "[ORDER] Izdajem podijeljeni račun."
-                        : "[ORDER] Izdajem cijeli račun.");
+                FiscalResult result = await viewModel.IzdajRacunAsync(cmbNacinPlacanja.SelectedIndex, gostRacun);
 
-
-                FiscalResult result =
-                    await viewModel.IzdajRacunAsync (
-                        cmbNacinPlacanja.SelectedIndex,
-                        gostRacun);
-
-
-                Debug.WriteLine (
-                    $"[ORDER] " +
-                    $"Success={result.Success}, " +
-                    $"Fiscalized={result.Fiscalized}, " +
-                    $"Saved={result.SavedToDatabase}, " +
-                    $"Printed={result.Printed}");
-
+                Debug.WriteLine($"[ORDER] Success={result.Success}, Fiscalized={result.Fiscalized}, Saved={result.SavedToDatabase}, Printed={result.Printed}");
 
                 // ----------------------------------------------------
                 // Fiskalizacija / lokalna obrada nije uspjela.
                 // Narudžbu NE diramo.
                 // ----------------------------------------------------
 
-                if(!result.Success &&
-                   !result.Fiscalized)
+                if (!result.Success && !result.Fiscalized)
                 {
-                    MessageBox.Show (
-                        result.ErrorMessage
-                        ?? "Račun nije izdat.",
+                    MessageBox.Show(
+                        result.ErrorMessage ?? "Račun nije izdat.",
                         "Greška",
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
 
                     return;
                 }
-
 
                 // ----------------------------------------------------
                 // VAŽNO:
@@ -225,38 +166,30 @@ namespace Caupo.Views
                 // kod naknadne dostave.
                 // ----------------------------------------------------
 
-                if(gostRacun)
+                if (gostRacun)
                 {
-                    await viewModel
-                        .ZavrsiGostRacunAsync ();
-
-                    SakrijGostRacun ();
+                    await viewModel.ZavrsiGostRacunAsync();
+                    SakrijGostRacun();
                 }
                 else
                 {
-                    await viewModel
-                        .ZavrsiCijeliRacunAsync ();
+                    await viewModel.ZavrsiCijeliRacunAsync();
                 }
-
 
                 // ----------------------------------------------------
                 // UPOZORENJA
                 // ----------------------------------------------------
 
-                string? warning =
-                    BuildFiscalWarning (
-                        result);
+                string? warning = BuildFiscalWarning(result);
 
-                if(!string.IsNullOrWhiteSpace (
-                    warning))
+                if (!string.IsNullOrWhiteSpace(warning))
                 {
-                    MessageBox.Show (
+                    MessageBox.Show(
                         warning,
                         "Upozorenje",
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning);
                 }
-
 
                 // ----------------------------------------------------
                 // Cijeli račun zatvara sto/page.
@@ -264,99 +197,64 @@ namespace Caupo.Views
                 // postojati ostatak narudžbe.
                 // ----------------------------------------------------
 
-                if(!gostRacun)
+                if (!gostRacun)
                 {
-                    Debug.WriteLine (
-                        "[ORDER] Cijeli račun završen.");
-
-                    CloseButton_Click (
-                        null,
-                        null);
+                    Debug.WriteLine("[ORDER] Cijeli račun završen.");
+                    CloseButton_Click(null, null);
                 }
                 else
                 {
-                    Debug.WriteLine (
-                        "[ORDER] Podijeljeni račun završen.");
+                    Debug.WriteLine("[ORDER] Podijeljeni račun završen.");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (
-                    "[ORDER] BtnRacun_Click greška: " +
-                    ex);
+                Debug.WriteLine("[ORDER] BtnRacun_Click greška: " + ex);
 
-                MessageBox.Show (
-                    "Došlo je do greške: " +
-                    ex.Message,
+                MessageBox.Show(
+                    "Došlo je do greške: " + ex.Message,
                     "Greška",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
             finally
             {
-                RacunIdikator.Visibility =
-                    Visibility.Collapsed;
+                RacunIdikator.Visibility = Visibility.Collapsed;
             }
         }
-
 
         // ============================================================
         // VRATI STAVKU SA GOST RAČUNA
         // ============================================================
 
-        private async void ListGostRacunStavke_PreviewMouseLeftButtonUp(
-            object sender,
-            MouseButtonEventArgs e)
+        private void ListGostRacunStavke_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if(sender is not DataGrid listView)
+            if (sender is not DataGrid listView)
                 return;
 
-
-            if(listView.SelectedItem
-               is not DatabaseTables.TblNarudzbeStavke clickedItem)
-            {
+            if (listView.SelectedItem is not DatabaseTables.TblNarudzbeStavke clickedItem)
                 return;
-            }
 
+            if (DataContext is not OrderViewModel viewModel)
+                return;
 
-            if(DataContext
-               is not OrderViewModel viewModel)
+            if (!decimal.TryParse(txtKolicina.Text, out decimal kolicina))
             {
+                MessageBox.Show("Molimo unesite validnu količinu.");
                 return;
             }
 
-
-            if(!decimal.TryParse (
-                   txtKolicina.Text,
-                   out decimal kolicina))
+            if (kolicina <= 0)
             {
-                MessageBox.Show (
-                    "Molimo unesite validnu količinu.");
-
+                MessageBox.Show("Količina mora biti veća od 0.");
                 return;
             }
 
+            viewModel.VratiStavku(clickedItem, kolicina);
 
-            if(kolicina <= 0)
-            {
-                MessageBox.Show (
-                    "Količina mora biti veća od 0.");
-
-                return;
-            }
-
-
-            await viewModel.VratiStavku (
-                clickedItem,
-                kolicina);
-
-
-            if(viewModel.GostRacunStavke.Count == 0)
-            {
-                SakrijGostRacun ();
-            }
+            if (viewModel.GostRacunStavke.Count == 0)
+                SakrijGostRacun();
         }
-
 
         // ============================================================
         // UI GOST RAČUNA
@@ -364,73 +262,38 @@ namespace Caupo.Views
 
         private void SakrijGostRacun()
         {
-            BorderRacunStavke.Visibility =
-                Visibility.Collapsed;
-
-            ViewKolicina.Visibility =
-                Visibility.Collapsed;
-
-            lblKolicina.Visibility =
-                Visibility.Collapsed;
-
-            txtKolicina.Visibility =
-                Visibility.Collapsed;
-
-            lblIznosGostRacun.Visibility =
-                Visibility.Collapsed;
-
-            ListGostRacunStavke.Visibility =
-                Visibility.Collapsed;
+            BorderRacunStavke.Visibility = Visibility.Collapsed;
+            ViewKolicina.Visibility = Visibility.Collapsed;
+            lblKolicina.Visibility = Visibility.Collapsed;
+            txtKolicina.Visibility = Visibility.Collapsed;
+            lblIznosGostRacun.Visibility = Visibility.Collapsed;
+            ListGostRacunStavke.Visibility = Visibility.Collapsed;
         }
-
 
         // ============================================================
         // FISCAL RESULT UPOZORENJA
         // ============================================================
 
-        private static string? BuildFiscalWarning(
-            FiscalResult result)
+        private static string? BuildFiscalWarning(FiscalResult result)
         {
-            var warnings =
-                new List<string> ();
+            var warnings = new List<string>();
 
+            if (!result.Fiscalized)
+                warnings.Add("Račun je lokalno obrađen, ali fiskalizacija nije potvrđena.");
 
-            if(!result.Fiscalized)
-            {
-                warnings.Add (
-                    "Račun je lokalno obrađen, ali fiskalizacija nije potvrđena.");
-            }
+            if (!result.SavedToDatabase)
+                warnings.Add("Račun nije spremljen u lokalnu bazu.");
 
+            if (!result.Printed)
+                warnings.Add("Račun nije isprintan.");
 
-            if(!result.SavedToDatabase)
-            {
-                warnings.Add (
-                    "Račun nije spremljen u lokalnu bazu.");
-            }
+            if (!string.IsNullOrWhiteSpace(result.ErrorMessage))
+                warnings.Add(result.ErrorMessage);
 
-
-            if(!result.Printed)
-            {
-                warnings.Add (
-                    "Račun nije isprintan.");
-            }
-
-
-            if(!string.IsNullOrWhiteSpace (
-                result.ErrorMessage))
-            {
-                warnings.Add (
-                    result.ErrorMessage);
-            }
-
-
-            if(warnings.Count == 0)
+            if (warnings.Count == 0)
                 return null;
 
-
-            return string.Join (
-                Environment.NewLine,
-                warnings.Distinct ());
+            return string.Join(Environment.NewLine, warnings.Distinct());
         }
     }
 }

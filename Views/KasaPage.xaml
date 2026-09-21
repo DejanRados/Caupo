@@ -23,38 +23,20 @@
         <Style
             x:Key="SectionCaptionStyle"
             TargetType="TextBlock">
-            <Setter
-                Property="FontSize"
-                Value="11"/>
-            <Setter
-                Property="FontWeight"
-                Value="SemiBold"/>
-            <Setter
-                Property="Opacity"
-                Value="0.65"/>
-            <Setter
-                Property="Margin"
-                Value="2,0,0,5"/>
-            <Setter
-                Property="Foreground"
-                Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Opacity" Value="0.65"/>
+            <Setter Property="Margin" Value="2,0,0,5"/>
+            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
         </Style>
         <!-- Kartica -->
         <Style
             x:Key="KasaCardStyle"
             TargetType="Border">
-            <Setter
-                Property="Background"
-                Value="{DynamicResource GlobalBackgroundColor}"/>
-            <Setter
-                Property="BorderBrush"
-                Value="{DynamicResource GlobalFontColor}"/>
-            <Setter
-                Property="BorderThickness"
-                Value="0.5"/>
-            <Setter
-                Property="CornerRadius"
-                Value="12"/>
+            <Setter Property="Background" Value="{DynamicResource GlobalBackgroundColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="BorderThickness" Value="0.5"/>
+            <Setter Property="CornerRadius" Value="12"/>
         </Style>
         <!-- Article button.
              Zadržavamo postojeći ArticleButtonStyle kao bazu. -->
@@ -62,51 +44,25 @@
             x:Key="KasaArticleButtonStyle"
             TargetType="Button"
             BasedOn="{StaticResource ArticleButtonStyle}">
-            <Setter
-                Property="Width"
-                Value="158"/>
-            <Setter
-                Property="Height"
-                Value="82"/>
-            <Setter
-                Property="Margin"
-                Value="1"/>
-            <Setter
-                Property="Padding"
-                Value="3"/>
-            <Setter
-                Property="BorderThickness"
-                Value="0"/>
-            <Setter
-                Property="Cursor"
-                Value="Hand"/>
-            <Setter
-                Property="HorizontalContentAlignment"
-                Value="Stretch"/>
-            <Setter
-                Property="VerticalContentAlignment"
-                Value="Stretch"/>
+            <Setter Property="Width" Value="158"/>
+            <Setter Property="Height" Value="82"/>
+            <Setter Property="Margin" Value="1"/>
+            <Setter Property="Padding" Value="3"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
         </Style>
         <!-- Category button -->
         <Style
             x:Key="KasaCategoryButtonStyle"
             TargetType="Button"
             BasedOn="{StaticResource SecondaryButtonStyle}">
-            <Setter
-                Property="Height"
-                Value="58"/>
-            <Setter
-                Property="Margin"
-                Value="0,0,0,5"/>
-            <Setter
-                Property="Padding"
-                Value="7"/>
-            <Setter
-                Property="HorizontalContentAlignment"
-                Value="Stretch"/>
-            <Setter
-                Property="Cursor"
-                Value="Hand"/>
+            <Setter Property="Height" Value="58"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+            <Setter Property="Padding" Value="7"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Cursor" Value="Hand"/>
         </Style>
     </UserControl.Resources>
     <!-- ========================================================= -->
@@ -122,10 +78,7 @@
         <!-- ===================================================== -->
         <!-- HEADER -->
         <!-- ===================================================== -->
-        <Border
-            Grid.Row="0"
-            Background="#323232"
-            Panel.ZIndex="20">
+        <Border Grid.Row="0" Background="#323232" Panel.ZIndex="20">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -133,32 +86,14 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="70"/>
                 </Grid.ColumnDefinitions>
-                <Image
-                    Grid.Column="0"
-                    Source="pack://application:,,,/Images/dsoftlogosmall.png"
-                    Width="44"
-                    Height="44"
-                    Margin="15,5,10,5"
-                    VerticalAlignment="Center"/>
-                <TextBlock
-                    Grid.Column="1"
-                    Text="Caupo  •  Kasa"
-                    FontSize="22"
-                    FontWeight="SemiBold"
-                    Foreground="#FAFAFA"
-                    VerticalAlignment="Center"/>
+                <Image Grid.Column="0" Source="pack://application:,,,/Images/dsoftlogosmall.png" Width="44" Height="44" Margin="15,5,10,5" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1" Text="Caupo  •  Kasa" FontSize="22" FontWeight="SemiBold" Foreground="#FAFAFA" VerticalAlignment="Center"/>
                 <StackPanel
                     Grid.Column="2"
                     Orientation="Horizontal"
                     VerticalAlignment="Center"
                     Margin="10,0,15,0">
-                    <TextBlock
-                        FontFamily="Segoe MDL2 Assets"
-                        Text="&#xE77B;"
-                        FontSize="18"
-                        Foreground="#BBBBBB"
-                        VerticalAlignment="Center"
-                        Margin="0,0,8,0"/>
+                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE77B;" FontSize="18" Foreground="#BBBBBB" VerticalAlignment="Center" Margin="0,0,8,0"/>
                     <Label
                         x:Name="lblUlogovaniKorisnik"
                         Content="Ime i prezime"
@@ -195,11 +130,7 @@
             <!-- ================================================= -->
             <!-- TOP TOOLBAR -->
             <!-- ================================================= -->
-            <Border
-                Grid.Row="0"
-                Margin="10,8,10,4"
-                Padding="7"
-                Style="{StaticResource KasaCardStyle}">
+            <Border Grid.Row="0" Margin="10,8,10,4" Padding="7" Style="{StaticResource KasaCardStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <!-- Reset -->
@@ -233,16 +164,8 @@
                         <StackPanel
                             Orientation="Horizontal"
                             HorizontalAlignment="Center">
-                            <TextBlock
-                                FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
-                                Text="&#xEA77;"
-                                FontSize="23"
-                                Margin="0,0,6,0"
-                                VerticalAlignment="Center"/>
-                            <TextBlock
-                                Text="Reset"
-                                FontSize="14"
-                                VerticalAlignment="Center"/>
+                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Text="&#xEA77;" FontSize="23" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Reset" FontSize="14" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <!-- PIĆE / HRANA / OSTALO -->
@@ -275,12 +198,7 @@
                                     Source="{Binding ImagePathPiceButton,
                                                      TargetNullValue={x:Null}}"
                                     Stretch="Uniform"/>
-                                <TextBlock
-                                    Text="Piće"
-                                    FontSize="15"
-                                    FontWeight="SemiBold"
-                                    Foreground="{DynamicResource GlobalFontColor}"
-                                    VerticalAlignment="Center"/>
+                                <TextBlock Text="Piće" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </ToggleButton>
                         <ToggleButton
@@ -304,12 +222,7 @@
                                     Source="{Binding ImagePathHranaButton,
                                                      TargetNullValue={x:Null}}"
                                     Stretch="Uniform"/>
-                                <TextBlock
-                                    Text="Hrana"
-                                    FontSize="15"
-                                    FontWeight="SemiBold"
-                                    Foreground="{DynamicResource GlobalFontColor}"
-                                    VerticalAlignment="Center"/>
+                                <TextBlock Text="Hrana" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </ToggleButton>
                         <ToggleButton
@@ -333,12 +246,7 @@
                                     Source="{Binding ImagePathOstaloButton,
                                                      TargetNullValue={x:Null}}"
                                     Stretch="Uniform"/>
-                                <TextBlock
-                                    Text="Ostalo"
-                                    FontSize="15"
-                                    FontWeight="SemiBold"
-                                    Foreground="{DynamicResource GlobalFontColor}"
-                                    VerticalAlignment="Center"/>
+                                <TextBlock Text="Ostalo" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </ToggleButton>
                     </Grid>
@@ -346,15 +254,8 @@
                     <StackPanel
                         Grid.Column="4"
                         Margin="4,0">
-                        <TextBlock
-                            Text="KOLIČINA"
-                            Style="{StaticResource SectionCaptionStyle}"
-                            HorizontalAlignment="Center"/>
-                        <Border
-                            Height="45"
-                            VerticalAlignment="Top"
-                            BorderBrush="{DynamicResource GlobalFontColor}"
-                            BorderThickness="0,0,0,1">
+                        <TextBlock Text="KOLIČINA" Style="{StaticResource SectionCaptionStyle}" HorizontalAlignment="Center"/>
+                        <Border Height="45" VerticalAlignment="Top" BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0,0,0,1">
                             <TextBox
                                 x:Name="txtKolicina"
                                 Style="{DynamicResource TextBoxCustom}"
@@ -376,9 +277,7 @@
                     <StackPanel
                         Grid.Column="6"
                         Margin="4,0">
-                        <TextBlock
-                            Text="PLAĆANJE"
-                            Style="{StaticResource SectionCaptionStyle}"/>
+                        <TextBlock Text="PLAĆANJE" Style="{StaticResource SectionCaptionStyle}"/>
                         <ComboBox
                             x:Name="cmbNacinPlacanja"
                             Height="45"
@@ -395,9 +294,7 @@
                     <StackPanel
                         Grid.Column="8"
                         Margin="5,0">
-                        <TextBlock
-                            Text="KUPAC"
-                            Style="{StaticResource SectionCaptionStyle}"/>
+                        <TextBlock Text="KUPAC" Style="{StaticResource SectionCaptionStyle}"/>
                         <ComboBox
                             x:Name="cmbKupac"
                             Height="45"
@@ -427,11 +324,7 @@
                 <!-- ================================================= -->
                 <!-- KATEGORIJE -->
                 <!-- ================================================= -->
-                <Border
-                    Grid.Column="0"
-                    Margin="0,0,6,0"
-                    Padding="8"
-                    Style="{StaticResource KasaCardStyle}">
+                <Border Grid.Column="0" Margin="0,0,6,0" Padding="8" Style="{StaticResource KasaCardStyle}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="42"/>
@@ -448,12 +341,7 @@
                                 Margin="2,0,7,0"
                                 Foreground="{DynamicResource GlobalFontColor}"
                                 VerticalAlignment="Center"/>
-                            <TextBlock
-                                Text="Kategorije"
-                                FontSize="16"
-                                FontWeight="SemiBold"
-                                Foreground="{DynamicResource GlobalFontColor}"
-                                VerticalAlignment="Center"/>
+                            <TextBlock Text="Kategorije" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
                         </StackPanel>
                         <ScrollViewer
                             x:Name="KategorijeScroll"
@@ -498,16 +386,8 @@
                             <StackPanel
                                 Orientation="Horizontal"
                                 HorizontalAlignment="Center">
-                                <TextBlock
-                                    FontFamily="Segoe MDL2 Assets"
-                                    FontSize="20"
-                                    Text="&#xE765;"
-                                    Margin="0,0,7,0"
-                                    VerticalAlignment="Center"/>
-                                <TextBlock
-                                    Text="Tastatura"
-                                    FontSize="13"
-                                    VerticalAlignment="Center"/>
+                                <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="20" Text="&#xE765;" Margin="0,0,7,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="Tastatura" FontSize="13" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                     </Grid>
@@ -515,11 +395,7 @@
                 <!-- ================================================= -->
                 <!-- ARTIKLI -->
                 <!-- ================================================= -->
-                <Border
-                    Grid.Column="1"
-                    Margin="0,0,6,0"
-                    Padding="8"
-                    Style="{StaticResource KasaCardStyle}">
+                <Border Grid.Column="1" Margin="0,0,6,0" Padding="8" Style="{StaticResource KasaCardStyle}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="42"/>
@@ -535,12 +411,7 @@
                                 Margin="2,0,7,0"
                                 Foreground="{DynamicResource GlobalFontColor}"
                                 VerticalAlignment="Center"/>
-                            <TextBlock
-                                Text="Artikli"
-                                FontSize="16"
-                                FontWeight="SemiBold"
-                                Foreground="{DynamicResource GlobalFontColor}"
-                                VerticalAlignment="Center"/>
+                            <TextBlock Text="Artikli" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
                         </StackPanel>
                         <ScrollViewer
                             x:Name="ArtikliScroll"
@@ -565,7 +436,7 @@
                                     <DataTemplate>
                                         <Button
                                             Tag="{Binding Sifra}"
-                                            Style="{StaticResource ArticleButtonStyle}"
+                                            Style="{StaticResource KasaArticleButtonStyle}"
                                             Width="158"
                                             Height="82"
                                             Margin="3"
@@ -583,15 +454,8 @@
                                                     <ColumnDefinition Width="50"/>
                                                     <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
-                                                <Border
-                                                    Grid.Column="0"
-                                                    BorderThickness="0"
-                                                    CornerRadius="4,0,0,4"
-                                                    Background="{DynamicResource GlobalBackgroundColor}">
-                                                    <Image
-                                                        Margin="1"
-                                                        Source="{Binding SlikaSource, TargetNullValue={x:Null}}"
-                                                        Stretch="Uniform"/>
+                                                <Border Grid.Column="0" BorderThickness="0" CornerRadius="4,0,0,4" Background="{DynamicResource GlobalBackgroundColor}">
+                                                    <Image Margin="1" Source="{Binding SlikaSource, TargetNullValue={x:Null}}" Stretch="Uniform"/>
                                                 </Border>
                                                 <TextBlock
                                                     Grid.Column="1"
@@ -602,20 +466,15 @@
                                                     TextWrapping="Wrap"
                                                     TextAlignment="Left"
                                                     VerticalAlignment="Center"
-                                                    Foreground="{Binding DataContext.FontColor,
-            RelativeSource={RelativeSource AncestorType=ItemsControl}}">
+                                                    Foreground="{DynamicResource GlobalFontColor}">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
-                                                            <Setter
-                                                                Property="Text"
-                                                                Value="{Binding Artikl}"/>
+                                                            <Setter Property="Text" Value="{Binding Artikl}"/>
                                                             <Style.Triggers>
                                                                 <DataTrigger
                                                                     Binding="{Binding VrstaArtikla}"
                                                                     Value="0">
-                                                                    <Setter
-                                                                        Property="Text"
-                                                                        Value="{Binding ArtiklNormativ}"/>
+                                                                    <Setter Property="Text" Value="{Binding ArtiklNormativ}"/>
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
@@ -632,10 +491,7 @@
                 <!-- ================================================= -->
                 <!-- RAČUN -->
                 <!-- ================================================= -->
-                <Border
-                    Grid.Column="2"
-                    Padding="8"
-                    Style="{StaticResource KasaCardStyle}">
+                <Border Grid.Column="2" Padding="8" Style="{StaticResource KasaCardStyle}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <!-- naslov -->
@@ -663,12 +519,7 @@
                                     Margin="2,0,7,0"
                                     Foreground="{DynamicResource GlobalFontColor}"
                                     VerticalAlignment="Center"/>
-                                <TextBlock
-                                    Text="Račun"
-                                    FontSize="17"
-                                    FontWeight="SemiBold"
-                                    Foreground="{DynamicResource GlobalFontColor}"
-                                    VerticalAlignment="Center"/>
+                                <TextBlock Text="Račun" FontSize="17" FontWeight="SemiBold" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
                             </StackPanel>
                             <TextBlock
                                 Grid.Column="1"
@@ -715,18 +566,8 @@
                                             <StackPanel
                                                 Orientation="Vertical"
                                                 Margin="2">
-                                                <TextBlock
-                                                    Text="{Binding Name}"
-                                                    FontSize="13"
-                                                    FontWeight="SemiBold"
-                                                    TextWrapping="Wrap"/>
-                                                <TextBlock
-                                                    Text="{Binding Note}"
-                                                    FontSize="10"
-                                                    FontStyle="Italic"
-                                                    Opacity="0.7"
-                                                    Margin="7,1,0,0"
-                                                    TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding Note}" FontSize="10" FontStyle="Italic" Opacity="0.7" Margin="7,1,0,0" TextWrapping="Wrap"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
@@ -736,11 +577,7 @@
                                     Width="0.65*">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBlock
-                                                Text="{Binding Quantity}"
-                                                FontWeight="SemiBold"
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Quantity}" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
@@ -775,13 +612,7 @@
                             </DataGrid.Columns>
                         </DataGrid>
                         <!-- UKUPNO -->
-                        <Border
-                            Grid.Row="2"
-                            Margin="0,6,0,4"
-                            Padding="10,5"
-                            CornerRadius="9"
-                            BorderBrush="{DynamicResource GlobalFontColor}"
-                            BorderThickness="0.5">
+                        <Border Grid.Row="2" Margin="0,6,0,4" Padding="10,5" CornerRadius="9" BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0.5">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -790,17 +621,8 @@
                                 <StackPanel
                                     Grid.Column="0"
                                     VerticalAlignment="Center">
-                                    <TextBlock
-                                        Text="UKUPNO"
-                                        FontSize="12"
-                                        FontWeight="SemiBold"
-                                        Opacity="0.6"
-                                        Foreground="{DynamicResource GlobalFontColor}"/>
-                                    <TextBlock
-                                        Text="Za naplatu"
-                                        FontSize="11"
-                                        Opacity="0.45"
-                                        Foreground="{DynamicResource GlobalFontColor}"/>
+                                    <TextBlock Text="UKUPNO" FontSize="12" FontWeight="SemiBold" Opacity="0.6" Foreground="{DynamicResource GlobalFontColor}"/>
+                                    <TextBlock Text="Za naplatu" FontSize="11" Opacity="0.45" Foreground="{DynamicResource GlobalFontColor}"/>
                                 </StackPanel>
                                 <Label
                                     x:Name="lblIznos"
@@ -839,11 +661,7 @@
                                         Margin="0,0,6,0"
                                         Foreground="{DynamicResource GlobalFontColor}"
                                         VerticalAlignment="Center"/>
-                                    <TextBlock
-                                        Text="Narudžbe"
-                                        FontSize="13"
-                                        Foreground="{DynamicResource GlobalFontColor}"
-                                        VerticalAlignment="Center"/>
+                                    <TextBlock Text="Narudžbe" FontSize="13" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <!-- Račun je primarna akcija -->
@@ -858,19 +676,8 @@
                                 <StackPanel
                                     Orientation="Horizontal"
                                     HorizontalAlignment="Center">
-                                    <TextBlock
-                                        FontFamily="Segoe MDL2 Assets"
-                                        Text="&#xEC5B;"
-                                        FontSize="22"
-                                        Margin="0,0,8,0"
-                                        Foreground="#F5F5F5"
-                                        VerticalAlignment="Center"/>
-                                    <TextBlock
-                                        Text="IZDAJ RAČUN"
-                                        FontSize="15"
-                                        FontWeight="SemiBold"
-                                        Foreground="#F5F5F5"
-                                        VerticalAlignment="Center"/>
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEC5B;" FontSize="22" Margin="0,0,8,0" Foreground="#F5F5F5" VerticalAlignment="Center"/>
+                                    <TextBlock Text="IZDAJ RAČUN" FontSize="15" FontWeight="SemiBold" Foreground="#F5F5F5" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </Grid>
@@ -880,27 +687,12 @@
             <!-- ================================================= -->
             <!-- BUSY OVERLAY -->
             <!-- ================================================= -->
-            <Border
-                x:Name="RacunIdikator"
-                Grid.RowSpan="2"
-                Panel.ZIndex="900"
-                Background="#66323232"
-                Visibility="Collapsed">
+            <Border x:Name="RacunIdikator" Grid.RowSpan="2" Panel.ZIndex="900" Background="#66323232" Visibility="Collapsed">
                 <StackPanel
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center">
-                    <TextBlock
-                        FontFamily="Segoe MDL2 Assets"
-                        Text="&#xE895;"
-                        FontSize="42"
-                        Foreground="White"
-                        HorizontalAlignment="Center"/>
-                    <TextBlock
-                        Text="Izdavanje računa..."
-                        FontSize="14"
-                        Foreground="White"
-                        Margin="0,10,0,0"
-                        HorizontalAlignment="Center"/>
+                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE895;" FontSize="42" Foreground="White" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Izdavanje računa..." FontSize="14" Foreground="White" Margin="0,10,0,0" HorizontalAlignment="Center"/>
                 </StackPanel>
             </Border>
         </Grid>
@@ -972,17 +764,8 @@
                             <StackPanel
                                 Orientation="Horizontal"
                                 HorizontalAlignment="Center">
-                                <TextBlock
-                                    FontFamily="Segoe MDL2 Assets"
-                                    FontSize="20"
-                                    Margin="0,0,7,0"
-                                    Text="&#xE73E;"
-                                    Foreground="#F5F5F5"
-                                    VerticalAlignment="Center"/>
-                                <TextBlock
-                                    Text="U redu"
-                                    Foreground="#F5F5F5"
-                                    VerticalAlignment="Center"/>
+                                <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="20" Margin="0,0,7,0" Text="&#xE73E;" Foreground="#F5F5F5" VerticalAlignment="Center"/>
+                                <TextBlock Text="U redu" Foreground="#F5F5F5" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                     </StackPanel>

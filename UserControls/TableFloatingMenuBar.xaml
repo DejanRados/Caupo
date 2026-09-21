@@ -1,0 +1,222 @@
+﻿<UserControl x:Class="Caupo.UserControls.TableFloatingMenuBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignWidth="280"
+             d:DesignHeight="500"
+             Width="280"
+             HorizontalAlignment="Left"
+             VerticalAlignment="Top">
+
+    <UserControl.Resources>
+        <Style x:Key="TableFloatingMenuButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Padding" Value="14,0,10,0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Opacity="0.85">
+                            <ContentPresenter Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="1"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.65"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.35"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Border Background="{DynamicResource GlobalBackgroundColor}"
+            BorderBrush="{DynamicResource GlobalFontColor}"
+            BorderThickness="1"
+            CornerRadius="8">
+
+        <StackPanel>
+            <Border x:Name="TitleBar"
+                    Height="64"
+                    Background="{DynamicResource GlobalBackgroundColor}"
+                    BorderBrush="{DynamicResource GlobalFontColor}"
+                    BorderThickness="0,0,0,1"
+                    CornerRadius="7,7,0,0"
+                    Cursor="SizeAll"
+                    MouseLeftButtonDown="TitleBar_MouseLeftButtonDown"
+                    MouseMove="TitleBar_MouseMove"
+                    MouseLeftButtonUp="TitleBar_MouseLeftButtonUp">
+
+                <Grid>
+                    <Border Background="{DynamicResource GlobalFontColor}" CornerRadius="7,7,0,0" Opacity="0.10"/>
+
+                    <Grid Margin="14,7,12,7">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Uređivanje stola"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="15"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock x:Name="TableNameText"
+                                   Grid.Row="1"
+                                   Text="Sto"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="11"
+                                   Opacity="0.70"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"/>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <Button Style="{StaticResource TableFloatingMenuButtonStyle}" Click="RenameButton_Click">
+                <Grid>
+                    <TextBlock Text="Preimenuj sto" VerticalAlignment="Center"/>
+                    <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Text="›" FontSize="20">
+                        <TextBlock.RenderTransform>
+                            <RotateTransform x:Name="RenameArrowTransform" Angle="0"/>
+                        </TextBlock.RenderTransform>
+                    </TextBlock>
+                </Grid>
+            </Button>
+
+            <StackPanel x:Name="RenamePanel" Visibility="Collapsed" Margin="12,8,12,12">
+                <TextBlock Text="Novi naziv stola" Foreground="{DynamicResource GlobalFontColor}" Margin="0,0,0,5"/>
+                <TextBox x:Name="TableNameInput" Style="{StaticResource TextBoxCustom}" Height="38" FontSize="14" VerticalContentAlignment="Center" Padding="8,0"/>
+
+                <Grid Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" Style="{StaticResource CancelButtonStyle}" Click="CloseSubMenuButton_Click">
+                        <TextBlock Text="Odustani"/>
+                    </Button>
+
+                    <Button Grid.Column="2" Style="{StaticResource PrimaryButtonStyle}" Click="SaveNameButton_Click">
+                        <TextBlock Text="Spremi"/>
+                    </Button>
+                </Grid>
+            </StackPanel>
+
+            <Button Style="{StaticResource TableFloatingMenuButtonStyle}" Click="ResizeButton_Click">
+                <Grid>
+                    <TextBlock Text="Promijeni veličinu" VerticalAlignment="Center"/>
+                    <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Text="›" FontSize="20">
+                        <TextBlock.RenderTransform>
+                            <RotateTransform x:Name="ResizeArrowTransform" Angle="0"/>
+                        </TextBlock.RenderTransform>
+                    </TextBlock>
+                </Grid>
+            </Button>
+
+            <StackPanel x:Name="ResizePanel" Visibility="Collapsed" Margin="12,8,12,12">
+                <TextBlock Text="Širina" Foreground="{DynamicResource GlobalFontColor}" Margin="0,0,0,5"/>
+                <TextBox x:Name="WidthInput" Style="{StaticResource TextBoxCustom}" Height="38" FontSize="14" VerticalContentAlignment="Center" Padding="8,0"/>
+
+                <TextBlock Text="Visina" Foreground="{DynamicResource GlobalFontColor}" Margin="0,10,0,5"/>
+                <TextBox x:Name="HeightInput" Style="{StaticResource TextBoxCustom}" Height="38" FontSize="14" VerticalContentAlignment="Center" Padding="8,0"/>
+
+                <TextBlock x:Name="ResizeErrorText"
+                           Text="Širina i visina moraju biti između 40 i 500."
+                           Foreground="#E53935"
+                           FontSize="11"
+                           TextWrapping="Wrap"
+                           Visibility="Collapsed"
+                           Margin="0,8,0,0"/>
+
+                <Grid Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" Style="{StaticResource CancelButtonStyle}" Click="CloseSubMenuButton_Click">
+                        <TextBlock Text="Odustani"/>
+                    </Button>
+
+                    <Button Grid.Column="2" Style="{StaticResource PrimaryButtonStyle}" Click="SaveSizeButton_Click">
+                        <TextBlock Text="Spremi"/>
+                    </Button>
+                </Grid>
+            </StackPanel>
+
+            <Button x:Name="DeleteButton" Style="{StaticResource TableFloatingMenuButtonStyle}" Click="DeleteButton_Click">
+                <Grid>
+                    <TextBlock Text="Obriši sto" VerticalAlignment="Center"/>
+                    <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Text="›" FontSize="20">
+                        <TextBlock.RenderTransform>
+                            <RotateTransform x:Name="DeleteArrowTransform" Angle="0"/>
+                        </TextBlock.RenderTransform>
+                    </TextBlock>
+                </Grid>
+            </Button>
+
+            <StackPanel x:Name="DeletePanel" Visibility="Collapsed" Margin="12,8,12,12">
+                <TextBlock Text="Da li ste sigurni da želite obrisati ovaj sto?"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           FontSize="13"
+                           TextWrapping="Wrap"
+                           Margin="0,0,0,5"/>
+
+                <TextBlock x:Name="DeleteTableNameText"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           FontSize="13"
+                           FontWeight="SemiBold"
+                           TextWrapping="Wrap"
+                           Margin="0,0,0,10"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" Style="{StaticResource CancelButtonStyle}" Click="CloseSubMenuButton_Click">
+                        <TextBlock Text="Odustani"/>
+                    </Button>
+
+                    <Button Grid.Column="2" Style="{StaticResource DestructiveButtonStyle}" Click="ConfirmDeleteButton_Click">
+                        <TextBlock Text="Obriši"/>
+                    </Button>
+                </Grid>
+            </StackPanel>
+
+            <Button Style="{StaticResource CancelButtonStyle}" BorderThickness="1" Click="FinishButton_Click" Margin="10">
+                <TextBlock Text="Odustani" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            </Button>
+        </StackPanel>
+    </Border>
+</UserControl>

@@ -67,6 +67,10 @@ namespace Caupo
 
         protected override async void OnStartup(StartupEventArgs e)
         {
+
+            VirtualKeyboardManager.Initialize();
+
+
             // =================================================
             // 1. TEMA PRIJE OTVARANJA WINDOWA
             // =================================================
