@@ -1,7 +1,10 @@
 ﻿using Caupo.Data;
 using Caupo.Fiscal.Common;
+using Caupo.Fiscal.RS.Models;
 using Caupo.Helpers;
+using Caupo.Models;
 using Caupo.ViewModels;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,14 +18,17 @@ namespace Caupo.Views
     public partial class OrderPage : UserControl
     {
         private readonly OrderViewModel orderViewModel;
-        private readonly OrdersViewModel ordersViewModel;
+        
 
-        public OrderPage(OrdersViewModel _ordersViewModel)
+        private readonly bool hasNewItems;
+
+        public OrderPage(int? idStola, string? imeStola, string? sala, ObservableCollection<RacunStavka> stavkeRacuna, bool hasNewItems)
         {
             InitializeComponent();
 
-            ordersViewModel = _ordersViewModel;
-            orderViewModel = new OrderViewModel(ordersViewModel);
+            this.hasNewItems = hasNewItems;
+
+            orderViewModel = new OrderViewModel(idStola, imeStola, sala, stavkeRacuna);
             DataContext = orderViewModel;
 
             lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
@@ -36,13 +42,35 @@ namespace Caupo.Views
 
             try
             {
-                await orderViewModel.InitializeAsync();
+                Exception? printException = await orderViewModel.InitializeAsync();
+
+                if (printException != null)
+                {
+                    ShowMessage(
+                        "UPOZORENJE",
+                        $"Narudžba je spremljena, ali blok nije u potpunosti obrađen:{Environment.NewLine}{printException.Message}");
+                }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine("[ORDER] Greška pri inicijalizaciji: " + ex);
-                //ShowMessage("GREŠKA", $"Nije moguće učitati narudžbu:{Environment.NewLine}{ex.Message}");
+
+                ShowMessage(
+                    "GREŠKA",
+                    $"Nije moguće spremiti ili učitati narudžbu:{Environment.NewLine}{ex.Message}");
             }
+        }
+
+        private void ShowMessage(string title, string message)
+        {
+            var myMessageBox = new MyMessageBox
+            {
+                WindowStartupLocation = WindowStartupLocation.CenterScreen
+            };
+
+            myMessageBox.MessageTitle.Text = title;
+            myMessageBox.MessageText.Text = message;
+            myMessageBox.ShowDialog();
         }
 
         // ============================================================
@@ -67,13 +95,13 @@ namespace Caupo.Views
 
             if (!decimal.TryParse(txtKolicina.Text, out decimal kolicina))
             {
-                MessageBox.Show("Molimo unesite validnu količinu.");
+                ShowMessage("GREŠKA", "Molimo unesite validnu količinu.");
                 return;
             }
 
             if (kolicina <= 0)
             {
-                MessageBox.Show("Količina mora biti veća od 0.");
+                ShowMessage("GREŠKA", "Količina mora biti veća od 0.");
                 return;
             }
 
@@ -86,8 +114,9 @@ namespace Caupo.Views
 
         private void CloseButton_Click(object? sender, RoutedEventArgs? e)
         {
-            if (Globals.forma == "Kasa")
+            if (hasNewItems)
             {
+               
                 var page = new KasaPage
                 {
                     DataContext = new KasaViewModel()
@@ -97,11 +126,7 @@ namespace Caupo.Views
             }
             else
             {
-                var page = new OrdersPage(null)
-                {
-                    DataContext = new OrdersViewModel(null)
-                };
-
+                var page = new OrdersPage();
                 PageNavigator.NavigateWithFade(page);
             }
         }
@@ -141,12 +166,7 @@ namespace Caupo.Views
 
                 if (!result.Success && !result.Fiscalized)
                 {
-                    MessageBox.Show(
-                        result.ErrorMessage ?? "Račun nije izdat.",
-                        "Greška",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
-
+                    ShowMessage("GREŠKA", "Račun nije uspješno fiskalizovan.");
                     return;
                 }
 
@@ -184,11 +204,7 @@ namespace Caupo.Views
 
                 if (!string.IsNullOrWhiteSpace(warning))
                 {
-                    MessageBox.Show(
-                        warning,
-                        "Upozorenje",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
+                    ShowMessage("UPOZORENJE", warning);
                 }
 
                 // ----------------------------------------------------
@@ -210,12 +226,7 @@ namespace Caupo.Views
             catch (Exception ex)
             {
                 Debug.WriteLine("[ORDER] BtnRacun_Click greška: " + ex);
-
-                MessageBox.Show(
-                    "Došlo je do greške: " + ex.Message,
-                    "Greška",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                ShowMessage("GREŠKA", "Došlo je do greške: " + ex.Message);
             }
             finally
             {
@@ -240,13 +251,13 @@ namespace Caupo.Views
 
             if (!decimal.TryParse(txtKolicina.Text, out decimal kolicina))
             {
-                MessageBox.Show("Molimo unesite validnu količinu.");
+                ShowMessage("GREŠKA", "Molimo unesite validnu količinu.");
                 return;
             }
 
             if (kolicina <= 0)
             {
-                MessageBox.Show("Količina mora biti veća od 0.");
+                ShowMessage("GREŠKA", "Količina mora biti veća od 0.");
                 return;
             }
 

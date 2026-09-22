@@ -63,14 +63,11 @@ namespace Caupo.Views
 
         private void StoloviButton_Click(object sender, RoutedEventArgs e)
         {
-            if(sender is Button button)
+            if (sender is Button button)
             {
-                Globals.forma = "Home";
-                FadeInOut (button);
-                var page = new OrdersPage (null);
-                //page.DataContext = new OrdersViewModel (null);
-                PageNavigator.NavigateWithFade (page);
-
+                FadeInOut(button);
+                var page = new OrdersPage();
+                PageNavigator.NavigateWithFade(page);
             }
         }
 

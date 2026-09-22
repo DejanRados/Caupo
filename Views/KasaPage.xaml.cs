@@ -692,10 +692,7 @@ namespace Caupo.Views
         {
             if (DataContext is KasaViewModel viewModel)
             {
-                Globals.forma = "Kasa";
-
-                var page = new OrdersPage(viewModel);
-
+                var page = new OrdersPage(viewModel.StavkeRacuna);
                 PageNavigator.NavigateWithFade(page);
             }
         }

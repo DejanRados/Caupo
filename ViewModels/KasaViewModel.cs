@@ -831,8 +831,8 @@ namespace Caupo.ViewModels
 
         private static async Task PrintajBlokoveAsync(IEnumerable<RacunStavka> stavke)
         {
-            var sankStavke = stavke.Where(s => s.Proizvod == 0 && s.Printed != "DA").ToList();
-            var kuhinjaStavke = stavke.Where(s => s.Proizvod == 1 && s.Printed != "DA").ToList();
+            var sankStavke = stavke.Where(s => s.Proizvod == 0).ToList();
+            var kuhinjaStavke = stavke.Where(s => s.Proizvod == 1).ToList();
 
             if (kuhinjaStavke.Any())
             {

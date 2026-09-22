@@ -3,6 +3,7 @@ using Caupo.Fiscal;
 using Caupo.Fiscal.Common;
 using Caupo.Models;
 using Caupo.Properties;
+using Caupo.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -197,21 +198,21 @@ namespace Caupo.ViewModels
             }
         }
 
-        private readonly OrdersViewModel? _ordersViewModel;
+      
 
         // ============================================================
         // CONSTRUCTOR
         // ============================================================
 
-        public OrderViewModel(OrdersViewModel? ordersViewModel)
+
+
+        public OrderViewModel(int? idStola, string? imeStola, string? sala, ObservableCollection<RacunStavka> stavkeRacuna)
         {
-            _ordersViewModel = ordersViewModel;
+            _idStola = idStola;
+            _imeStola = imeStola;
+            _sala = sala;
 
-            _idStola = _ordersViewModel?.IdStola;
-            _imeStola = _ordersViewModel?.ImeStola;
-            _sala = _ordersViewModel?.Sala;
-
-            StavkeRacuna = _ordersViewModel?.StavkeRacuna ?? new ObservableCollection<RacunStavka>();
+            StavkeRacuna = stavkeRacuna;
             NarudzbeStavke = new ObservableCollection<TblNarudzbeStavke>();
             GostRacunStavke = new ObservableCollection<TblNarudzbeStavke>();
             Kupci = new ObservableCollection<TblKupci>();
@@ -221,15 +222,18 @@ namespace Caupo.ViewModels
         // INITIALIZE
         // ============================================================
 
-        public async Task InitializeAsync()
+        public async Task<Exception?> InitializeAsync()
         {
             Debug.WriteLine($"[ORDER] Otvaranje stola: Id={IdStola}, Sala={Sala}, Naziv={ImeStola}");
 
-            await ProcessNewRoundAsync();
+            Exception? printException = await ProcessNewRoundAsync();
+
             await ReloadNarudzbeStavkeAsync();
             await LoadKupciAsync();
 
             UpdateTotalSum();
+
+            return printException;
         }
 
         // ============================================================
@@ -311,7 +315,7 @@ namespace Caupo.ViewModels
                     Proizvod = stavka.Proizvod,
                     JedinicaMjere = stavka.JedinicaMjere,
                     Naziv = stavka.Naziv,
-                    Printed = stavka.Printed,
+                    //Printed = stavka.Printed,
                     Konobar = Globals.ulogovaniKorisnik.IdRadnika.ToString(),
                     IdNarudzbe = stavka.IdNarudzbe,
                     Sala = stavka.Sala
@@ -367,7 +371,7 @@ namespace Caupo.ViewModels
                     Proizvod = stavka.Proizvod,
                     JedinicaMjere = stavka.JedinicaMjere,
                     Naziv = stavka.Naziv,
-                    Printed = stavka.Printed,
+                    //Printed = stavka.Printed,
                     Konobar = Globals.ulogovaniKorisnik.IdRadnika.ToString(),
                     IdNarudzbe = stavka.IdNarudzbe,
                     Sala = stavka.Sala
@@ -388,10 +392,10 @@ namespace Caupo.ViewModels
         // NOVA RUNDA
         // ============================================================
 
-        private async Task ProcessNewRoundAsync()
+        private async Task<Exception?> ProcessNewRoundAsync()
         {
             if (StavkeRacuna.Count == 0)
-                return;
+                return null;
 
             if (IdStola == null)
                 throw new InvalidOperationException("Nije definisan sto za novu rundu.");
@@ -401,11 +405,53 @@ namespace Caupo.ViewModels
 
             var noveStavke = StavkeRacuna.ToList();
 
-            await SaveNewRoundAsync(noveStavke);
+            try
+            {
+                await FiscalDatabaseRetry.ExecuteAsync(() => SaveNewRoundAsync(noveStavke));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[ORDER] DB upis nije uspio ni nakon 3 pokušaja: " + ex);
+
+                bool restored = await DatabaseBackupService.RestoreLatestBackupAsync(Globals.CurrentDbPath);
+
+                if (!restored)
+                {
+                    throw new InvalidOperationException(
+                        "Narudžbu nije moguće spremiti, a automatski restore backupa baze nije uspio.",
+                        ex);
+                }
+
+                try
+                {
+                    await SaveNewRoundAsync(noveStavke);
+
+                    Debug.WriteLine("[ORDER] Baza vraćena iz backupa i narudžba uspješno spremljena.");
+                }
+                catch (Exception retryEx)
+                {
+                    Debug.WriteLine("[ORDER] DB upis nije uspio ni nakon restorea: " + retryEx);
+
+                    throw new InvalidOperationException(
+                        "Baza je vraćena iz backupa, ali narudžbu i dalje nije moguće spremiti.",
+                        retryEx);
+                }
+            }
+
+            DatabaseBackupService.StartBackup(Globals.CurrentDbPath);
 
             StavkeRacuna.Clear();
 
-            await PrintNewRoundAsync(noveStavke);
+            try
+            {
+                await PrintNewRoundAsync(noveStavke);
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[ORDER] Narudžba je spremljena, ali je došlo do greške pri obradi bloka: " + ex);
+                return ex;
+            }
         }
 
         private async Task SaveNewRoundAsync(List<RacunStavka> stavke)
@@ -425,7 +471,7 @@ namespace Caupo.ViewModels
                     Proizvod = item.Proizvod,
                     JedinicaMjere = item.JedinicaMjere,
                     Naziv = item.Naziv,
-                    Printed = "DA",
+                    //Printed = "DA",
                     Konobar = Globals.ulogovaniKorisnik.IdRadnika.ToString(),
                     IdNarudzbe = IdStola,
                     Sala = Sala
@@ -441,8 +487,10 @@ namespace Caupo.ViewModels
 
         private async Task PrintNewRoundAsync(List<RacunStavka> stavke)
         {
-            var kuhinjaStavke = stavke.Where(item => item.Proizvod == 1 && item.Printed != "DA").ToList();
-            var sankStavke = stavke.Where(item => item.Proizvod == 0 && item.Printed != "DA").ToList();
+            var kuhinjaStavke = stavke.Where(item => item.Proizvod == 1).ToList();
+            var sankStavke = stavke.Where(item => item.Proizvod == 0).ToList();
+
+            var errors = new List<string>();
 
             if (kuhinjaStavke.Count > 0)
             {
@@ -454,6 +502,7 @@ namespace Caupo.ViewModels
                 catch (Exception ex)
                 {
                     Debug.WriteLine("[ORDER] Greška kuhinjskog bloka: " + ex);
+                    errors.Add($"Kuhinja: {ex.Message}");
                 }
             }
 
@@ -467,8 +516,12 @@ namespace Caupo.ViewModels
                 catch (Exception ex)
                 {
                     Debug.WriteLine("[ORDER] Greška bloka za šank: " + ex);
+                    errors.Add($"Šank: {ex.Message}");
                 }
             }
+
+            if (errors.Count > 0)
+                throw new InvalidOperationException(string.Join(Environment.NewLine, errors));
         }
 
         // ============================================================
@@ -506,7 +559,7 @@ namespace Caupo.ViewModels
                     Proizvod = g.Key.Proizvod,
                     JedinicaMjere = g.Key.JedinicaMjere,
                     Naziv = g.Key.Naziv,
-                    Printed = g.First().Printed,
+                    //Printed = g.First().Printed,
                     Konobar = g.First().Konobar,
                     IdNarudzbe = g.First().IdNarudzbe,
                     Sala = g.First().Sala
@@ -538,7 +591,7 @@ namespace Caupo.ViewModels
                     PoreskaStopa = int.TryParse(item.Label, out int poreskaStopa) ? poreskaStopa : null,
                     UnitPrice = item.UnitPrice,
                     Proizvod = item.Proizvod,
-                    Printed = item.Printed,
+                    //Printed = item.Printed,
                     JedinicaMjere = item.JedinicaMjere,
                     Quantity = item.Quantity
                 };
@@ -566,7 +619,7 @@ namespace Caupo.ViewModels
                     PoreskaStopa = int.TryParse(item.Label, out int poreskaStopa) ? poreskaStopa : null,
                     UnitPrice = item.UnitPrice,
                     Proizvod = item.Proizvod,
-                    Printed = item.Printed,
+                    //Printed = item.Printed,
                     JedinicaMjere = item.JedinicaMjere,
                     Quantity = item.Quantity
                 };

@@ -1,8 +1,9 @@
 ﻿using Caupo.Data;
 using Caupo.Helpers;
+using Caupo.Models;
 using Caupo.UserControls;
 using Caupo.ViewModels;
-//using Newtonsoft.Json;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
@@ -29,7 +30,7 @@ namespace Caupo.Views
         private bool _hasUnsavedChanges;
         private bool _isCreatingRoom;
         private readonly OrdersViewModel ordersViewModel;
-        private readonly KasaViewModel? kasaViewModel;
+        
 
         private Popup? tableFloatingPopup;
         private TableFloatingMenuBar? tableFloatingMenu;
@@ -39,15 +40,13 @@ namespace Caupo.Views
         private RoomFloatingMenuBar? roomFloatingMenu;
         private TabItem? floatingMenuRoom;
 
-        public OrdersPage(KasaViewModel? _kasaViewModel = null)
+        public OrdersPage(ObservableCollection<RacunStavka>? stavkeRacuna = null)
         {
-            kasaViewModel = _kasaViewModel;
-            ordersViewModel = new OrdersViewModel(kasaViewModel);
-            this.DataContext = ordersViewModel;
+            ordersViewModel = new OrdersViewModel(stavkeRacuna);
+            DataContext = ordersViewModel;
 
             InitializeComponent();
             lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
-            //LoadButtons();
         }
 
         private bool _isLayoutEditMode;
@@ -397,7 +396,10 @@ namespace Caupo.Views
             viewModel.Sala = tab.Name;
             viewModel.ImeStola = button.TableName;
 
-            var page = new OrderPage(viewModel);
+            bool hasNewItems = viewModel.StavkeRacuna.Count > 0;
+
+            var page = new OrderPage(viewModel.IdStola, viewModel.ImeStola, viewModel.Sala, viewModel.StavkeRacuna, hasNewItems);
+
             PageNavigator.NavigateWithFade(page);
         }
 

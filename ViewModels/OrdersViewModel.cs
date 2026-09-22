@@ -12,7 +12,7 @@ namespace Caupo.ViewModels
 {
     public class OrdersViewModel : INotifyPropertyChanged
     {
-        private readonly KasaViewModel _kasaViewModel;
+       
         private ObservableCollection<RacunStavka> _stavkeRacuna = [];
         private ObservableCollection<TblNarudzbe> _narudzbe = [];
         private ObservableCollection<TblNarudzbeStavke> _narudzbeStavke = [];
@@ -135,14 +135,11 @@ namespace Caupo.ViewModels
             public decimal Total { get; init; }
         }
 
-        
 
-        public OrdersViewModel(KasaViewModel? kasaViewModel = null)
+
+        public OrdersViewModel(ObservableCollection<RacunStavka>? stavkeRacuna = null)
         {
-            _kasaViewModel = kasaViewModel;
-            StavkeRacuna = kasaViewModel != null
-                ? new ObservableCollection<RacunStavka>(kasaViewModel.StavkeRacuna)
-                : new ObservableCollection<RacunStavka>();
+            StavkeRacuna = stavkeRacuna ?? new ObservableCollection<RacunStavka>();
 
             SetImages();
         }

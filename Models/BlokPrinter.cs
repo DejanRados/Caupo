@@ -65,6 +65,7 @@ namespace Caupo.Models
         private async Task<int> InsertKuhinjaAsync()
         {
             await using var db = new AppDbContext();
+            await using var transaction = await db.Database.BeginTransactionAsync();
 
             var novaKuhinja = new TblKuhinja
             {
@@ -94,13 +95,17 @@ namespace Caupo.Models
             }
 
             await db.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             return novaKuhinja.IdKuhinje;
         }
 
-        private async Task InsertSankAsync(int brojBloka)
+        private async Task<int> GetNextSankBlockNumberAsync()
         {
             await using var db = new AppDbContext();
+            await using var transaction = await db.Database.BeginTransactionAsync();
+
+            int brojBloka = (await db.BrojBloka.MaxAsync(x => (int?)x.BrojBloka) ?? 0) + 1;
 
             db.BrojBloka.Add(new TblBrojBlokaSank
             {
@@ -108,15 +113,9 @@ namespace Caupo.Models
             });
 
             await db.SaveChangesAsync();
-        }
+            await transaction.CommitAsync();
 
-        private async Task<int> GetLastSankBlockNumberAsync()
-        {
-            await using var db = new AppDbContext();
-
-            return await db.BrojBloka
-                .AsNoTracking()
-                .MaxAsync(x => (int?)x.BrojBloka) ?? 0;
+            return brojBloka;
         }
 
         public async Task Print()
@@ -147,14 +146,12 @@ namespace Caupo.Models
 
                 if (!PrinterExists(printer))
                 {
-                    Debug.WriteLine($"[BLOK] Printer '{printer}' nije pronađen među instaliranim printerima.");
-                    return;
+                    throw new InvalidOperationException($"Printer '{printer}' nije pronađen među instaliranim printerima.");
                 }
 
                 if (_vrstaBloka == Sank)
                 {
-                    _brojBloka = await GetLastSankBlockNumberAsync() + 1;
-                    await InsertSankAsync(_brojBloka);
+                    _brojBloka = await GetNextSankBlockNumberAsync();
                 }
 
                 int brojKopija = GetBrojKopijaBloka();
