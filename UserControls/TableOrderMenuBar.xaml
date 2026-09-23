@@ -1,0 +1,239 @@
+﻿<UserControl x:Class="Caupo.UserControls.TableOrderMenuBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignWidth="280"
+             d:DesignHeight="500"
+             Width="280"
+             HorizontalAlignment="Left"
+             VerticalAlignment="Top">
+
+    <UserControl.Resources>
+        <Style x:Key="TableFloatingMenuButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Padding" Value="14,0,10,0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Opacity="0.85">
+                            <ContentPresenter Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="1"/>
+                            </Trigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.65"/>
+                            </Trigger>
+
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.35"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Border Background="{DynamicResource GlobalBackgroundColor}"
+            BorderBrush="{DynamicResource GlobalFontColor}"
+            BorderThickness="1"
+            CornerRadius="8">
+
+        <StackPanel>
+
+            <!-- HEADER -->
+
+            <Border x:Name="TitleBar"
+                    Height="64"
+                    Background="{DynamicResource GlobalBackgroundColor}"
+                    BorderBrush="{DynamicResource GlobalFontColor}"
+                    BorderThickness="0,0,0,1"
+                    CornerRadius="7,7,0,0">
+
+                <Grid>
+                    <Border Background="{DynamicResource GlobalFontColor}"
+                            CornerRadius="7,7,0,0"
+                            Opacity="0.10"/>
+
+                    <Grid Margin="14,7,12,7">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Narudžba"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="15"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock x:Name="TableNameText"
+                                   Grid.Row="1"
+                                   Text="Sto"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   FontSize="11"
+                                   Opacity="0.70"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"/>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!-- PREBACI NA DRUGI STO -->
+
+            <Button Style="{StaticResource TableFloatingMenuButtonStyle}"
+                    Click="MoveTableButton_Click">
+
+                <Grid>
+                    <TextBlock Text="Prebaci na drugi sto"
+                               VerticalAlignment="Center"/>
+
+                    <TextBlock HorizontalAlignment="Right"
+                               VerticalAlignment="Center"
+                               Text="›"
+                               FontSize="20">
+                        <TextBlock.RenderTransform>
+                            <RotateTransform x:Name="MoveTableArrowTransform" Angle="0"/>
+                        </TextBlock.RenderTransform>
+                    </TextBlock>
+                </Grid>
+            </Button>
+
+            <StackPanel x:Name="MoveTablePanel"
+                        Visibility="Collapsed"
+                        Margin="12,8,12,12">
+
+                <TextBlock Text="Prebacivanje narudžbe na drugi sto."
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           FontSize="13"
+                           TextWrapping="Wrap"
+                           Margin="0,0,0,10"/>
+
+                <Button Style="{StaticResource CancelButtonStyle}"
+                        Click="CloseSubMenuButton_Click">
+                    <TextBlock Text="Odustani"/>
+                </Button>
+            </StackPanel>
+
+            <!-- SPOJI STOLOVE -->
+
+            <Button Style="{StaticResource TableFloatingMenuButtonStyle}"
+                    Click="MergeTablesButton_Click">
+
+                <Grid>
+                    <TextBlock Text="Spoji stolove"
+                               VerticalAlignment="Center"/>
+
+                    <TextBlock HorizontalAlignment="Right"
+                               VerticalAlignment="Center"
+                               Text="›"
+                               FontSize="20">
+                        <TextBlock.RenderTransform>
+                            <RotateTransform x:Name="MergeTablesArrowTransform" Angle="0"/>
+                        </TextBlock.RenderTransform>
+                    </TextBlock>
+                </Grid>
+            </Button>
+
+            <StackPanel x:Name="MergeTablesPanel"
+                        Visibility="Collapsed"
+                        Margin="12,8,12,12">
+
+                <TextBlock Text="Spajanje narudžbe sa drugim stolom."
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           FontSize="13"
+                           TextWrapping="Wrap"
+                           Margin="0,0,0,10"/>
+
+                <Button Style="{StaticResource CancelButtonStyle}"
+                        Click="CloseSubMenuButton_Click">
+                    <TextBlock Text="Odustani"/>
+                </Button>
+            </StackPanel>
+
+            <!-- PREBACI KONOBARU -->
+
+            <Button Style="{StaticResource TableFloatingMenuButtonStyle}"
+                    Click="ChangeWaiterButton_Click">
+
+                <Grid>
+                    <TextBlock Text="Prebaci konobaru"
+                               VerticalAlignment="Center"/>
+
+                    <TextBlock HorizontalAlignment="Right"
+                               VerticalAlignment="Center"
+                               Text="›"
+                               FontSize="20">
+                        <TextBlock.RenderTransform>
+                            <RotateTransform x:Name="ChangeWaiterArrowTransform" Angle="0"/>
+                        </TextBlock.RenderTransform>
+                    </TextBlock>
+                </Grid>
+            </Button>
+
+            <StackPanel x:Name="ChangeWaiterPanel"
+                        Visibility="Collapsed"
+                        Margin="12,8,12,12">
+
+                <TextBlock Text="Odaberite konobara:"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           FontSize="13"
+                           TextWrapping="Wrap"
+                           Margin="0,0,0,8"/>
+
+                <ItemsControl x:Name="WaitersItemsControl">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource TableFloatingMenuButtonStyle}"
+                                    Click="WaiterButton_Click">
+                                <TextBlock Text="{Binding Radnik}"
+                                           VerticalAlignment="Center"/>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Button Style="{StaticResource CancelButtonStyle}"
+                        Click="CloseSubMenuButton_Click"
+                        Margin="0,8,0,0">
+                    <TextBlock Text="Odustani"/>
+                </Button>
+            </StackPanel>
+
+            <!-- ZATVARANJE -->
+
+            <Button Style="{StaticResource CancelButtonStyle}"
+                    BorderThickness="1"
+                    Click="FinishButton_Click"
+                    Margin="10">
+
+                <TextBlock Text="Odustani"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
+            </Button>
+
+        </StackPanel>
+    </Border>
+</UserControl>

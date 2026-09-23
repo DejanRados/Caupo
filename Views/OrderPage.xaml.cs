@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace Caupo.Views
 {
@@ -82,26 +83,43 @@ namespace Caupo.Views
             if (sender is not DataGrid listView)
                 return;
 
-            if (listView.SelectedItem is not DatabaseTables.TblNarudzbeStavke clickedItem)
+            var source = e.OriginalSource as DependencyObject;
+
+            while (source != null && source is not DataGridRow)
+                source = VisualTreeHelper.GetParent(source);
+
+            if (source is not DataGridRow row)
+                return;
+
+            if (row.Item is not DatabaseTables.TblNarudzbeStavke clickedItem)
                 return;
 
             if (DataContext is not OrderViewModel viewModel)
                 return;
+
+            listView.SelectedItem = clickedItem;
 
             BorderRacunStavke.Visibility = Visibility.Visible;
             ViewKolicina.Visibility = Visibility.Visible;
             lblIznosGostRacun.Visibility = Visibility.Visible;
             ListGostRacunStavke.Visibility = Visibility.Visible;
 
+            if (string.IsNullOrWhiteSpace(txtKolicina.Text))
+                txtKolicina.Text = "1";
+
             if (!decimal.TryParse(txtKolicina.Text, out decimal kolicina))
             {
                 ShowMessage("GREŠKA", "Molimo unesite validnu količinu.");
+                txtKolicina.Focus();
+                txtKolicina.SelectAll();
                 return;
             }
 
             if (kolicina <= 0)
             {
                 ShowMessage("GREŠKA", "Količina mora biti veća od 0.");
+                txtKolicina.Focus();
+                txtKolicina.SelectAll();
                 return;
             }
 
@@ -243,21 +261,38 @@ namespace Caupo.Views
             if (sender is not DataGrid listView)
                 return;
 
-            if (listView.SelectedItem is not DatabaseTables.TblNarudzbeStavke clickedItem)
+            var source = e.OriginalSource as DependencyObject;
+
+            while (source != null && source is not DataGridRow)
+                source = VisualTreeHelper.GetParent(source);
+
+            if (source is not DataGridRow row)
+                return;
+
+            if (row.Item is not DatabaseTables.TblNarudzbeStavke clickedItem)
                 return;
 
             if (DataContext is not OrderViewModel viewModel)
                 return;
 
+            listView.SelectedItem = clickedItem;
+
+            if (string.IsNullOrWhiteSpace(txtKolicina.Text))
+                txtKolicina.Text = "1";
+
             if (!decimal.TryParse(txtKolicina.Text, out decimal kolicina))
             {
                 ShowMessage("GREŠKA", "Molimo unesite validnu količinu.");
+                txtKolicina.Focus();
+                txtKolicina.SelectAll();
                 return;
             }
 
             if (kolicina <= 0)
             {
                 ShowMessage("GREŠKA", "Količina mora biti veća od 0.");
+                txtKolicina.Focus();
+                txtKolicina.SelectAll();
                 return;
             }
 
@@ -275,10 +310,6 @@ namespace Caupo.Views
         {
             BorderRacunStavke.Visibility = Visibility.Collapsed;
             ViewKolicina.Visibility = Visibility.Collapsed;
-            lblKolicina.Visibility = Visibility.Collapsed;
-            txtKolicina.Visibility = Visibility.Collapsed;
-            lblIznosGostRacun.Visibility = Visibility.Collapsed;
-            ListGostRacunStavke.Visibility = Visibility.Collapsed;
         }
 
         // ============================================================

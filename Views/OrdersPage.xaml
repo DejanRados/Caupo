@@ -86,6 +86,176 @@
                          Foreground="{DynamicResource GlobalFontColor}"/>
             </TabControl>
 
+            <!-- STATUSNA TRAKA ZA PREBACIVANJE STOLA -->
+            <Grid x:Name="MoveTableStatusBar"
+      Grid.Column="0"
+      Height="50"
+      VerticalAlignment="Bottom"
+      Margin="20,0,20,20"
+      Panel.ZIndex="100"
+      Background="#CC323232"
+      Visibility="Collapsed">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- LIJEVI / SREDIŠNJI DIO -->
+                <StackPanel Grid.Column="0"
+                Orientation="Horizontal"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                IsHitTestVisible="False">
+
+                    <!-- ANIMIRANI INDIKATOR -->
+                    <StackPanel Orientation="Horizontal"
+                    Margin="0,0,18,0"
+                    VerticalAlignment="Center">
+
+                        <StackPanel.Resources>
+
+                            <Storyboard x:Key="PulseDot1"
+                            RepeatBehavior="Forever">
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                     From="0.20"
+                                     To="1"
+                                     Duration="0:0:0.45"
+                                     AutoReverse="True"/>
+                            </Storyboard>
+
+                            <Storyboard x:Key="PulseDot2"
+                            RepeatBehavior="Forever"
+                            BeginTime="0:0:0.12">
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                     From="0.20"
+                                     To="1"
+                                     Duration="0:0:0.45"
+                                     AutoReverse="True"/>
+                            </Storyboard>
+
+                            <Storyboard x:Key="PulseDot3"
+                            RepeatBehavior="Forever"
+                            BeginTime="0:0:0.24">
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                     From="0.20"
+                                     To="1"
+                                     Duration="0:0:0.45"
+                                     AutoReverse="True"/>
+                            </Storyboard>
+
+                            <Storyboard x:Key="PulseDot4"
+                            RepeatBehavior="Forever"
+                            BeginTime="0:0:0.36">
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                     From="0.20"
+                                     To="1"
+                                     Duration="0:0:0.45"
+                                     AutoReverse="True"/>
+                            </Storyboard>
+
+                            <Storyboard x:Key="PulseDot5"
+                            RepeatBehavior="Forever"
+                            BeginTime="0:0:0.48">
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                     From="0.20"
+                                     To="1"
+                                     Duration="0:0:0.45"
+                                     AutoReverse="True"/>
+                            </Storyboard>
+
+                        </StackPanel.Resources>
+
+                        <!-- 1 -->
+                        <Ellipse Width="7"
+                     Height="7"
+                     Margin="2"
+                     Fill="#FAFAFA"
+                     Opacity="0.20">
+                            <Ellipse.Triggers>
+                                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                    <BeginStoryboard Storyboard="{StaticResource PulseDot1}"/>
+                                </EventTrigger>
+                            </Ellipse.Triggers>
+                        </Ellipse>
+
+                        <!-- 2 -->
+                        <Ellipse Width="7"
+                     Height="7"
+                     Margin="2"
+                     Fill="#FAFAFA"
+                     Opacity="0.20">
+                            <Ellipse.Triggers>
+                                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                    <BeginStoryboard Storyboard="{StaticResource PulseDot2}"/>
+                                </EventTrigger>
+                            </Ellipse.Triggers>
+                        </Ellipse>
+
+                        <!-- 3 -->
+                        <Ellipse Width="7"
+                     Height="7"
+                     Margin="2"
+                     Fill="#FAFAFA"
+                     Opacity="0.20">
+                            <Ellipse.Triggers>
+                                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                    <BeginStoryboard Storyboard="{StaticResource PulseDot3}"/>
+                                </EventTrigger>
+                            </Ellipse.Triggers>
+                        </Ellipse>
+
+                        <!-- 4 -->
+                        <Ellipse Width="7"
+                     Height="7"
+                     Margin="2"
+                     Fill="#FAFAFA"
+                     Opacity="0.20">
+                            <Ellipse.Triggers>
+                                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                    <BeginStoryboard Storyboard="{StaticResource PulseDot4}"/>
+                                </EventTrigger>
+                            </Ellipse.Triggers>
+                        </Ellipse>
+
+                        <!-- 5 -->
+                        <Ellipse Width="7"
+                     Height="7"
+                     Margin="2"
+                     Fill="#FAFAFA"
+                     Opacity="0.20">
+                            <Ellipse.Triggers>
+                                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                    <BeginStoryboard Storyboard="{StaticResource PulseDot5}"/>
+                                </EventTrigger>
+                            </Ellipse.Triggers>
+                        </Ellipse>
+
+                    </StackPanel>
+
+                    <!-- STATUS -->
+                    <TextBlock x:Name="MoveTableStatusText"
+                   Text="PREBACUJETE STO12 — odaberite novi sto"
+                   FontSize="18"
+                   FontWeight="SemiBold"
+                   Foreground="#FAFAFA"
+                   VerticalAlignment="Center"/>
+
+                </StackPanel>
+
+                <!-- ODUSTANI -->
+                <Button Grid.Column="1"
+            Content="ODUSTANI"
+            Style="{StaticResource PrimaryButtonStyle}"
+            Width="120"
+            Height="38"
+            Margin="10,6,10,6"
+            Padding="5"
+            Click="CancelMoveTableButton_Click"/>
+
+            </Grid>
+
+
             <!-- DESNI TOOLBAR -->
             <StackPanel Grid.Column="1"
             Background="#323232"
@@ -196,5 +366,13 @@
                 </StackPanel>
             </StackPanel>
         </Grid>
+
+        <!-- MODALNI OVERLAY ZA OPERATIVNI FLOATING MENI -->
+        <Grid x:Name="OrderMenuOverlay"
+              Grid.RowSpan="2"
+              Panel.ZIndex="999"
+              Background="#01000000"
+              Visibility="Collapsed"
+              IsHitTestVisible="True"/>
     </Grid>
 </UserControl>

@@ -5,385 +5,742 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d">
 
-    <Grid VerticalAlignment="Top" MinWidth="1300">
+    <UserControl.Resources>
+
+        <Style x:Key="OrderSectionCaptionStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Opacity" Value="0.65"/>
+            <Setter Property="Margin" Value="2,0,0,5"/>
+            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+        </Style>
+
+        <Style x:Key="OrderCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource GlobalBackgroundColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="BorderThickness" Value="0.5"/>
+            <Setter Property="CornerRadius" Value="12"/>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource GlobalBackgroundColor}"
+          MinWidth="1300">
+
         <Grid.RowDefinitions>
-            <RowDefinition Height="56"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="55"/>
+            <RowDefinition Height="94"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="100"/>
         </Grid.RowDefinitions>
 
-        <!-- ====================================================== -->
-        <!-- INDIKATOR OBRADE RAČUNA -->
-        <!-- ====================================================== -->
-
-        <Border x:Name="RacunIdikator"
-                Grid.RowSpan="4"
-                Panel.ZIndex="999"
-                Background="#66323232"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch"
-                CornerRadius="25"
-                Visibility="Collapsed"/>
-
-        <!-- ====================================================== -->
+        <!-- ===================================================== -->
         <!-- HEADER -->
-        <!-- ====================================================== -->
+        <!-- ===================================================== -->
 
-        <Grid Grid.Row="0" Height="55" VerticalAlignment="Center" Background="#323232">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="0.2*"/>
-            </Grid.ColumnDefinitions>
+        <Border Grid.Row="0"
+                Background="#323232"
+                Panel.ZIndex="20">
 
-            <Image Grid.Column="0"
-                   Source="pack://application:,,,/Images/dsoftlogosmall.png"
-                   Width="50"
-                   Height="50"
-                   HorizontalAlignment="Left"
-                   Margin="20,0,0,0"/>
+            <Grid>
 
-            <Label x:Name="lblApp"
-                   Grid.Column="0"
-                   Content="Caupo - Narudžba"
-                   Foreground="#DEDEDE"
-                   FontSize="25"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"/>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="70"/>
+                </Grid.ColumnDefinitions>
 
-            <Label x:Name="lblSto"
-                   Grid.Column="0"
-                   Content="{Binding ImeStola}"
-                   Foreground="#DEDEDE"
-                   FontSize="25"
-                   HorizontalAlignment="Right"
-                   VerticalAlignment="Center"/>
+                <Image Grid.Column="0"
+                       Source="pack://application:,,,/Images/dsoftlogosmall.png"
+                       Width="44"
+                       Height="44"
+                       Margin="15,5,10,5"
+                       VerticalAlignment="Center"/>
 
-            <Label x:Name="lblUlogovaniKorisnik"
-                   Grid.Column="1"
-                   Content="Ime i prezime"
-                   Foreground="#DEDEDE"
-                   FontSize="15"
-                   HorizontalAlignment="Right"
-                   VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
 
-            <Button x:Name="CloseButton"
-                    Grid.Column="2"
-                    Style="{StaticResource CloseButtonStyle}"
-                    VerticalAlignment="Top"
-                    HorizontalAlignment="Right"
-                    Padding="0"
-                    Margin="1"
-                    Click="CloseButton_Click"/>
-        </Grid>
+                    <TextBlock Text="Caupo  •  Narudžba"
+                               FontSize="22"
+                               FontWeight="SemiBold"
+                               Foreground="#FAFAFA"
+                               VerticalAlignment="Center"/>
 
-        <!-- ====================================================== -->
-        <!-- KONTROLE -->
-        <!-- ====================================================== -->
+                    <TextBlock Text="  •  "
+                               FontSize="18"
+                               Foreground="#777777"
+                               VerticalAlignment="Center"/>
 
-        <Grid Grid.Row="1" HorizontalAlignment="Stretch">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.5*"/>
-                <ColumnDefinition Width="0.5*"/>
-            </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="lblSto"
+                               Text="{Binding ImeStola}"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               Foreground="#FAFAFA"
+                               VerticalAlignment="Center"/>
 
-            <!-- Količina za podjelu računa -->
+                </StackPanel>
 
-            <Viewbox x:Name="ViewKolicina"
-                     Grid.Column="0"
-                     MaxHeight="100"
-                     VerticalAlignment="Stretch"
-                     HorizontalAlignment="Right"
-                     Visibility="Collapsed">
+                <StackPanel Grid.Column="2"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            Margin="10,0,15,0">
 
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+                    <TextBlock FontFamily="Segoe MDL2 Assets"
+                               Text="&#xE77B;"
+                               FontSize="18"
+                               Foreground="#BBBBBB"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0"/>
 
-                    <Label x:Name="lblKolicina"
-                           Grid.Row="0"
-                           Content="Količina"
-                           Width="100"
-                           Foreground="{DynamicResource GlobalFontColor}"
-                           HorizontalContentAlignment="Center"/>
+                    <Label x:Name="lblUlogovaniKorisnik"
+                           Content="Ime i prezime"
+                           FontSize="15"
+                           Foreground="#FAFAFA"
+                           Padding="0"
+                           VerticalAlignment="Center"/>
 
-                    <TextBox x:Name="txtKolicina"
-                         Grid.Row="1"
-                         Text="1"
-                         Width="100"
-                         Style="{StaticResource TextBoxCustom}"
-                         FontSize="20"
-                         HorizontalContentAlignment="Center"
-                         VerticalContentAlignment="Center"/>
-                </Grid>
-            </Viewbox>
+                </StackPanel>
 
-            <!-- Plaćanje / kupac -->
+                <Button x:Name="CloseButton"
+                        Grid.Column="3"
+                        Style="{StaticResource CloseButtonStyle}"
+                        Width="50"
+                        Height="45"
+                        Padding="0"
+                        Margin="5"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Click="CloseButton_Click"/>
 
-    
+            </Grid>
 
-                <Grid Grid.Column="1">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+        </Border>
+
+        <!-- ===================================================== -->
+        <!-- TOP TOOLBAR -->
+        <!-- ===================================================== -->
+
+        <Border Grid.Row="1"
+                Margin="10,8,10,4"
+                Padding="7"
+                Style="{StaticResource OrderCardStyle}">
+
+            <Grid>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="115"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="210"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="200"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- PODJELA RAČUNA -->
+
+                <StackPanel Grid.Column="0"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            Margin="8,0">
+
+                    <TextBlock FontFamily="Segoe MDL2 Assets"
+                               Text="&#xE8A1;"
+                               FontSize="24"
+                               Margin="0,0,10,0"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               VerticalAlignment="Center"/>
+
+                    <StackPanel VerticalAlignment="Center">
+
+                        <TextBlock Text="Podjela računa"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource GlobalFontColor}"/>
+
+                        <TextBlock Text="Dodirni stavku za prebacivanje"
+                                   FontSize="11"
+                                   Opacity="0.55"
+                                   Foreground="{DynamicResource GlobalFontColor}"/>
+
+                    </StackPanel>
+
+                </StackPanel>
+
+                <!-- KOLIČINA -->
+
+                <StackPanel x:Name="ViewKolicina"
+                            Grid.Column="1"
+                            Margin="4,0"
+                            Visibility="Collapsed">
+
+                    <TextBlock x:Name="lblKolicina"
+                               Text="KOLIČINA"
+                               Style="{StaticResource OrderSectionCaptionStyle}"
+                               HorizontalAlignment="Center"/>
+
+                    <Border Height="45"
+                            VerticalAlignment="Top"
+                            BorderBrush="{DynamicResource GlobalFontColor}"
+                            BorderThickness="0,0,0,1">
+
+                        <TextBox x:Name="txtKolicina"
+                                 Text="1"
+                                 Height="44"
+                                 Style="{StaticResource TextBoxCustom}"
+                                 FontSize="24"
+                                 FontWeight="SemiBold"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Foreground="{DynamicResource GlobalFontColor}"
+                                 HorizontalContentAlignment="Center"
+                                 VerticalContentAlignment="Center"/>
+
+                    </Border>
+
+                </StackPanel>
+
+                <!-- PLAĆANJE -->
+
+                <StackPanel Grid.Column="3"
+                            Margin="4,0">
+
+                    <TextBlock Text="PLAĆANJE"
+                               Style="{StaticResource OrderSectionCaptionStyle}"/>
 
                     <ComboBox x:Name="cmbNacinPlacanja"
-                              Grid.Row="0"
                               SelectedIndex="0"
-                              Width="120"
-                              Height="30"
-                              Margin="1"
-                              HorizontalAlignment="Left"
-                              Foreground="{DynamicResource GlobalFontColor}">
+                              Height="45"
+                              FontSize="14"
+                              Foreground="{DynamicResource GlobalFontColor}"
+                              VerticalContentAlignment="Center">
+
                         <ComboBoxItem Content="Gotovina"/>
                         <ComboBoxItem Content="Kartica"/>
                         <ComboBoxItem Content="Ček"/>
                         <ComboBoxItem Content="Virman"/>
+
                     </ComboBox>
 
-                    <ComboBox x:Name="cmbKupac"
-                              Grid.Row="1"
-                              ItemsSource="{Binding Kupci}"
-                              SelectedItem="{Binding SelectedKupac}"
-                              DisplayMemberPath="Kupac"
-                              Width="180"
-                              Height="30"
-                              Margin="1"
-                              HorizontalAlignment="Left"
-                              Foreground="{DynamicResource GlobalFontColor}"/>
-                </Grid>
-           
-
-            <!-- Izdavanje računa -->
-
-            <Button x:Name="BtnRacun" HorizontalAlignment="Right"
-                    Grid.Column="1"
-                    Width="200"
-                    Height="58"
-                    Margin="20"
-                    BorderThickness="0"
-                    Style="{StaticResource PrimaryButtonStyle}"
-                    Click="BtnRacun_Click">
-
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock FontFamily="Segoe MDL2 Assets"
-                               Text="&#xEC5B;"
-                               FontSize="22"
-                               Margin="0,0,8,0"
-                               Foreground="#F5F5F5"
-                               VerticalAlignment="Center"/>
-
-                    <TextBlock Text="IZDAJ RAČUN"
-                               FontSize="15"
-                               FontWeight="SemiBold"
-                               Foreground="#F5F5F5"
-                               VerticalAlignment="Center"/>
                 </StackPanel>
-            </Button>
-        </Grid>
 
-        <!-- ====================================================== -->
-        <!-- STAVKE NARUDŽBE -->
-        <!-- ====================================================== -->
+                <!-- KUPAC -->
 
-        <Grid Grid.Row="2" HorizontalAlignment="Stretch">
+                <StackPanel Grid.Column="5"
+                            Margin="4,0">
+
+                    <TextBlock Text="KUPAC"
+                               Style="{StaticResource OrderSectionCaptionStyle}"/>
+
+                    <ComboBox x:Name="cmbKupac"
+                              ItemsSource="{Binding Kupci}"
+                              SelectedItem="{Binding SelectedKupac, Mode=TwoWay}"
+                              DisplayMemberPath="Kupac"
+                              Height="45"
+                              FontSize="14"
+                              Foreground="{DynamicResource GlobalFontColor}"
+                              VerticalContentAlignment="Center"/>
+
+                </StackPanel>
+
+                <!-- IZDAJ RAČUN -->
+
+                <Button x:Name="BtnRacun"
+                        Grid.Column="7"
+                        Height="58"
+                        Margin="4"
+                        VerticalAlignment="Center"
+                        BorderThickness="0"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Click="BtnRacun_Click">
+
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center">
+
+                        <TextBlock FontFamily="Segoe MDL2 Assets"
+                                   Text="&#xEC5B;"
+                                   FontSize="22"
+                                   Margin="0,0,8,0"
+                                   Foreground="#F5F5F5"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Text="IZDAJ RAČUN"
+                                   FontSize="15"
+                                   FontWeight="SemiBold"
+                                   Foreground="#F5F5F5"
+                                   VerticalAlignment="Center"/>
+
+                    </StackPanel>
+
+                </Button>
+
+            </Grid>
+
+        </Border>
+
+        <!-- ===================================================== -->
+        <!-- CONTENT -->
+        <!-- ===================================================== -->
+
+        <Grid x:Name="ContentArea"
+              Grid.Row="2"
+              Margin="10,4,10,10">
+
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.5*"/>
-                <ColumnDefinition Width="0.5*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Kompletna narudžba -->
+            <!-- ================================================= -->
+            <!-- NARUDŽBA -->
+            <!-- ================================================= -->
 
             <Border Grid.Column="0"
-                    Padding="3"
-                    MinHeight="400"
-                    Margin="30,10,30,10"
-                    VerticalAlignment="Stretch"
-                    BorderBrush="{DynamicResource GlobalFontColor}"
-                    BorderThickness="0.5"
-                    CornerRadius="10">
+                    Padding="8"
+                    VerticalAlignment="Top"
+                    MaxHeight="{Binding ActualHeight, ElementName=ContentArea}"
+                    Style="{StaticResource OrderCardStyle}">
 
-                <DataGrid x:Name="ListaNarudzbeStavke"
-                          ItemsSource="{Binding NarudzbeStavke}"
-                          SelectedItem="{Binding SelectedStavka, Mode=TwoWay}"
-                          PreviewMouseLeftButtonUp="ListnarudzbeStavke_PreviewMouseLeftButtonUp"
-                          AutoGenerateColumns="False"
-                          HeadersVisibility="Column"
-                          CanUserAddRows="False"
-                          CanUserResizeRows="False"
-                          CanUserSortColumns="False"
-                          SelectionMode="Single"
-                          RowHeight="35"
-                          MaxWidth="950"
-                          MaxHeight="800"
-                          VerticalAlignment="Top"
-                          GridLinesVisibility="None"
-                          HorizontalScrollBarVisibility="Disabled"
-                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                          Background="Transparent"
-                          BorderThickness="0"
-                          BorderBrush="{DynamicResource GlobalFontColor}"
-                          ClipToBounds="True">
+                <Grid>
 
-                    <DataGrid.Resources>
-                        <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
-                    </DataGrid.Resources>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="42"/>
+                        <RowDefinition Height="*" MaxHeight="10000"/>
+                        <RowDefinition Height="92"/>
+                    </Grid.RowDefinitions>
 
-                    <DataGrid.Columns>
-                        <DataGridTemplateColumn Header="Artikl" Width="2*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Name}"
-                                               TextWrapping="Wrap"
-                                               HorizontalAlignment="Left"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
+                    <!-- NASLOV -->
 
-                        <DataGridTemplateColumn Header="Količina" Width="*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Quantity, StringFormat={}{0:F2}}"
-                                               TextAlignment="Center"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
+                    <Grid Grid.Row="0">
 
-                        <DataGridTemplateColumn Header="Cijena" Width="*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding UnitPrice, StringFormat={}{0:F2}}"
-                                               TextAlignment="Center"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                        <DataGridTemplateColumn Header="Iznos" Width="*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding TotalAmount, StringFormat={}{0:F2}}"
-                                               TextAlignment="Center"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
+                        <StackPanel Grid.Column="0"
+                                    Orientation="Horizontal">
+
+                            <TextBlock FontFamily="Segoe MDL2 Assets"
+                                       Text="&#xEC5B;"
+                                       FontSize="20"
+                                       Margin="2,0,7,0"
+                                       Foreground="{DynamicResource GlobalFontColor}"
+                                       VerticalAlignment="Center"/>
+
+                            <TextBlock Text="Narudžba"
+                                       FontSize="17"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource GlobalFontColor}"
+                                       VerticalAlignment="Center"/>
+
+                        </StackPanel>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="Dodirni stavku za izdvajanje"
+                                   FontSize="10"
+                                   Opacity="0.55"
+                                   Margin="5,0"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
+
+                    </Grid>
+
+                    <!-- STAVKE -->
+
+                    <DataGrid x:Name="ListaNarudzbeStavke"
+                              Grid.Row="1"
+                              ItemsSource="{Binding NarudzbeStavke}"
+                              SelectedItem="{Binding SelectedStavka, Mode=TwoWay}"
+                              PreviewMouseLeftButtonUp="ListnarudzbeStavke_PreviewMouseLeftButtonUp"
+                              Margin="0,3"
+                              Padding="1"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserResizeRows="False"
+                              CanUserSortColumns="False"
+                              GridLinesVisibility="None"
+                              HeadersVisibility="Column"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              SelectionMode="Single"
+                              RowHeight="42"
+                              VerticalAlignment="Top"
+                              HorizontalScrollBarVisibility="Disabled"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              ClipToBounds="True">
+
+                        <DataGrid.Resources>
+                            <Style TargetType="ScrollBar"
+                                   BasedOn="{StaticResource WideVerticalScrollBar}"/>
+                        </DataGrid.Resources>
+
+                        <DataGrid.Columns>
+
+                            <DataGridTemplateColumn Header="Artikl"
+                                                    Width="2.1*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding Name}"
+                                                   FontSize="13"
+                                                   FontWeight="SemiBold"
+                                                   TextWrapping="Wrap"
+                                                   VerticalAlignment="Center"
+                                                   Margin="2"/>
+
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="Količina"
+                                                    Width="0.65*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding Quantity, StringFormat={}{0:F2}}"
+                                                   FontWeight="SemiBold"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="Cijena"
+                                                    Width="0.85*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding UnitPrice, StringFormat={}{0:F2}}"
+                                                   HorizontalAlignment="Right"
+                                                   VerticalAlignment="Center"/>
+
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="Iznos"
+                                                    Width="0.9*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding TotalAmount, StringFormat={}{0:F2}}"
+                                                   FontWeight="SemiBold"
+                                                   HorizontalAlignment="Right"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,5,0"/>
+
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                        </DataGrid.Columns>
+
+                    </DataGrid>
+
+                    <!-- UKUPNO -->
+
+                    <Border Grid.Row="2"
+                            Margin="0,6,0,4"
+                            Padding="10,5"
+                            CornerRadius="9"
+                            BorderBrush="{DynamicResource GlobalFontColor}"
+                            BorderThickness="0.5">
+
+                        <Grid>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0"
+                                        VerticalAlignment="Center">
+
+                                <TextBlock Text="UKUPNO"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"
+                                           Opacity="0.6"
+                                           Foreground="{DynamicResource GlobalFontColor}"/>
+
+                                <TextBlock Text="Narudžba"
+                                           FontSize="11"
+                                           Opacity="0.45"
+                                           Foreground="{DynamicResource GlobalFontColor}"/>
+
+                            </StackPanel>
+
+                            <Label x:Name="lblIznos"
+                                   Grid.Column="1"
+                                   Content="{Binding TotalSum}"
+                                   ContentStringFormat="{}{0:0.00}"
+                                   FontSize="38"
+                                   FontWeight="SemiBold"
+                                   Padding="5,0"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   HorizontalContentAlignment="Right"
+                                   VerticalContentAlignment="Center"/>
+
+                        </Grid>
+
+                    </Border>
+
+                </Grid>
+
             </Border>
 
-            <!-- Gost račun -->
+            <!-- ================================================= -->
+            <!-- IZDVOJENI RAČUN -->
+            <!-- ================================================= -->
 
             <Border x:Name="BorderRacunStavke"
-                    Grid.Column="1"
-                    Padding="3"
-                    MinHeight="400"
-                    Margin="30,10,30,10"
-                    VerticalAlignment="Stretch"
-                    Background="Transparent"
-                    BorderBrush="{DynamicResource GlobalFontColor}"
-                    BorderThickness="0.5"
-                    CornerRadius="10"
+                    Grid.Column="2"
+                    Padding="8"
+                    VerticalAlignment="Top"
+                    MaxHeight="{Binding ActualHeight, ElementName=ContentArea}"
+                    Style="{StaticResource OrderCardStyle}"
                     Visibility="Collapsed">
 
-                <DataGrid x:Name="ListGostRacunStavke"
-                          ItemsSource="{Binding GostRacunStavke}"
-                          SelectedItem="{Binding SelectedStavkaRacunGost, Mode=TwoWay}"
-                          PreviewMouseLeftButtonUp="ListGostRacunStavke_PreviewMouseLeftButtonUp"
-                          AutoGenerateColumns="False"
-                          HeadersVisibility="Column"
-                          CanUserAddRows="False"
-                          CanUserResizeRows="False"
-                          CanUserSortColumns="False"
-                          SelectionMode="Single"
-                          RowHeight="35"
-                          MaxWidth="950"
-                          MaxHeight="800"
-                          VerticalAlignment="Top"
-                          GridLinesVisibility="None"
-                          HorizontalScrollBarVisibility="Disabled"
-                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                          Background="Transparent"
-                          BorderThickness="0"
-                          BorderBrush="{DynamicResource GlobalFontColor}"
-                          ClipToBounds="True">
+                <Grid>
 
-                    <DataGrid.Resources>
-                        <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
-                    </DataGrid.Resources>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="42"/>
+                        <RowDefinition Height="*" MaxHeight="10000"/>
+                        <RowDefinition Height="92"/>
+                    </Grid.RowDefinitions>
 
-                    <DataGrid.Columns>
-                        <DataGridTemplateColumn Header="Artikl" Width="2*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Name}"
-                                               TextWrapping="Wrap"
-                                               HorizontalAlignment="Left"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
+                    <!-- NASLOV -->
 
-                        <DataGridTemplateColumn Header="Količina" Width="*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Quantity, StringFormat={}{0:F2}}"
-                                               TextAlignment="Center"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
+                    <Grid Grid.Row="0">
 
-                        <DataGridTemplateColumn Header="Cijena" Width="*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding UnitPrice, StringFormat={}{0:F2}}"
-                                               TextAlignment="Center"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                        <DataGridTemplateColumn Header="Iznos" Width="*">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding TotalAmount, StringFormat={}{0:F2}}"
-                                               TextAlignment="Center"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
+                        <StackPanel Grid.Column="0"
+                                    Orientation="Horizontal">
+
+                            <TextBlock FontFamily="Segoe MDL2 Assets"
+                                       Text="&#xE8A1;"
+                                       FontSize="20"
+                                       Margin="2,0,7,0"
+                                       Foreground="{DynamicResource GlobalFontColor}"
+                                       VerticalAlignment="Center"/>
+
+                            <TextBlock Text="Izdvojeni račun"
+                                       FontSize="17"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource GlobalFontColor}"
+                                       VerticalAlignment="Center"/>
+
+                        </StackPanel>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="Dodirni stavku za vraćanje"
+                                   FontSize="10"
+                                   Opacity="0.55"
+                                   Margin="5,0"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   VerticalAlignment="Center"/>
+
+                    </Grid>
+
+                    <!-- STAVKE -->
+
+                    <DataGrid x:Name="ListGostRacunStavke"
+                              Grid.Row="1"
+                              ItemsSource="{Binding GostRacunStavke}"
+                              SelectedItem="{Binding SelectedStavkaRacunGost, Mode=TwoWay}"
+                              PreviewMouseLeftButtonUp="ListGostRacunStavke_PreviewMouseLeftButtonUp"
+                              Margin="0,3"
+                              Padding="1"
+                              AutoGenerateColumns="False"
+                              CanUserAddRows="False"
+                              CanUserResizeRows="False"
+                              CanUserSortColumns="False"
+                              GridLinesVisibility="None"
+                              HeadersVisibility="Column"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              SelectionMode="Single"
+                              RowHeight="42"
+                              VerticalAlignment="Top"
+                              HorizontalScrollBarVisibility="Disabled"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              ClipToBounds="True">
+
+                        <DataGrid.Resources>
+                            <Style TargetType="ScrollBar"
+                                   BasedOn="{StaticResource WideVerticalScrollBar}"/>
+                        </DataGrid.Resources>
+
+                        <DataGrid.Columns>
+
+                            <DataGridTemplateColumn Header="Artikl"
+                                                    Width="2.1*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding Name}"
+                                                   FontSize="13"
+                                                   FontWeight="SemiBold"
+                                                   TextWrapping="Wrap"
+                                                   VerticalAlignment="Center"
+                                                   Margin="2"/>
+
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="Količina"
+                                                    Width="0.65*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding Quantity, StringFormat={}{0:F2}}"
+                                                   FontWeight="SemiBold"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="Cijena"
+                                                    Width="0.85*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding UnitPrice, StringFormat={}{0:F2}}"
+                                                   HorizontalAlignment="Right"
+                                                   VerticalAlignment="Center"/>
+
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Header="Iznos"
+                                                    Width="0.9*">
+
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+
+                                        <TextBlock Text="{Binding TotalAmount, StringFormat={}{0:F2}}"
+                                                   FontWeight="SemiBold"
+                                                   HorizontalAlignment="Right"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,5,0"/>
+
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
+
+                        </DataGrid.Columns>
+
+                    </DataGrid>
+
+                    <!-- UKUPNO -->
+
+                    <Border Grid.Row="2"
+                            Margin="0,6,0,4"
+                            Padding="10,5"
+                            CornerRadius="9"
+                            BorderBrush="{DynamicResource GlobalFontColor}"
+                            BorderThickness="0.5">
+
+                        <Grid>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0"
+                                        VerticalAlignment="Center">
+
+                                <TextBlock Text="UKUPNO"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"
+                                           Opacity="0.6"
+                                           Foreground="{DynamicResource GlobalFontColor}"/>
+
+                                <TextBlock Text="Izdvojeni račun"
+                                           FontSize="11"
+                                           Opacity="0.45"
+                                           Foreground="{DynamicResource GlobalFontColor}"/>
+
+                            </StackPanel>
+
+                            <Label x:Name="lblIznosGostRacun"
+                                   Grid.Column="1"
+                                   Content="{Binding TotalSumGostRacun}"
+                                   ContentStringFormat="{}{0:0.00}"
+                                   FontSize="38"
+                                   FontWeight="SemiBold"
+                                   Padding="5,0"
+                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   HorizontalContentAlignment="Right"
+                                   VerticalContentAlignment="Center"/>
+
+                        </Grid>
+
+                    </Border>
+
+                </Grid>
+
             </Border>
+
         </Grid>
 
-        <!-- ====================================================== -->
-        <!-- UKUPNO -->
-        <!-- ====================================================== -->
+        <!-- ===================================================== -->
+        <!-- BUSY OVERLAY -->
+        <!-- ===================================================== -->
 
-        <Grid Grid.Row="3" HorizontalAlignment="Stretch">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.5*"/>
-                <ColumnDefinition Width="0.5*"/>
-            </Grid.ColumnDefinitions>
+        <Border x:Name="RacunIdikator"
+                Grid.RowSpan="3"
+                Panel.ZIndex="999"
+                Background="#66323232"
+                Visibility="Collapsed">
 
-            <Label x:Name="lblIznos"
-                   Grid.Column="0"
-                   Content="{Binding TotalSum}"
-                   ContentStringFormat="{}{0:0.00}"
-                   Foreground="{DynamicResource GlobalFontColor}"
-                   FontSize="40"
-                   HorizontalAlignment="Right"
-                   Margin="0,0,50,0"/>
+            <StackPanel HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
 
-            <Label x:Name="lblIznosGostRacun"
-                   Grid.Column="1"
-                   Content="{Binding TotalSumGostRacun}"
-                   ContentStringFormat="{}{0:0.00}"
-                   Foreground="{DynamicResource GlobalFontColor}"
-                   FontSize="40"
-                   HorizontalAlignment="Right"
-                   Margin="0,0,50,0"
-                   Visibility="Collapsed"/>
-        </Grid>
+                <TextBlock FontFamily="Segoe MDL2 Assets"
+                           Text="&#xE895;"
+                           FontSize="42"
+                           Foreground="White"
+                           HorizontalAlignment="Center"/>
+
+                <TextBlock Text="Izdavanje računa..."
+                           FontSize="14"
+                           Foreground="White"
+                           Margin="0,10,0,0"
+                           HorizontalAlignment="Center"/>
+
+            </StackPanel>
+
+        </Border>
+
     </Grid>
+
 </UserControl>

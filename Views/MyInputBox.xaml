@@ -22,11 +22,12 @@
                     <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Foreground="{DynamicResource GlobalFontColor}" Margin="15" FontSize="45"  FontWeight="ExtraLight" Text="&#xEA74;"  HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="0"/>
                     <TextBlock x:Name="InputTitle" Foreground="{DynamicResource GlobalFontColor}" Text="Input Title" HorizontalAlignment="Center" FontSize="20" VerticalAlignment="Center" TextAlignment="Center" Grid.Row="0" TextWrapping="WrapWithOverflow" Width="250" Margin="0"/>
                     
-                    <TextBox x:Name="InputText"
+                    <TextBox x:Name="InputText" HorizontalContentAlignment="Center" 
                              Style="{DynamicResource TextBoxCustom}" 
                              GotFocus="TextBox_GotFocus"
                              LostFocus="TextBox_LostFocus" 
-                             PreviewMouseLeftButtonDown="InputText_PreviewMouseLeftButtonDown"  
+                             PreviewMouseLeftButtonDown="InputText_PreviewMouseLeftButtonDown" 
+                             PreviewKeyDown="InputText_PreviewKeyDown"
                              BorderBrush="{DynamicResource GlobalFontColor}" 
                              BorderThickness="0,0,0,1" 
                              Foreground="{DynamicResource GlobalFontColor}" 
@@ -38,28 +39,28 @@
                    
                              TextWrapping="Wrap" 
                              Background="Transparent"     
-                             TextAlignment="Left" 
+                             TextAlignment="Center" 
                              VerticalContentAlignment="Bottom"
                              VerticalAlignment="Top" 
                              Grid.Row="1"  />
                     
                     <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center">
-                        <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160" Margin="2" Grid.Column="0">
+                      
                             <Button Style="{StaticResource CancelButtonStyle}"   BorderThickness="1" x:Name="CancelButton"  Click="CancelButton_Click"   Width="120"  Margin="5"  Height="50"        Grid.Column="0">
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" >
                                     <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="20" Width="20" FontWeight="ExtraLight" Text="&#60039;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     <TextBlock Text="Odustani"  VerticalAlignment="Center"   />
                                 </StackPanel>
                             </Button>
-                        </Viewbox>
-                        <Viewbox Stretch="Uniform" MinWidth="100" MaxWidth="160" Margin="2" Grid.Column="1">
-                            <Button  Style="{StaticResource PrimaryButtonStyle}"    x:Name="OKButton"  Click="OKButton_Click"  Width="100" Margin="5"   Height="40"        Grid.Column="1" HorizontalAlignment="Left">
+                      
+                       
+                            <Button  Style="{StaticResource PrimaryButtonStyle}"    x:Name="OKButton"  Click="OKButton_Click"  Width="120" Margin="5"   Height="50"        Grid.Column="1" HorizontalAlignment="Left">
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                     <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="20" Width="20" FontWeight="ExtraLight" Text="&#xEAB2;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     <TextBlock Text="U redu"  VerticalAlignment="Center"    />
                                 </StackPanel>
                             </Button>
-                        </Viewbox>
+                      
                     </StackPanel>
 
                 </Grid>

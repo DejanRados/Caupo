@@ -29,6 +29,14 @@ namespace Caupo.Views
             Closed += MyInputBox_Closed;
         }
 
+        private void InputText_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter)
+                return;
+
+            e.Handled = true;
+            OKButton_Click(sender, e);
+        }
 
         private void VirtualKeyboard_EnterPressed()
         {

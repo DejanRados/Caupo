@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿
+using System.Windows;
 using System.Windows.Media;
 
 namespace Caupo.Views
@@ -18,6 +19,8 @@ namespace Caupo.Views
             InitializeComponent ();
 
             this.DataContext = this;
+
+          
 
         }
 
