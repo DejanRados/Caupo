@@ -734,7 +734,7 @@ namespace Caupo.Data
             public int? Proizvod { get; set; }
             public int? JedinicaMjere { get; set; }
             public string? Naziv { get; set; }
-            public string? Printed { get; set; }
+            public int? Tura { get; set; }
             public string? Konobar { get; set; }
             public int? IdNarudzbe { get; set; }
 
@@ -1398,6 +1398,34 @@ namespace Caupo.Data
                 PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
         }
 
+
+        [Table("tblSank")]
+        public class TblSank
+        {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            public int IdSanka { get; set; }
+
+            public DateTime Datum { get; set; }
+            public string? Sto { get; set; }
+            public string? Radnik { get; set; }
+            public string? NazivStola { get; set; }
+        }
+
+        [Table("tblSankStavke")]
+        public class TblSankStavke
+        {
+            [Key]
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            public int IdStavke { get; set; }
+
+            public string? Artikl { get; set; }
+            public string? Sifra { get; set; }
+            public decimal Kolicina { get; set; }
+            public decimal Cijena { get; set; }
+            public int IdSanka { get; set; }
+            public string? Note { get; set; }
+        }
 
         [Table ("tblUplateDobavljacima")]
         public class TblUplateDobavljacima

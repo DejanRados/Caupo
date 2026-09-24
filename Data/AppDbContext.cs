@@ -276,6 +276,10 @@ namespace Caupo.Data
 
         public DbSet<TblKuhinjaStavke> KuhinjaStavke { get; set; }
 
+        public DbSet<TblSank> Sank { get; set; }
+
+        public DbSet<TblSankStavke> SankStavke { get; set; }
+
         public DbSet<TblKupci> Kupci { get; set; }
 
         public DbSet<TblKupciNarudzba> KupciNarudzba { get; set; }

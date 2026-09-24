@@ -264,6 +264,83 @@ namespace Caupo.ViewModels
             }
         }
 
+
+
+        // ============================================================
+        // Ponovi ŠANK blok
+        // 
+        public async Task PonoviSankBlokAsync()
+        {
+            await using var db = new AppDbContext();
+
+            string sto = IdStola?.ToString() ?? "0";
+
+            var blok = await db.Sank
+                .AsNoTracking()
+                .Where(x => x.Sto == sto)
+                .OrderByDescending(x => x.IdSanka)
+                .FirstOrDefaultAsync();
+
+            if (blok == null)
+                throw new InvalidOperationException(
+                    "Za ovaj sto ne postoji blok za šank.");
+
+            var stavke = await db.SankStavke
+                .AsNoTracking()
+                .Where(x => x.IdSanka == blok.IdSanka)
+                .OrderBy(x => x.IdStavke)
+                .ToListAsync();
+
+            if (stavke.Count == 0)
+                throw new InvalidOperationException(
+                    $"Blok ŠANK {blok.IdSanka} nema spremljenih stavki.");
+
+            var printer = BlokPrinter.FromSankBlock(blok, stavke);
+
+            printer.Reprint();
+
+            Debug.WriteLine(
+                $"[ORDER] Ponovljen ŠANK blok {blok.IdSanka}, Sto={sto}");
+        }
+
+        // ============================================================
+        // Ponovi KUHINJA blok
+        // ============================================================
+
+        public async Task PonoviKuhinjaBlokAsync()
+        {
+            await using var db = new AppDbContext();
+
+            string sto = IdStola?.ToString() ?? "0";
+
+            var blok = await db.Kuhinja
+                .AsNoTracking()
+                .Where(x => x.Sto == sto)
+                .OrderByDescending(x => x.IdKuhinje)
+                .FirstOrDefaultAsync();
+
+            if (blok == null)
+                throw new InvalidOperationException(
+                    "Za ovaj sto ne postoji blok za kuhinju.");
+
+            var stavke = await db.KuhinjaStavke
+                .AsNoTracking()
+                .Where(x => x.IdKuhinje == blok.IdKuhinje)
+                .OrderBy(x => x.IdStavke)
+                .ToListAsync();
+
+            if (stavke.Count == 0)
+                throw new InvalidOperationException(
+                    $"Blok KUHINJA {blok.IdKuhinje} nema spremljenih stavki.");
+
+            var printer = BlokPrinter.FromKuhinjaBlock(blok, stavke);
+
+            printer.Reprint();
+
+            Debug.WriteLine(
+                $"[ORDER] Ponovljen KUHINJA blok {blok.IdKuhinje}, Sto={sto}");
+        }
+
         // ============================================================
         // UKUPNO
         // ============================================================
@@ -296,7 +373,7 @@ namespace Caupo.ViewModels
             if (kolicina <= 0)
                 return;
 
-            var existingItem = GostRacunStavke.FirstOrDefault(s => s.Sifra == stavka.Sifra && s.Name == stavka.Name);
+            var existingItem = GostRacunStavke.FirstOrDefault(s => s.Sifra == stavka.Sifra && s.Name == stavka.Name && s.Tura == stavka.Tura);
 
             if (existingItem != null)
             {
@@ -306,6 +383,7 @@ namespace Caupo.ViewModels
             {
                 var stavkaZaPrebaciti = new TblNarudzbeStavke
                 {
+                    IdStavke = stavka.IdStavke,
                     Name = stavka.Name,
                     Label = stavka.Label,
                     UnitPrice = stavka.UnitPrice,
@@ -315,7 +393,7 @@ namespace Caupo.ViewModels
                     Proizvod = stavka.Proizvod,
                     JedinicaMjere = stavka.JedinicaMjere,
                     Naziv = stavka.Naziv,
-                    //Printed = stavka.Printed,
+                    Tura = stavka.Tura,
                     Konobar = Globals.ulogovaniKorisnik.IdRadnika.ToString(),
                     IdNarudzbe = stavka.IdNarudzbe,
                     Sala = stavka.Sala
@@ -352,7 +430,7 @@ namespace Caupo.ViewModels
             if (kolicina <= 0)
                 return;
 
-            var existingItem = NarudzbeStavke.FirstOrDefault(s => s.Sifra == stavka.Sifra && s.Name == stavka.Name);
+            var existingItem = NarudzbeStavke.FirstOrDefault(s => s.Sifra == stavka.Sifra && s.Name == stavka.Name && s.Tura == stavka.Tura);
 
             if (existingItem != null)
             {
@@ -362,6 +440,7 @@ namespace Caupo.ViewModels
             {
                 var stavkaZaPrebaciti = new TblNarudzbeStavke
                 {
+                    IdStavke = stavka.IdStavke,
                     Name = stavka.Name,
                     Label = stavka.Label,
                     UnitPrice = stavka.UnitPrice,
@@ -371,13 +450,14 @@ namespace Caupo.ViewModels
                     Proizvod = stavka.Proizvod,
                     JedinicaMjere = stavka.JedinicaMjere,
                     Naziv = stavka.Naziv,
-                    //Printed = stavka.Printed,
+                    Tura = stavka.Tura,
                     Konobar = Globals.ulogovaniKorisnik.IdRadnika.ToString(),
                     IdNarudzbe = stavka.IdNarudzbe,
                     Sala = stavka.Sala
                 };
 
                 NarudzbeStavke.Add(stavkaZaPrebaciti);
+                NarudzbeStavke = new ObservableCollection<TblNarudzbeStavke>(NarudzbeStavke.OrderBy(x => x.Tura).ThenBy(x => x.IdStavke));
             }
 
             stavka.Quantity = dostupnaKolicina - kolicina;
@@ -458,6 +538,12 @@ namespace Caupo.ViewModels
         {
             await using var db = new AppDbContext();
 
+            int zadnjaTura = await db.NarudzbeStavke
+                .Where(x => x.IdNarudzbe == IdStola && x.Sala == Sala)
+                .MaxAsync(x => (int?)x.Tura) ?? 0;
+
+            int novaTura = zadnjaTura + 1;
+
             foreach (var item in stavke)
             {
                 var narudzbaStavka = new TblNarudzbeStavke
@@ -471,7 +557,7 @@ namespace Caupo.ViewModels
                     Proizvod = item.Proizvod,
                     JedinicaMjere = item.JedinicaMjere,
                     Naziv = item.Naziv,
-                    //Printed = "DA",
+                    Tura = novaTura,
                     Konobar = Globals.ulogovaniKorisnik.IdRadnika.ToString(),
                     IdNarudzbe = IdStola,
                     Sala = Sala
@@ -482,7 +568,8 @@ namespace Caupo.ViewModels
 
             await db.SaveChangesAsync();
 
-            Debug.WriteLine($"[ORDER] Nova runda spremljena. Sto={IdStola}, Sala={Sala}, Stavki={stavke.Count}");
+            Debug.WriteLine(
+                $"[ORDER] Nova runda spremljena. Sto={IdStola}, Sala={Sala}, Tura={novaTura}, Stavki={stavke.Count}");
         }
 
         private async Task PrintNewRoundAsync(List<RacunStavka> stavke)
@@ -540,6 +627,7 @@ namespace Caupo.ViewModels
             var groupedData = podaci
                 .GroupBy(x => new
                 {
+                    x.Tura,
                     x.Sifra,
                     x.Naziv,
                     x.Name,
@@ -548,22 +636,25 @@ namespace Caupo.ViewModels
                     x.Proizvod,
                     x.JedinicaMjere
                 })
-                .Select(g => new TblNarudzbeStavke
-                {
-                    Name = g.Key.Name,
-                    Label = g.Key.Label,
-                    UnitPrice = g.Key.UnitPrice,
-                    Quantity = g.Sum(x => x.Quantity ?? 0m),
-                    BrojRacuna = g.First().BrojRacuna,
-                    Sifra = g.Key.Sifra,
-                    Proizvod = g.Key.Proizvod,
-                    JedinicaMjere = g.Key.JedinicaMjere,
-                    Naziv = g.Key.Naziv,
-                    //Printed = g.First().Printed,
-                    Konobar = g.First().Konobar,
-                    IdNarudzbe = g.First().IdNarudzbe,
-                    Sala = g.First().Sala
-                })
+               .Select(g => new TblNarudzbeStavke
+               {
+                   IdStavke = g.Min(x => x.IdStavke),
+                   Name = g.Key.Name,
+                   Label = g.Key.Label,
+                   UnitPrice = g.Key.UnitPrice,
+                   Quantity = g.Sum(x => x.Quantity ?? 0m),
+                   BrojRacuna = g.First().BrojRacuna,
+                   Sifra = g.Key.Sifra,
+                   Proizvod = g.Key.Proizvod,
+                   JedinicaMjere = g.Key.JedinicaMjere,
+                   Naziv = g.Key.Naziv,
+                   Tura = g.Key.Tura,
+                   Konobar = g.First().Konobar,
+                   IdNarudzbe = g.First().IdNarudzbe,
+                   Sala = g.First().Sala
+               })
+                .OrderBy(x => x.Tura)
+                .ThenBy(x => x.IdStavke)
                 .ToList();
 
             NarudzbeStavke.Clear();
@@ -580,24 +671,33 @@ namespace Caupo.ViewModels
         {
             StavkeRacuna.Clear();
 
-            foreach (var item in GostRacunStavke)
-            {
-                var stavka = new RacunStavka
+            var grupisaneStavke = GostRacunStavke
+                .GroupBy(x => new
                 {
-                    Name = item.Name,
-                    Sifra = item.Sifra,
-                    BrojRacuna = item.BrojRacuna,
-                    Naziv = item.Naziv,
-                    PoreskaStopa = int.TryParse(item.Label, out int poreskaStopa) ? poreskaStopa : null,
-                    UnitPrice = item.UnitPrice,
-                    Proizvod = item.Proizvod,
-                    //Printed = item.Printed,
-                    JedinicaMjere = item.JedinicaMjere,
-                    Quantity = item.Quantity
-                };
+                    x.Sifra,
+                    x.Name,
+                    x.Label,
+                    x.UnitPrice,
+                    x.BrojRacuna,
+                    x.Naziv,
+                    x.Proizvod,
+                    x.JedinicaMjere
+                })
+                .Select(g => new RacunStavka
+                {
+                    Name = g.Key.Name,
+                    Sifra = g.Key.Sifra,
+                    BrojRacuna = g.Key.BrojRacuna,
+                    Naziv = g.Key.Naziv,
+                    PoreskaStopa = int.TryParse(g.Key.Label, out int poreskaStopa) ? poreskaStopa : null,
+                    UnitPrice = g.Key.UnitPrice,
+                    Proizvod = g.Key.Proizvod,
+                    JedinicaMjere = g.Key.JedinicaMjere,
+                    Quantity = g.Sum(x => x.Quantity ?? 0m)
+                });
 
+            foreach (var stavka in grupisaneStavke)
                 StavkeRacuna.Add(stavka);
-            }
         }
 
         // ============================================================
@@ -608,24 +708,33 @@ namespace Caupo.ViewModels
         {
             StavkeRacuna.Clear();
 
-            foreach (var item in NarudzbeStavke)
-            {
-                var stavka = new RacunStavka
+            var grupisaneStavke = NarudzbeStavke
+                .GroupBy(x => new
                 {
-                    Name = item.Name,
-                    Sifra = item.Sifra,
-                    BrojRacuna = item.BrojRacuna,
-                    Naziv = item.Naziv,
-                    PoreskaStopa = int.TryParse(item.Label, out int poreskaStopa) ? poreskaStopa : null,
-                    UnitPrice = item.UnitPrice,
-                    Proizvod = item.Proizvod,
-                    //Printed = item.Printed,
-                    JedinicaMjere = item.JedinicaMjere,
-                    Quantity = item.Quantity
-                };
+                    x.Sifra,
+                    x.Name,
+                    x.Label,
+                    x.UnitPrice,
+                    x.BrojRacuna,
+                    x.Naziv,
+                    x.Proizvod,
+                    x.JedinicaMjere
+                })
+                .Select(g => new RacunStavka
+                {
+                    Name = g.Key.Name,
+                    Sifra = g.Key.Sifra,
+                    BrojRacuna = g.Key.BrojRacuna,
+                    Naziv = g.Key.Naziv,
+                    PoreskaStopa = int.TryParse(g.Key.Label, out int poreskaStopa) ? poreskaStopa : null,
+                    UnitPrice = g.Key.UnitPrice,
+                    Proizvod = g.Key.Proizvod,
+                    JedinicaMjere = g.Key.JedinicaMjere,
+                    Quantity = g.Sum(x => x.Quantity ?? 0m)
+                });
 
+            foreach (var stavka in grupisaneStavke)
                 StavkeRacuna.Add(stavka);
-            }
         }
 
         // ============================================================
@@ -727,9 +836,9 @@ namespace Caupo.ViewModels
                         continue;
 
                     var dbStavke = await db.NarudzbeStavke
-                        .Where(x => x.IdNarudzbe == IdStola && x.Sala == Sala && x.Sifra == gostStavka.Sifra)
-                        .OrderBy(x => x.IdStavke)
-                        .ToListAsync();
+                    .Where(x => x.IdNarudzbe == IdStola && x.Sala == Sala && x.Sifra == gostStavka.Sifra && x.Tura == gostStavka.Tura)
+                    .OrderBy(x => x.IdStavke)
+                    .ToListAsync();
 
                     foreach (var dbStavka in dbStavke)
                     {

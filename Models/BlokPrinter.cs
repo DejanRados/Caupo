@@ -100,22 +100,41 @@ namespace Caupo.Models
             return novaKuhinja.IdKuhinje;
         }
 
-        private async Task<int> GetNextSankBlockNumberAsync()
+        private async Task<int> InsertSankAsync()
         {
             await using var db = new AppDbContext();
             await using var transaction = await db.Database.BeginTransactionAsync();
 
-            int brojBloka = (await db.BrojBloka.MaxAsync(x => (int?)x.BrojBloka) ?? 0) + 1;
-
-            db.BrojBloka.Add(new TblBrojBlokaSank
+            var noviSank = new TblSank
             {
-                BrojBloka = brojBloka
-            });
+                Datum = _datumBloka,
+                Sto = _sto,
+                Radnik = _konobar,
+                NazivStola = _imeStola
+            };
+
+            db.Sank.Add(noviSank);
+            await db.SaveChangesAsync();
+
+            foreach (var item in _stavke)
+            {
+                var sankStavka = new TblSankStavke
+                {
+                    Artikl = item.Name,
+                    Sifra = item.Sifra,
+                    Note = item.Note,
+                    Kolicina = item.Quantity ?? 0m,
+                    Cijena = item.UnitPrice ?? 0m,
+                    IdSanka = noviSank.IdSanka
+                };
+
+                db.SankStavke.Add(sankStavka);
+            }
 
             await db.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            return brojBloka;
+            return noviSank.IdSanka;
         }
 
         public async Task Print()
@@ -151,7 +170,7 @@ namespace Caupo.Models
 
                 if (_vrstaBloka == Sank)
                 {
-                    _brojBloka = await GetNextSankBlockNumberAsync();
+                    _brojBloka = await InsertSankAsync();
                 }
 
                 int brojKopija = GetBrojKopijaBloka();
@@ -176,6 +195,88 @@ namespace Caupo.Models
             }
         }
 
+        public void Reprint()
+        {
+            if (_stavke.Count == 0)
+            {
+                Debug.WriteLine("[BLOK] Nema stavki za ponovno štampanje.");
+                return;
+            }
+
+            string? printer = _vrstaBloka == Kuhinja
+                ? _printerKuhinja
+                : _printerSank;
+
+            if (string.IsNullOrWhiteSpace(printer))
+                throw new InvalidOperationException(
+                    $"Printer za '{_vrstaBloka}' nije podešen.");
+
+            if (!PrinterExists(printer))
+                throw new InvalidOperationException(
+                    $"Printer '{printer}' nije pronađen među instaliranim printerima.");
+
+            Debug.WriteLine(
+                $"[BLOK] Ponovno štampanje. Vrsta={_vrstaBloka}, Broj={_brojBloka}");
+
+            PrintDocument(printer, 1);
+        }
+
+
+        public static BlokPrinter FromSankBlock(
+    TblSank blok,
+    List<TblSankStavke> stavke)
+        {
+            var racunStavke = stavke
+                .Select(x => new RacunStavka
+                {
+                    Name = x.Artikl,
+                    Sifra = x.Sifra,
+                    Note = x.Note,
+                    Quantity = x.Kolicina,
+                    UnitPrice = x.Cijena,
+                    Proizvod = 0
+                })
+                .ToList();
+
+            var printer = new BlokPrinter(
+                racunStavke,
+                Sank,
+                blok.Sto ?? "0",
+                blok.NazivStola ?? "");
+
+            printer._brojBloka = blok.IdSanka;
+            printer._datumBloka = blok.Datum;
+
+            return printer;
+        }
+
+        public static BlokPrinter FromKuhinjaBlock(
+            TblKuhinja blok,
+            List<TblKuhinjaStavke> stavke)
+        {
+            var racunStavke = stavke
+                .Select(x => new RacunStavka
+                {
+                    Name = x.Artikl,
+                    Sifra = x.Sifra,
+                    Note = x.Note,
+                    Quantity = x.Kolicina,
+                    UnitPrice = x.Cijena,
+                    Proizvod = 1
+                })
+                .ToList();
+
+            var printer = new BlokPrinter(
+                racunStavke,
+                Kuhinja,
+                blok.Sto ?? "0",
+                blok.NazivStola ?? "");
+
+            printer._brojBloka = blok.IdKuhinje;
+            printer._datumBloka = blok.Datum;
+
+            return printer;
+        }
         private async Task ProcessKitchenAsync()
         {
             _brojBloka = await InsertKuhinjaAsync();
@@ -269,6 +370,7 @@ namespace Caupo.Models
 
             using var font = new Font("Consolas", 9f, FontStyle.Regular);
             using var bold = new Font("Consolas", 10f, FontStyle.Bold);
+            using var blockNumberFont = new Font("Consolas", 14f, FontStyle.Bold);
 
             g.TranslateTransform(-e.PageSettings.HardMarginX, -e.PageSettings.HardMarginY);
 
@@ -299,7 +401,15 @@ namespace Caupo.Models
             DrawCentered(g, _firma, bold, left, width, ref y, lineHeight);
             DrawCentered(g, _adresa, font, left, width, ref y, lineHeight);
             DrawCentered(g, _grad, font, left, width, ref y, lineHeight);
-            DrawCentered(g, $"Blok: {_brojBloka}", font, left, width, ref y, lineHeight);
+
+            y += 5;
+            DrawLine(g, left, width, ref y);
+
+            int blockNumberLineHeight = (int)Math.Ceiling(blockNumberFont.GetHeight(g)) + 2;
+            DrawCentered(g, $"BLOK {_brojBloka}", blockNumberFont, left, width, ref y, blockNumberLineHeight);
+
+            DrawLine(g, left, width, ref y);
+
             DrawCentered(g, $"Datum: {_datumBloka:dd.MM.yyyy HH:mm}", font, left, width, ref y, lineHeight);
             DrawCentered(g, $"Konobar: {_konobar}", font, left, width, ref y, lineHeight);
 

@@ -1127,6 +1127,7 @@ namespace Caupo.Views
             catch (Exception ex)
             {
                 Debug.WriteLine("[ORDERS] Greška pri spajanju stolova: " + ex);
+                CancelMergeTableSelection();
                 ShowMessage("GREŠKA", $"Narudžbe nije moguće spojiti:{Environment.NewLine}{ex.Message}");
             }
         }
@@ -1154,7 +1155,10 @@ namespace Caupo.Views
                     : $"Unesite PIN konobara {targetWaiterName}";
 
                 if (input.ShowDialog() != true)
+                {
+                    CancelMergeTableSelection();
                     return false;
+                }
 
                 string pin = input.result?.Trim() ?? string.Empty;
 
@@ -1323,6 +1327,7 @@ namespace Caupo.Views
             catch (Exception ex)
             {
                 Debug.WriteLine("[ORDERS] Greška pri promjeni stola: " + ex);
+                CancelMoveTableSelection();
                 ShowMessage("GREŠKA", $"Narudžbu nije moguće prebaciti na drugi sto:{Environment.NewLine}{ex.Message}");
             }
         }

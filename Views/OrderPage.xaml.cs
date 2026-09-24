@@ -75,6 +75,49 @@ namespace Caupo.Views
         }
 
         // ============================================================
+        // Ponovni print blokova (Šank i Kuhinja)
+        // ============================================================
+
+        private async void BtnPonoviSank_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is not OrderViewModel viewModel)
+                return;
+
+            try
+            {
+                await viewModel.PonoviSankBlokAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[ORDER] Greška kod ponavljanja ŠANK bloka: " + ex);
+
+                ShowMessage(
+                    "GREŠKA",
+                    ex.Message);
+            }
+        }
+
+      
+        private async void BtnPonoviKuhinja_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is not OrderViewModel viewModel)
+                return;
+
+            try
+            {
+                await viewModel.PonoviKuhinjaBlokAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[ORDER] Greška kod ponavljanja KUHINJA bloka: " + ex);
+
+                ShowMessage(
+                    "GREŠKA",
+                    ex.Message);
+            }
+        }
+
+        // ============================================================
         // PREBACI STAVKU NA GOST RAČUN
         // ============================================================
 
