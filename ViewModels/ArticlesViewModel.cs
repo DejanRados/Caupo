@@ -661,6 +661,13 @@ namespace Caupo.ViewModels
             return true;
         }
 
+        public async Task<bool> HasCocktailNorm(int articleId)
+        {
+            await using var db = new AppDbContext();
+
+            return await db.Normativ.AnyAsync(x => x.IdProizvoda == articleId);
+        }
+
         public async Task<bool> InsertArticle(TblArtikli artikl)
         {
             await using var db = new AppDbContext();

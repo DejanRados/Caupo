@@ -19,7 +19,7 @@ namespace Caupo.Views
     public partial class OrderPage : UserControl
     {
         private readonly OrderViewModel orderViewModel;
-        
+        private bool _isFiscalizing;
 
         private readonly bool hasNewItems;
 
@@ -198,54 +198,54 @@ namespace Caupo.Views
 
         private async void BtnRacun_Click(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("[ORDER] BtnRacun_Click pokrenut");
+            if (_isFiscalizing)
+                return;
 
             if (DataContext is not OrderViewModel viewModel)
-            {
-                Debug.WriteLine("[ORDER] DataContext nije OrderViewModel.");
                 return;
-            }
 
-            RacunIdikator.Visibility = Visibility.Visible;
+            bool gostRacun = viewModel.GostRacunStavke.Count > 0;
 
             try
             {
-                bool gostRacun = viewModel.GostRacunStavke.Count > 0;
+                _isFiscalizing = true;
 
+                BtnRacun.IsEnabled = false;
+                RacunIdikator.Visibility = Visibility.Visible;
+
+                Debug.WriteLine("[ORDER] BtnRacun_Click pokrenut");
                 Debug.WriteLine(gostRacun
-                    ? "[ORDER] Izdajem podijeljeni račun."
+                    ? "[ORDER] Izdajem gost račun."
                     : "[ORDER] Izdajem cijeli račun.");
 
-                FiscalResult result = await viewModel.IzdajRacunAsync(cmbNacinPlacanja.SelectedIndex, gostRacun);
+                FiscalResult result = await viewModel.IzdajRacunAsync(
+                    cmbNacinPlacanja.SelectedIndex,
+                    gostRacun);
 
-                Debug.WriteLine($"[ORDER] Success={result.Success}, Fiscalized={result.Fiscalized}, Saved={result.SavedToDatabase}, Printed={result.Printed}");
+                Debug.WriteLine(
+                    $"[ORDER] Success={result.Success}, " +
+                    $"Fiscalized={result.Fiscalized}, " +
+                    $"Saved={result.SavedToDatabase}, " +
+                    $"Printed={result.Printed}");
 
-                // ----------------------------------------------------
-                // Fiskalizacija / lokalna obrada nije uspjela.
-                // Narudžbu NE diramo.
-                // ----------------------------------------------------
-
-                if (!result.Success && !result.Fiscalized)
+                if (result.FiscalizationStatus == FiscalizationStatus.Unknown)
                 {
-                    ShowMessage("GREŠKA", "Račun nije uspješno fiskalizovan.");
+                    ShowMessage(
+                        "STATUS RAČUNA NIJE POZNAT",
+                        result.ErrorMessage ??
+                        "Nije moguće utvrditi da li je račun fiskalizovan.");
+
                     return;
                 }
 
-                // ----------------------------------------------------
-                // VAŽNO:
-                //
-                // Ako je račun fiskalizovan, ne ostavljamo
-                // narudžbu za ponovno slanje jer bi korisnik
-                // mogao napraviti dupli fiskalni račun.
-                //
-                // Croatia može imati:
-                //
-                // Success = true
-                // Fiscalized = false
-                // SavedToDatabase = true
-                //
-                // kod naknadne dostave.
-                // ----------------------------------------------------
+                if (!result.Success && !result.Fiscalized)
+                {
+                    ShowMessage(
+                        "GREŠKA",
+                        result.ErrorMessage ?? "Račun nije izdan.");
+
+                    return;
+                }
 
                 if (gostRacun)
                 {
@@ -257,41 +257,32 @@ namespace Caupo.Views
                     await viewModel.ZavrsiCijeliRacunAsync();
                 }
 
-                // ----------------------------------------------------
-                // UPOZORENJA
-                // ----------------------------------------------------
-
                 string? warning = BuildFiscalWarning(result);
 
                 if (!string.IsNullOrWhiteSpace(warning))
                 {
-                    ShowMessage("UPOZORENJE", warning);
+                    ShowMessage(
+                        "UPOZORENJE",
+                        warning);
                 }
-
-                // ----------------------------------------------------
-                // Cijeli račun zatvara sto/page.
-                // Kod podijeljenog ostajemo na stolu jer može
-                // postojati ostatak narudžbe.
-                // ----------------------------------------------------
 
                 if (!gostRacun)
-                {
-                    Debug.WriteLine("[ORDER] Cijeli račun završen.");
-                    CloseButton_Click(null, null);
-                }
-                else
-                {
-                    Debug.WriteLine("[ORDER] Podijeljeni račun završen.");
-                }
+                    CloseButton_Click(sender, e);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("[ORDER] BtnRacun_Click greška: " + ex);
-                ShowMessage("GREŠKA", "Došlo je do greške: " + ex.Message);
+                Debug.WriteLine("[ORDER] Greška pri izdavanju računa: " + ex);
+
+                ShowMessage(
+                    "GREŠKA",
+                    ex.Message);
             }
             finally
             {
                 RacunIdikator.Visibility = Visibility.Collapsed;
+                BtnRacun.IsEnabled = true;
+
+                _isFiscalizing = false;
             }
         }
 

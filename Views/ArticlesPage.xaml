@@ -1581,7 +1581,16 @@
                                    FontWeight="SemiBold"/>
 
                             </StackPanel>
+                            <StackPanel x:Name="ArticleKoktelPanel" Visibility="Collapsed">
 
+                                <Label Content="Koktel" />
+
+                                <ComboBox x:Name="ArticleKoktelComboBox" SelectionChanged="ArticleKoktelComboBox_SelectionChanged">
+                                    <ComboBoxItem Content="NE" />
+                                    <ComboBoxItem Content="DA" />
+                                </ComboBox>
+
+                            </StackPanel>
                         </StackPanel>
 
                         <!-- DESNA KOLONA -->

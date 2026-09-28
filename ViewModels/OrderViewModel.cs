@@ -248,19 +248,25 @@ namespace Caupo.ViewModels
 
                 var kupci = await db.Kupci
                     .AsNoTracking()
-                    .Where(k => !string.IsNullOrEmpty(k.Kupac))
+                    .Where(k => k.Kupac != null && k.Kupac != "")
+                    .OrderBy(k => k.Kupac)
                     .ToListAsync();
 
-                Kupci.Clear();
+                Kupci = new ObservableCollection<TblKupci>(kupci);
 
-                foreach (var kupac in kupci)
-                    Kupci.Add(kupac);
+                SelectedKupac =
+                    Kupci.FirstOrDefault(k =>
+                        string.Equals(k.Kupac?.Trim(), "Gradjani", StringComparison.OrdinalIgnoreCase))
+                    ?? Kupci.FirstOrDefault();
 
-                SelectedKupac = Kupci.FirstOrDefault();
+                Debug.WriteLine($"[ORDER] Kupci učitani: {Kupci.Count}");
+                Debug.WriteLine($"[ORDER] Default kupac: {SelectedKupac?.Kupac ?? "(nema)"}");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("[ORDER] Greška pri učitavanju kupaca: " + ex);
+                SelectedKupac = null;
+
+                Debug.WriteLine("[ORDER] LoadKupciAsync: " + ex);
             }
         }
 
@@ -667,33 +673,52 @@ namespace Caupo.ViewModels
         // KREIRANJE STAVKI ZA GOST RAČUN
         // ============================================================
 
-        private void KreirajStavkeRacunaPodjela()
+        private async Task KreirajStavkeRacunaPodjelaAsync()
         {
             StavkeRacuna.Clear();
+
+            await using var db = new AppDbContext();
+
+            var sifre = GostRacunStavke
+                .Select(x => x.Sifra)
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct()
+                .ToList();
+
+            var artikli = await db.Artikli
+                .AsNoTracking()
+                .Where(x => sifre.Contains(x.Sifra))
+                .ToDictionaryAsync(x => x.Sifra);
 
             var grupisaneStavke = GostRacunStavke
                 .GroupBy(x => new
                 {
                     x.Sifra,
                     x.Name,
-                    x.Label,
                     x.UnitPrice,
                     x.BrojRacuna,
                     x.Naziv,
                     x.Proizvod,
                     x.JedinicaMjere
                 })
-                .Select(g => new RacunStavka
+                .Select(g =>
                 {
-                    Name = g.Key.Name,
-                    Sifra = g.Key.Sifra,
-                    BrojRacuna = g.Key.BrojRacuna,
-                    Naziv = g.Key.Naziv,
-                    PoreskaStopa = int.TryParse(g.Key.Label, out int poreskaStopa) ? poreskaStopa : null,
-                    UnitPrice = g.Key.UnitPrice,
-                    Proizvod = g.Key.Proizvod,
-                    JedinicaMjere = g.Key.JedinicaMjere,
-                    Quantity = g.Sum(x => x.Quantity ?? 0m)
+                    artikli.TryGetValue(g.Key.Sifra ?? "", out var artikl);
+
+                    return new RacunStavka
+                    {
+                        ArtiklId = artikl?.IdArtikla,
+                        Name = g.Key.Name,
+                        Sifra = g.Key.Sifra,
+                        BrojRacuna = g.Key.BrojRacuna,
+                        Naziv = g.Key.Naziv,
+                        PoreskaStopa = artikl?.PoreskaStopa,
+                        PorezNaPotrosnju = artikl?.PorezNaPotrosnju ?? false,
+                        UnitPrice = g.Key.UnitPrice,
+                        Proizvod = g.Key.Proizvod,
+                        JedinicaMjere = g.Key.JedinicaMjere,
+                        Quantity = g.Sum(x => x.Quantity ?? 0m)
+                    };
                 });
 
             foreach (var stavka in grupisaneStavke)
@@ -704,33 +729,52 @@ namespace Caupo.ViewModels
         // KREIRANJE STAVKI ZA CIJELI RAČUN
         // ============================================================
 
-        private void KreirajStavkeRacunaUkupno()
+        private async Task KreirajStavkeRacunaUkupnoAsync()
         {
             StavkeRacuna.Clear();
+
+            await using var db = new AppDbContext();
+
+            var sifre = NarudzbeStavke
+                .Select(x => x.Sifra)
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct()
+                .ToList();
+
+            var artikli = await db.Artikli
+                .AsNoTracking()
+                .Where(x => sifre.Contains(x.Sifra))
+                .ToDictionaryAsync(x => x.Sifra);
 
             var grupisaneStavke = NarudzbeStavke
                 .GroupBy(x => new
                 {
                     x.Sifra,
                     x.Name,
-                    x.Label,
                     x.UnitPrice,
                     x.BrojRacuna,
                     x.Naziv,
                     x.Proizvod,
                     x.JedinicaMjere
                 })
-                .Select(g => new RacunStavka
+                .Select(g =>
                 {
-                    Name = g.Key.Name,
-                    Sifra = g.Key.Sifra,
-                    BrojRacuna = g.Key.BrojRacuna,
-                    Naziv = g.Key.Naziv,
-                    PoreskaStopa = int.TryParse(g.Key.Label, out int poreskaStopa) ? poreskaStopa : null,
-                    UnitPrice = g.Key.UnitPrice,
-                    Proizvod = g.Key.Proizvod,
-                    JedinicaMjere = g.Key.JedinicaMjere,
-                    Quantity = g.Sum(x => x.Quantity ?? 0m)
+                    artikli.TryGetValue(g.Key.Sifra ?? "", out var artikl);
+
+                    return new RacunStavka
+                    {
+                        ArtiklId = artikl?.IdArtikla,
+                        Name = g.Key.Name,
+                        Sifra = g.Key.Sifra,
+                        BrojRacuna = g.Key.BrojRacuna,
+                        Naziv = g.Key.Naziv,
+                        PoreskaStopa = artikl?.PoreskaStopa,
+                        PorezNaPotrosnju = artikl?.PorezNaPotrosnju ?? false,
+                        UnitPrice = g.Key.UnitPrice,
+                        Proizvod = g.Key.Proizvod,
+                        JedinicaMjere = g.Key.JedinicaMjere,
+                        Quantity = g.Sum(x => x.Quantity ?? 0m)
+                    };
                 });
 
             foreach (var stavka in grupisaneStavke)
@@ -741,7 +785,7 @@ namespace Caupo.ViewModels
         // FISKALIZACIJA
         // ============================================================
 
-        public async Task<FiscalResult> IzdajRacunAsync(int selectedNacinPlacanjaIndex, bool gostRacun)
+        public async Task<FiscalResult> IzdajRacunAsync(int nacinPlacanja, bool gostRacun)
         {
             try
             {
@@ -750,26 +794,33 @@ namespace Caupo.ViewModels
                     if (GostRacunStavke.Count == 0)
                         return FiscalResult.Failed("Nema stavki za izdavanje računa.");
 
-                    KreirajStavkeRacunaPodjela();
+                    await KreirajStavkeRacunaPodjelaAsync();
                 }
                 else
                 {
                     if (NarudzbeStavke.Count == 0)
                         return FiscalResult.Failed("Nema stavki za izdavanje računa.");
 
-                    KreirajStavkeRacunaUkupno();
+                    await KreirajStavkeRacunaUkupnoAsync();
                 }
 
                 if (StavkeRacuna.Count == 0)
                     return FiscalResult.Failed("Nema pripremljenih stavki za fiskalizaciju.");
 
-                FiscalPaymentType paymentType = selectedNacinPlacanjaIndex switch
+                var stavkeZaFiskalizaciju = StavkeRacuna.ToList();
+
+                decimal ukupnoZaFiskalizaciju = Math.Round(
+                    stavkeZaFiskalizaciju.Sum(item => item.TotalAmount ?? 0m),
+                    2,
+                    MidpointRounding.AwayFromZero);
+
+                FiscalPaymentType paymentType = nacinPlacanja switch
                 {
                     0 => FiscalPaymentType.Cash,
                     1 => FiscalPaymentType.Card,
                     2 => FiscalPaymentType.Check,
                     3 => FiscalPaymentType.WireTransfer,
-                    _ => throw new FiscalException("Nepoznat način plaćanja.")
+                    _ => throw new FiscalException("Odaberite ispravan način plaćanja.")
                 };
 
                 FiscalBuyer? buyer = null;
@@ -785,29 +836,34 @@ namespace Caupo.ViewModels
                     };
                 }
 
-                var request = new FiscalRequest
+                var fiscalRequest = new FiscalRequest
                 {
-                    Items = StavkeRacuna.ToList(),
-
+                    Items = stavkeZaFiskalizaciju,
                     Buyer = buyer,
-
                     Cashier = new FiscalCashier
                     {
                         Id = Globals.ulogovaniKorisnik.IdRadnika,
                         Name = Globals.ulogovaniKorisnik.Radnik,
                         IdentificationNumber = Globals.ulogovaniKorisnik.IB
                     },
-
                     PaymentType = paymentType,
-                    TotalAmount = gostRacun ? TotalSumGostRacun ?? 0m : TotalSum ?? 0m,
+                    TotalAmount = ukupnoZaFiskalizaciju,
                     InvoiceType = "Normal",
                     TransactionType = "Sale"
                 };
 
-                IFiscalService fiscalService = FiscalServiceFactory.Create(Settings.Default.Country);
-                FiscalResult result = await fiscalService.IzdajRacunAsync(request);
+                IFiscalService fiscalService =
+                    FiscalServiceFactory.Create(Settings.Default.Country);
 
-                Debug.WriteLine($"[ORDER FISKALNI] Success={result.Success}, Fiscalized={result.Fiscalized}, Saved={result.SavedToDatabase}, Printed={result.Printed}, FiscalNumber={result.FiscalNumber}");
+                FiscalResult result =
+                    await fiscalService.IzdajRacunAsync(fiscalRequest);
+
+                Debug.WriteLine(
+                    $"[ORDER FISKALNI] Success={result.Success}, " +
+                    $"Fiscalized={result.Fiscalized}, " +
+                    $"Saved={result.SavedToDatabase}, " +
+                    $"Printed={result.Printed}, " +
+                    $"FiscalNumber={result.FiscalNumber}");
 
                 return result;
             }
@@ -831,6 +887,10 @@ namespace Caupo.ViewModels
                 foreach (var gostStavka in GostRacunStavke.ToList())
                 {
                     decimal preostaloZaBrisanje = gostStavka.Quantity ?? 0m;
+                    Debug.WriteLine(
+                        $"[GOST DELETE] Tražim: Sto={IdStola}, Sala={Sala}, " +
+                        $"Sifra={gostStavka.Sifra}, Tura={gostStavka.Tura}, " +
+                        $"IdStavke={gostStavka.IdStavke}, Qty={preostaloZaBrisanje}");
 
                     if (preostaloZaBrisanje <= 0m)
                         continue;
@@ -839,6 +899,8 @@ namespace Caupo.ViewModels
                     .Where(x => x.IdNarudzbe == IdStola && x.Sala == Sala && x.Sifra == gostStavka.Sifra && x.Tura == gostStavka.Tura)
                     .OrderBy(x => x.IdStavke)
                     .ToListAsync();
+
+                    Debug.WriteLine( $"[GOST DELETE] Pronađeno DB redova: {dbStavke.Count}");
 
                     foreach (var dbStavka in dbStavke)
                     {
@@ -861,7 +923,7 @@ namespace Caupo.ViewModels
                 }
 
                 await db.SaveChangesAsync();
-
+                Debug.WriteLine("[GOST DELETE] SaveChanges završen.");
                 GostRacunStavke.Clear();
                 StavkeRacuna.Clear();
 

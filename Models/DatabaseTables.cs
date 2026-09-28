@@ -29,6 +29,7 @@ namespace Caupo.Data
             {
                 return Artikl ?? string.Empty;
             }
+            public bool Koktel { get; set; } = false;
 
             public int? JedinicaMjere { get; set; }
 

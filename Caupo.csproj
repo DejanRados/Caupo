@@ -1785,6 +1785,9 @@
     <Compile Update="Views\DashboardPage.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\CocktailNormsPage.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\SupplierPopup.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
