@@ -198,7 +198,7 @@ namespace Caupo.ViewModels
             }
         }
 
-      
+
 
         // ============================================================
         // CONSTRUCTOR
@@ -397,6 +397,7 @@ namespace Caupo.ViewModels
                     BrojRacuna = stavka.BrojRacuna,
                     Sifra = stavka.Sifra,
                     Proizvod = stavka.Proizvod,
+                    Koktel = stavka.Koktel,
                     JedinicaMjere = stavka.JedinicaMjere,
                     Naziv = stavka.Naziv,
                     Tura = stavka.Tura,
@@ -454,6 +455,7 @@ namespace Caupo.ViewModels
                     BrojRacuna = stavka.BrojRacuna,
                     Sifra = stavka.Sifra,
                     Proizvod = stavka.Proizvod,
+                    Koktel = stavka.Koktel,
                     JedinicaMjere = stavka.JedinicaMjere,
                     Naziv = stavka.Naziv,
                     Tura = stavka.Tura,
@@ -561,6 +563,7 @@ namespace Caupo.ViewModels
                     BrojRacuna = item.BrojRacuna,
                     Sifra = item.Sifra,
                     Proizvod = item.Proizvod,
+                    Koktel = item.Koktel,
                     JedinicaMjere = item.JedinicaMjere,
                     Naziv = item.Naziv,
                     Tura = novaTura,
@@ -640,6 +643,7 @@ namespace Caupo.ViewModels
                     x.UnitPrice,
                     x.Label,
                     x.Proizvod,
+                    x.Koktel,
                     x.JedinicaMjere
                 })
                .Select(g => new TblNarudzbeStavke
@@ -652,6 +656,7 @@ namespace Caupo.ViewModels
                    BrojRacuna = g.First().BrojRacuna,
                    Sifra = g.Key.Sifra,
                    Proizvod = g.Key.Proizvod,
+                   Koktel = g.Key.Koktel,
                    JedinicaMjere = g.Key.JedinicaMjere,
                    Naziv = g.Key.Naziv,
                    Tura = g.Key.Tura,
@@ -699,6 +704,7 @@ namespace Caupo.ViewModels
                     x.BrojRacuna,
                     x.Naziv,
                     x.Proizvod,
+                    x.Koktel,
                     x.JedinicaMjere
                 })
                 .Select(g =>
@@ -716,6 +722,7 @@ namespace Caupo.ViewModels
                         PorezNaPotrosnju = artikl?.PorezNaPotrosnju ?? false,
                         UnitPrice = g.Key.UnitPrice,
                         Proizvod = g.Key.Proizvod,
+                        Koktel = g.Key.Koktel,
                         JedinicaMjere = g.Key.JedinicaMjere,
                         Quantity = g.Sum(x => x.Quantity ?? 0m)
                     };
@@ -755,6 +762,7 @@ namespace Caupo.ViewModels
                     x.BrojRacuna,
                     x.Naziv,
                     x.Proizvod,
+                    x.Koktel,
                     x.JedinicaMjere
                 })
                 .Select(g =>
@@ -772,6 +780,7 @@ namespace Caupo.ViewModels
                         PorezNaPotrosnju = artikl?.PorezNaPotrosnju ?? false,
                         UnitPrice = g.Key.UnitPrice,
                         Proizvod = g.Key.Proizvod,
+                        Koktel = g.Key.Koktel,
                         JedinicaMjere = g.Key.JedinicaMjere,
                         Quantity = g.Sum(x => x.Quantity ?? 0m)
                     };
@@ -900,7 +909,7 @@ namespace Caupo.ViewModels
                     .OrderBy(x => x.IdStavke)
                     .ToListAsync();
 
-                    Debug.WriteLine( $"[GOST DELETE] Pronađeno DB redova: {dbStavke.Count}");
+                    Debug.WriteLine($"[GOST DELETE] Pronađeno DB redova: {dbStavke.Count}");
 
                     foreach (var dbStavka in dbStavke)
                     {

@@ -78,6 +78,8 @@ namespace Caupo.Fiscal.RS
 
                         VrstaArtikla = item.Proizvod,
 
+                        Koktel = item.Koktel,
+
                         ArtiklNormativ = item.Naziv
                     };
 

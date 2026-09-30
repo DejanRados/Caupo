@@ -139,6 +139,13 @@ namespace Caupo.Models
 
         public int? Proizvod { get; set; }
 
+        // ============================================================
+        // KOKTEL
+        // Da li je stavka koktel ili ne. Koktel se sastoji od više artikala.
+        // ============================================================
+
+        public bool Koktel { get; set; } = false;
+
 
         // ============================================================
         // STANJE PRINTANJA BLOKA

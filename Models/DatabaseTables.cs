@@ -512,23 +512,39 @@ namespace Caupo.Data
             public DateTime Datum { get; set; }
             public string? Sifra { get; set; }
         }
-        [Table ("tblKnjigaSanka")]
+
+        [Table("tblKnjigaSanka")]
         public class TblKnjigaSanka
         {
             [Key]
-            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
-            public int RedniBroj { get; set; }
-            public string? Artikl { get; set; }
-            public int JedinicaMjere { get; set; }
-            public decimal? Ostatak { get; set; }
-            public decimal? Primljeno { get; set; }
-            public decimal? Stanje { get; set; }
-            public decimal? Utroseno { get; set; }
-            public decimal? Cijena { get; set; }
-            public decimal? Zaliha { get; set; }
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            public int Id { get; set; }
+
             public DateTime Datum { get; set; }
-            public string? Sifra { get; set; }
+
+            public string Artikl { get; set; } = string.Empty;
+            public int JedinicaMjere { get; set; }
+
+            public decimal OstatakOdJuce { get; set; }
+            public decimal Primljeno { get; set; }
+            public string Hash { get; set; } = string.Empty;
+            public decimal Ukupno { get; set; }
+            public decimal Utroseno { get; set; }
+            public decimal OstatakDanas { get; set; }
+
+            public decimal JedinicnaCijena { get; set; }
+            public decimal Iznos { get; set; }
         }
+
+        [Table("tblKnjigaSankaKontrola")]
+        public class TblKnjigaSankaKontrola
+        {
+            [Key]
+            public int Id { get; set; }
+
+            public DateTime? DatumPromjeneStanja { get; set; }
+        }
+
         [Table ("tblKuhinja")]
         public class TblKuhinja
         {
@@ -739,6 +755,7 @@ namespace Caupo.Data
             public string? Konobar { get; set; }
             public int? IdNarudzbe { get; set; }
 
+            public bool Koktel { get; set; } = false;
             public string? Sala { get; set; }
             public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -912,6 +929,8 @@ namespace Caupo.Data
             }
             public int? VrstaArtikla { get; set; }
             public string? ArtiklNormativ { get; set; }
+
+            public bool Koktel { get; set; } = false;
 
             public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -1451,69 +1470,7 @@ namespace Caupo.Data
             public string? Radnik { get; set; }
         }
 
-        [Table ("NarudzbeStavke")]
-        public class NarudzbeStavke : INotifyPropertyChanged
-        {
-            [Key]
-            [DatabaseGenerated (DatabaseGeneratedOption.Identity)]
-            public int IdStavke { get; set; }
-            public string? Artikl { get; set; }
-            public string? Sifra { get; set; }
-
-            private decimal _kolicina;
-            public decimal Kolicina
-            {
-                get => _kolicina;
-                set
-                {
-                    if(_kolicina != value)
-                    {
-                        _kolicina = value;
-                        OnPropertyChanged (nameof (Kolicina));
-                        OnPropertyChanged (nameof (Iznos));
-                    }
-                }
-            }
-            private decimal? cijena;
-            public decimal? Cijena
-            {
-                get => cijena;
-                set
-                {
-                    if(cijena != value)
-                    {
-                        cijena = value;
-                        OnPropertyChanged (nameof (Cijena));
-                        OnPropertyChanged (nameof (Iznos)); // Notify that Total might have changed
-                    }
-                }
-            }
-            public decimal? Iznos
-            {
-                get
-                {
-                    // Calculate Total based on Qty and Price
-                    if(Cijena.HasValue && Kolicina > 0)
-                    {
-                        return Cijena.Value * Kolicina;
-                    }
-                    return null;
-                }
-            }
-            public int? PoreskaStopa { get; set; }
-            public int? JedinicaMjere { get; set; }
-            public int? VrstaArtikla { get; set; }
-            public string? ArtiklNormativ { get; set; }
-            public string? IdStola { get; set; }
-            public string? Konobar { get; set; }
-            public int Tura { get; set; }
-            public event PropertyChangedEventHandler? PropertyChanged;
-
-            protected void OnPropertyChanged(string propertyName) =>
-                PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
-
-        }
-
+    
 
     }
 }

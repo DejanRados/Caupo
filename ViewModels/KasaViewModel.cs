@@ -658,7 +658,8 @@ namespace Caupo.ViewModels
                 JedinicaMjere = artikl.JedinicaMjere,
                 Quantity = kolicina,
                 PoreskaStopa = artikl.PoreskaStopa,
-                PorezNaPotrosnju = artikl.PorezNaPotrosnju
+                PorezNaPotrosnju = artikl.PorezNaPotrosnju,
+                Koktel = artikl.Koktel
             };
 
             DodajStavkuRacuna(stavka);

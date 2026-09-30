@@ -60,6 +60,7 @@ namespace Caupo.Fiscal.Federation
                         PoreskaStopa = item.PoreskaStopa,
                         JedinicaMjere = item.JedinicaMjere,
                         VrstaArtikla = item.Proizvod,
+                        Koktel = item.Koktel,
                         ArtiklNormativ = item.Naziv
                     };
 

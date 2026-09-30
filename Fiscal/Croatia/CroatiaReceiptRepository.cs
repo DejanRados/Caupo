@@ -66,6 +66,7 @@ namespace Caupo.Fiscal.Croatia
                         PorezNaPotrosnju = item.PorezNaPotrosnju,
                         JedinicaMjere = item.JedinicaMjere,
                         VrstaArtikla = item.Proizvod,
+                        Koktel = item.Koktel,
                         ArtiklNormativ = item.Naziv
                     };
 
@@ -147,6 +148,7 @@ namespace Caupo.Fiscal.Croatia
                         PorezNaPotrosnju = item.PorezNaPotrosnju,
                         JedinicaMjere = item.JedinicaMjere,
                         VrstaArtikla = item.VrstaArtikla,
+                        Koktel = item.Koktel,
                         ArtiklNormativ = item.ArtiklNormativ
                     };
 
