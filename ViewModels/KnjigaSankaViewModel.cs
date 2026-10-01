@@ -2,8 +2,7 @@
 using Caupo.Models;
 using Caupo.Properties;
 using Caupo.Services;
-using Microsoft.EntityFrameworkCore;
-
+using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -11,378 +10,628 @@ using System.Printing;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace Caupo.ViewModels
 {
-
     public class KnjigaSankaViewModel : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged(string? propertyName) =>
-        PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
+        #region POLJA
 
         private readonly KnjigaSankaService _service;
 
         private DatabaseTables.TblFirma? _firma;
+        private DateTime _odabraniDatum = DateTime.Today;
+        private decimal _total;
+        private bool _initialized;
+
+        #endregion
+
+
+        #region PROPERTYJI
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public ObservableCollection<StavkaKnjigeSanka> Knjiga { get; } = new ObservableCollection<StavkaKnjigeSanka>();
+
+
         public DatabaseTables.TblFirma? Firma
         {
             get => _firma;
-            set
+            private set
             {
+                if (_firma == value)
+                    return;
+
                 _firma = value;
-                OnPropertyChanged (nameof (Firma)); // ako implementiraš INotifyPropertyChanged
+                OnPropertyChanged(nameof(Firma));
             }
         }
-        public ObservableCollection<StavkaKnjigeSanka> Knjiga { get; }
-            = new ObservableCollection<StavkaKnjigeSanka> ();
 
-        private DateTime _odabraniDatum = DateTime.Today;
+
         public DateTime OdabraniDatum
         {
             get => _odabraniDatum;
             set
             {
-                _odabraniDatum = value;
-                OnPropertyChanged (nameof (OdabraniDatum));
-                _ = LoadDataAsync (); // automatski refresh
-            }
-        }
-        private string? _imagePathPrintButton;
-        public string? ImagePathPrintButton
-        {
-            get { return _imagePathPrintButton; }
-            set
-            {
-                _imagePathPrintButton = value;
-                OnPropertyChanged (nameof (ImagePathPrintButton));
-            }
-        }
+                DateTime noviDatum = value.Date;
 
-        private string? _imagePathFirstButton;
-        public string? ImagePathFirstButton
-        {
-            get { return _imagePathFirstButton; }
-            set
-            {
-                _imagePathFirstButton = value;
-                OnPropertyChanged (nameof (ImagePathFirstButton));
-            }
-        }
+                if (_odabraniDatum.Date == noviDatum)
+                    return;
 
-        private string? _imagePathLastButton;
-        public string? ImagePathLastButton
-        {
-            get { return _imagePathLastButton; }
-            set
-            {
-                _imagePathLastButton = value;
-                OnPropertyChanged (nameof (ImagePathLastButton));
-            }
-        }
+                _odabraniDatum = noviDatum;
 
-        private decimal? _Total = 0;
-        public decimal? Total
-        {
-            get { return _Total; }
-            set
-            {
-                if(_Total != value)
-                {
-                    _Total = value;
-                    OnPropertyChanged (nameof (Total));
-                }
+                OnPropertyChanged(nameof(OdabraniDatum));
+
+                _ = LoadDataAsync();
             }
         }
 
 
-        private Brush? _fontColor;
-        public Brush? FontColor
+        public decimal Total
         {
-            get { return _fontColor; }
-            set
+            get => _total;
+            private set
             {
-                if(_fontColor != value)
-                {
-                    _fontColor = value;
-                    OnPropertyChanged (nameof (FontColor));
-                }
+                if (_total == value)
+                    return;
+
+                _total = value;
+
+                OnPropertyChanged(nameof(Total));
             }
         }
 
-        private Brush? _backColor;
-        public Brush? BackColor
-        {
-            get { return _backColor; }
-            set
-            {
-                if(_backColor != value)
-                {
-                    _backColor = value;
-                    OnPropertyChanged (nameof (BackColor));
-                }
-            }
-        }
+        #endregion
+
+
+        #region KOMANDE
+
+        public ICommand PreviousDayCommand { get; }
+        public ICommand NextDayCommand { get; }
+        public ICommand PrintCommand { get; }
+
+        #endregion
+
+
+        #region KONSTRUKTOR
 
         public KnjigaSankaViewModel(KnjigaSankaService service)
         {
-            _service = service;
-            _ = Start ();
+            _service = service ?? throw new ArgumentNullException(nameof(service));
+
+            PreviousDayCommand = new RelayCommand(PreviousDay);
+            NextDayCommand = new RelayCommand(NextDay);
+            PrintCommand = new RelayCommand(PrintReport);
+
+            _ = InitializeAsync();
         }
 
-        public async Task Start()
-        {
-            await SetImage ();
-            await LoadDataAsync ();
+        #endregion
 
-            await LoadFirmaAsync ();
-        }
-        private async Task LoadDataAsync()
+
+        #region INICIJALIZACIJA
+
+        public async Task InitializeAsync()
         {
-            Debug.WriteLine ("Trigerovan  private async Task LoadDataAsync() u  KnjigaSankaViewModel");
-            Knjiga.Clear ();
-            var data = await _service.GetKnjigaZaDanAsync (OdabraniDatum);
-            foreach(var item in data)
+            if (_initialized)
+                return;
+
+            _initialized = true;
+
+            try
             {
-                Debug.WriteLine (item.Naziv + " -- " + item.IsPromet);
-                Total += item.Promet;
-                Knjiga.Add (item);
-            }
+                LoadFirma();
 
+                await LoadDataAsync();
+            }
+            catch (Exception ex)
+            {
+                _initialized = false;
+
+                Debug.WriteLine("[KNJIGA ŠANKA] InitializeAsync: " + ex);
+            }
         }
 
-        public async Task LoadFirmaAsync()
+
+        private void LoadFirma()
         {
             try
             {
-                Firma = new DatabaseTables.TblFirma();
-                Firma.NazivFirme = Settings.Default.Firma;
-                Firma.Adresa = Settings.Default.Adresa;
-                Firma.Grad = Settings.Default.Mjesto;
-                Firma.JIB = Settings.Default.JIB;
-                Firma.PDV = Settings.Default.PDV;
-                Debug.WriteLine ("Firma učitana: " + (Firma?.NazivFirme ?? "null"));
-            }
-            catch(Exception ex)
-            {
-                Debug.WriteLine (ex);
-            }
-        }
-
-
-        public async Task SetImage()
-        {
-            await Task.Delay (1);
-            string tema = Settings.Default.Tema;
-
-            if(tema == "Tamna")
-            {
-                Debug.WriteLine ("Aktivna tema koju vidi viewmodel je : " + tema);
-
-                ImagePathPrintButton = "pack://application:,,,/Images/Dark/printer.svg";
-
-                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
-                Application.Current.Resources["GlobalFontColor"] = FontColor;
-                BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
-
-
-            }
-            else
-            {
-
-                ImagePathPrintButton = "pack://application:,,,/Images/Light/printer.svg";
-                Debug.WriteLine ("Aktivna tema koju vidi viewmodel je : " + tema);
-                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
-                Application.Current.Resources["GlobalFontColor"] = FontColor;
-                BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
-
-            }
-        }
-
-        public void PrintReport(ObservableCollection<StavkaKnjigeSanka> knjiga, string nazivFirme, string adresa, string grad, string jib, string pdv, DateTime odabraniDatum, decimal? total)
-        {
-            FlowDocument doc = new FlowDocument
-            {
-                PageWidth = 700,   // A4 širina u device independent units (1/96 inča)
-                PageHeight = 1122, // A4 visina
-                ColumnWidth = double.PositiveInfinity,
-                FontFamily = new FontFamily ("Segoe UI"),
-                FontSize = 10,
-                PagePadding = new Thickness (50) // margine
-            };
-
-
-            // === ZAGLAVLJE ===
-            Table headerTable = new Table ();
-            headerTable.Columns.Add (new TableColumn { Width = new GridLength (200) }); // lijeva kolona
-            headerTable.Columns.Add (new TableColumn { Width = new GridLength (200) }); // srednja kolona
-            headerTable.Columns.Add (new TableColumn { Width = new GridLength (150) }); // desna kolona
-
-            TableRowGroup trg = new TableRowGroup ();
-            headerTable.RowGroups.Add (trg);
-            TableRow row = new TableRow ();
-            trg.Rows.Add (row);
-
-            // --- Lijevo: podaci o firmi ---
-            Paragraph firmaPar = new Paragraph
-            {
-                TextAlignment = TextAlignment.Left,
-                FontSize = 12
-            };
-            firmaPar.Inlines.Add (nazivFirme + Environment.NewLine);
-            firmaPar.Inlines.Add (adresa + Environment.NewLine);
-            firmaPar.Inlines.Add (grad + Environment.NewLine);
-            firmaPar.Inlines.Add ("JIB: " + jib + Environment.NewLine);
-            firmaPar.Inlines.Add ("PDV: " + pdv);
-
-            row.Cells.Add (new TableCell (firmaPar) { BorderThickness = new Thickness (0) });
-
-            // --- Centar: naslov ---
-            Paragraph naslovPar = new Paragraph
-            {
-                TextAlignment = TextAlignment.Center,
-                FontSize = 20,
-                FontWeight = FontWeights.Bold
-            };
-            naslovPar.Inlines.Add ("DNEVNI LIST ŠANKA");
-
-            Paragraph datumPar = new Paragraph
-            {
-                TextAlignment = TextAlignment.Center,
-                FontSize = 12,
-                FontWeight = FontWeights.Medium
-            };
-            datumPar.Inlines.Add ($"Za dan: {odabraniDatum:dd.MM.yyyy}");
-
-            // Napravi TableCell, podesi svojstva i dodaj blokove
-            var centerCell = new TableCell
-            {
-                BorderThickness = new Thickness (0),
-                TextAlignment = TextAlignment.Center
-            };
-            centerCell.Blocks.Add (naslovPar);
-            centerCell.Blocks.Add (datumPar);
-
-            // Dodaj u red
-            row.Cells.Add (centerCell);
-
-
-            // --- Desno: obrazac ---
-            Paragraph obrazacPar = new Paragraph
-            {
-                TextAlignment = TextAlignment.Right,
-                FontSize = 10
-            };
-            obrazacPar.Inlines.Add ("Obrazac DLŠ");
-            row.Cells.Add (new TableCell (obrazacPar) { BorderThickness = new Thickness (0) });
-
-            // Dodaj tabelu u dokument
-            doc.Blocks.Add (headerTable);
-
-            doc.Blocks.Add (new Paragraph (new Run (" ")) { FontSize = 6 }); // mali razmak ispod
-
-
-
-            // === TABELA ===
-            Table table = new Table ();
-            table.CellSpacing = 0;
-            doc.Blocks.Add (table);
-
-            // Definicija kolona
-            table.Columns.Add (new TableColumn { Width = new GridLength (25) });
-            table.Columns.Add (new TableColumn { Width = new GridLength (150) });
-            table.Columns.Add (new TableColumn { Width = new GridLength (30) });
-            table.Columns.Add (new TableColumn { Width = new GridLength (56) });
-            table.Columns.Add (new TableColumn { Width = new GridLength (56) });
-            table.Columns.Add (new TableColumn { Width = new GridLength (56) });
-            table.Columns.Add (new TableColumn { Width = new GridLength (56) });
-            table.Columns.Add (new TableColumn { Width = new GridLength (56) });
-            table.Columns.Add (new TableColumn { Width = new GridLength (56) });
-            table.Columns.Add (new TableColumn { Width = new GridLength (56) });
-
-            // Header red
-            TableRowGroup headerGroup = new TableRowGroup ();
-            table.RowGroups.Add (headerGroup);
-            TableRow headerRow = new TableRow ();
-            headerGroup.Rows.Add (headerRow);
-
-            string[] kolone = { "#", "Naziv robe", "JM", "Prenesene zalihe iz prethodnog dana", "Nabavke u toku dana", "Ukupno zaduženje", "Utrošak u toku dana", "Cijena", "Iznos", "Ostatak robe-Prenos za naredni dan" };
-            foreach(var col in kolone)
-            {
-                TableCell cell = new TableCell (new Paragraph (new Run (col)))
+                Firma = new DatabaseTables.TblFirma
                 {
-                    FontWeight = FontWeights.Medium,
-                    TextAlignment = TextAlignment.Center,
-                    Padding = new Thickness (4),
-                    FontSize = 10,
-                    BorderBrush = Brushes.Gray,
-                    BorderThickness = new Thickness (0.5)
+                    NazivFirme = Settings.Default.Firma,
+                    Adresa = Settings.Default.Adresa,
+                    Grad = Settings.Default.Mjesto,
+                    JIB = Settings.Default.JIB,
+                    PDV = Settings.Default.PDV
                 };
-                headerRow.Cells.Add (cell);
+
+                Debug.WriteLine("[KNJIGA ŠANKA] Firma učitana: " + (Firma.NazivFirme ?? "null"));
             }
-
-            // Podaci
-            TableRowGroup bodyGroup = new TableRowGroup ();
-            table.RowGroups.Add (bodyGroup);
-
-            foreach(var item in knjiga)
+            catch (Exception ex)
             {
-                TableRow row2 = new TableRow ();
-                bodyGroup.Rows.Add (row2);
-
-                row2.Cells.Add (CreateCell (item.RedniBroj.GetValueOrDefault ().ToString (), TextAlignment.Center));
-                row2.Cells.Add (CreateCell (item.Naziv, TextAlignment.Left));
-                row2.Cells.Add (CreateCell (item.JedinicaMjere, TextAlignment.Center));
-                row2.Cells.Add (CreateCell (item.OstatakOdJuce.ToString ("F2"), TextAlignment.Right));
-                row2.Cells.Add (CreateCell (item.NabavljenoDanas.ToString ("F2"), TextAlignment.Right));
-                row2.Cells.Add (CreateCell (item.NaStanju.ToString ("F2"), TextAlignment.Right));
-                row2.Cells.Add (CreateCell (item.UtrosenoDanas.ToString ("F2"), TextAlignment.Right));
-                row2.Cells.Add (CreateCell (item.Cijena.ToString ("F2"), TextAlignment.Right));
-                row2.Cells.Add (CreateCell (item.Promet.ToString ("F2"), TextAlignment.Right));
-                row2.Cells.Add (CreateCell (item.OstatakZaSutra.ToString ("F2"), TextAlignment.Right));
-            }
-
-            // === UKUPNO ===
-            Paragraph totalPar = new Paragraph
-            {
-                TextAlignment = TextAlignment.Right,
-                FontSize = 12,
-                FontWeight = FontWeights.Medium
-            };
-            totalPar.Inlines.Add ("UKUPNO: " + total.GetValueOrDefault ().ToString ("F2"));
-            doc.Blocks.Add (totalPar);
-
-            // === POTPIS ===
-            Paragraph footer = new Paragraph
-            {
-                TextAlignment = TextAlignment.Left,
-                FontSize = 12,
-                Margin = new Thickness (0, 5, 0, 0)
-            };
-            footer.Inlines.Add ("POTPIS: __________________________");
-
-            doc.Blocks.Add (footer);
-
-            // === ŠTAMPA ===
-            PrintDialog printDlg = new PrintDialog ();
-            printDlg.PrintQueue = LocalPrintServer.GetDefaultPrintQueue ();
-            if(printDlg.ShowDialog () == true)
-            {
-                IDocumentPaginatorSource idpSource = doc;
-                printDlg.PrintDocument (idpSource.DocumentPaginator, "Dnevni list šanka");
+                Debug.WriteLine("[KNJIGA ŠANKA] LoadFirma: " + ex);
             }
         }
 
-        private TableCell CreateCell(string text, TextAlignment alignment)
+        #endregion
+
+
+        #region UČITAVANJE KNJIGE
+
+        private async Task LoadDataAsync()
         {
-            return new TableCell (new Paragraph (new Run (text)))
+            DateTime datum = OdabraniDatum.Date;
+
+            Debug.WriteLine($"[KNJIGA LOAD] START datum={datum:dd.MM.yyyy}, property={OdabraniDatum:dd.MM.yyyy}");
+
+            try
+            {
+                var data = await _service.GetKnjigaZaDanAsync(datum);
+
+                Debug.WriteLine($"[KNJIGA LOAD] SERVICE GOTOV datum={datum:dd.MM.yyyy}, property={OdabraniDatum:dd.MM.yyyy}");
+
+                Knjiga.Clear();
+
+                foreach (var item in data)
+                    Knjiga.Add(item);
+
+                Total = data.Sum(x => x.Promet);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[KNJIGA LOAD ERROR] {ex}");
+            }
+        }
+
+        #endregion
+
+
+        #region NAVIGACIJA DATUMOM
+
+        private void PreviousDay()
+        {
+            OdabraniDatum = OdabraniDatum.AddDays(-1);
+        }
+
+
+        private void NextDay()
+        {
+            OdabraniDatum = OdabraniDatum.AddDays(1);
+        }
+
+        #endregion
+
+
+        #region ŠTAMPA
+
+        private void PrintReport()
+        {
+            if (Firma == null)
+            {
+                Debug.WriteLine("[KNJIGA ŠANKA] Štampa nije pokrenuta jer podaci firme nisu učitani.");
+                return;
+            }
+
+            try
+            {
+                FlowDocument doc = new FlowDocument
+                {
+                    PageWidth = 793.7,
+                    PageHeight = 1122.5,
+                    ColumnWidth = double.PositiveInfinity,
+                    FontFamily = new FontFamily("Segoe UI"),
+                    FontSize = 10,
+                    PagePadding = new Thickness(48)
+                };
+
+                // ============================================================
+                // ZAGLAVLJE DOKUMENTA
+                // ============================================================
+
+                Table headerTable = new Table { CellSpacing = 0 };
+
+                headerTable.Columns.Add(new TableColumn { Width = new GridLength(230) });
+                headerTable.Columns.Add(new TableColumn { Width = new GridLength(285) });
+                headerTable.Columns.Add(new TableColumn { Width = new GridLength(180) });
+
+                TableRowGroup headerRowGroup = new TableRowGroup();
+                headerTable.RowGroups.Add(headerRowGroup);
+
+                TableRow headerRow = new TableRow();
+                headerRowGroup.Rows.Add(headerRow);
+
+                Paragraph firmaPar = new Paragraph
+                {
+                    TextAlignment = TextAlignment.Left,
+                    FontSize = 12,
+                    Margin = new Thickness(0)
+                };
+
+                firmaPar.Inlines.Add((Firma.NazivFirme ?? string.Empty) + Environment.NewLine);
+                firmaPar.Inlines.Add((Firma.Adresa ?? string.Empty) + Environment.NewLine);
+                firmaPar.Inlines.Add((Firma.Grad ?? string.Empty) + Environment.NewLine);
+                firmaPar.Inlines.Add("JIB: " + (Firma.JIB ?? string.Empty) + Environment.NewLine);
+                firmaPar.Inlines.Add("PDV: " + (Firma.PDV ?? string.Empty));
+
+                headerRow.Cells.Add(new TableCell(firmaPar)
+                {
+                    BorderThickness = new Thickness(0),
+                    Padding = new Thickness(0)
+                });
+
+                Paragraph naslovPar = new Paragraph
+                {
+                    TextAlignment = TextAlignment.Center,
+                    FontSize = 20,
+                    FontWeight = FontWeights.Bold,
+                    Margin = new Thickness(0, 0, 0, 5)
+                };
+
+                naslovPar.Inlines.Add("DNEVNI LIST ŠANKA");
+
+                Paragraph datumPar = new Paragraph
+                {
+                    TextAlignment = TextAlignment.Center,
+                    FontSize = 12,
+                    FontWeight = FontWeights.Medium,
+                    Margin = new Thickness(0)
+                };
+
+                datumPar.Inlines.Add($"Za dan: {OdabraniDatum:dd.MM.yyyy}");
+
+                TableCell centerCell = new TableCell
+                {
+                    BorderThickness = new Thickness(0),
+                    TextAlignment = TextAlignment.Center,
+                    Padding = new Thickness(0)
+                };
+
+                centerCell.Blocks.Add(naslovPar);
+                centerCell.Blocks.Add(datumPar);
+                headerRow.Cells.Add(centerCell);
+
+                Paragraph obrazacPar = new Paragraph
+                {
+                    TextAlignment = TextAlignment.Right,
+                    FontSize = 10,
+                    Margin = new Thickness(0)
+                };
+
+                obrazacPar.Inlines.Add("Obrazac DLŠ");
+
+                headerRow.Cells.Add(new TableCell(obrazacPar)
+                {
+                    BorderThickness = new Thickness(0),
+                    Padding = new Thickness(0)
+                });
+
+                doc.Blocks.Add(headerTable);
+
+                doc.Blocks.Add(new Paragraph(new Run(" "))
+                {
+                    FontSize = 6,
+                    Margin = new Thickness(0)
+                });
+
+                // ============================================================
+                // TABELA
+                // ============================================================
+
+                Table table = new Table { CellSpacing = 0 };
+                doc.Blocks.Add(table);
+
+                // Ukupno 695
+                table.Columns.Add(new TableColumn { Width = new GridLength(22) });
+                table.Columns.Add(new TableColumn { Width = new GridLength(165) });
+                table.Columns.Add(new TableColumn { Width = new GridLength(30) });
+                table.Columns.Add(new TableColumn { Width = new GridLength(84) });
+                table.Columns.Add(new TableColumn { Width = new GridLength(71) });
+                table.Columns.Add(new TableColumn { Width = new GridLength(65) });
+                table.Columns.Add(new TableColumn { Width = new GridLength(72) });
+                table.Columns.Add(new TableColumn { Width = new GridLength(55) });
+                table.Columns.Add(new TableColumn { Width = new GridLength(55) });
+                table.Columns.Add(new TableColumn { Width = new GridLength(76) });
+
+                // ============================================================
+                // HEADER TABELE
+                // ============================================================
+
+                string[] kolone =
+                {
+            "#",
+            "Naziv robe",
+            "JM",
+            "Prenesene zalihe iz prethodnog dana",
+            "Nabavke u toku dana",
+            "Ukupno zaduženje",
+            "Utrošak u toku dana",
+            "Cijena",
+            "Iznos",
+            "Ostatak robe-Prenos za naredni dan"
+        };
+
+                TableRowGroup tableHeaderGroup = new TableRowGroup();
+                table.RowGroups.Add(tableHeaderGroup);
+
+                TableRow tableHeaderRow = new TableRow();
+                tableHeaderGroup.Rows.Add(tableHeaderRow);
+
+                foreach (string col in kolone)
+                {
+                    TableCell cell = new TableCell(new Paragraph(new Run(col)) { Margin = new Thickness(0) })
+                    {
+                        FontWeight = FontWeights.Medium,
+                        TextAlignment = TextAlignment.Center,
+                        Padding = new Thickness(3, 5, 3, 5),
+                        FontSize = 9,
+                        BorderBrush = Brushes.Gray,
+                        BorderThickness = new Thickness(0.5)
+                    };
+
+                    tableHeaderRow.Cells.Add(cell);
+                }
+
+                // ============================================================
+                // PODACI
+                // ============================================================
+
+                TableRowGroup bodyGroup = new TableRowGroup();
+                table.RowGroups.Add(bodyGroup);
+
+                foreach (var item in Knjiga)
+                {
+                    TableRow row = new TableRow();
+                    bodyGroup.Rows.Add(row);
+
+                    TableCell redniBrojCell = CreateCell(item.RedniBroj.GetValueOrDefault().ToString(), TextAlignment.Center);
+
+                    if (item.IsPromet)
+                    {
+                        redniBrojCell.FontWeight = FontWeights.Bold;
+                        redniBrojCell.Background = new SolidColorBrush(Color.FromRgb(235, 235, 235));
+                    }
+
+                    row.Cells.Add(redniBrojCell);
+                    //row.Cells.Add(CreateCell(item.RedniBroj.GetValueOrDefault().ToString(), TextAlignment.Center));
+                    row.Cells.Add(CreateCell(item.Naziv, TextAlignment.Left));
+                    row.Cells.Add(CreateCell(item.JedinicaMjere, TextAlignment.Center));
+                    row.Cells.Add(CreateCell(FormatQuantity(item.OstatakOdJuce), TextAlignment.Right));
+                    row.Cells.Add(CreateCell(FormatQuantity(item.NabavljenoDanas), TextAlignment.Right));
+                    row.Cells.Add(CreateCell(FormatQuantity(item.NaStanju), TextAlignment.Right));
+                    row.Cells.Add(CreateCell(FormatQuantity(item.UtrosenoDanas), TextAlignment.Right));
+                    row.Cells.Add(CreateCell(item.Cijena.ToString("F2"), TextAlignment.Right));
+                    row.Cells.Add(CreateCell(item.Promet.ToString("F2"), TextAlignment.Right));
+                    row.Cells.Add(CreateCell(FormatQuantity(item.OstatakZaSutra), TextAlignment.Right));
+                }
+
+                // ============================================================
+                // UKUPNO
+                // ============================================================
+
+                Paragraph totalPar = new Paragraph
+                {
+                    TextAlignment = TextAlignment.Right,
+                    FontSize = 12,
+                    FontWeight = FontWeights.Medium,
+                    Margin = new Thickness(0, 8, 0, 0)
+                };
+
+                totalPar.Inlines.Add("UKUPNO: " + Total.ToString("F2"));
+                doc.Blocks.Add(totalPar);
+
+                // ============================================================
+                // POTPIS
+                // ============================================================
+
+                Paragraph footer = new Paragraph
+                {
+                    TextAlignment = TextAlignment.Left,
+                    FontSize = 12,
+                    Margin = new Thickness(0, 5, 0, 0)
+                };
+
+                footer.Inlines.Add("POTPIS: __________________________");
+                doc.Blocks.Add(footer);
+
+                // ============================================================
+                // PRINT
+                // ============================================================
+
+                PrintDialog printDialog = new PrintDialog
+                {
+                    PrintQueue = LocalPrintServer.GetDefaultPrintQueue()
+                };
+
+                if (printDialog.ShowDialog() == true)
+                {
+                    IDocumentPaginatorSource paginatorSource = doc;
+
+                    DocumentPaginator paginator = new KnjigaSankaPaginator(
+                        paginatorSource.DocumentPaginator,
+                        kolone,
+                        new double[] { 22, 165, 30, 84, 71, 65, 72, 55, 55, 76 },
+                        new Size(793.7, 1122.5),
+                        48);
+
+                    string documentName = $"KnjigaSanka_{OdabraniDatum:dd_MM_yyyy}";
+                    printDialog.PrintDocument(paginator, documentName);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[KNJIGA ŠANKA] PrintReport: " + ex);
+            }
+        }
+
+
+        private static string FormatQuantity(decimal value)
+        {
+            return value.ToString("0.00#");
+        }
+
+
+        private static TableCell CreateCell(string? text, TextAlignment alignment)
+        {
+            return new TableCell(
+                new Paragraph(
+                    new Run(text ?? string.Empty)))
             {
                 TextAlignment = alignment,
-                Padding = new Thickness (3),
+                Padding = new Thickness(3),
                 BorderBrush = Brushes.Gray,
-                BorderThickness = new Thickness (0.5)
+                BorderThickness = new Thickness(0.5)
             };
         }
+
+        #endregion
+
+
+        #region INOTIFYPROPERTYCHANGED
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(
+                this,
+                new PropertyChangedEventArgs(propertyName));
+        }
+
+        #endregion
     }
 
+    public class KnjigaSankaPaginator : DocumentPaginator
+    {
+        private readonly DocumentPaginator _source;
+        private readonly string[] _headers;
+        private readonly double[] _widths;
+        private readonly Size _pageSize;
+        private readonly double _margin;
+
+        private readonly double _topMargin = 20;
+        private readonly double _headerHeight = 52;
+
+        private double ReservedHeight => _topMargin + _headerHeight;
+
+        public KnjigaSankaPaginator(DocumentPaginator source, string[] headers, double[] widths, Size pageSize, double margin)
+        {
+            _source = source;
+            _headers = headers;
+            _widths = widths;
+            _pageSize = pageSize;
+            _margin = margin;
+
+            _source.PageSize = new Size(pageSize.Width, pageSize.Height - ReservedHeight);
+        }
+
+        public override DocumentPage GetPage(int pageNumber)
+        {
+            DocumentPage sourcePage = _source.GetPage(pageNumber);
+
+            if (pageNumber == 0)
+            {
+                return new DocumentPage(
+                    sourcePage.Visual,
+                    _pageSize,
+                    sourcePage.BleedBox,
+                    sourcePage.ContentBox);
+            }
+
+            ContainerVisual pageVisual = new ContainerVisual();
+
+            // Header druge i svake naredne stranice
+            DrawingVisual headerVisual = CreateHeaderVisual();
+            pageVisual.Children.Add(headerVisual);
+
+            // Sadržaj počinje odmah ispod headera
+            ContainerVisual contentVisual = new ContainerVisual
+            {
+                Transform = new TranslateTransform(0, ReservedHeight - _margin)
+            };
+
+            contentVisual.Children.Add(sourcePage.Visual);
+            pageVisual.Children.Add(contentVisual);
+
+            return new DocumentPage(
+                pageVisual,
+                _pageSize,
+                new Rect(_pageSize),
+                new Rect(_pageSize));
+        }
+
+        private DrawingVisual CreateHeaderVisual()
+        {
+            DrawingVisual visual = new DrawingVisual();
+
+            using (DrawingContext dc = visual.RenderOpen())
+            {
+                double x = _margin;
+                double y = _topMargin;
+
+                for (int i = 0; i < _headers.Length; i++)
+                {
+                    double width = _widths[i];
+
+                    Rect rect = new Rect(
+                        x,
+                        y,
+                        width,
+                        _headerHeight);
+
+                    dc.DrawRectangle(
+                        Brushes.White,
+                        new Pen(Brushes.Gray, 0.5),
+                        rect);
+
+                    FormattedText text = new FormattedText(
+                        _headers[i],
+                        System.Globalization.CultureInfo.CurrentCulture,
+                        FlowDirection.LeftToRight,
+                        new Typeface(
+                            new FontFamily("Segoe UI"),
+                            FontStyles.Normal,
+                            FontWeights.Medium,
+                            FontStretches.Normal),
+                        9,
+                        Brushes.Black,
+                        VisualTreeHelper.GetDpi(visual).PixelsPerDip);
+
+                    text.MaxTextWidth = Math.Max(1, width - 6);
+                    text.MaxTextHeight = _headerHeight - 6;
+                    text.TextAlignment = TextAlignment.Center;
+                    text.Trimming = TextTrimming.None;
+
+                    double textY = y + Math.Max(
+                        3,
+                        (_headerHeight - text.Height) / 2);
+
+                    dc.DrawText(
+                        text,
+                        new Point(x + 3, textY));
+
+                    x += width;
+                }
+            }
+
+            return visual;
+        }
+
+        public override bool IsPageCountValid => _source.IsPageCountValid;
+
+        public override int PageCount => _source.PageCount;
+
+        public override Size PageSize
+        {
+            get => _pageSize;
+            set
+            {
+                _source.PageSize = new Size(
+                    value.Width,
+                    value.Height - ReservedHeight);
+            }
+        }
+
+        public override IDocumentPaginatorSource Source => _source.Source;
+    }
 }
