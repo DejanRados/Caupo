@@ -2,12 +2,15 @@
 using Caupo.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Threading;
 using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.Services
 {
     public class KnjigaSankaService
     {
+        private static readonly SemaphoreSlim _syncLock = new(1, 1);
+
         private readonly AppDbContext _db;
 
         public KnjigaSankaService(AppDbContext db)
@@ -15,65 +18,135 @@ namespace Caupo.Services
             _db = db;
         }
 
-        public async Task<List<StavkaKnjigeSanka>> GetKnjigaZaDanAsync(DateTime datum)
+        // ================================================================
+        // SINHRONIZACIJA KNJIGE DO DANAS
+        //
+        // Koristi se:
+        // - pri pokretanju aplikacije
+        // - nakon spremanja/promjene ulaza
+        // - pri prvom otvaranju Knjige šanka
+        //
+        // Ako postoji DatumPromjeneStanja, obračun kreće od tog datuma.
+        // Ako knjiga zaostaje, kreće od prvog nedostajućeg dana.
+        // Ako knjiga već postoji do danas, ponovo se računa samo danas.
+        // ================================================================
+
+        public async Task SinhronizujDoDanasAsync()
         {
-            DateTime danas = datum.Date;
+            await _syncLock.WaitAsync();
 
-            Debug.WriteLine("========================================");
-            Debug.WriteLine("KNJIGA ŠANKA - POČETAK");
-            Debug.WriteLine($"Vrijeme: {DateTime.Now:dd.MM.yyyy HH:mm:ss}");
-            Debug.WriteLine($"Traženi datum: {danas:dd.MM.yyyy}");
-            Debug.WriteLine("========================================");
+            try
+            {
+                DateTime danas = DateTime.Today;
 
-            DateTime? prviUlaz = await _db.Ulaz.Select(x => (DateTime?)x.Datum).MinAsync();
-            DateTime? prviRacun = await _db.Racuni.Select(x => (DateTime?)x.Datum).MinAsync();
+                Debug.WriteLine("========================================");
+                Debug.WriteLine("KNJIGA ŠANKA - SINHRONIZACIJA");
+                Debug.WriteLine($"Vrijeme: {DateTime.Now:dd.MM.yyyy HH:mm:ss}");
+                Debug.WriteLine($"Obračun do: {danas:dd.MM.yyyy}");
+                Debug.WriteLine("========================================");
 
-            DateTime? prviDatum = null;
+                DateTime? prviUlaz = await _db.Ulaz
+                    .AsNoTracking()
+                    .Select(x => (DateTime?)x.Datum)
+                    .MinAsync();
 
-            if (prviUlaz.HasValue && prviRacun.HasValue)
-                prviDatum = prviUlaz.Value.Date <= prviRacun.Value.Date ? prviUlaz.Value.Date : prviRacun.Value.Date;
-            else if (prviUlaz.HasValue)
-                prviDatum = prviUlaz.Value.Date;
-            else if (prviRacun.HasValue)
-                prviDatum = prviRacun.Value.Date;
+                DateTime? prviRacun = await _db.Racuni
+                    .AsNoTracking()
+                    .Select(x => (DateTime?)x.Datum)
+                    .MinAsync();
 
-            DateTime? datumPromjeneStanja = await _db.KnjigaSankaKontrola.Where(x => x.Id == 1).Select(x => x.DatumPromjeneStanja).FirstOrDefaultAsync();
-            DateTime? zadnjiDatumKnjige = await _db.KnjigaSanka.Select(x => (DateTime?)x.Datum).MaxAsync();
+                DateTime? prviDatum = null;
 
-            DateTime? obracunOd = null;
+                if (prviUlaz.HasValue && prviRacun.HasValue)
+                    prviDatum = prviUlaz.Value.Date <= prviRacun.Value.Date
+                        ? prviUlaz.Value.Date
+                        : prviRacun.Value.Date;
+                else if (prviUlaz.HasValue)
+                    prviDatum = prviUlaz.Value.Date;
+                else if (prviRacun.HasValue)
+                    prviDatum = prviRacun.Value.Date;
 
-            if (datumPromjeneStanja.HasValue)
-                obracunOd = datumPromjeneStanja.Value.Date;
-            else if (!zadnjiDatumKnjige.HasValue)
-                obracunOd = prviDatum;
-            else if (zadnjiDatumKnjige.Value.Date < danas)
-                obracunOd = zadnjiDatumKnjige.Value.Date.AddDays(1);
-            else
-                obracunOd = danas;
+                DateTime? datumPromjeneStanja = await _db.KnjigaSankaKontrola
+                    .AsNoTracking()
+                    .Where(x => x.Id == 1)
+                    .Select(x => x.DatumPromjeneStanja)
+                    .FirstOrDefaultAsync();
 
-            if (obracunOd.HasValue && obracunOd.Value > danas)
-                obracunOd = danas;
+                DateTime? zadnjiDatumKnjige = await _db.KnjigaSanka
+                    .AsNoTracking()
+                    .Select(x => (DateTime?)x.Datum)
+                    .MaxAsync();
 
-            Debug.WriteLine($"Prvi ulaz            : {(prviUlaz.HasValue ? prviUlaz.Value.ToString("dd.MM.yyyy HH:mm:ss") : "NEMA")}");
-            Debug.WriteLine($"Prvi račun           : {(prviRacun.HasValue ? prviRacun.Value.ToString("dd.MM.yyyy HH:mm:ss") : "NEMA")}");
-            Debug.WriteLine($"Prvi relevantni datum: {(prviDatum.HasValue ? prviDatum.Value.ToString("dd.MM.yyyy") : "NEMA")}");
-            Debug.WriteLine($"Zadnji datum knjige  : {(zadnjiDatumKnjige.HasValue ? zadnjiDatumKnjige.Value.ToString("dd.MM.yyyy") : "NEMA")}");
-            Debug.WriteLine($"Datum promjene stanja: {(datumPromjeneStanja.HasValue ? datumPromjeneStanja.Value.ToString("dd.MM.yyyy") : "NEMA")}");
-            Debug.WriteLine($"OBRAČUN OD           : {(obracunOd.HasValue ? obracunOd.Value.ToString("dd.MM.yyyy") : "NEMA")}");
-            Debug.WriteLine($"OBRAČUN DO           : {danas:dd.MM.yyyy}");
-            Debug.WriteLine("----------------------------------------");
+                DateTime? obracunOd;
 
-            if (obracunOd.HasValue)
+                if (datumPromjeneStanja.HasValue)
+                {
+                    // Postoji retroaktivna promjena.
+                    obracunOd = datumPromjeneStanja.Value.Date;
+                }
+                else if (!zadnjiDatumKnjige.HasValue)
+                {
+                    // Knjiga još ne postoji.
+                    obracunOd = prviDatum;
+                }
+                else if (zadnjiDatumKnjige.Value.Date < danas)
+                {
+                    // Knjiga postoji, ali nedostaju dani do danas.
+                    obracunOd = zadnjiDatumKnjige.Value.Date.AddDays(1);
+                }
+                else
+                {
+                    // Knjiga je već obračunata do danas.
+                    // Današnji dan ipak ponovo računamo jer se tokom
+                    // dana mijenjaju računi i ulazi.
+                    obracunOd = danas;
+                }
+
+                if (!obracunOd.HasValue)
+                {
+                    Debug.WriteLine("KNJIGA ŠANKA - nema ulaza ni računa za obračun.");
+                    return;
+                }
+
+                if (obracunOd.Value.Date > danas)
+                    obracunOd = danas;
+
+                Debug.WriteLine($"Prvi ulaz            : {(prviUlaz.HasValue ? prviUlaz.Value.ToString("dd.MM.yyyy HH:mm:ss") : "NEMA")}");
+                Debug.WriteLine($"Prvi račun           : {(prviRacun.HasValue ? prviRacun.Value.ToString("dd.MM.yyyy HH:mm:ss") : "NEMA")}");
+                Debug.WriteLine($"Prvi relevantni datum: {(prviDatum.HasValue ? prviDatum.Value.ToString("dd.MM.yyyy") : "NEMA")}");
+                Debug.WriteLine($"Zadnji datum knjige  : {(zadnjiDatumKnjige.HasValue ? zadnjiDatumKnjige.Value.ToString("dd.MM.yyyy") : "NEMA")}");
+                Debug.WriteLine($"Datum promjene stanja: {(datumPromjeneStanja.HasValue ? datumPromjeneStanja.Value.ToString("dd.MM.yyyy") : "NEMA")}");
+                Debug.WriteLine($"OBRAČUN OD           : {obracunOd.Value:dd.MM.yyyy}");
+                Debug.WriteLine($"OBRAČUN DO           : {danas:dd.MM.yyyy}");
+                Debug.WriteLine("----------------------------------------");
+
                 await ObracunajPeriodAsync(obracunOd.Value, danas);
 
-            var rezultat = await UcitajKnjiguZaDanAsync(danas);
-
-            Debug.WriteLine("========================================");
-            Debug.WriteLine($"KNJIGA ŠANKA - GOTOVO | Redova: {rezultat.Count}");
-            Debug.WriteLine("========================================");
-
-            return rezultat;
+                Debug.WriteLine("========================================");
+                Debug.WriteLine("KNJIGA ŠANKA - SINHRONIZACIJA GOTOVA");
+                Debug.WriteLine("========================================");
+            }
+            finally
+            {
+                _syncLock.Release();
+            }
         }
+
+        // ================================================================
+        // UČITAVANJE KNJIGE ZA ODABRANI DAN
+        //
+        // Ova metoda više NE radi obračun.
+        // Samo čita već sinhronizovanu Knjigu šanka.
+        // ================================================================
+
+        public async Task<List<StavkaKnjigeSanka>> GetKnjigaZaDanAsync(DateTime datum)
+        {
+            return await UcitajKnjiguZaDanAsync(datum.Date);
+        }
+
+        // ================================================================
+        // OBRAČUN PERIODA
+        // ================================================================
 
         private async Task ObracunajPeriodAsync(DateTime obracunOd, DateTime obracunDo)
         {
@@ -332,12 +405,20 @@ namespace Caupo.Services
             Debug.WriteLine("KNJIGA ŠANKA - OBRAČUN PERIODA GOTOV");
         }
 
+        // ================================================================
+        // UČITAVANJE JEDNOG DANA
+        // ================================================================
+
         private async Task<List<StavkaKnjigeSanka>> UcitajKnjiguZaDanAsync(DateTime datum)
         {
             DateTime dan = datum.Date;
             DateTime sutra = dan.AddDays(1);
 
-            var redovi = await _db.KnjigaSanka.AsNoTracking().Where(x => x.Datum >= dan && x.Datum < sutra).OrderBy(x => x.Artikl).ToListAsync();
+            var redovi = await _db.KnjigaSanka
+                .AsNoTracking()
+                .Where(x => x.Datum >= dan && x.Datum < sutra)
+                .OrderBy(x => x.Artikl)
+                .ToListAsync();
 
             var rezultat = new List<StavkaKnjigeSanka>();
             int redniBroj = 1;
@@ -364,6 +445,10 @@ namespace Caupo.Services
 
             return rezultat;
         }
+
+        // ================================================================
+        // JEDINICA MJERE
+        // ================================================================
 
         private static string GetJmName(int jm)
         {

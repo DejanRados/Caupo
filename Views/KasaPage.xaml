@@ -78,7 +78,7 @@
         <!-- ===================================================== -->
         <!-- HEADER -->
         <!-- ===================================================== -->
-        <Border Grid.Row="0" Background="#323232" Panel.ZIndex="20">
+        <Border Grid.Row="0" Background="{DynamicResource HeaderBackgroundColor}" Panel.ZIndex="20">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>

@@ -19,7 +19,7 @@
     
         </Grid.RowDefinitions>
         <!-- Header -->
-        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="55" Background="#323232" Grid.Row="0" >
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="{DynamicResource HeaderBackgroundColor}" Grid.Row="0" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>

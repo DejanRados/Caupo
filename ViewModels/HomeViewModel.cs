@@ -124,7 +124,7 @@ namespace Caupo.ViewModels
                 ImagePathSetupButton = "pack://application:,,,/Images/Dark/setup.svg";
                 ImagePathIngredientsButton = "pack://application:,,,/Images/Dark/ingredients.svg";
                 FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
-                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                //Application.Current.Resources["GlobalFontColor"] = FontColor;
                 BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
 
 
@@ -139,7 +139,7 @@ namespace Caupo.ViewModels
                 ImagePathSetupButton = "pack://application:,,,/Images/Light/setup.svg";
                 ImagePathIngredientsButton = "pack://application:,,,/Images/Light/ingredients.svg";
                 FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
-                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                //Application.Current.Resources["GlobalFontColor"] = FontColor;
                 BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
 
             }

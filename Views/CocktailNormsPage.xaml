@@ -18,7 +18,7 @@
         <!-- HEADER                                                    -->
         <!-- ========================================================= -->
 
-        <Grid Grid.Row="0" Background="#323232">
+        <Grid Grid.Row="0" Background="{DynamicResource HeaderBackgroundColor}">
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>

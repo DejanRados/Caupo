@@ -13,7 +13,7 @@
     </Window.Resources>
 
     <Grid>
-        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="55" Background="#323232" >
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="{DynamicResource HeaderBackgroundColor}" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>

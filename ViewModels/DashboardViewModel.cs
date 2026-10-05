@@ -253,12 +253,12 @@ namespace Caupo.ViewModels
             if(tema == "Tamna")
             {
                 FontColor = new SolidColorBrush (System.Windows.Media.Color.FromArgb (255, 212, 212, 212));
-                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                //Application.Current.Resources["GlobalFontColor"] = FontColor;
             }
             else
             {
                 FontColor = new SolidColorBrush (System.Windows.Media.Color.FromArgb (255, 50, 50, 50));
-                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                //Application.Current.Resources["GlobalFontColor"] = FontColor;
             }
         }
         private void ShowReport(string reportType)

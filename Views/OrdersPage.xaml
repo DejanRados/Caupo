@@ -19,7 +19,7 @@
               
               HorizontalAlignment="Stretch"
               VerticalAlignment="Top"
-              Background="#323232">
+              Background="{DynamicResource HeaderBackgroundColor}">
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -258,7 +258,7 @@
 
             <!-- DESNI TOOLBAR -->
             <StackPanel Grid.Column="1"
-            Background="#323232"
+            Background="{DynamicResource HeaderBackgroundColor}"
             Margin="-1"
             VerticalAlignment="Stretch">
 

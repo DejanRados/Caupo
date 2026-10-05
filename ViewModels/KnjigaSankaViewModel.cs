@@ -2,6 +2,7 @@
 using Caupo.Models;
 using Caupo.Properties;
 using Caupo.Services;
+using Caupo.Views;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -120,20 +121,37 @@ namespace Caupo.ViewModels
 
             _initialized = true;
 
+            LoadFirma();
+
+            _odabraniDatum = DateTime.Today;
+            OnPropertyChanged(nameof(OdabraniDatum));
+
             try
             {
-                LoadFirma();
-
+                await _service.SinhronizujDoDanasAsync();
                 await LoadDataAsync();
             }
             catch (Exception ex)
             {
                 _initialized = false;
 
+                Knjiga.Clear();
+                Total = 0;
+
                 Debug.WriteLine("[KNJIGA ŠANKA] InitializeAsync: " + ex);
+
+                ShowMessage(    "Greška - Knjiga šanka",   $"Knjiga šanka nije mogla biti obračunata.\n\nRazlog:\n{ex.Message}");
             }
         }
 
+        private static void ShowMessage(string title, string message)
+        {
+            MyMessageBox myMessageBox = new MyMessageBox();
+            myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            myMessageBox.MessageTitle.Text = title;
+            myMessageBox.MessageText.Text = message;
+            myMessageBox.ShowDialog();
+        }
 
         private void LoadFirma()
         {

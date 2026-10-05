@@ -17,7 +17,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="55" Background="#323232" >
+        <Grid Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="{DynamicResource HeaderBackgroundColor}" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -312,7 +312,7 @@
                                    VerticalAlignment="Top"
                                    FontWeight="Normal"
                                    Foreground="White"
-                                   Background="#323232"
+                                   Background="{DynamicResource HeaderBackgroundColor}"
                                    Padding="6"/>
 
                                         <!-- Donji red: podnaslovi -->
@@ -320,17 +320,17 @@
                                    Text="Količina"
                                    HorizontalAlignment="Left"
                                    VerticalAlignment="Center"
-                                   Foreground="White" Background="#323232" Padding="2"/>
+                                   Foreground="White" Background="{DynamicResource HeaderBackgroundColor}" Padding="2"/>
                                         <TextBlock Grid.Row="1" Grid.Column="1"
                                    Text="Dobavljač"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
-                                   Foreground="White" Background="#323232" Padding="2"/>
+                                   Foreground="White" Background="{DynamicResource HeaderBackgroundColor}" Padding="2"/>
                                         <TextBlock Grid.Row="1" Grid.Column="2"
                                    Text="Dokument"
                                    HorizontalAlignment="Right"
                                    VerticalAlignment="Center"
-                                   Foreground="White" Background="#323232" Padding="2"/>
+                                   Foreground="White" Background="{DynamicResource HeaderBackgroundColor}" Padding="2"/>
                                     </Grid>
                                 </DataTemplate>
                             </DataGridTemplateColumn.HeaderTemplate>
@@ -591,7 +591,7 @@
                                             VerticalAlignment="Center"
                                             FontWeight="Normal"
                                             Foreground="#dedede"
-                                            Background="#323232"
+                                            Background="{DynamicResource HeaderBackgroundColor}"
                                             Padding="4"/>
 
                                         <!-- Donji red: podnaslovi -->
@@ -599,22 +599,22 @@
                                             Text="Naziv"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center"
-                                            Foreground="#dedede" Background="#323232" Padding="2"/>
+                                            Foreground="#dedede" Background="{DynamicResource HeaderBackgroundColor}" Padding="2"/>
                                         <TextBlock Grid.Row="1" Grid.Column="1"
                                             Text="Količina"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center"
-                                            Foreground="#dedede" Background="#323232" Padding="2"/>
+                                            Foreground="#dedede" Background="{DynamicResource HeaderBackgroundColor}" Padding="2"/>
                                         <TextBlock Grid.Row="1" Grid.Column="2"
                                             Text="Cijena"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center"
-                                            Foreground="#dedede" Background="#323232" Padding="2"/>
+                                            Foreground="#dedede" Background="{DynamicResource HeaderBackgroundColor}" Padding="2"/>
                                         <TextBlock Grid.Row="1" Grid.Column="3"
                                               Text="Vrijednost"
                                               HorizontalAlignment="Center"
                                               VerticalAlignment="Center"
-                                              Foreground="#dedede" Background="#323232" Padding="2"/>
+                                              Foreground="#dedede" Background="{DynamicResource HeaderBackgroundColor}" Padding="2"/>
                                     </Grid>
                                 </DataTemplate>
                             </DataGridTemplateColumn.HeaderTemplate>

@@ -1,0 +1,17 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ===================================================== -->
+    <!-- CAUPO DARK THEME                                      -->
+    <!-- ===================================================== -->
+
+
+
+    <SolidColorBrush x:Key="GlobalBackgroundColor" Color="#292724"/>
+    <SolidColorBrush x:Key="HeaderBackgroundColor" Color="#383838"/>
+    <SolidColorBrush x:Key="GlobalFontColor" Color="#E8E4DE"/>
+    <SolidColorBrush x:Key="PrimaryButtonBackgroundColor" Color="#258B90"/>
+
+
+</ResourceDictionary>

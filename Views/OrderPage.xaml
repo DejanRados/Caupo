@@ -38,7 +38,7 @@
         <!-- ===================================================== -->
 
         <Border Grid.Row="0"
-                Background="#323232"
+                Background="{DynamicResource HeaderBackgroundColor}"
                 Panel.ZIndex="20">
 
             <Grid>

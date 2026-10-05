@@ -595,7 +595,7 @@ namespace Caupo.ViewModels
                 //ImagePathExportButton = "pack://application:,,,/Images/Dark/export.svg";
                 //ImagePathImportButton = "pack://application:,,,/Images/Dark/import.svg";
                 FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
-                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                //Application.Current.Resources["GlobalFontColor"] = FontColor;
                 BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
 
 
@@ -615,7 +615,7 @@ namespace Caupo.ViewModels
                 //ImagePathExportButton = "pack://application:,,,/Images/Light/export.svg";
                 //ImagePathImportButton = "pack://application:,,,/Images/Light/import.svg";
                 FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
-                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                //Application.Current.Resources["GlobalFontColor"] = FontColor;
                 BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
                 //FontColorAdv = new System.Windows.Media.Color();
                 //FontColorAdv = System.Windows.Media.Color.FromRgb(50, 50, 50);

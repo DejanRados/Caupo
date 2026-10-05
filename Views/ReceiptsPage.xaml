@@ -71,7 +71,7 @@
 
         <Grid Grid.Row="0"
               Height="55"
-              Background="#323232">
+              Background="{DynamicResource HeaderBackgroundColor}">
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>

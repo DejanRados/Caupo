@@ -2089,7 +2089,13 @@ namespace Caupo.ViewModels
                 Properties.Settings.Default.BlokKopija = BrojKopijaBloka ?? "1";
                 Properties.Settings.Default.ProdajaMinus = YesNoIndexToString(ProdajaMinus);
                 Properties.Settings.Default.MultiUser = YesNoIndexToString(MultiUser);
-                Properties.Settings.Default.Tema = Tema == 0 ? "Tamna" : "Svijetla";
+                Properties.Settings.Default.Tema = Tema switch
+                {
+                    0 => "Tamna",
+                    1 => "Svijetla",
+                    2 => "Plava",
+                    _ => "Tamna"
+                };
                 Properties.Settings.Default.ServerIP = ServerIP?.Trim() ?? string.Empty;
                 Properties.Settings.Default.DisplayKuhinja = (SelectedMonitor?.Index ?? 0).ToString();
                 Properties.Settings.Default.FooterRacuna = FooterRacuna;
@@ -3649,64 +3655,20 @@ namespace Caupo.ViewModels
         {
             try
             {
-                string temaName =
-                    Tema == 0
-                        ? "Tamna"
-                        : "Svijetla";
-
-
-                App.CurrentTheme =
-                    temaName;
-
-                App.ApplyTheme(
-                    temaName);
-
-
-                if (Application.Current == null)
-                    return;
-
-
-                if (Tema == 0)
+                string temaName = Tema switch
                 {
-                    Application.Current.Resources[
-                        "GlobalFontColor"] =
-                        new SolidColorBrush(
-                            Color.FromRgb(
-                                250,
-                                250,
-                                250));
+                    0 => "Tamna",
+                    1 => "Svijetla",
+                    2 => "Plava",
+                    _ => "Tamna"
+                };
 
-                    Application.Current.Resources[
-                        "GlobalBackgroundColor"] =
-                        new SolidColorBrush(
-                            Color.FromRgb(
-                                50,
-                                50,
-                                50));
-                }
-                else
-                {
-                    Application.Current.Resources[
-                        "GlobalFontColor"] =
-                        new SolidColorBrush(
-                            Color.FromRgb(
-                                32,
-                                33,
-                                36));
-
-                    Application.Current.Resources[
-                        "GlobalBackgroundColor"] =
-                        new SolidColorBrush(
-                            Color.FromRgb(
-                                250,
-                                250,
-                                250));
-                }
+                App.CurrentTheme = temaName;
+                App.ApplyTheme(temaName);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(
-                    $"[Settings] ApplySelectedTheme: {ex}");
+                Debug.WriteLine($"[Settings] ApplySelectedTheme: {ex}");
             }
         }
 
@@ -3736,15 +3698,15 @@ namespace Caupo.ViewModels
         }
 
 
-        private static int TemaToIndex(
-            string? value)
+        private static int TemaToIndex(string? value)
         {
-            return string.Equals(
-                value,
-                "Svijetla",
-                StringComparison.OrdinalIgnoreCase)
-                ? 1
-                : 0;
+            if (string.Equals(value, "Svijetla", StringComparison.OrdinalIgnoreCase))
+                return 1;
+
+            if (string.Equals(value, "Plava", StringComparison.OrdinalIgnoreCase))
+                return 2;
+
+            return 0;
         }
 
 

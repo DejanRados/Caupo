@@ -233,7 +233,7 @@ namespace Caupo.ViewModels
             {
                 ImagePathPrintButton = "pack://application:,,,/Images/Dark/printer.svg";
                 FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
-                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                //Application.Current.Resources["GlobalFontColor"] = FontColor;
                 BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
 
 
@@ -242,7 +242,7 @@ namespace Caupo.ViewModels
             {
                 ImagePathPrintButton = "pack://application:,,,/Images/Light/printer.svg";
                 FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
-                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                //Application.Current.Resources["GlobalFontColor"] = FontColor;
                 BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
 
             }

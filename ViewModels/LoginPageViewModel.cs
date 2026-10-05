@@ -114,7 +114,7 @@ namespace Caupo.ViewModels
                 ImagePathLogo = "pack://application:,,,/Images/caupolight.svg";
                 ImagePathLogoSmall = "pack://application:,,,/Images/logowhite.svg";
                 FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
-                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                //Application.Current.Resources["GlobalFontColor"] = FontColor;
                 BackColor = new SolidColorBrush (Color.FromArgb (0xFF, 0x28, 0x28, 0x28));
             }
             else
@@ -123,7 +123,7 @@ namespace Caupo.ViewModels
                 ImagePathLogo = "pack://application:,,,/Images/caupodark.svg";
                 ImagePathLogoSmall = "pack://application:,,,/Images/logodark.svg";
                 FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
-                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                //Application.Current.Resources["GlobalFontColor"] = FontColor;
                 BackColor = new SolidColorBrush (Color.FromArgb (0xFF, 0xf8, 0xf8, 0xf8));
 
             }

@@ -58,13 +58,13 @@ namespace Caupo.ViewModels
             {
 
                 FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
-                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                //Application.Current.Resources["GlobalFontColor"] = FontColor;
                 Debug.WriteLine ("Tema tamna, FontColor  je : " + FontColor.ToString ());
             }
             else
             {
                 FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
-                Application.Current.Resources["GlobalFontColor"] = FontColor;
+                //Application.Current.Resources["GlobalFontColor"] = FontColor;
                 Debug.WriteLine ("Tema svijetla, FontColor  je : " + FontColor.ToString ());
             }
 

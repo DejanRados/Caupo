@@ -9,7 +9,7 @@
         WindowStyle="None"
         ShowInTaskbar="False"
         Topmost="True"
-        Background="#323232">
+        Background="{DynamicResource HeaderBackgroundColor}">
 
     <Border Margin="2"
             Padding="30"

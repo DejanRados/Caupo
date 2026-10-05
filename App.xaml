@@ -7,10 +7,13 @@
              StartupUri="Views/MainWindow.xaml">
     <Application.Resources>
        <ResourceDictionary>
-            <Color x:Key="PrimaryButtonColor">#FF2FA4A9</Color>
+           
+
+
+            
             <Color x:Key="PrimaryButtonHoverColor">#FF35B5BA</Color>
             <Color x:Key="PrimaryButtonPressedColor">#FF279297</Color>
-            <SolidColorBrush x:Key="PrimaryButtonBrush"    Color="{StaticResource PrimaryButtonColor}" />
+           
             <SolidColorBrush x:Key="PrimaryButtonHoverBrush"  Color="{StaticResource PrimaryButtonHoverColor}" />
             <SolidColorBrush x:Key="PrimaryButtonPressedBrush"     Color="{StaticResource PrimaryButtonPressedColor}" />
             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#3366FF66"/>
@@ -95,25 +98,16 @@
             <!-- ========================================================= -->
 
             <Style x:Key="PrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseActionButtonStyle}">
-                <Setter Property="Background" Value="{StaticResource PrimaryButtonBrush}"/>
-                <Setter Property="Foreground" Value="White"/>
-                <Setter Property="BorderBrush" Value="{StaticResource PrimaryButtonBrush}"/>
+                <Setter Property="Background" Value="{DynamicResource PrimaryButtonBackgroundColor}"/>
+                <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource PrimaryButtonBackgroundColor}"/>
                 <Setter Property="BorderThickness" Value="1"/>
 
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
-                            <Border x:Name="Root"
-                        Background="{TemplateBinding Background}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="7"
-                        SnapsToDevicePixels="True">
-
-                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                      Margin="{TemplateBinding Padding}"
-                                      RecognizesAccessKey="True"/>
+                            <Border x:Name="Root" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="7" SnapsToDevicePixels="True">
+                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True"/>
                             </Border>
 
                             <ControlTemplate.Triggers>
@@ -784,8 +778,7 @@
 
       
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-            <SolidColorBrush x:Key="GlobalFontColor" Color="#323232" />
-            <SolidColorBrush x:Key="GlobalBackgroundColor" Color="#F5F5F5" />
+
            
             <Style TargetType="Label">
                 <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}" />
@@ -1599,6 +1592,9 @@
                 </Setter.Value>
             </Setter>
             </Style>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/CaupoDark.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
