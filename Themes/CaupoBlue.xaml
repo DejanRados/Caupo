@@ -2,9 +2,42 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+    <!-- ===================================================== -->
+    <!-- CAUPO BLUE THEME                                      -->
+    <!-- ===================================================== -->
+
+    <!-- OSNOVA -->
     <SolidColorBrush x:Key="GlobalBackgroundColor" Color="#E5E9EC"/>
-    <SolidColorBrush x:Key="HeaderBackgroundColor" Color="#35424d"/>
+    <SolidColorBrush x:Key="HeaderBackgroundColor" Color="#35424D"/>
     <SolidColorBrush x:Key="GlobalFontColor" Color="#2D3943"/>
-    <SolidColorBrush x:Key="PrimaryButtonBackgroundColor" Color="#258B90"/>
+
+    <!-- PRIMARY -->
+    <SolidColorBrush x:Key="ThemePrimaryBrush" Color="#356A7A"/>
+    <SolidColorBrush x:Key="ThemePrimaryHoverBrush" Color="#427F90"/>
+    <SolidColorBrush x:Key="ThemePrimaryPressedBrush" Color="#2C5967"/>
+
+    <!-- SECONDARY -->
+    <SolidColorBrush x:Key="ThemeSecondaryBrush" Color="#6FAFC0"/>
+    <SolidColorBrush x:Key="ThemeSecondaryHoverBrush" Color="#83BECD"/>
+    <SolidColorBrush x:Key="ThemeSecondaryPressedBrush" Color="#5C98A8"/>
+
+    <!-- ACCENT -->
+    <SolidColorBrush x:Key="ThemeAccentBrush" Color="#20B8D2"/>
+
+    <!-- CANCEL -->
+    <SolidColorBrush x:Key="ThemeCancelBrush" Color="#6C757D"/>
+    <SolidColorBrush x:Key="ThemeCancelHoverBrush" Color="#7B848C"/>
+    <SolidColorBrush x:Key="ThemeCancelPressedBrush" Color="#565E64"/>
+
+    <!-- SELECTION -->
+    <SolidColorBrush x:Key="ThemeSelectionBrush" Color="#6FAFC0"/>
+    <SolidColorBrush x:Key="ThemeSelectionHoverBrush" Color="#556FAFC0"/>
+
+    <!-- SEMANTIČKE BOJE -->
+    <SolidColorBrush x:Key="ThemeSuccessBrush" Color="#22C55E"/>
+    <SolidColorBrush x:Key="ThemeWarningBrush" Color="#F59E0B"/>
+    <SolidColorBrush x:Key="ThemeNeutralBorderBrush" Color="#CBD5E1"/>
+
+
 
 </ResourceDictionary>

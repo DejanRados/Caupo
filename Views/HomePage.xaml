@@ -24,12 +24,19 @@
         
             <Image x:Name="qrCodeImage"  Width="150" Height="150" />
         </StackPanel>
-        <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+
+
+
+
+        <Grid HorizontalAlignment="Center"
+      VerticalAlignment="Center">
+
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
+
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -39,99 +46,723 @@
             </Grid.ColumnDefinitions>
 
 
-        <Button Grid.Row="0" Grid.Column="1" Style="{StaticResource HomeButtonStyle}"  BorderThickness="2" x:Name="KasaButton"   BorderBrush="{StaticResource SuccessBrush}" Click="KasaButton_Click" Width="150" Height="150"  Margin="10,0,10,40" Padding="1">
-                <StackPanel Orientation="Vertical" VerticalAlignment="Center"  >
-                   <svg:SvgViewbox   Width="120" Height="35" Source="{Binding ImagePathCashRegisterButton, TargetNullValue={x:Null}}"  Stretch="Uniform" Margin="10"/>
-                    <TextBlock   Width="120"  Text = "Kasa" Foreground="{DynamicResource GlobalFontColor}"  FontSize="14"  TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
-                </StackPanel>
-            </Button>
-
-            <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource HomeButtonStyle}"  BorderThickness="2"  x:Name="StoloviButton" Click="StoloviButton_Click" BorderBrush="{StaticResource AccentBrush}"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,0,10,40">
-                <StackPanel Orientation="Vertical" >
-                    <svg:SvgViewbox   Width="120" Height="35" Source="{Binding ImagePathOrdersButton, TargetNullValue={x:Null}}"  Stretch="Uniform" Margin="10"/>
-                    <TextBlock    Width="120"  Text = "Narudžbe" Foreground="{DynamicResource GlobalFontColor}"  FontSize="14"  TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
-                </StackPanel>
-            </Button>
-
-            <Button Grid.Row="0" Grid.Column="3" Style="{StaticResource HomeButtonStyle}"  BorderThickness="2"  x:Name="RacuniButton" Click="RacuniButton_Click" BorderBrush="{StaticResource PrimaryBrush}"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,0,10,40">
-                <StackPanel Orientation="Vertical" >
-                    <svg:SvgViewbox   Width="120" Height="35" Source="{Binding ImagePathReceiptsButton, TargetNullValue={x:Null}}"  Stretch="Uniform" Margin="10"/>
-                    <TextBlock    Text = "Računi" Foreground="{DynamicResource GlobalFontColor}"  FontSize="14"  TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
-                </StackPanel>
-            </Button>
-    
-            <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource HomeButtonStyle}"  BorderThickness="2"  x:Name="ArtikliButton" Click="ArtikliButton_Click" BorderBrush="{StaticResource NeutralBorderBrush}"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,0,10,40">
-                <StackPanel Orientation="Vertical" >
-                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="10" FontSize="32" Height="35" FontWeight="ExtraLight" Text="&#xEB17;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBlock    Text = "Artikli" FontSize="14"  Foreground="{DynamicResource GlobalFontColor}"  TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
-                </StackPanel>
-            </Button>
+            <!-- ===================================================== -->
+            <!-- PRVI RED - PRIMARY                                    -->
+            <!-- ===================================================== -->
 
 
+            <!-- KASA -->
 
+            <Button Grid.Row="0"
+            Grid.Column="1"
+            Style="{StaticResource HomeButtonStyle}"
+            BorderThickness="2"
+            x:Name="KasaButton"
+            BorderBrush="{DynamicResource ThemePrimaryBrush}"
+            Click="KasaButton_Click"
+            Width="150"
+            Height="150"
+            Margin="10,0,10,40">
 
-            <Button Grid.Row="1" Grid.Column="2" Style="{StaticResource HomeButtonStyle}"  BorderThickness="2" x:Name="NamirniceButton" Click="NamirniceButton_Click"  BorderBrush="{StaticResource NeutralBorderBrush}"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,0,10,40">
-                <StackPanel Orientation="Vertical" >
-                    <svg:SvgViewbox   Width="120" Height="35" Source="{Binding ImagePathIngredientsButton, TargetNullValue={x:Null}}"  Stretch="Uniform" Margin="10"/>
-                    <TextBlock    Text = "Namirnice" FontSize="14" Foreground="{DynamicResource GlobalFontColor}"  TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
-                </StackPanel>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <svg:SvgViewbox Grid.Row="0"
+                            Width="32"
+                            Height="32"
+                            Source="{Binding ImagePathCashRegisterButton, TargetNullValue={x:Null}}"
+                            Stretch="Uniform"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top"/>
+
+                    <TextBlock Grid.Row="1"
+                       Text="KASA"
+                       FontSize="15"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Row="2">
+                        <Border Height="1"
+                        Background="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=Button}}"
+                        Opacity="0.35"
+                        Margin="8,0,8,7"/>
+
+                        <TextBlock Text="Prodaja i izdavanje računa"
+                           FontSize="10"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           Opacity="0.65"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
             </Button>
 
-            <Button Grid.Row="1" Grid.Column="3" Style="{StaticResource HomeButtonStyle}"  BorderThickness="2" x:Name="NormativiButton" Click="NormativiButton_Click"  BorderBrush="{StaticResource NeutralBorderBrush}"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,0,10,40">
-                <StackPanel Orientation="Vertical" >
-                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="10" FontSize="32" Height="35" FontWeight="ExtraLight" Text="&#xEAB3;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBlock    Text = "Normativi" FontSize="14" Foreground="{DynamicResource GlobalFontColor}"  TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
-                </StackPanel>
+
+            <!-- NARUDŽBE -->
+
+            <Button Grid.Row="0"
+            Grid.Column="2"
+            Style="{StaticResource HomeButtonStyle}"
+            BorderThickness="2"
+            x:Name="StoloviButton"
+            BorderBrush="{DynamicResource ThemePrimaryBrush}"
+            Click="StoloviButton_Click"
+            Width="150"
+            Height="150"
+            Margin="10,0,10,40">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <svg:SvgViewbox Grid.Row="0"
+                            Width="32"
+                            Height="32"
+                            Source="{Binding ImagePathOrdersButton, TargetNullValue={x:Null}}"
+                            Stretch="Uniform"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top"/>
+
+                    <TextBlock Grid.Row="1"
+                       Text="NARUDŽBE"
+                       FontSize="15"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Row="2">
+                        <Border Height="1"
+                        Background="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=Button}}"
+                        Opacity="0.35"
+                        Margin="8,0,8,7"/>
+
+                        <TextBlock Text="Stolovi i otvorene narudžbe"
+                           FontSize="10"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           Opacity="0.65"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
             </Button>
 
 
-            <Button Grid.Row="1" Grid.Column="0" Style="{StaticResource HomeButtonStyle}"  BorderThickness="2" x:Name="AnalizaButton" Click="AnalizaButton_Click"  BorderBrush="{StaticResource NeutralBorderBrush}"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,0,10,40">
-                <StackPanel Orientation="Vertical" >
-                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="10" FontSize="32" Height="35" FontWeight="ExtraLight" Text="&#xEB03;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBlock    Text = "Analiza" FontSize="14" Foreground="{DynamicResource GlobalFontColor}"   TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
-                </StackPanel>
+            <!-- RAČUNI -->
+
+            <Button Grid.Row="0"
+            Grid.Column="3"
+            Style="{StaticResource HomeButtonStyle}"
+            BorderThickness="2"
+            x:Name="RacuniButton"
+            BorderBrush="{DynamicResource ThemePrimaryBrush}"
+            Click="RacuniButton_Click"
+            Width="150"
+            Height="150"
+            Margin="10,0,10,40">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <svg:SvgViewbox Grid.Row="0"
+                            Width="32"
+                            Height="32"
+                            Source="{Binding ImagePathReceiptsButton, TargetNullValue={x:Null}}"
+                            Stretch="Uniform"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top"/>
+
+                    <TextBlock Grid.Row="1"
+                       Text="RAČUNI"
+                       FontSize="15"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Row="2">
+                        <Border Height="1"
+                        Background="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=Button}}"
+                        Opacity="0.35"
+                        Margin="8,0,8,7"/>
+
+                        <TextBlock Text="Pregled izdanih računa"
+                           FontSize="10"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           Opacity="0.65"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
             </Button>
 
-            <Button Grid.Row="1" Grid.Column="4" Style="{StaticResource HomeButtonStyle}"  BorderThickness="2" x:Name="KupciButton" Click="KupciButton_Click"  BorderBrush="{StaticResource NeutralBorderBrush}"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,0,10,40">
-                <StackPanel Orientation="Vertical" >
-                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="10" FontSize="32" FontWeight="ExtraLight" Height="35"  Text="&#xEB99;" Foreground="{DynamicResource GlobalFontColor}"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBlock    Text = "Kupci" FontSize="14" Foreground="{DynamicResource GlobalFontColor}"   TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
-                </StackPanel>
+
+            <!-- ===================================================== -->
+            <!-- DRUGI RED - SECONDARY                                 -->
+            <!-- ===================================================== -->
+
+
+            <!-- ANALIZA -->
+
+            <Button Grid.Row="1"
+            Grid.Column="0"
+            Style="{StaticResource HomeButtonStyle}"
+            BorderThickness="2"
+            x:Name="AnalizaButton"
+            BorderBrush="{DynamicResource ThemeSecondaryBrush}"
+            Click="AnalizaButton_Click"
+            Width="150"
+            Height="150"
+            Margin="10,0,10,40">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                       FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                       FontSize="30"
+                       FontWeight="ExtraLight"
+                       Text="&#xEB03;"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"/>
+
+                    <TextBlock Grid.Row="1"
+                       Text="ANALIZA"
+                       FontSize="15"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Row="2">
+                        <Border Height="1"
+                        Background="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=Button}}"
+                        Opacity="0.35"
+                        Margin="8,0,8,7"/>
+
+                        <TextBlock Text="Pregled i analiza prodaje"
+                           FontSize="10"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           Opacity="0.65"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
             </Button>
 
-            <Button Grid.Row="2" Grid.Column="0" Style="{StaticResource HomeButtonStyle}"  BorderThickness="2"  x:Name="UlazPiceButton" Click="UlazPiceButton_Click" BorderBrush="{StaticResource PrimaryBrush}"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
-                <StackPanel Orientation="Vertical" >
-                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="10" FontSize="32" Height="35" FontWeight="ExtraLight" Text="&#xEC26;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBlock    Text = "Ulaz pića" FontSize="14" Foreground="{DynamicResource GlobalFontColor}" TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
-                </StackPanel>
+
+            <!-- ARTIKLI -->
+
+            <Button Grid.Row="1"
+            Grid.Column="1"
+            Style="{StaticResource HomeButtonStyle}"
+            BorderThickness="2"
+            x:Name="ArtikliButton"
+            BorderBrush="{DynamicResource ThemeSecondaryBrush}"
+            Click="ArtikliButton_Click"
+            Width="150"
+            Height="150"
+            Margin="10,0,10,40">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                       FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                       FontSize="30"
+                       FontWeight="ExtraLight"
+                       Text="&#xEB17;"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"/>
+
+                    <TextBlock Grid.Row="1"
+                       Text="ARTIKLI"
+                       FontSize="15"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Row="2">
+                        <Border Height="1"
+                        Background="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=Button}}"
+                        Opacity="0.35"
+                        Margin="8,0,8,7"/>
+
+                        <TextBlock Text="Prodajni artikli i cijene"
+                           FontSize="10"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           Opacity="0.65"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
             </Button>
 
-            <Button Grid.Row="2" Grid.Column="1" Style="{StaticResource HomeButtonStyle}"  BorderThickness="2"  x:Name="UlazNamirnicaButton" Click="UlazNamirnicaButton_Click"  BorderBrush="{StaticResource PrimaryBrush}"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
-                <StackPanel Orientation="Vertical" >
-                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="10" FontSize="32" Height="35" FontWeight="ExtraLight" Text="&#xEC26;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBlock    Text = "Ulaz namirnica" FontSize="14" Foreground="{DynamicResource GlobalFontColor}" TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
-                </StackPanel>
-            </Button>
-            <Button Grid.Row="2" Grid.Column="2" Style="{StaticResource HomeButtonStyle}"  BorderThickness="2"  x:Name="KnjigaSankaButton" Click="KnjigaSankaButton_Click"  BorderBrush="{StaticResource PrimaryBrush}"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
-                <StackPanel Orientation="Vertical" >
-                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="10" FontSize="32" Height="35" FontWeight="ExtraLight" Text="&#xEA62;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBlock    Text = "Knjiga šanka" FontSize="14" Foreground="{DynamicResource GlobalFontColor}"  TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
-                </StackPanel>
+
+            <!-- NAMIRNICE -->
+
+            <Button Grid.Row="1"
+            Grid.Column="2"
+            Style="{StaticResource HomeButtonStyle}"
+            BorderThickness="2"
+            x:Name="NamirniceButton"
+            BorderBrush="{DynamicResource ThemeSecondaryBrush}"
+            Click="NamirniceButton_Click"
+            Width="150"
+            Height="150"
+            Margin="10,0,10,40">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <svg:SvgViewbox Grid.Row="0"
+                            Width="32"
+                            Height="32"
+                            Source="{Binding ImagePathIngredientsButton, TargetNullValue={x:Null}}"
+                            Stretch="Uniform"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top"/>
+
+                    <TextBlock Grid.Row="1"
+                       Text="NAMIRNICE"
+                       FontSize="15"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Row="2">
+                        <Border Height="1"
+                        Background="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=Button}}"
+                        Opacity="0.35"
+                        Margin="8,0,8,7"/>
+
+                        <TextBlock Text="Sirovine i sastojci"
+                           FontSize="10"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           Opacity="0.65"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
             </Button>
 
-            <Button Grid.Row="2" Grid.Column="3" Style="{StaticResource HomeButtonStyle}"  BorderThickness="2" x:Name="KnjigaKuhinjeButton" Click="KnjigaKuhinjeButton_Click"  BorderBrush="{StaticResource PrimaryBrush}"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
-                <StackPanel Orientation="Vertical" >
-                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="10" FontSize="32" Height="35" FontWeight="ExtraLight" Text="&#xEA62;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <TextBlock    Text = "Knjiga kuhinje" FontSize="14" Foreground="{DynamicResource GlobalFontColor}"  TextWrapping="Wrap"  TextAlignment="Center"  Padding="10"/>
-                </StackPanel>
+
+            <!-- NORMATIVI -->
+
+            <Button Grid.Row="1"
+            Grid.Column="3"
+            Style="{StaticResource HomeButtonStyle}"
+            BorderThickness="2"
+            x:Name="NormativiButton"
+            BorderBrush="{DynamicResource ThemeSecondaryBrush}"
+            Click="NormativiButton_Click"
+            Width="150"
+            Height="150"
+            Margin="10,0,10,40">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                       FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                       FontSize="30"
+                       FontWeight="ExtraLight"
+                       Text="&#xEAB3;"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"/>
+
+                    <TextBlock Grid.Row="1"
+                       Text="NORMATIVI"
+                       FontSize="15"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Row="2">
+                        <Border Height="1"
+                        Background="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=Button}}"
+                        Opacity="0.35"
+                        Margin="8,0,8,7"/>
+
+                        <TextBlock Text="Sastav i utrošak artikala"
+                           FontSize="10"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           Opacity="0.65"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
             </Button>
-            <Button Grid.Row="2" Grid.Column="4" Style="{StaticResource HomeButtonStyle}"  BorderThickness="2" x:Name="DobavljaciButton" Click="DobavljaciButton_Click" BorderBrush="{StaticResource PrimaryBrush}"  Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5">
-                <StackPanel Orientation="Vertical" >
-                    <svg:SvgViewbox   Width="120" Height="35" Source="{Binding ImagePathSuppliersButton, TargetNullValue={x:Null}}"  Stretch="Uniform" Margin="10"/>
-                    <TextBlock    Text = "Dobavljači" FontSize="14" Foreground="{DynamicResource GlobalFontColor}"  TextWrapping="Wrap"  TextAlignment="Center"   Padding="10"/>
-                </StackPanel>
+
+
+            <!-- KUPCI -->
+
+            <Button Grid.Row="1"
+            Grid.Column="4"
+            Style="{StaticResource HomeButtonStyle}"
+            BorderThickness="2"
+            x:Name="KupciButton"
+            BorderBrush="{DynamicResource ThemeSecondaryBrush}"
+            Click="KupciButton_Click"
+            Width="150"
+            Height="150"
+            Margin="10,0,10,40">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                       FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                       FontSize="30"
+                       FontWeight="ExtraLight"
+                       Text="&#xEB99;"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"/>
+
+                    <TextBlock Grid.Row="1"
+                       Text="KUPCI"
+                       FontSize="15"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Row="2">
+                        <Border Height="1"
+                        Background="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=Button}}"
+                        Opacity="0.35"
+                        Margin="8,0,8,7"/>
+
+                        <TextBlock Text="Evidencija poslovnih kupaca"
+                           FontSize="10"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           Opacity="0.65"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
             </Button>
+
+
+            <!-- ===================================================== -->
+            <!-- TREĆI RED - CANCEL                                    -->
+            <!-- ===================================================== -->
+
+
+            <!-- ULAZ PIĆA -->
+
+            <Button Grid.Row="2"
+            Grid.Column="0"
+            Style="{StaticResource HomeButtonStyle}"
+            BorderThickness="2"
+            x:Name="UlazPiceButton"
+            BorderBrush="{DynamicResource ThemeCancelBrush}"
+            Click="UlazPiceButton_Click"
+            Width="150"
+            Height="150"
+            Margin="5">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                       FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                       FontSize="30"
+                       FontWeight="ExtraLight"
+                       Text="&#xEC26;"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"/>
+
+                    <TextBlock Grid.Row="1"
+                       Text="ULAZ PIĆA"
+                       FontSize="15"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Row="2">
+                        <Border Height="1"
+                        Background="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=Button}}"
+                        Opacity="0.35"
+                        Margin="8,0,8,7"/>
+
+                        <TextBlock Text="Zaprimanje pića na stanje"
+                           FontSize="10"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           Opacity="0.65"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
+            </Button>
+
+
+            <!-- ULAZ NAMIRNICA -->
+
+            <Button Grid.Row="2"
+            Grid.Column="1"
+            Style="{StaticResource HomeButtonStyle}"
+            BorderThickness="2"
+            x:Name="UlazNamirnicaButton"
+            BorderBrush="{DynamicResource ThemeCancelBrush}"
+            Click="UlazNamirnicaButton_Click"
+            Width="150"
+            Height="150"
+            Margin="5">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                       FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                       FontSize="30"
+                       FontWeight="ExtraLight"
+                       Text="&#xEC26;"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"/>
+
+                    <TextBlock Grid.Row="1"
+                       Text="ULAZ NAMIRNICA"
+                       FontSize="13"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       TextAlignment="Center"/>
+
+                    <StackPanel Grid.Row="2">
+                        <Border Height="1"
+                        Background="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=Button}}"
+                        Opacity="0.35"
+                        Margin="8,0,8,7"/>
+
+                        <TextBlock Text="Zaprimanje namirnica"
+                           FontSize="10"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           Opacity="0.65"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
+            </Button>
+
+
+            <!-- KNJIGA ŠANKA -->
+
+            <Button Grid.Row="2"
+            Grid.Column="2"
+            Style="{StaticResource HomeButtonStyle}"
+            BorderThickness="2"
+            x:Name="KnjigaSankaButton"
+            BorderBrush="{DynamicResource ThemeCancelBrush}"
+            Click="KnjigaSankaButton_Click"
+            Width="150"
+            Height="150"
+            Margin="5">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                       FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                       FontSize="30"
+                       FontWeight="ExtraLight"
+                       Text="&#xEA62;"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"/>
+
+                    <TextBlock Grid.Row="1"
+                       Text="KNJIGA ŠANKA"
+                       FontSize="14"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Row="2">
+                        <Border Height="1"
+                        Background="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=Button}}"
+                        Opacity="0.35"
+                        Margin="8,0,8,7"/>
+
+                        <TextBlock Text="Stanje i promet pića"
+                           FontSize="10"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           Opacity="0.65"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
+            </Button>
+
+
+            <!-- KNJIGA KUHINJE -->
+
+            <Button Grid.Row="2"
+            Grid.Column="3"
+            Style="{StaticResource HomeButtonStyle}"
+            BorderThickness="2"
+            x:Name="KnjigaKuhinjeButton"
+            BorderBrush="{DynamicResource ThemeCancelBrush}"
+            Click="KnjigaKuhinjeButton_Click"
+            Width="150"
+            Height="150"
+            Margin="5">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                       FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                       FontSize="30"
+                       FontWeight="ExtraLight"
+                       Text="&#xEA62;"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Top"/>
+
+                    <TextBlock Grid.Row="1"
+                       Text="KNJIGA KUHINJE"
+                       FontSize="13"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Row="2">
+                        <Border Height="1"
+                        Background="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=Button}}"
+                        Opacity="0.35"
+                        Margin="8,0,8,7"/>
+
+                        <TextBlock Text="Stanje i promet namirnica"
+                           FontSize="10"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           Opacity="0.65"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
+            </Button>
+
+
+            <!-- DOBAVLJAČI -->
+
+            <Button Grid.Row="2"
+            Grid.Column="4"
+            Style="{StaticResource HomeButtonStyle}"
+            BorderThickness="2"
+            x:Name="DobavljaciButton"
+            BorderBrush="{DynamicResource ThemeCancelBrush}"
+            Click="DobavljaciButton_Click"
+            Width="150"
+            Height="150"
+            Margin="5">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="38"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <svg:SvgViewbox Grid.Row="0"
+                            Width="32"
+                            Height="32"
+                            Source="{Binding ImagePathSuppliersButton, TargetNullValue={x:Null}}"
+                            Stretch="Uniform"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top"/>
+
+                    <TextBlock Grid.Row="1"
+                       Text="DOBAVLJAČI"
+                       FontSize="14"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource GlobalFontColor}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Row="2">
+                        <Border Height="1"
+                        Background="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=Button}}"
+                        Opacity="0.35"
+                        Margin="8,0,8,7"/>
+
+                        <TextBlock Text="Evidencija dobavljača"
+                           FontSize="10"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           Opacity="0.65"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Grid>
+            </Button>
+
         </Grid>
+
+
+
+
         <Button Style="{StaticResource HomeButtonStyle}"  BorderThickness="2" Padding="0" x:Name="PodesavanjeButton" Click="PodesavanjeButton_Click"  BorderBrush="#6EC207"  Width="70" Height="70" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="25">
             <StackPanel Orientation="Vertical" >
                 <svg:SvgViewbox   Width="35" Height="35" Source="{Binding ImagePathSetupButton, TargetNullValue={x:Null}}"  Stretch="Uniform" Margin="10"/>

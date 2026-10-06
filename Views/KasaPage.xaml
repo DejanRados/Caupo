@@ -40,19 +40,7 @@
         </Style>
         <!-- Article button.
              Zadržavamo postojeći ArticleButtonStyle kao bazu. -->
-        <Style
-            x:Key="KasaArticleButtonStyle"
-            TargetType="Button"
-            BasedOn="{StaticResource ArticleButtonStyle}">
-            <Setter Property="Width" Value="158"/>
-            <Setter Property="Height" Value="82"/>
-            <Setter Property="Margin" Value="1"/>
-            <Setter Property="Padding" Value="3"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
-        </Style>
+       
         <!-- Category button -->
         <Style
             x:Key="KasaCategoryButtonStyle"
@@ -434,53 +422,105 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Button
-                                            Tag="{Binding Sifra}"
-                                            Style="{StaticResource KasaArticleButtonStyle}"
-                                            Width="158"
-                                            Height="82"
-                                            Margin="3"
-                                            Padding="0"
-                                            HorizontalContentAlignment="Stretch"
-                                            VerticalContentAlignment="Stretch"
-                                            AllowDrop="True"
-                                            PreviewMouseLeftButtonDown="Button_MouseDown"
-                                            PreviewMouseMove="Button_MouseMove"
-                                            PreviewMouseUp="Button_MouseUp"
-                                            DragOver="Button_DragOver"
-                                            Drop="Button_Drop">
+                                        <Button Tag="{Binding Sifra}"
+                                                Style="{StaticResource ArticleButtonStyle}"
+                                                AllowDrop="True"
+                                                PreviewMouseLeftButtonDown="Button_MouseDown"
+                                                PreviewMouseMove="Button_MouseMove"
+                                                PreviewMouseUp="Button_MouseUp"
+                                                DragOver="Button_DragOver"
+                                                Drop="Button_Drop">
+
                                             <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="50"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                <Border Grid.Column="0" BorderThickness="0" CornerRadius="4,0,0,4" Background="{DynamicResource GlobalBackgroundColor}">
-                                                    <Image Margin="1" Source="{Binding SlikaSource, TargetNullValue={x:Null}}" Stretch="Uniform"/>
-                                                </Border>
-                                                <TextBlock
-                                                    Grid.Column="1"
-                                                    Margin="7,2,4,2"
-                                                    FontSize="14"
-                                                    FontWeight="SemiBold"
-                                                    LineHeight="17"
-                                                    TextWrapping="Wrap"
-                                                    TextAlignment="Left"
-                                                    VerticalAlignment="Center"
-                                                    Foreground="{DynamicResource GlobalFontColor}">
-                                                    <TextBlock.Style>
-                                                        <Style TargetType="TextBlock">
-                                                            <Setter Property="Text" Value="{Binding Artikl}"/>
+
+                                                <!-- PIĆE / OSTALO -->
+                                                <Grid>
+                                                    <Grid.Style>
+                                                        <Style TargetType="Grid">
+                                                            <Setter Property="Visibility" Value="Visible"/>
                                                             <Style.Triggers>
-                                                                <DataTrigger
-                                                                    Binding="{Binding VrstaArtikla}"
-                                                                    Value="0">
-                                                                    <Setter Property="Text" Value="{Binding ArtiklNormativ}"/>
+                                                                <DataTrigger Binding="{Binding VrstaArtikla}" Value="1">
+                                                                    <Setter Property="Visibility" Value="Collapsed"/>
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
-                                                    </TextBlock.Style>
-                                                </TextBlock>
+                                                    </Grid.Style>
+
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="1*"/>
+                                                        <ColumnDefinition Width="2*"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <!-- 33% - PROSTOR ZA SLIKU -->
+                                                    <Border Grid.Column="0" Margin="1,1,0,1" Background="{DynamicResource GlobalBackgroundColor}" CornerRadius="4,0,0,4">
+                                                        <Image Margin="2" Source="{Binding SlikaSource, TargetNullValue={x:Null}}" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+
+                                                    <!-- 67% - NAZIV ARTIKLA -->
+                                                    <TextBlock Grid.Column="1"
+                               Margin="7,2,4,2"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               LineHeight="17"
+                               TextWrapping="Wrap"
+                               TextAlignment="Left"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource GlobalFontColor}">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Text" Value="{Binding Artikl}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding VrstaArtikla}" Value="0">
+                                                                        <Setter Property="Text" Value="{Binding ArtiklNormativ}"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </Grid>
+
+                                                <!-- HRANA -->
+                                                <Grid>
+                                                    <Grid.Style>
+                                                        <Style TargetType="Grid">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding VrstaArtikla}" Value="1">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Grid.Style>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="2*"/>
+                                                        <ColumnDefinition Width="1*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="52"/>
+                                                        <RowDefinition Height="*"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <!-- LANDSCAPE PROSTOR ZA SLIKU -->
+                                                    <Border Grid.Row="0"  Margin="2,2,2,0"  CornerRadius="4,0,0,0">
+                                                        <Image Margin="2" Source="{Binding SlikaSource, TargetNullValue={x:Null}}" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+
+                                                    <!-- NAZIV HRANE -->
+                                                    <TextBlock Grid.Row="1" Grid.ColumnSpan="2"
+                                                       Margin="4,1,4,2"
+                                                       Text="{Binding Artikl}"
+                                                       FontSize="13"
+                                                       FontWeight="SemiBold"
+                                                       LineHeight="15"
+                                                       TextWrapping="Wrap"
+                                                       TextAlignment="Center"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource GlobalFontColor}"/>
+                                                </Grid>
+
                                             </Grid>
+
                                         </Button>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>

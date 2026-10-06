@@ -6,12 +6,38 @@
     <!-- CAUPO DARK THEME                                      -->
     <!-- ===================================================== -->
 
-
-
-    <SolidColorBrush x:Key="GlobalBackgroundColor" Color="#292724"/>
+    <!-- OSNOVA -->
+    <SolidColorBrush x:Key="GlobalBackgroundColor" Color="#1E1D1A"/>
     <SolidColorBrush x:Key="HeaderBackgroundColor" Color="#383838"/>
-    <SolidColorBrush x:Key="GlobalFontColor" Color="#E8E4DE"/>
-    <SolidColorBrush x:Key="PrimaryButtonBackgroundColor" Color="#258B90"/>
+    <SolidColorBrush x:Key="GlobalFontColor" Color="#E4E7E7"/>
+
+    <!-- PRIMARY -->
+    <SolidColorBrush x:Key="ThemePrimaryBrush" Color="#287C8B"/>
+    <SolidColorBrush x:Key="ThemePrimaryHoverBrush" Color="#3293A3"/>
+    <SolidColorBrush x:Key="ThemePrimaryPressedBrush" Color="#216A77"/>
+
+    <!-- SECONDARY -->
+    <SolidColorBrush x:Key="ThemeSecondaryBrush" Color="#5AAFC0"/>
+    <SolidColorBrush x:Key="ThemeSecondaryHoverBrush" Color="#70C1D0"/>
+    <SolidColorBrush x:Key="ThemeSecondaryPressedBrush" Color="#468F9E"/>
+
+    <!-- ACCENT -->
+    <SolidColorBrush x:Key="ThemeAccentBrush" Color="#2BC9E9"/>
+
+    <!-- CANCEL -->
+    <SolidColorBrush x:Key="ThemeCancelBrush" Color="#6C757D"/>
+    <SolidColorBrush x:Key="ThemeCancelHoverBrush" Color="#7B848C"/>
+    <SolidColorBrush x:Key="ThemeCancelPressedBrush" Color="#565E64"/>
+
+    <!-- SELECTION -->
+    <SolidColorBrush x:Key="ThemeSelectionBrush" Color="#287C8B"/>
+    <SolidColorBrush x:Key="ThemeSelectionHoverBrush" Color="#553293A3"/>
+
+    <!-- SEMANTIČKE BOJE -->
+    <SolidColorBrush x:Key="ThemeSuccessBrush" Color="#22C55E"/>
+    <SolidColorBrush x:Key="ThemeWarningBrush" Color="#F59E0B"/>
+    <SolidColorBrush x:Key="ThemeNeutralBorderBrush" Color="#CBD5E1"/>
+
 
 
 </ResourceDictionary>
