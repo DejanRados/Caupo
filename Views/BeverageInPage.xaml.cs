@@ -25,7 +25,7 @@ namespace Caupo.Views
             InitializeComponent ();
             ViewModel = new BeverageInPageViewModel ();
             this.DataContext = ViewModel;
-            lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
+           
             // this.Loaded += BeverageInPage_Loaded;
             _ = LoadInitialStockAsync (brojulaza);
             if(DataContext is BeverageInPageViewModel vm)

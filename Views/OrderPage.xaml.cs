@@ -32,7 +32,7 @@ namespace Caupo.Views
             orderViewModel = new OrderViewModel(idStola, imeStola, sala, stavkeRacuna);
             DataContext = orderViewModel;
 
-            lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
+           
 
             Loaded += OrderPage_Loaded;
         }

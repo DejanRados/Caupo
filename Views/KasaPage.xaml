@@ -9,43 +9,40 @@
     xmlns:local="clr-namespace:Caupo.ViewModels"
     xmlns:help="clr-namespace:Caupo.Helpers"
     xmlns:loc="clr-namespace:Caupo"
-    xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+    xmlns:uc="clr-namespace:Caupo.UserControls"
     xmlns:svg="http://sharpvectors.codeplex.com/svgc/"
     mc:Ignorable="d"
     Loaded="KasaWindow_Loaded"
     PreviewKeyDown="KasaWindow_PreviewKeyDown">
+
     <!-- ========================================================= -->
     <!-- RESURSI -->
     <!-- ========================================================= -->
     <UserControl.Resources>
         <help:CategoryToBoolConverter x:Key="CategoryToBoolConverter"/>
+
         <!-- Naslov male sekcije -->
-        <Style
-            x:Key="SectionCaptionStyle"
-            TargetType="TextBlock">
+        <Style x:Key="SectionCaptionStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Opacity" Value="0.65"/>
+            <Setter Property="Opacity" Value="0.85"/>
             <Setter Property="Margin" Value="2,0,0,5"/>
             <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
         </Style>
+
         <!-- Kartica -->
-        <Style
-            x:Key="KasaCardStyle"
-            TargetType="Border">
+        <Style x:Key="KasaCardStyle" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource GlobalBackgroundColor}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource GlobalFontColor}"/>
             <Setter Property="BorderThickness" Value="0.5"/>
             <Setter Property="CornerRadius" Value="12"/>
         </Style>
+
         <!-- Article button.
              Zadržavamo postojeći ArticleButtonStyle kao bazu. -->
-       
+
         <!-- Category button -->
-        <Style
-            x:Key="KasaCategoryButtonStyle"
-            TargetType="Button"
-            BasedOn="{StaticResource SecondaryButtonStyle}">
+        <Style x:Key="KasaCategoryButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
             <Setter Property="Height" Value="58"/>
             <Setter Property="Margin" Value="0,0,0,5"/>
             <Setter Property="Padding" Value="7"/>
@@ -53,6 +50,7 @@
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
     </UserControl.Resources>
+
     <!-- ========================================================= -->
     <!-- ROOT -->
     <!-- ========================================================= -->
@@ -63,58 +61,23 @@
             <!-- POS -->
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+
         <!-- ===================================================== -->
         <!-- HEADER -->
         <!-- ===================================================== -->
-        <Border Grid.Row="0" Background="{DynamicResource HeaderBackgroundColor}" Panel.ZIndex="20">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="70"/>
-                </Grid.ColumnDefinitions>
-                <Image Grid.Column="0" Source="pack://application:,,,/Images/dsoftlogosmall.png" Width="44" Height="44" Margin="15,5,10,5" VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="1" Text="Caupo  •  Kasa" FontSize="22" FontWeight="SemiBold" Foreground="#FAFAFA" VerticalAlignment="Center"/>
-                <StackPanel
-                    Grid.Column="2"
-                    Orientation="Horizontal"
-                    VerticalAlignment="Center"
-                    Margin="10,0,15,0">
-                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE77B;" FontSize="18" Foreground="#BBBBBB" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <Label
-                        x:Name="lblUlogovaniKorisnik"
-                        Content="Ime i prezime"
-                        FontSize="15"
-                        Foreground="#FAFAFA"
-                        Padding="0"
-                        VerticalAlignment="Center"/>
-                </StackPanel>
-                <Button
-                    x:Name="CloseButton"
-                    Grid.Column="3"
-                    Style="{StaticResource CloseButtonStyle}"
-                    Width="50"
-                    Height="45"
-                    Padding="0"
-                    Margin="5"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center"
-                    Click="CloseButton_Click"/>
-            </Grid>
-        </Border>
+        <uc:CaupoHeader Grid.Row="0" Title="Caupo - Kasa" Close="CloseButton_Click"/>
+
         <!-- ===================================================== -->
         <!-- POS CONTENT -->
         <!-- ===================================================== -->
-        <Grid
-            x:Name="MainContent"
-            Grid.Row="1">
+        <Grid x:Name="MainContent" Grid.Row="1">
             <Grid.RowDefinitions>
                 <!-- toolbar -->
                 <RowDefinition Height="94"/>
                 <!-- content -->
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
+
             <!-- ================================================= -->
             <!-- TOP TOOLBAR -->
             <!-- ================================================= -->
@@ -140,167 +103,80 @@
                         <!-- Kupac -->
                         <ColumnDefinition Width="210"/>
                     </Grid.ColumnDefinitions>
+
                     <!-- RESET -->
-                    <Button
-                        x:Name="btnReset"
-                        Grid.Column="0"
-                        Height="58"
-                        Margin="3"
-                        Style="{StaticResource CancelButtonStyle}"
-                        Foreground="{DynamicResource GlobalFontColor}"
-                        Click="btnReset_Click">
-                        <StackPanel
-                            Orientation="Horizontal"
-                            HorizontalAlignment="Center">
+                    <Button x:Name="btnReset" Grid.Column="0" Height="58" Margin="3" Style="{StaticResource CancelButtonStyle}" Foreground="{DynamicResource GlobalFontColor}" Click="btnReset_Click">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Text="&#xEA77;" FontSize="23" Margin="0,0,6,0" VerticalAlignment="Center"/>
                             <TextBlock Text="Reset" FontSize="14" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
+
                     <!-- PIĆE / HRANA / OSTALO -->
-                    <Grid
-                        Grid.Column="2"
-                        Margin="5,0">
+                    <!-- PIĆE / HRANA / OSTALO -->
+                    <Grid Grid.Column="2" Margin="5,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <ToggleButton
-                            x:Name="btnDrink"
-                            Grid.Column="0"
-                            Height="60"
-                            Margin="3"
-                            Style="{StaticResource CategoryToggleButtonStyle}"
-                            Click="PiceButton_Click"
-                            IsChecked="{Binding SelectedCategory,
-                                Converter={StaticResource CategoryToBoolConverter},
-                                ConverterParameter=Pice,
-                                Mode=OneWay}">
-                            <StackPanel
-                                Orientation="Horizontal"
-                                HorizontalAlignment="Center">
-                                <svg:SvgViewbox
-                                    Width="35"
-                                    Height="43"
-                                    Margin="0,0,8,0"
-                                    Source="{Binding ImagePathPiceButton,
-                                                     TargetNullValue={x:Null}}"
-                                    Stretch="Uniform"/>
-                                <TextBlock Text="Piće" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
+
+                        <ToggleButton x:Name="btnDrink" Grid.Column="0" Height="60" Margin="3" Style="{StaticResource CategoryToggleButtonStyle}" Click="PiceButton_Click"
+                  IsChecked="{Binding SelectedCategory, Converter={StaticResource CategoryToBoolConverter}, ConverterParameter=Pice, Mode=OneWay}">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <svg:SvgIcon Width="35" Height="43" Margin="0,0,8,0" UriSource="{Binding ImagePathPiceButton, TargetNullValue={x:Null}}" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}" Stretch="Uniform"/>
+                                <TextBlock Text="Piće" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
                             </StackPanel>
                         </ToggleButton>
-                        <ToggleButton
-                            x:Name="btnFood"
-                            Grid.Column="1"
-                            Height="60"
-                            Margin="3"
-                            Style="{StaticResource CategoryToggleButtonStyle}"
-                            Click="HranaButton_Click"
-                            IsChecked="{Binding SelectedCategory,
-                                Converter={StaticResource CategoryToBoolConverter},
-                                ConverterParameter=Hrana,
-                                Mode=OneWay}">
-                            <StackPanel
-                                Orientation="Horizontal"
-                                HorizontalAlignment="Center">
-                                <svg:SvgViewbox
-                                    Width="40"
-                                    Height="43"
-                                    Margin="0,0,8,0"
-                                    Source="{Binding ImagePathHranaButton,
-                                                     TargetNullValue={x:Null}}"
-                                    Stretch="Uniform"/>
-                                <TextBlock Text="Hrana" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
+
+                        <ToggleButton x:Name="btnFood" Grid.Column="1" Height="60" Margin="3" Style="{StaticResource CategoryToggleButtonStyle}" Click="HranaButton_Click"
+                  IsChecked="{Binding SelectedCategory, Converter={StaticResource CategoryToBoolConverter}, ConverterParameter=Hrana, Mode=OneWay}">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <svg:SvgIcon Width="40" Height="43" Margin="0,0,8,0" UriSource="{Binding ImagePathHranaButton, TargetNullValue={x:Null}}" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}" Stretch="Uniform"/>
+                                <TextBlock Text="Hrana" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
                             </StackPanel>
                         </ToggleButton>
-                        <ToggleButton
-                            x:Name="btnRest"
-                            Grid.Column="2"
-                            Height="60"
-                            Margin="3"
-                            Style="{StaticResource CategoryToggleButtonStyle}"
-                            Click="OstaloButton_Click"
-                            IsChecked="{Binding SelectedCategory,
-                                Converter={StaticResource CategoryToBoolConverter},
-                                ConverterParameter=Ostalo,
-                                Mode=OneWay}">
-                            <StackPanel
-                                Orientation="Horizontal"
-                                HorizontalAlignment="Center">
-                                <svg:SvgViewbox
-                                    Width="38"
-                                    Height="35"
-                                    Margin="0,0,8,0"
-                                    Source="{Binding ImagePathOstaloButton,
-                                                     TargetNullValue={x:Null}}"
-                                    Stretch="Uniform"/>
-                                <TextBlock Text="Ostalo" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
+
+                        <ToggleButton x:Name="btnRest" Grid.Column="2" Height="60" Margin="3" Style="{StaticResource CategoryToggleButtonStyle}" Click="OstaloButton_Click"
+                  IsChecked="{Binding SelectedCategory, Converter={StaticResource CategoryToBoolConverter}, ConverterParameter=Ostalo, Mode=OneWay}">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <svg:SvgIcon Width="38" Height="35" Margin="0,0,8,0" UriSource="{Binding ImagePathOstaloButton, TargetNullValue={x:Null}}" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}" Stretch="Uniform"/>
+                                <TextBlock Text="Ostalo" FontSize="15" FontWeight="SemiBold" VerticalAlignment="Center"/>
                             </StackPanel>
                         </ToggleButton>
                     </Grid>
+
                     <!-- KOLIČINA -->
-                    <StackPanel
-                        Grid.Column="4"
-                        Margin="4,0">
+                    <StackPanel Grid.Column="4" Margin="4,0">
                         <TextBlock Text="KOLIČINA" Style="{StaticResource SectionCaptionStyle}" HorizontalAlignment="Center"/>
                         <Border Height="45" VerticalAlignment="Top" BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0,0,0,1">
-                            <TextBox
-                                x:Name="txtKolicina"
-                                Style="{DynamicResource TextBoxCustom}"
-                                Text="1"
-                                Height="44"
-                                FontSize="24"
-                                FontWeight="SemiBold"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                Foreground="{DynamicResource GlobalFontColor}"
-                                HorizontalContentAlignment="Center"
-                                VerticalContentAlignment="Center"
-                                GotFocus="TextBox_GotFocus"
-                                LostFocus="TextBox_LostFocus"
-                                PreviewMouseLeftButtonDown="txtKolicina_PreviewMouseLeftButtonDown"/>
+                            <TextBox x:Name="txtKolicina" Style="{DynamicResource TextBoxCustom}" Text="1" Height="44" FontSize="24" FontWeight="SemiBold" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource GlobalFontColor}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" GotFocus="TextBox_GotFocus" LostFocus="TextBox_LostFocus" PreviewMouseLeftButtonDown="txtKolicina_PreviewMouseLeftButtonDown"/>
                         </Border>
                     </StackPanel>
+
                     <!-- NAČIN PLAĆANJA -->
-                    <StackPanel
-                        Grid.Column="6"
-                        Margin="4,0">
+                    <StackPanel Grid.Column="6" Margin="4,0">
                         <TextBlock Text="PLAĆANJE" Style="{StaticResource SectionCaptionStyle}"/>
-                        <ComboBox
-                            x:Name="cmbNacinPlacanja"
-                            Height="45"
-                            FontSize="14"
-                            Foreground="{DynamicResource GlobalFontColor}"
-                            VerticalContentAlignment="Center">
+                        <ComboBox x:Name="cmbNacinPlacanja" Height="45" FontSize="14" Foreground="{DynamicResource GlobalFontColor}" VerticalContentAlignment="Center">
                             <ComboBoxItem Content="Gotovina"/>
                             <ComboBoxItem Content="Kartica"/>
                             <ComboBoxItem Content="Ček"/>
                             <ComboBoxItem Content="Virman"/>
                         </ComboBox>
                     </StackPanel>
+
                     <!-- KUPAC -->
-                    <StackPanel
-                        Grid.Column="8"
-                        Margin="5,0">
+                    <StackPanel Grid.Column="8" Margin="5,0">
                         <TextBlock Text="KUPAC" Style="{StaticResource SectionCaptionStyle}"/>
-                        <ComboBox
-                            x:Name="cmbKupac"
-                            Height="45"
-                            FontSize="14"
-                            Foreground="{DynamicResource GlobalFontColor}"
-                            ItemsSource="{Binding Kupci}"
-                            SelectedItem="{Binding SelectedKupac,
-                                                   Mode=TwoWay}"
-                            VerticalContentAlignment="Center"/>
+                        <ComboBox x:Name="cmbKupac" Height="45" FontSize="14" Foreground="{DynamicResource GlobalFontColor}" ItemsSource="{Binding Kupci}" SelectedItem="{Binding SelectedKupac, Mode=TwoWay}" VerticalContentAlignment="Center"/>
                     </StackPanel>
                 </Grid>
             </Border>
+
             <!-- ================================================= -->
             <!-- MAIN 3-COLUMN POS -->
             <!-- ================================================= -->
-            <Grid
-                Grid.Row="1"
-                Margin="10,4,10,10">
+            <Grid Grid.Row="1" Margin="10,4,10,10">
                 <Grid.ColumnDefinitions>
                     <!-- KATEGORIJE -->
                     <ColumnDefinition Width="165"/>
@@ -309,6 +185,7 @@
                     <!-- RAČUN -->
                     <ColumnDefinition Width="410"/>
                 </Grid.ColumnDefinitions>
+
                 <!-- ================================================= -->
                 <!-- KATEGORIJE -->
                 <!-- ================================================= -->
@@ -319,67 +196,39 @@
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="65"/>
                         </Grid.RowDefinitions>
-                        <StackPanel
-                            Grid.Row="0"
-                            Orientation="Horizontal">
-                            <TextBlock
-                                FontFamily="Segoe MDL2 Assets"
-                                Text="&#xE71D;"
-                                FontSize="20"
-                                Margin="2,0,7,0"
-                                Foreground="{DynamicResource GlobalFontColor}"
-                                VerticalAlignment="Center"/>
+
+                        <StackPanel Grid.Row="0" Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE71D;" FontSize="20" Margin="2,0,7,0" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
                             <TextBlock Text="Kategorije" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
                         </StackPanel>
-                        <ScrollViewer
-                            x:Name="KategorijeScroll"
-                            Grid.Row="1"
-                            HorizontalScrollBarVisibility="Disabled"
-                            VerticalScrollBarVisibility="Auto">
-                            <ItemsControl
-                                x:Name="KategorijePanel"
-                                ItemsSource="{Binding PrikazaneKategorije}">
+
+                        <ScrollViewer x:Name="KategorijeScroll" Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl x:Name="KategorijePanel" ItemsSource="{Binding PrikazaneKategorije}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <StackPanel Orientation="Vertical"/>
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
+
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Button
-                                            Tag="{Binding IdKategorije}"
-                                            Style="{StaticResource KasaCategoryButtonStyle}"
-                                            Click="ButtonCategory_Clicked">
-                                            <TextBlock
-                                                Text="{Binding Kategorija}"
-                                                FontSize="14"
-                                                FontWeight="SemiBold"
-                                                TextWrapping="Wrap"
-                                                TextAlignment="Left"
-                                                VerticalAlignment="Center"
-                                                Foreground="{DynamicResource GlobalFontColor}"/>
+                                        <Button Tag="{Binding IdKategorije}" Style="{StaticResource KasaCategoryButtonStyle}" Click="ButtonCategory_Clicked">
+                                            <TextBlock Text="{Binding Kategorija}" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap" TextAlignment="Left" VerticalAlignment="Center" Foreground="{DynamicResource GlobalFontColor}"/>
                                         </Button>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                         </ScrollViewer>
-                        <Button
-                            x:Name="btnKeyboard"
-                            Grid.Row="2"
-                            Height="50"
-                            Margin="0,8,0,0"
-                            Style="{StaticResource CancelButtonStyle}"
-                            Foreground="{DynamicResource GlobalFontColor}"
-                            Click="KeyboardButton_Click">
-                            <StackPanel
-                                Orientation="Horizontal"
-                                HorizontalAlignment="Center">
+
+                        <Button x:Name="btnKeyboard" Grid.Row="2" Height="50" Margin="0,8,0,0" Style="{StaticResource CancelButtonStyle}" Foreground="{DynamicResource GlobalFontColor}" Click="KeyboardButton_Click">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="20" Text="&#xE765;" Margin="0,0,7,0" VerticalAlignment="Center"/>
                                 <TextBlock Text="Tastatura" FontSize="13" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
                     </Grid>
                 </Border>
+
                 <!-- ================================================= -->
                 <!-- ARTIKLI -->
                 <!-- ================================================= -->
@@ -389,48 +238,27 @@
                             <RowDefinition Height="42"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <StackPanel
-                            Grid.Row="0"
-                            Orientation="Horizontal">
-                            <TextBlock
-                                FontFamily="Segoe MDL2 Assets"
-                                Text="&#xE719;"
-                                FontSize="20"
-                                Margin="2,0,7,0"
-                                Foreground="{DynamicResource GlobalFontColor}"
-                                VerticalAlignment="Center"/>
+
+                        <StackPanel Grid.Row="0" Orientation="Horizontal">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE719;" FontSize="20" Margin="2,0,7,0" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
                             <TextBlock Text="Artikli" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
                         </StackPanel>
-                        <ScrollViewer
-                            x:Name="ArtikliScroll"
-                            Grid.Row="1"
-                            HorizontalScrollBarVisibility="Disabled"
-                            VerticalScrollBarVisibility="Auto">
+
+                        <ScrollViewer x:Name="ArtikliScroll" Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                             <ScrollViewer.Resources>
-                                <Style
-                                    TargetType="ScrollBar"
-                                    BasedOn="{StaticResource WideVerticalScrollBar}"/>
+                                <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
                             </ScrollViewer.Resources>
-                            <ItemsControl
-                                x:Name="ArtikliPanel"
-                                ItemsSource="{Binding PrikazaniArtikli}"
-                                HorizontalAlignment="Stretch">
+
+                            <ItemsControl x:Name="ArtikliPanel" ItemsSource="{Binding PrikazaniArtikli}" HorizontalAlignment="Stretch">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <WrapPanel Orientation="Horizontal"/>
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
+
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Button Tag="{Binding Sifra}"
-                                                Style="{StaticResource ArticleButtonStyle}"
-                                                AllowDrop="True"
-                                                PreviewMouseLeftButtonDown="Button_MouseDown"
-                                                PreviewMouseMove="Button_MouseMove"
-                                                PreviewMouseUp="Button_MouseUp"
-                                                DragOver="Button_DragOver"
-                                                Drop="Button_Drop">
-
+                                        <Button Tag="{Binding Sifra}" Style="{StaticResource ArticleButtonStyle}" AllowDrop="True" PreviewMouseLeftButtonDown="Button_MouseDown" PreviewMouseMove="Button_MouseMove" PreviewMouseUp="Button_MouseUp" DragOver="Button_DragOver" Drop="Button_Drop">
                                             <Grid>
 
                                                 <!-- PIĆE / OSTALO -->
@@ -457,15 +285,7 @@
                                                     </Border>
 
                                                     <!-- 67% - NAZIV ARTIKLA -->
-                                                    <TextBlock Grid.Column="1"
-                               Margin="7,2,4,2"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               LineHeight="17"
-                               TextWrapping="Wrap"
-                               TextAlignment="Left"
-                               VerticalAlignment="Center"
-                               Foreground="{DynamicResource GlobalFontColor}">
+                                                    <TextBlock Grid.Column="1" Margin="7,2,4,2" FontSize="14" FontWeight="SemiBold" LineHeight="17" TextWrapping="Wrap" TextAlignment="Left" VerticalAlignment="Center" Foreground="{DynamicResource GlobalFontColor}">
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
                                                                 <Setter Property="Text" Value="{Binding Artikl}"/>
@@ -491,36 +311,27 @@
                                                             </Style.Triggers>
                                                         </Style>
                                                     </Grid.Style>
+
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="2*"/>
                                                         <ColumnDefinition Width="1*"/>
                                                     </Grid.ColumnDefinitions>
+
                                                     <Grid.RowDefinitions>
                                                         <RowDefinition Height="52"/>
                                                         <RowDefinition Height="*"/>
                                                     </Grid.RowDefinitions>
 
                                                     <!-- LANDSCAPE PROSTOR ZA SLIKU -->
-                                                    <Border Grid.Row="0"  Margin="2,2,2,0"  CornerRadius="4,0,0,0">
+                                                    <Border Grid.Row="0" Margin="2,2,2,0" CornerRadius="4,0,0,0">
                                                         <Image Margin="2" Source="{Binding SlikaSource, TargetNullValue={x:Null}}" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
 
                                                     <!-- NAZIV HRANE -->
-                                                    <TextBlock Grid.Row="1" Grid.ColumnSpan="2"
-                                                       Margin="4,1,4,2"
-                                                       Text="{Binding Artikl}"
-                                                       FontSize="13"
-                                                       FontWeight="SemiBold"
-                                                       LineHeight="15"
-                                                       TextWrapping="Wrap"
-                                                       TextAlignment="Center"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"
-                                                       Foreground="{DynamicResource GlobalFontColor}"/>
+                                                    <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Margin="4,1,4,2" Text="{Binding Artikl}" FontSize="13" FontWeight="SemiBold" LineHeight="15" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource GlobalFontColor}"/>
                                                 </Grid>
 
                                             </Grid>
-
                                         </Button>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -528,6 +339,7 @@
                         </ScrollViewer>
                     </Grid>
                 </Border>
+
                 <!-- ================================================= -->
                 <!-- RAČUN -->
                 <!-- ================================================= -->
@@ -536,274 +348,186 @@
                         <Grid.RowDefinitions>
                             <!-- naslov -->
                             <RowDefinition Height="42"/>
+                            <!-- akcije -->
+                            <RowDefinition Height="74"/>
                             <!-- stavke -->
                             <RowDefinition Height="*"/>
                             <!-- total -->
                             <RowDefinition Height="92"/>
-                            <!-- akcije -->
-                            <RowDefinition Height="74"/>
                         </Grid.RowDefinitions>
+
                         <!-- NASLOV -->
                         <Grid Grid.Row="0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <StackPanel
-                                Grid.Column="0"
-                                Orientation="Horizontal">
-                                <TextBlock
-                                    FontFamily="Segoe MDL2 Assets"
-                                    Text="&#xEC5B;"
-                                    FontSize="20"
-                                    Margin="2,0,7,0"
-                                    Foreground="{DynamicResource GlobalFontColor}"
-                                    VerticalAlignment="Center"/>
+
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEC5B;" FontSize="20" Margin="2,0,7,0" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
                                 <TextBlock Text="Račun" FontSize="17" FontWeight="SemiBold" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
                             </StackPanel>
-                            <TextBlock
-                                Grid.Column="1"
-                                Text="Dodir: − količina   •   Drži: napomena"
-                                FontSize="10"
-                                Opacity="0.55"
-                                Margin="5,0"
-                                Foreground="{DynamicResource GlobalFontColor}"
-                                VerticalAlignment="Center"/>
+
+                            <TextBlock Grid.Column="1" Text="Dodir: − količina   •   Drži: napomena" FontSize="10" Opacity="0.55" Margin="5,0" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
                         </Grid>
+
+                        <!-- AKCIJE -->
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.8*"/>
+                                <ColumnDefinition Width="1.2*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Narudžbe su sekundarna akcija -->
+                            <Button x:Name="btnNarudzbe" Grid.Column="0" Height="58" Margin="0,4,4,4" Style="{StaticResource SecondaryButtonStyle}" Click="btnNarudzbe_Click">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8A4;" FontSize="20" Margin="0,0,6,0" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Narudžbe" FontSize="13" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- Račun je primarna akcija -->
+                            <Button x:Name="btnFiskalni" Grid.Column="1" Height="58" Margin="4" Style="{StaticResource PrimaryButtonStyle}" BorderThickness="0" Click="BtnFiskalni_Click">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEC5B;" FontSize="22" Margin="0,0,8,0" Foreground="#F5F5F5" VerticalAlignment="Center"/>
+                                    <TextBlock Text="IZDAJ RAČUN" FontSize="15" FontWeight="SemiBold" Foreground="#F5F5F5" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+
                         <!-- STAVKE -->
-                        <DataGrid
-                            x:Name="ListStavkeRacuna"
-                            Grid.Row="1"
-                            ItemsSource="{Binding StavkeRacuna}"
-                            SelectedItem="{Binding SelectedStavka}"
-                            Margin="0,3"
-                            Padding="1"
-                            AutoGenerateColumns="False"
-                            CanUserAddRows="False"
-                            CanUserResizeRows="False"
-                            CanUserSortColumns="False"
-                            GridLinesVisibility="None"
-                            HeadersVisibility="Column"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            SelectionMode="Single"
-                            HorizontalScrollBarVisibility="Disabled"
-                            TouchDown="ListStavkeRacuna_TouchDown"
-                            TouchUp="ListStavkeRacuna_TouchUp"
-                            PreviewMouseLeftButtonDown="ListStavkeRacuna_PreviewMouseLeftButtonDown"
-                            PreviewMouseLeftButtonUp="ListStavkeRacuna_PreviewMouseLeftButtonUp">
+                        <DataGrid x:Name="ListStavkeRacuna"
+                                  Grid.Row="2"
+                                  ItemsSource="{Binding StavkeRacuna}"
+                                  SelectedItem="{Binding SelectedStavka}"
+                                  Margin="0,3"
+                                  Padding="1"
+                                  AutoGenerateColumns="False"
+                                  CanUserAddRows="False"
+                                  CanUserResizeRows="False"
+                                  CanUserSortColumns="False"
+                                  GridLinesVisibility="None"
+                                  HeadersVisibility="Column"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  SelectionMode="Single"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  TouchDown="ListStavkeRacuna_TouchDown"
+                                  TouchUp="ListStavkeRacuna_TouchUp"
+                                  PreviewMouseLeftButtonDown="ListStavkeRacuna_PreviewMouseLeftButtonDown"
+                                  PreviewMouseLeftButtonUp="ListStavkeRacuna_PreviewMouseLeftButtonUp">
+
                             <DataGrid.Resources>
-                                <Style
-                                    TargetType="ScrollBar"
-                                    BasedOn="{StaticResource WideVerticalScrollBar}"/>
+                                <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
                             </DataGrid.Resources>
+
                             <DataGrid.Columns>
-                                <DataGridTemplateColumn
-                                    Header="Naziv"
-                                    Width="2.1*">
+                                <DataGridTemplateColumn Header="Naziv" Width="2.1*">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <StackPanel
-                                                Orientation="Vertical"
-                                                Margin="2">
+                                            <StackPanel Orientation="Vertical" Margin="2">
                                                 <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap"/>
                                                 <TextBlock Text="{Binding Note}" FontSize="10" FontStyle="Italic" Opacity="0.7" Margin="7,1,0,0" TextWrapping="Wrap"/>
                                             </StackPanel>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
-                                <DataGridTemplateColumn
-                                    Header="Kol."
-                                    Width="0.65*">
+
+                                <DataGridTemplateColumn Header="Kol." Width="0.65*">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock Text="{Binding Quantity}" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
-                                <DataGridTemplateColumn
-                                    Header="Cijena"
-                                    Width="0.85*">
+
+                                <DataGridTemplateColumn Header="Cijena" Width="0.85*">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBlock
-                                                Text="{Binding UnitPrice,
-                                                               StringFormat={}{0:F2}}"
-                                                HorizontalAlignment="Right"
-                                                VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding UnitPrice, StringFormat={}{0:F2}}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
-                                <DataGridTemplateColumn
-                                    Header="Iznos"
-                                    Width="0.9*">
+
+                                <DataGridTemplateColumn Header="Iznos" Width="0.9*">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBlock
-                                                Text="{Binding TotalAmount,
-                                                               StringFormat={}{0:F2}}"
-                                                FontWeight="SemiBold"
-                                                HorizontalAlignment="Right"
-                                                VerticalAlignment="Center"
-                                                Margin="0,0,5,0"/>
+                                            <TextBlock Text="{Binding TotalAmount, StringFormat={}{0:F2}}" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0"/>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
+
                         <!-- UKUPNO -->
-                        <Border Grid.Row="2" Margin="0,6,0,4" Padding="10,5" CornerRadius="9" BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0.5">
+                        <Border Grid.Row="3" Margin="0,6,0,4" Padding="10,5" CornerRadius="9" BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0.5">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <StackPanel
-                                    Grid.Column="0"
-                                    VerticalAlignment="Center">
+
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                     <TextBlock Text="UKUPNO" FontSize="12" FontWeight="SemiBold" Opacity="0.6" Foreground="{DynamicResource GlobalFontColor}"/>
                                     <TextBlock Text="Za naplatu" FontSize="11" Opacity="0.45" Foreground="{DynamicResource GlobalFontColor}"/>
                                 </StackPanel>
-                                <Label
-                                    x:Name="lblIznos"
-                                    Grid.Column="1"
-                                    Content="{Binding TotalSum}"
-                                    ContentStringFormat="{}{0:0.00}"
-                                    FontSize="38"
-                                    FontWeight="SemiBold"
-                                    Padding="5,0"
-                                    Foreground="{DynamicResource GlobalFontColor}"
-                                    HorizontalContentAlignment="Right"
-                                    VerticalContentAlignment="Center"/>
+
+                                <Label x:Name="lblIznos" Grid.Column="1" Content="{Binding TotalSum}" ContentStringFormat="{}{0:0.00}" FontSize="38" FontWeight="SemiBold" Padding="5,0" Foreground="{DynamicResource GlobalFontColor}" HorizontalContentAlignment="Right" VerticalContentAlignment="Center"/>
                             </Grid>
                         </Border>
-                        <!-- AKCIJE -->
-                        <Grid Grid.Row="3">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.8*"/>
-                                <ColumnDefinition Width="1.2*"/>
-                            </Grid.ColumnDefinitions>
-                            <!-- Narudžbe su sekundarna akcija -->
-                            <Button
-                                x:Name="btnNarudzbe"
-                                Grid.Column="0"
-                                Height="58"
-                                Margin="0,4,4,4"
-                                Style="{StaticResource SecondaryButtonStyle}"
-                                Click="btnNarudzbe_Click">
-                                <StackPanel
-                                    Orientation="Horizontal"
-                                    HorizontalAlignment="Center">
-                                    <TextBlock
-                                        FontFamily="Segoe MDL2 Assets"
-                                        Text="&#xE8A4;"
-                                        FontSize="20"
-                                        Margin="0,0,6,0"
-                                        Foreground="{DynamicResource GlobalFontColor}"
-                                        VerticalAlignment="Center"/>
-                                    <TextBlock Text="Narudžbe" FontSize="13" Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
-                            <!-- Račun je primarna akcija -->
-                            <Button
-                                x:Name="btnFiskalni"
-                                Grid.Column="1"
-                                Height="58"
-                                Margin="4"
-                                Style="{StaticResource PrimaryButtonStyle}"
-                                BorderThickness="0"
-                                Click="BtnFiskalni_Click">
-                                <StackPanel
-                                    Orientation="Horizontal"
-                                    HorizontalAlignment="Center">
-                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEC5B;" FontSize="22" Margin="0,0,8,0" Foreground="#F5F5F5" VerticalAlignment="Center"/>
-                                    <TextBlock Text="IZDAJ RAČUN" FontSize="15" FontWeight="SemiBold" Foreground="#F5F5F5" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
-                        </Grid>
                     </Grid>
                 </Border>
             </Grid>
+
             <!-- ================================================= -->
             <!-- BUSY OVERLAY -->
             <!-- ================================================= -->
             <Border x:Name="RacunIdikator" Grid.RowSpan="2" Panel.ZIndex="900" Background="#66323232" Visibility="Collapsed">
-                <StackPanel
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE895;" FontSize="42" Foreground="White" HorizontalAlignment="Center"/>
                     <TextBlock Text="Izdavanje računa..." FontSize="14" Foreground="White" Margin="0,10,0,0" HorizontalAlignment="Center"/>
                 </StackPanel>
             </Border>
         </Grid>
+
         <!-- ===================================================== -->
         <!-- MULTI USER LOGIN -->
         <!-- ===================================================== -->
-        <Grid
-            x:Name="MultiUserGrid"
-            Grid.Row="1"
-            Panel.ZIndex="999"
-            Background="#77000000"
-            Visibility="{Binding IsMultiUserVisible,
-                                 Converter={StaticResource BooleanToVisibilityConverter}}">
-            <Border
-                Width="420"
-                Height="250"
-                Padding="20"
-                VerticalAlignment="Center"
-                HorizontalAlignment="Center"
-                Background="{DynamicResource GlobalBackgroundColor}"
-                BorderBrush="{DynamicResource GlobalFontColor}"
-                BorderThickness="0.5"
-                CornerRadius="20">
+        <Grid x:Name="MultiUserGrid"
+              Grid.Row="1"
+              Panel.ZIndex="999"
+              Background="#77000000"
+              Visibility="{Binding IsMultiUserVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+            <Border Width="420" Height="250" Padding="20" VerticalAlignment="Center" HorizontalAlignment="Center" Background="{DynamicResource GlobalBackgroundColor}" BorderBrush="{DynamicResource GlobalFontColor}" BorderThickness="0.5" CornerRadius="20">
                 <Grid>
-                    <TextBlock
-                        FontFamily="Segoe MDL2 Assets"
-                        FontSize="40"
-                        Margin="20"
-                        Text="&#xE72E;"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Top"
-                        Foreground="{DynamicResource GlobalFontColor}"/>
-                    <StackPanel
-                        Width="250"
-                        VerticalAlignment="Center"
-                        HorizontalAlignment="Center">
-                        <Label
-                            Content="Lozinka / PIN"
-                            Foreground="{DynamicResource GlobalFontColor}"
-                            HorizontalAlignment="Center"/>
-                        <TextBox
-                            x:Name="txtPassword"
-                            Width="150"
-                            Height="35"
-                            Margin="10"
-                            TabIndex="0"
-                            Style="{DynamicResource TextBoxCustom}"
-                            Background="Transparent"
-                            FontFamily="pack://application:,,,/Assets/Fonts/#Password"
-                            Foreground="{DynamicResource GlobalFontColor}"
-                            CaretBrush="{DynamicResource GlobalFontColor}"
-                            BorderThickness="0,0,0,1"
-                            CharacterCasing="Upper"
-                            FontSize="17"
-                            FontWeight="ExtraBold"
-                            HorizontalContentAlignment="Center"
-                            VerticalContentAlignment="Center"
-                            GotFocus="TextBox_GotFocus"
-                            LostFocus="TextBox_LostFocus"
-                            KeyDown="txtPassword_KeyDown"/>
-                        <Button
-                            x:Name="BtnPassword"
-                            Width="150"
-                            Height="50"
-                            Margin="5"
-                            Style="{StaticResource PrimaryButtonStyle}"
-                            BorderBrush="Transparent"
-                            Click="BtnPassword_Click">
-                            <StackPanel
-                                Orientation="Horizontal"
-                                HorizontalAlignment="Center">
+                    <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="40" Margin="20" Text="&#xE72E;" HorizontalAlignment="Left" VerticalAlignment="Top" Foreground="{DynamicResource GlobalFontColor}"/>
+
+                    <StackPanel Width="250" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Label Content="Lozinka / PIN" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center"/>
+
+                        <TextBox x:Name="txtPassword"
+                                 Width="150"
+                                 Height="35"
+                                 Margin="10"
+                                 TabIndex="0"
+                                 Style="{DynamicResource TextBoxCustom}"
+                                 Background="Transparent"
+                                 FontFamily="pack://application:,,,/Assets/Fonts/#Password"
+                                 Foreground="{DynamicResource GlobalFontColor}"
+                                 CaretBrush="{DynamicResource GlobalFontColor}"
+                                 BorderThickness="0,0,0,1"
+                                 CharacterCasing="Upper"
+                                 FontSize="17"
+                                 FontWeight="ExtraBold"
+                                 HorizontalContentAlignment="Center"
+                                 VerticalContentAlignment="Center"
+                                 GotFocus="TextBox_GotFocus"
+                                 LostFocus="TextBox_LostFocus"
+                                 KeyDown="txtPassword_KeyDown"/>
+
+                        <Button x:Name="BtnPassword" Width="150" Height="50" Margin="5" Style="{StaticResource PrimaryButtonStyle}" BorderBrush="Transparent" Click="BtnPassword_Click">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="20" Margin="0,0,7,0" Text="&#xE73E;" Foreground="#F5F5F5" VerticalAlignment="Center"/>
                                 <TextBlock Text="U redu" Foreground="#F5F5F5" VerticalAlignment="Center"/>
                             </StackPanel>

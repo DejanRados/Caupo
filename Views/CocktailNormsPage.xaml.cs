@@ -31,7 +31,7 @@ namespace Caupo.Views
             _viewModel.ErrorOccurred += ViewModel_ErrorOccurred;
             Loaded += CocktailNormsPage_Loaded;
 
-            lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
+           
         }
 
         private async void CocktailNormsPage_Loaded(object sender, RoutedEventArgs e)

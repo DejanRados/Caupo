@@ -39,7 +39,7 @@
                 <Grid Grid.Row="0">
 
                     <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
-                               Foreground="{DynamicResource GlobalFontColor}"
+                               
                                FontSize="32"
                                FontWeight="ExtraLight"
                                Text="&#xEA74;"
@@ -49,7 +49,7 @@
                                VerticalAlignment="Center"/>
 
                     <TextBlock Text="Prekini pokušaje fiskalizacije"
-                               Foreground="{DynamicResource GlobalFontColor}"
+                               
                                FontSize="18"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
@@ -59,7 +59,7 @@
                 <!-- Upozorenje -->
                 <TextBlock Grid.Row="1"
                            Margin="20,15"
-                           Foreground="{DynamicResource GlobalFontColor}"
+                           
                            FontSize="15"
                            FontWeight="ExtraLight"
                            TextWrapping="Wrap"
@@ -73,7 +73,7 @@
                             VerticalAlignment="Center">
 
                     <Label Content="Administratorska šifra"
-                           Foreground="{DynamicResource GlobalFontColor}"
+                           
                            HorizontalContentAlignment="Center"/>
 
                     <PasswordBox x:Name="txtPassword"
@@ -82,13 +82,13 @@
                                  Margin="0,5,0,5"
                                  HorizontalAlignment="Center"
                                  BorderBrush="{DynamicResource GlobalFontColor}"
-                                 Foreground="{DynamicResource GlobalFontColor}"
+                                 
                                  CaretBrush="{DynamicResource GlobalFontColor}"
                                  KeyDown="TxtPassword_KeyDown"/>
 
                     <TextBlock x:Name="txtError"
                                Margin="10,5,10,0"
-                               Foreground="{DynamicResource GlobalFontColor}"
+                               
                                TextWrapping="Wrap"
                                TextAlignment="Center"
                                HorizontalAlignment="Stretch"/>
@@ -106,7 +106,7 @@
                             Height="50"
                             Margin="5"
                             Click="BtnCancel_Click"
-                            Foreground="{DynamicResource GlobalFontColor}">
+                            >
 
                         <StackPanel Orientation="Horizontal"
                                     VerticalAlignment="Center"
@@ -118,13 +118,13 @@
                                        Width="20"
                                        FontWeight="ExtraLight"
                                        Text="&#60039;"
-                                       Foreground="{DynamicResource GlobalFontColor}"
+                                       
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
 
                             <TextBlock Text="Odustani"
                                        VerticalAlignment="Center"
-                                       Foreground="{DynamicResource GlobalFontColor}"/>
+                                       />
 
                         </StackPanel>
 

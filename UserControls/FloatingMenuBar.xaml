@@ -171,7 +171,7 @@
                         <TextBlock Grid.Row="0"
                                    Grid.Column="0"
                                    Text="Grupno uređivanje"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   
                                    FontSize="15"
                                    FontWeight="SemiBold"
                                    VerticalAlignment="Center"/>
@@ -181,7 +181,7 @@
                                    Grid.Row="3"
                                    Grid.Column="1"
                                    Text="Selektovano: 0"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   
                                    FontSize="12"
                                    VerticalAlignment="Center"
                                    Margin="10,0,0,0"/>
@@ -191,7 +191,7 @@
                                    Grid.Column="0"
                                    Grid.ColumnSpan="2"
                                    Text="Promijenite podatke za označene artikle"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   
                                    FontSize="11"
                                    Opacity="0.70"
                                    VerticalAlignment="Center"
@@ -214,7 +214,7 @@
                         <ColumnDefinition Width="25"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Postavi cijenu" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Column="1" Text="&#xE70D;" Foreground="{DynamicResource GlobalFontColor}" FontFamily="Segoe MDL2 Assets" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                    <TextBlock Grid.Column="1" Text="&#xE70D;"  FontFamily="Segoe MDL2 Assets" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
                         <TextBlock.RenderTransform>
                             <RotateTransform x:Name="PriceArrowTransform"/>
                         </TextBlock.RenderTransform>
@@ -223,7 +223,7 @@
             </Button>
 
             <StackPanel x:Name="PricePanel" Background="{DynamicResource GlobalBackgroundColor}" Visibility="Collapsed">
-                <TextBlock Text="Unesite željenu cijenu za selektovane artikle:" Foreground="{DynamicResource GlobalFontColor}" TextWrapping="Wrap" Margin="12,10,12,6"/>
+                <TextBlock Text="Unesite željenu cijenu za selektovane artikle:"  TextWrapping="Wrap" Margin="12,10,12,6"/>
 
                 <Grid Margin="12,0,12,10">
                     <Grid.ColumnDefinitions>
@@ -257,7 +257,7 @@
                     <TextBlock x:Name="TypeArrow"
                                Grid.Column="1"
                                Text="&#xE70D;"
-                               Foreground="{DynamicResource GlobalFontColor}"
+                               
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="12"
                                HorizontalAlignment="Center"
@@ -297,7 +297,7 @@
 
                     <TextBlock Grid.Column="1"
                                Text="&#xE70D;"
-                               Foreground="{DynamicResource GlobalFontColor}"
+                               
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="12"
                                HorizontalAlignment="Center"
@@ -337,7 +337,7 @@
 
                     <TextBlock Grid.Column="1"
                                Text="&#xE70D;"
-                               Foreground="{DynamicResource GlobalFontColor}"
+                               
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="12"
                                HorizontalAlignment="Center"
@@ -371,7 +371,7 @@
 
                     <TextBlock Text="Postavi poresku stopu" VerticalAlignment="Center"/>
 
-                    <TextBlock Grid.Column="1" Text="&#xE70D;" Foreground="{DynamicResource GlobalFontColor}" FontFamily="Segoe MDL2 Assets" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                    <TextBlock Grid.Column="1" Text="&#xE70D;"  FontFamily="Segoe MDL2 Assets" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
                         <TextBlock.RenderTransform>
                             <RotateTransform x:Name="TaxArrowTransform"/>
                         </TextBlock.RenderTransform>
@@ -394,7 +394,7 @@
 
                     <TextBlock Text="Postavi normativ" VerticalAlignment="Center"/>
 
-                    <TextBlock Grid.Column="1" Text="&#xE70D;" Foreground="{DynamicResource GlobalFontColor}" FontFamily="Segoe MDL2 Assets" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                    <TextBlock Grid.Column="1" Text="&#xE70D;"  FontFamily="Segoe MDL2 Assets" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
                         <TextBlock.RenderTransform>
                             <RotateTransform x:Name="NormativArrowTransform"/>
                         </TextBlock.RenderTransform>
@@ -413,7 +413,7 @@
                         <ColumnDefinition Width="25"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Porez na potrošnju" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Column="1" Text="&#xE70D;" Foreground="{DynamicResource GlobalFontColor}" FontFamily="Segoe MDL2 Assets" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                    <TextBlock Grid.Column="1" Text="&#xE70D;"  FontFamily="Segoe MDL2 Assets" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
                         <TextBlock.RenderTransform>
                             <RotateTransform x:Name="ConsumptionTaxArrowTransform"/>
                         </TextBlock.RenderTransform>
@@ -434,7 +434,7 @@
                         <ColumnDefinition Width="25"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Izbriši označene" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Column="1" Text="&#xE74D;" Foreground="{DynamicResource GlobalFontColor}" FontFamily="Segoe MDL2 Assets" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" Text="&#xE74D;"  FontFamily="Segoe MDL2 Assets" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Grid>
             </Button>
 

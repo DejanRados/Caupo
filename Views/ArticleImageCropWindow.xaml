@@ -13,8 +13,8 @@
         </Grid.RowDefinitions>
 
         <StackPanel>
-            <TextBlock Text="Namjestite okvir slike" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource GlobalFontColor}"/>
-            <TextBlock x:Name="CropInfoText" Margin="0,5,0,0" FontSize="13" Foreground="{DynamicResource GlobalFontColor}" Opacity="0.75"/>
+            <TextBlock Text="Namjestite okvir slike" FontSize="22" FontWeight="SemiBold" />
+            <TextBlock x:Name="CropInfoText" Margin="0,5,0,0" FontSize="13"  Opacity="0.75"/>
         </StackPanel>
 
         <Border Grid.Row="2" Background="#202124" CornerRadius="8" ClipToBounds="True">

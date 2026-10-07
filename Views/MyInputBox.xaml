@@ -30,7 +30,7 @@
                              PreviewKeyDown="InputText_PreviewKeyDown"
                              BorderBrush="{DynamicResource GlobalFontColor}" 
                              BorderThickness="0,0,0,1" 
-                             Foreground="{DynamicResource GlobalFontColor}" 
+                              
                              CaretBrush="{DynamicResource GlobalFontColor}" 
                              Text="" 
                              Width="250"

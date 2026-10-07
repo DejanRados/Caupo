@@ -175,7 +175,7 @@ namespace Caupo.Views
 
             InitializeComponent ();
             ConfigureArticleTransferFloatingMenuBar ();
-            lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
+            
             BatchEditGrid.IsVisibleChanged += (s, e) => UpdateOverlayBlur ();
             ArticleEditGrid.IsVisibleChanged += (s, e) => UpdateOverlayBlur ();
             ArticleTransferGrid.IsVisibleChanged += (s, e) => UpdateOverlayBlur ();

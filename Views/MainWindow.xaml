@@ -15,7 +15,7 @@
         WindowState="Maximized"
 
         Background="{DynamicResource GlobalBackgroundColor}"
-        Foreground="{DynamicResource GlobalFontColor}"
+        
 
         Loaded="Window_Loaded">
 
@@ -34,7 +34,7 @@
             x:Name="MainContent"
             Content="{Binding CurrentPage}"
             Background="{DynamicResource GlobalBackgroundColor}"
-            Foreground="{DynamicResource GlobalFontColor}" />
+             />
 
         <!--
             Virtualna tastatura.

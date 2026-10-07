@@ -1,378 +1,345 @@
 ﻿<UserControl x:Class="Caupo.Views.OrdersPage"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Caupo.ViewModels"
-        xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
-        mc:Ignorable="d"
-        Loaded="Window_Loaded">
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:Caupo.ViewModels"
+             xmlns:uc="clr-namespace:Caupo.UserControls"
+             mc:Ignorable="d"
+             Loaded="Window_Loaded">
 
-    <Grid x:Name="MainContent">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="56"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <UserControl.Resources>
 
-        <!-- HEADER -->
-        <Grid Grid.Row="0"
-              
-              HorizontalAlignment="Stretch"
-              VerticalAlignment="Top"
-              Background="{DynamicResource HeaderBackgroundColor}">
+        <Style x:Key="OrdersCard" TargetType="Border">
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
 
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="0.2*"/>
-            </Grid.ColumnDefinitions>
+    </UserControl.Resources>
 
-            <Image Grid.Column="0"
-                   Source="pack://application:,,,/Images/dsoftlogosmall.png"
-                   Width="50"
-                   Height="50"
-                   HorizontalAlignment="Left"
-                   Margin="20,0,0,0"/>
+    <Grid Background="{DynamicResource GlobalBackgroundColor}">
 
-            <Label x:Name="lblApp"
-                   Grid.Column="0"
-                   Content="Caupo - Stolovi"
-                   Foreground="#fafafa"
-                   FontSize="25"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"/>
+        <Grid x:Name="MainContent">
 
-            <Label x:Name="lblUlogovaniKorisnik"
-                   Grid.Column="1"
-                   Content="Ime i prezime"
-                   Foreground="#fafafa"
-                   FontSize="16"
-                   HorizontalAlignment="Right"
-                   VerticalAlignment="Center"/>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="55"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-            <Button x:Name="CloseButton"
-                    Grid.Column="2"
-                    Style="{StaticResource CloseButtonStyle}"
-                    VerticalAlignment="Top"
-                    HorizontalAlignment="Right"
-                    Padding="0"
-                    Margin="1"
-                    Click="CloseButton_Click"/>
-        </Grid>
+            <!-- ===================================================== -->
+            <!-- HEADER -->
+            <!-- ===================================================== -->
 
-        <!-- SADRŽAJ -->
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="160"/>
-            </Grid.ColumnDefinitions>
+            <uc:CaupoHeader Grid.Row="0" Title="Caupo - Stolovi" Close="CloseButton_Click"/>
 
-            <!-- SALE I STOLOVI -->
-            <TabControl x:Name="tabControl"
-                        Grid.Column="0"
-                        
-                        SelectionChanged="tabControl_SelectionChanged"
-                        Background="#11000000"
-                        Foreground="{DynamicResource GlobalFontColor}"
-                        Margin="5">
+            <!-- ===================================================== -->
+            <!-- SADRŽAJ -->
+            <!-- ===================================================== -->
 
-                <!-- Sve stvarne sale kreiraju se dinamički -->
-                <TabItem x:Name="TabAdd"
-                         Header="&#xE710;"
-                         FontFamily="Segoe MDL2 Assets"
-                         Width="65"
-                         Height="65"
-                         FontSize="18"
-                         Foreground="{DynamicResource GlobalFontColor}"/>
-            </TabControl>
-
-            <!-- STATUSNA TRAKA ZA PREBACIVANJE STOLA -->
-            <Grid x:Name="MoveTableStatusBar"
-      Grid.Column="0"
-      Height="50"
-      VerticalAlignment="Bottom"
-      Margin="20,0,20,20"
-      Panel.ZIndex="100"
-      Background="#CC323232"
-      Visibility="Collapsed">
+            <Grid Grid.Row="1" Margin="24,12,24,22">
 
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="160"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- LIJEVI / SREDIŠNJI DIO -->
-                <StackPanel Grid.Column="0"
-                Orientation="Horizontal"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                IsHitTestVisible="False">
+                <!-- ================================================= -->
+                <!-- SALE I STOLOVI -->
+                <!-- ================================================= -->
 
-                    <!-- ANIMIRANI INDIKATOR -->
-                    <StackPanel Orientation="Horizontal"
-                    Margin="0,0,18,0"
-                    VerticalAlignment="Center">
+                <Border Grid.Column="0" Style="{StaticResource OrdersCard}">
 
-                        <StackPanel.Resources>
+                    <Grid>
 
-                            <Storyboard x:Key="PulseDot1"
-                            RepeatBehavior="Forever">
-                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                     From="0.20"
-                                     To="1"
-                                     Duration="0:0:0.45"
-                                     AutoReverse="True"/>
-                            </Storyboard>
+                        <TabControl x:Name="tabControl"
+                                    SelectionChanged="tabControl_SelectionChanged"
+                                    Background="Transparent"
+                                    
+                                BorderBrush="Transparent"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                Margin="0">
 
-                            <Storyboard x:Key="PulseDot2"
-                            RepeatBehavior="Forever"
-                            BeginTime="0:0:0.12">
-                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                     From="0.20"
-                                     To="1"
-                                     Duration="0:0:0.45"
-                                     AutoReverse="True"/>
-                            </Storyboard>
+                           
+                        
 
-                            <Storyboard x:Key="PulseDot3"
-                            RepeatBehavior="Forever"
-                            BeginTime="0:0:0.24">
-                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                     From="0.20"
-                                     To="1"
-                                     Duration="0:0:0.45"
-                                     AutoReverse="True"/>
-                            </Storyboard>
+                            <!-- Sve stvarne sale kreiraju se dinamički -->
 
-                            <Storyboard x:Key="PulseDot4"
-                            RepeatBehavior="Forever"
-                            BeginTime="0:0:0.36">
-                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                     From="0.20"
-                                     To="1"
-                                     Duration="0:0:0.45"
-                                     AutoReverse="True"/>
-                            </Storyboard>
+                            <TabItem x:Name="TabAdd" MinWidth="65" MinHeight="65" ToolTip="Dodaj salu">
+                                <TabItem.Header>
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE710;" FontSize="20" Foreground="{DynamicResource ThemePrimaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </TabItem.Header>
+                            </TabItem>
 
-                            <Storyboard x:Key="PulseDot5"
-                            RepeatBehavior="Forever"
-                            BeginTime="0:0:0.48">
-                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                     From="0.20"
-                                     To="1"
-                                     Duration="0:0:0.45"
-                                     AutoReverse="True"/>
-                            </Storyboard>
+                        </TabControl>
 
-                        </StackPanel.Resources>
+                        <!-- ========================================= -->
+                        <!-- STATUSNA TRAKA ZA PREBACIVANJE STOLA -->
+                        <!-- ========================================= -->
 
-                        <!-- 1 -->
-                        <Ellipse Width="7"
-                     Height="7"
-                     Margin="2"
-                     Fill="#FAFAFA"
-                     Opacity="0.20">
-                            <Ellipse.Triggers>
-                                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
-                                    <BeginStoryboard Storyboard="{StaticResource PulseDot1}"/>
-                                </EventTrigger>
-                            </Ellipse.Triggers>
-                        </Ellipse>
+                        <Grid x:Name="MoveTableStatusBar"
+                              Height="50"
+                              VerticalAlignment="Bottom"
+                              Margin="20,0,20,20"
+                              Panel.ZIndex="100"
+                              Background="#CC323232"
+                              Visibility="Collapsed">
 
-                        <!-- 2 -->
-                        <Ellipse Width="7"
-                     Height="7"
-                     Margin="2"
-                     Fill="#FAFAFA"
-                     Opacity="0.20">
-                            <Ellipse.Triggers>
-                                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
-                                    <BeginStoryboard Storyboard="{StaticResource PulseDot2}"/>
-                                </EventTrigger>
-                            </Ellipse.Triggers>
-                        </Ellipse>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
 
-                        <!-- 3 -->
-                        <Ellipse Width="7"
-                     Height="7"
-                     Margin="2"
-                     Fill="#FAFAFA"
-                     Opacity="0.20">
-                            <Ellipse.Triggers>
-                                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
-                                    <BeginStoryboard Storyboard="{StaticResource PulseDot3}"/>
-                                </EventTrigger>
-                            </Ellipse.Triggers>
-                        </Ellipse>
+                            <!-- LIJEVI / SREDIŠNJI DIO -->
 
-                        <!-- 4 -->
-                        <Ellipse Width="7"
-                     Height="7"
-                     Margin="2"
-                     Fill="#FAFAFA"
-                     Opacity="0.20">
-                            <Ellipse.Triggers>
-                                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
-                                    <BeginStoryboard Storyboard="{StaticResource PulseDot4}"/>
-                                </EventTrigger>
-                            </Ellipse.Triggers>
-                        </Ellipse>
+                            <StackPanel Grid.Column="0"
+                                        Orientation="Horizontal"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        IsHitTestVisible="False">
 
-                        <!-- 5 -->
-                        <Ellipse Width="7"
-                     Height="7"
-                     Margin="2"
-                     Fill="#FAFAFA"
-                     Opacity="0.20">
-                            <Ellipse.Triggers>
-                                <EventTrigger RoutedEvent="FrameworkElement.Loaded">
-                                    <BeginStoryboard Storyboard="{StaticResource PulseDot5}"/>
-                                </EventTrigger>
-                            </Ellipse.Triggers>
-                        </Ellipse>
+                                <!-- ANIMIRANI INDIKATOR -->
 
-                    </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,18,0" VerticalAlignment="Center">
 
-                    <!-- STATUS -->
-                    <TextBlock x:Name="MoveTableStatusText"
-                   Text="PREBACUJETE STO12 — odaberite novi sto"
-                   FontSize="18"
-                   FontWeight="SemiBold"
-                   Foreground="#FAFAFA"
-                   VerticalAlignment="Center"/>
+                                    <StackPanel.Resources>
 
-                </StackPanel>
+                                        <Storyboard x:Key="PulseDot1" RepeatBehavior="Forever">
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.20" To="1" Duration="0:0:0.45" AutoReverse="True"/>
+                                        </Storyboard>
 
-                <!-- ODUSTANI -->
-                <Button Grid.Column="1"
-            Content="ODUSTANI"
-            Style="{StaticResource PrimaryButtonStyle}"
-            Width="120"
-            Height="38"
-            Margin="10,6,10,6"
-            Padding="5"
-            Click="CancelMoveTableButton_Click"/>
+                                        <Storyboard x:Key="PulseDot2" RepeatBehavior="Forever" BeginTime="0:0:0.12">
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.20" To="1" Duration="0:0:0.45" AutoReverse="True"/>
+                                        </Storyboard>
+
+                                        <Storyboard x:Key="PulseDot3" RepeatBehavior="Forever" BeginTime="0:0:0.24">
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.20" To="1" Duration="0:0:0.45" AutoReverse="True"/>
+                                        </Storyboard>
+
+                                        <Storyboard x:Key="PulseDot4" RepeatBehavior="Forever" BeginTime="0:0:0.36">
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.20" To="1" Duration="0:0:0.45" AutoReverse="True"/>
+                                        </Storyboard>
+
+                                        <Storyboard x:Key="PulseDot5" RepeatBehavior="Forever" BeginTime="0:0:0.48">
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.20" To="1" Duration="0:0:0.45" AutoReverse="True"/>
+                                        </Storyboard>
+
+                                    </StackPanel.Resources>
+
+                                    <Ellipse Width="7" Height="7" Margin="2" Fill="#FAFAFA" Opacity="0.20">
+                                        <Ellipse.Triggers>
+                                            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                                <BeginStoryboard Storyboard="{StaticResource PulseDot1}"/>
+                                            </EventTrigger>
+                                        </Ellipse.Triggers>
+                                    </Ellipse>
+
+                                    <Ellipse Width="7" Height="7" Margin="2" Fill="#FAFAFA" Opacity="0.20">
+                                        <Ellipse.Triggers>
+                                            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                                <BeginStoryboard Storyboard="{StaticResource PulseDot2}"/>
+                                            </EventTrigger>
+                                        </Ellipse.Triggers>
+                                    </Ellipse>
+
+                                    <Ellipse Width="7" Height="7" Margin="2" Fill="#FAFAFA" Opacity="0.20">
+                                        <Ellipse.Triggers>
+                                            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                                <BeginStoryboard Storyboard="{StaticResource PulseDot3}"/>
+                                            </EventTrigger>
+                                        </Ellipse.Triggers>
+                                    </Ellipse>
+
+                                    <Ellipse Width="7" Height="7" Margin="2" Fill="#FAFAFA" Opacity="0.20">
+                                        <Ellipse.Triggers>
+                                            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                                <BeginStoryboard Storyboard="{StaticResource PulseDot4}"/>
+                                            </EventTrigger>
+                                        </Ellipse.Triggers>
+                                    </Ellipse>
+
+                                    <Ellipse Width="7" Height="7" Margin="2" Fill="#FAFAFA" Opacity="0.20">
+                                        <Ellipse.Triggers>
+                                            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                                <BeginStoryboard Storyboard="{StaticResource PulseDot5}"/>
+                                            </EventTrigger>
+                                        </Ellipse.Triggers>
+                                    </Ellipse>
+
+                                </StackPanel>
+
+                                <!-- STATUS -->
+
+                                <TextBlock x:Name="MoveTableStatusText"
+                                           Text="PREBACUJETE STO12 — odaberite novi sto"
+                                           FontSize="18"
+                                           FontWeight="SemiBold"
+                                           Foreground="#FAFAFA"
+                                           VerticalAlignment="Center"/>
+
+                            </StackPanel>
+
+                            <!-- ODUSTANI -->
+
+                            <Button Grid.Column="1"
+                                    Content="ODUSTANI"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Width="120"
+                                    Height="38"
+                                    Margin="10,6,10,6"
+                                    Padding="5"
+                                    Click="CancelMoveTableButton_Click"/>
+
+                        </Grid>
+
+                    </Grid>
+
+                </Border>
+
+                <!-- ================================================= -->
+                <!-- DESNI TOOLBAR -->
+                <!-- ================================================= -->
+
+                <Border Grid.Column="2" Style="{StaticResource OrdersCard}">
+
+                    <Grid>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- NORMALNI REŽIM -->
+
+                        <Button x:Name="EditLayoutButton"
+                                Grid.Row="0"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Height="65"
+                                Margin="10,15,10,5"
+                                Padding="5"
+                                Click="EditLayoutButton_Click">
+
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                                <TextBlock FontFamily="Segoe MDL2 Assets"
+                                           Text="&#xE70F;"
+                                           FontSize="20"
+                                           Margin="0,0,10,0"
+                                           
+                                           VerticalAlignment="Center"/>
+
+                                <TextBlock Text="Uredi"
+                                           FontSize="18"
+                                           
+                                           VerticalAlignment="Center"/>
+
+                            </StackPanel>
+
+                        </Button>
+
+                        <!-- REŽIM UREĐIVANJA -->
+
+                        <StackPanel x:Name="LayoutEditPanel" Grid.Row="1" Visibility="Collapsed">
+
+                            <Button x:Name="AddTableButton"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Height="65"
+                                    Margin="10,15,10,5"
+                                    Padding="5"
+                                    Click="AddTableButton_Click">
+
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                                    <TextBlock FontFamily="Segoe MDL2 Assets"
+                                               Text="&#xE710;"
+                                               FontSize="20"
+                                               Margin="0,0,10,0"
+                                               
+                                               VerticalAlignment="Center"/>
+
+                                    <TextBlock Text="Dodaj sto"
+                                               FontSize="18"
+                                               
+                                               VerticalAlignment="Center"/>
+
+                                </StackPanel>
+
+                            </Button>
+
+                            <Button x:Name="DeleteLayoutButton"
+                                    Style="{StaticResource DestructiveButtonStyle}"
+                                    Height="65"
+                                    Margin="10,5"
+                                    Padding="5"
+                                    Click="DeleteButton_Click">
+
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                               Text="&#60039;"
+                                               FontSize="20"
+                                               Margin="0,0,10,0"
+                                               Foreground="#F5F5F5"
+                                               VerticalAlignment="Center"/>
+
+                                    <TextBlock Text="Obriši"
+                                               FontSize="18"
+                                               Foreground="#F5F5F5"
+                                               VerticalAlignment="Center"/>
+
+                                </StackPanel>
+
+                            </Button>
+
+                            <Button x:Name="SaveAddButton"
+                                    Style="{StaticResource PrimaryButtonStyle}"
+                                    Height="65"
+                                    Margin="10,5"
+                                    Padding="5"
+                                    Click="SaveButton_Click">
+
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                               Text="&#xEB4B;"
+                                               FontSize="20"
+                                               Margin="0,0,10,0"
+                                               
+                                               VerticalAlignment="Center"/>
+
+                                    <TextBlock Text="Spremi"
+                                               FontSize="18"
+                                               
+                                               VerticalAlignment="Center"/>
+
+                                </StackPanel>
+
+                            </Button>
+
+                        </StackPanel>
+
+                    </Grid>
+
+                </Border>
 
             </Grid>
 
+            <!-- ===================================================== -->
+            <!-- MODALNI OVERLAY ZA OPERATIVNI FLOATING MENI -->
+            <!-- ===================================================== -->
 
-            <!-- DESNI TOOLBAR -->
-            <StackPanel Grid.Column="1"
-            Background="{DynamicResource HeaderBackgroundColor}"
-            Margin="-1"
-            VerticalAlignment="Stretch">
+            <Grid x:Name="OrderMenuOverlay"
+                  Grid.RowSpan="2"
+                  Panel.ZIndex="999"
+                  Background="#01000000"
+                  Visibility="Collapsed"
+                  IsHitTestVisible="True"/>
 
-                <!-- NORMALNI REŽIM -->
-                <Button x:Name="EditLayoutButton"
-            Style="{StaticResource PrimaryButtonStyle}"
-            Height="65"
-            Margin="10,15,10,5"
-            Padding="5"
-            Click="EditLayoutButton_Click">
-
-                    <StackPanel Orientation="Horizontal"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center">
-
-                        <TextBlock FontFamily="Segoe MDL2 Assets"
-                       Text="&#xE70F;"
-                       FontSize="20"
-                       Margin="0,0,10,0"
-                       Foreground="{DynamicResource GlobalFontColor}"
-                       VerticalAlignment="Center"/>
-
-                        <TextBlock Text="Uredi" FontSize="18"
-                       Foreground="{DynamicResource GlobalFontColor}"
-                       VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-
-                <!-- REŽIM UREĐIVANJA -->
-                <StackPanel x:Name="LayoutEditPanel"
-                Visibility="Collapsed">
-
-                    <Button x:Name="AddTableButton"
-                Style="{StaticResource PrimaryButtonStyle}"
-                Height="65"
-                Margin="10,15,10,5"
-                Padding="5"
-                Click="AddTableButton_Click">
-
-                        <StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center">
-
-                            <TextBlock FontFamily="Segoe MDL2 Assets"
-                           Text="&#xE710;"
-                           FontSize="20"
-                           Margin="0,0,10,0"
-                           Foreground="{DynamicResource GlobalFontColor}"
-                           VerticalAlignment="Center"/>
-
-                            <TextBlock Text="Dodaj sto" FontSize="18"
-                           Foreground="{DynamicResource GlobalFontColor}"
-                           VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-
-                    <Button x:Name="DeleteLayoutButton"
-                Style="{StaticResource DestructiveButtonStyle}"
-                Height="65"
-                Margin="10,5"
-                Padding="5"
-                Click="DeleteButton_Click">
-
-                        <StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center">
-
-                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
-                           Text="&#60039;"
-                           FontSize="20"
-                           Margin="0,0,10,0"
-                           Foreground="#F5F5F5"
-                           VerticalAlignment="Center"/>
-
-                            <TextBlock Text="Obriši" FontSize="18"
-                           Foreground="#F5F5F5"
-                           VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-
-                    <Button x:Name="SaveAddButton"
-                Style="{StaticResource PrimaryButtonStyle}"
-                Height="65"
-                Margin="10,5"
-                Padding="5"
-                Click="SaveButton_Click">
-
-                        <StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center">
-
-                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
-                           Text="&#xEB4B;"
-                           FontSize="20"
-                           Margin="0,0,10,0"
-                           Foreground="{DynamicResource GlobalFontColor}"
-                           VerticalAlignment="Center"/>
-
-                            <TextBlock Text="Spremi" FontSize="18"
-                           Foreground="{DynamicResource GlobalFontColor}"
-                           VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-
-                </StackPanel>
-            </StackPanel>
         </Grid>
 
-        <!-- MODALNI OVERLAY ZA OPERATIVNI FLOATING MENI -->
-        <Grid x:Name="OrderMenuOverlay"
-              Grid.RowSpan="2"
-              Panel.ZIndex="999"
-              Background="#01000000"
-              Visibility="Collapsed"
-              IsHitTestVisible="True"/>
     </Grid>
+
 </UserControl>

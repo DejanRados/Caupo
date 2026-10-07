@@ -25,10 +25,10 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Label x:Name="lblid" Visibility="Hidden"/>
-                <TextBlock x:Name="PopupTitle" Text="Novi radnik" HorizontalAlignment="Center" Foreground="{DynamicResource GlobalFontColor}" FontSize="20" VerticalAlignment="Center" Grid.Row="1"/>
+                <TextBlock x:Name="PopupTitle" Text="Novi radnik" HorizontalAlignment="Center"  FontSize="20" VerticalAlignment="Center" Grid.Row="1"/>
 
                 <Grid Grid.Row="2" Margin="10,0,10,5">
-                    <TextBox x:Name="txtRadnik" Style="{StaticResource TextBoxCustom}" Background="{DynamicResource GlobalBackgroundColor}" Foreground="{DynamicResource GlobalFontColor}" CaretBrush="{DynamicResource GlobalFontColor}"  VerticalAlignment="Bottom"    Margin="30,0,30,0" Padding="5"  BorderThickness="0,0,0,1" BorderBrush="LightGray" />
+                    <TextBox x:Name="txtRadnik" Style="{StaticResource TextBoxCustom}" Background="{DynamicResource GlobalBackgroundColor}"  CaretBrush="{DynamicResource GlobalFontColor}"  VerticalAlignment="Bottom"    Margin="30,0,30,0" Padding="5"  BorderThickness="0,0,0,1" BorderBrush="LightGray" />
                     <TextBlock IsHitTestVisible="False" Text="Ime i prezime radnika...." VerticalAlignment="Top" HorizontalAlignment="Left" Margin="30,0,30,0"  Foreground="DarkGray" >
                         <TextBlock.Style>
                             <Style TargetType="{x:Type TextBlock}">
@@ -44,7 +44,7 @@
                 </Grid>
 
                 <Grid Grid.Row="3" Margin="10,0,10,5">
-                    <TextBox x:Name="txtLozinka" Style="{StaticResource TextBoxCustom}" Background="Transparent" Foreground="{DynamicResource GlobalFontColor}" CaretBrush="{DynamicResource GlobalFontColor}"  VerticalAlignment="Bottom"    Margin="30,0,30,0" Padding="5"   BorderThickness="0,0,0,1" BorderBrush="LightGray" />
+                    <TextBox x:Name="txtLozinka" Style="{StaticResource TextBoxCustom}" Background="Transparent"  CaretBrush="{DynamicResource GlobalFontColor}"  VerticalAlignment="Bottom"    Margin="30,0,30,0" Padding="5"   BorderThickness="0,0,0,1" BorderBrush="LightGray" />
                     <TextBlock IsHitTestVisible="False" Text="Lozinka...." VerticalAlignment="Top" HorizontalAlignment="Left" Margin="30,0,30,0" Foreground="DarkGray">
                         <TextBlock.Style>
                             <Style TargetType="{x:Type TextBlock}">
@@ -60,17 +60,17 @@
                 </Grid>
 
 
-                <Label Content="Dopuštenja" HorizontalAlignment="Left" Foreground="{DynamicResource GlobalFontColor}" Grid.Row="4" VerticalAlignment="Center" Margin="30,0,0,0" />
-                <ComboBox x:Name="cmbDozvole"  Margin="0,0,30,0" Foreground="{DynamicResource GlobalFontColor}" Height="30" Width="150"  Grid.Row="4" HorizontalAlignment="Right"  IsEditable="True" >
+                <Label Content="Dopuštenja" HorizontalAlignment="Left"  Grid.Row="4" VerticalAlignment="Center" Margin="30,0,0,0" />
+                <ComboBox x:Name="cmbDozvole"  Margin="0,0,30,0"  Height="30" Width="150"  Grid.Row="4" HorizontalAlignment="Right"  IsEditable="True" >
                     <ComboBoxItem Content="Administrator" />
                     <ComboBoxItem Content="Korisnik" />
 
                 </ComboBox>
                 <StackPanel Orientation="Horizontal" Grid.Row="6" HorizontalAlignment="Center">
-                    <Button Style="{StaticResource CancelButtonStyle}"   x:Name="CancelButton"  Click="CancelButton_Click"   Width="150"  Margin="5"  Height="50"   Foreground="{DynamicResource GlobalFontColor}"      Grid.Column="0">
+                    <Button Style="{StaticResource CancelButtonStyle}"   x:Name="CancelButton"  Click="CancelButton_Click"   Width="150"  Margin="5"  Height="50"         Grid.Column="0">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="20" Width="20" FontWeight="ExtraLight" Text="&#60039;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <TextBlock Text="Odustani"  VerticalAlignment="Center"  Foreground="{DynamicResource GlobalFontColor}" />
+                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="6" FontSize="20" Width="20" FontWeight="ExtraLight" Text="&#60039;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="Odustani"  VerticalAlignment="Center"   />
                         </StackPanel>
                     </Button>
 

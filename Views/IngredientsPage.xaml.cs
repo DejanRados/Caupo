@@ -19,7 +19,7 @@ namespace Caupo.Views
             this.DataContext = new IngredientsViewModel ();
 
             InitializeComponent ();
-            lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
+           
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)

@@ -8,7 +8,7 @@
         <ResourceDictionary>
 
 
-        
+
 
             <!-- Destructive ostaje semantički crven i ne zavisi od teme. -->
             <SolidColorBrush x:Key="DestructiveButtonBrush" Color="#7B1E3B"/>
@@ -42,8 +42,13 @@
             <!-- ========================================================= -->
 
             <Style x:Key="PrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseActionButtonStyle}">
+                <Style.Resources>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryForegroundBrush}"/>
+                    </Style>
+                </Style.Resources>
                 <Setter Property="Background" Value="{DynamicResource ThemePrimaryBrush}"/>
-                <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+                <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryForegroundBrush}"/>
                 <Setter Property="BorderBrush" Value="{DynamicResource ThemePrimaryBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
 
@@ -140,7 +145,7 @@
 
             <Style x:Key="CancelButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseActionButtonStyle}">
                 <Setter Property="Background" Value="Transparent"/>
-
+                <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
                 <Setter Property="BorderBrush" Value="{DynamicResource ThemeCancelBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
 
@@ -192,6 +197,11 @@
             <!-- ========================================================= -->
 
             <Style x:Key="DestructiveButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseActionButtonStyle}">
+                <Style.Resources>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="White"/>
+                    </Style>
+                </Style.Resources>
                 <Setter Property="Background" Value="{StaticResource DestructiveButtonBrush}"/>
                 <Setter Property="Foreground" Value="White"/>
                 <Setter Property="BorderBrush" Value="{StaticResource DestructiveButtonBrush}"/>
@@ -258,13 +268,9 @@
                             <Grid>
 
                                 <!-- POZADINA KARTICE + SJENA -->
-                                <Border x:Name="Card"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="8">
+                                <Border x:Name="Card" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
                                     <Border.Effect>
-                                        <DropShadowEffect Color="{Binding Source={StaticResource GlobalFontColor}, Path=Color}" BlurRadius="10" ShadowDepth="2" Direction="270" Opacity="0.20"/>
+                                        <DropShadowEffect Color="{DynamicResource ThemeShadowColor}" BlurRadius="10" ShadowDepth="2" Direction="270" Opacity="0.20"/>
                                     </Border.Effect>
                                 </Border>
 
@@ -353,7 +359,7 @@
                 <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
                 <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="BorderBrush" Value="{DynamicResource ThemePrimaryBrush}"/>
-                <Setter Property="BorderThickness" Value="3"/>
+                <Setter Property="BorderThickness" Value="2"/>
                 <Setter Property="Padding" Value="0"/>
                 <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
@@ -407,7 +413,7 @@
 
                                     <!-- FOOTER -->
                                     <Border Grid.Row="2"
-                                        BorderBrush="{DynamicResource ThemeSecondaryBrush}"
+                                        BorderBrush="{DynamicResource ThemeCancelBrush}"
                                         BorderThickness="0,1,0,0"
                                         Margin="8,0">
 
@@ -440,7 +446,7 @@
 
                                 <!-- HOVER -->
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="Root" Property="Background" Value="{DynamicResource ThemePrimaryHoverBrush}"/>
+                                    <Setter TargetName="Root" Property="Background" Value="{DynamicResource ThemeSelectionHoverBrush}"/>
                                 </Trigger>
 
                                 <!-- PRITISNUT -->
@@ -540,7 +546,7 @@
                     </Setter.Value>
                 </Setter>
 
-                <Setter Property="Background" Value="{DynamicResource ThemePrimaryPressedBrush}"/>
+                <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
                 <Setter Property="BorderBrush" Value="{DynamicResource ThemeSecondaryBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
@@ -683,7 +689,13 @@
 
 
             <Style x:Key="CategoryToggleButtonStyle" TargetType="ToggleButton">
-                <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryBrush}"/>
+                <Style.Resources>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Foreground" Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}"/>
+                    </Style>
+                </Style.Resources>
+
+                <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
                 <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="BorderBrush" Value="{DynamicResource ThemePrimaryBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
@@ -692,24 +704,24 @@
                 <Setter Property="FontSize" Value="15"/>
                 <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="ToggleButton">
-                            <Border x:Name="Root"
-                        Background="{TemplateBinding Background}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="6">
+                            <Border x:Name="Root" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
+
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter TargetName="Root" Property="Background" Value="{DynamicResource ThemePrimaryHoverBrush}"/>
                                 </Trigger>
+
                                 <Trigger Property="IsChecked" Value="True">
                                     <Setter TargetName="Root" Property="Background" Value="{DynamicResource ThemePrimaryBrush}"/>
-                                    <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryForegroundBrush}"/>
                                 </Trigger>
+
                                 <Trigger Property="IsEnabled" Value="False">
                                     <Setter TargetName="Root" Property="Opacity" Value="0.5"/>
                                     <Setter Property="Cursor" Value="Arrow"/>
@@ -726,6 +738,8 @@
 
             <Style TargetType="Label">
                 <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}" />
+                <Setter Property="FontFamily" Value="Segoe UI Variable Text"/>
+                
             </Style>
 
 
@@ -733,9 +747,10 @@
                 <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}" />
                 <Setter Property="CaretBrush" Value="{DynamicResource GlobalFontColor}" />
             </Style>
-
             <Style TargetType="TextBlock">
                 <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+                <Setter Property="FontFamily" Value="Segoe UI Variable Text"/>
+                
             </Style>
 
             <Style x:Key="TextBoxCustom"
@@ -933,7 +948,7 @@
             <Style TargetType="ComboBox">
                 <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
-                <Setter Property="Padding" Value="5,10"/>
+                <Setter Property="Padding" Value="5,3"/>
 
                 <Setter Property="Template">
                     <Setter.Value>
@@ -1398,48 +1413,44 @@
                 </Setter>
             </Style>
 
-            <Style TargetType="TabItem" >
-                <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="BorderThickness" Value="2"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource ThemePrimaryBrush}"/>
+            <Style TargetType="TabItem">
+                <Setter Property="Background" Value="{DynamicResource ThemePrimaryBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryForegroundBrush}"/>
+                <Setter Property="BorderThickness" Value="0"/>
                 <Setter Property="SnapsToDevicePixels" Value="False"/>
                 <Setter Property="UseLayoutRounding" Value="True"/>
-                <Setter Property="Padding" Value="15"/>
+                <Setter Property="Padding" Value="10"/>
                 <Setter Property="Margin" Value="0"/>
-                <Setter Property="FontFamily" Value="Arial"/>
+                <Setter Property="MinHeight" Value="65"/>
+                <Setter Property="MinWidth" Value="140"/>
+                <Setter Property="FontFamily" Value="Segoe UI Variable Text"/>
                 <Setter Property="FontWeight" Value="Normal"/>
                 <Setter Property="FontSize" Value="16"/>
+
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="TabItem">
-                            <Grid Margin="5">
-                                <Border x:Name="BackgroundBorder" 
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"    
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="10"
-                                SnapsToDevicePixels="False" UseLayoutRounding="True"
-                                Padding="{TemplateBinding Padding}">
-                                    <ContentPresenter x:Name="Header" ContentSource="Header"  TextElement.Foreground="{DynamicResource GlobalFontColor}"
-                                  HorizontalAlignment="Center" 
-                                  VerticalAlignment="Center">
+                            <Grid Margin="2">
+                                <Border x:Name="BackgroundBorder" Margin="3" Background="{TemplateBinding Background}" CornerRadius="14" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="False" UseLayoutRounding="True">
+                                    <ContentPresenter x:Name="Header" ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <ContentPresenter.Resources>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=TabItem}}"/>
+                                            </Style>
+                                        </ContentPresenter.Resources>
                                     </ContentPresenter>
                                 </Border>
-                                <Border x:Name="HoverOverlay"     CornerRadius="11"   Padding="{TemplateBinding Padding}"  Background="{DynamicResource ThemeSelectionHoverBrush}"   BorderBrush="{TemplateBinding BorderBrush}"   BorderThickness="0"   IsHitTestVisible="False" SnapsToDevicePixels="False" UseLayoutRounding="True"/>
                             </Grid>
+
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="HoverOverlay"  Property="Opacity"  Value="0.1"/>
-                                    <Setter TargetName="BackgroundBorder" Property="BorderThickness" Value="2"/>
-                                    <Setter TargetName="BackgroundBorder" Property="Background" Value="{DynamicResource ThemeSelectionHoverBrush}"/>
+                                    <Setter TargetName="BackgroundBorder" Property="Background" Value="{DynamicResource ThemePrimaryHoverBrush}"/>
                                 </Trigger>
+
                                 <Trigger Property="IsSelected" Value="True">
-                                    <Setter TargetName="HoverOverlay"  Property="Opacity"  Value="0"/>
+                                    <Setter TargetName="BackgroundBorder" Property="Margin" Value="0"/>
                                     <Setter TargetName="BackgroundBorder" Property="Background" Value="{DynamicResource ThemeSelectionBrush}"/>
-                                    <Setter TargetName="Header" Property="TextElement.Foreground" Value="{DynamicResource GlobalFontColor}"/>
-                                </Trigger>
-                                <Trigger Property="IsFocused" Value="True">
-                                    <Setter TargetName="HoverOverlay"  Property="Opacity"  Value="0"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>

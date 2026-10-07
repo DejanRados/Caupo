@@ -19,7 +19,7 @@ namespace Caupo.Views
             this.DataContext = new NormsViewModel();
 
             InitializeComponent();
-            lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
+           
         }
 
 

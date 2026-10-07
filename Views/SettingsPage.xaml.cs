@@ -25,9 +25,7 @@ namespace Caupo.Views
                 new SettingsViewModel ();
 
 
-            lblUlogovaniKorisnik.Content =
-                Globals.ulogovaniKorisnik?.Radnik
-                ?? string.Empty;
+          
 
 
             InitializeCashRegisterType ();

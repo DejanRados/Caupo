@@ -80,7 +80,7 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Text="Uređivanje stola"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   
                                    FontSize="15"
                                    FontWeight="SemiBold"
                                    VerticalAlignment="Center"/>
@@ -88,7 +88,7 @@
                         <TextBlock x:Name="TableNameText"
                                    Grid.Row="1"
                                    Text="Sto"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   
                                    FontSize="11"
                                    Opacity="0.70"
                                    VerticalAlignment="Center"
@@ -109,7 +109,7 @@
             </Button>
 
             <StackPanel x:Name="RenamePanel" Visibility="Collapsed" Margin="12,8,12,12">
-                <TextBlock Text="Novi naziv stola" Foreground="{DynamicResource GlobalFontColor}" Margin="0,0,0,5"/>
+                <TextBlock Text="Novi naziv stola"  Margin="0,0,0,5"/>
                 <TextBox x:Name="TableNameInput" Style="{StaticResource TextBoxCustom}" Height="38" FontSize="14" VerticalContentAlignment="Center" Padding="8,0"/>
 
                 <Grid Margin="0,10,0,0">
@@ -141,10 +141,10 @@
             </Button>
 
             <StackPanel x:Name="ResizePanel" Visibility="Collapsed" Margin="12,8,12,12">
-                <TextBlock Text="Širina" Foreground="{DynamicResource GlobalFontColor}" Margin="0,0,0,5"/>
+                <TextBlock Text="Širina"  Margin="0,0,0,5"/>
                 <TextBox x:Name="WidthInput" Style="{StaticResource TextBoxCustom}" Height="38" FontSize="14" VerticalContentAlignment="Center" Padding="8,0"/>
 
-                <TextBlock Text="Visina" Foreground="{DynamicResource GlobalFontColor}" Margin="0,10,0,5"/>
+                <TextBlock Text="Visina"  Margin="0,10,0,5"/>
                 <TextBox x:Name="HeightInput" Style="{StaticResource TextBoxCustom}" Height="38" FontSize="14" VerticalContentAlignment="Center" Padding="8,0"/>
 
                 <TextBlock x:Name="ResizeErrorText"
@@ -185,13 +185,13 @@
 
             <StackPanel x:Name="DeletePanel" Visibility="Collapsed" Margin="12,8,12,12">
                 <TextBlock Text="Da li ste sigurni da želite obrisati ovaj sto?"
-                           Foreground="{DynamicResource GlobalFontColor}"
+                           
                            FontSize="13"
                            TextWrapping="Wrap"
                            Margin="0,0,0,5"/>
 
                 <TextBlock x:Name="DeleteTableNameText"
-                           Foreground="{DynamicResource GlobalFontColor}"
+                           
                            FontSize="13"
                            FontWeight="SemiBold"
                            TextWrapping="Wrap"

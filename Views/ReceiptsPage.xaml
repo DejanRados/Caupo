@@ -6,7 +6,7 @@
              xmlns:system="clr-namespace:System;assembly=mscorlib"
              xmlns:local="clr-namespace:Caupo.ViewModels"
              xmlns:loc="clr-namespace:Caupo.Helpers"
-             xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+             xmlns:uc="clr-namespace:Caupo.UserControls"
              xmlns:svg="http://sharpvectors.codeplex.com/svgc/"
              xmlns:Caupo="clr-namespace:Caupo"
              mc:Ignorable="d"
@@ -69,49 +69,7 @@
         <!-- HEADER                                                -->
         <!-- ===================================================== -->
 
-        <Grid Grid.Row="0"
-              Height="55"
-              Background="{DynamicResource HeaderBackgroundColor}">
-
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="0.2*"/>
-            </Grid.ColumnDefinitions>
-
-            <Image Source="pack://application:,,,/Images/dsoftlogosmall.png"
-                   Width="50"
-                   Height="50"
-                   Grid.Column="0"
-                   HorizontalAlignment="Left"
-                   Margin="20,0,0,0"/>
-
-            <Label x:Name="lblApp"
-                   Content="Caupo - Računi"
-                   Foreground="#fafafa"
-                   FontSize="25"
-                   Grid.Column="0"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"/>
-
-            <Label x:Name="lblUlogovaniKorisnik"
-                   Content="Ime i prezime"
-                   Foreground="#fafafa"
-                   FontSize="15"
-                   Grid.Column="1"
-                   HorizontalAlignment="Right"
-                   VerticalAlignment="Center"/>
-
-            <Button x:Name="CloseButton"
-                    Style="{StaticResource CloseButtonStyle}"
-                    Grid.Column="2"
-                    VerticalAlignment="Top"
-                    HorizontalAlignment="Right"
-                    Padding="0"
-                    Margin="1"
-                    Click="CloseButton_Click"/>
-
-        </Grid>
+        <uc:CaupoHeader Grid.Row="0" Title="Caupo - Računi" Close="CloseButton_Click"/>
 
 
         <!-- ===================================================== -->
@@ -156,7 +114,7 @@
                                    Width="34"
                                    FontWeight="ExtraLight"
                                    Text="&#60013;"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   
                                    Opacity="0.65"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"/>
@@ -164,7 +122,7 @@
                         <TextBox x:Name="SearchTextBox"
                                  Style="{StaticResource TextBoxCustom}"
                                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                                 Foreground="{DynamicResource GlobalFontColor}"
+                                 
                                  CaretBrush="{DynamicResource GlobalFontColor}"
                                  Background="Transparent"
                                  BorderBrush="Transparent"
@@ -190,7 +148,7 @@
                                FontSize="22"
                                FontWeight="ExtraLight"
                                Text="&#60271;"
-                               Foreground="{DynamicResource GlobalFontColor}"
+                               
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
 
@@ -210,7 +168,7 @@
                                FontSize="22"
                                FontWeight="ExtraLight"
                                Text="&#60272;"
-                               Foreground="{DynamicResource GlobalFontColor}"
+                               
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
 
@@ -242,7 +200,7 @@
                         Style="{StaticResource PrimaryButtonStyle}"
                         Height="48"
                         Margin="3"
-                        Foreground="{DynamicResource GlobalFontColor}"
+                        
                         Click="BtnStorno_Click">
 
                     <StackPanel Orientation="Horizontal"
@@ -252,11 +210,11 @@
                                    Text="&#xEABF;"
                                    FontSize="21"
                                    Margin="0,0,7,0"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   
                                    VerticalAlignment="Center"/>
 
                         <TextBlock Text="Storno"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   
                                    VerticalAlignment="Center"/>
 
                     </StackPanel>
@@ -281,11 +239,11 @@
                                    Text="&#xEA95;"
                                    FontSize="22"
                                    Margin="0,0,7,0"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   
                                    VerticalAlignment="Center"/>
 
                         <TextBlock Text="Duplikat"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   
                                    VerticalAlignment="Center"/>
 
                     </StackPanel>
@@ -310,13 +268,13 @@
                                    Text="&#xEB37;"
                                    FontSize="21"
                                    Margin="0,0,7,0"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   
                                    VerticalAlignment="Center"/>
 
                         <TextBlock Text="Ponovi&#x0A;ispis"
                                    TextAlignment="Center"
                                    LineHeight="13"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   
                                    VerticalAlignment="Center"/>
 
                     </StackPanel>
@@ -341,11 +299,11 @@
                                    Text="&#xEB2C;"
                                    FontSize="21"
                                    Margin="0,0,7,0"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   
                                    VerticalAlignment="Center"/>
 
                         <TextBlock Text="Fiskalizuj"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   
                                    VerticalAlignment="Center"/>
 
                     </StackPanel>
@@ -370,13 +328,13 @@
                                    Text="&#xEA76;"
                                    FontSize="21"
                                    Margin="0,0,7,0"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   
                                    VerticalAlignment="Center"/>
 
                         <TextBlock Text="Prekini&#x0A;fiskalizaciju"
                                    TextAlignment="Center"
                                    LineHeight="13"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   
                                    VerticalAlignment="Center"/>
 
                     </StackPanel>
@@ -649,7 +607,7 @@
                               Background="Transparent"
                               BorderThickness="0"
                               BorderBrush="{DynamicResource GlobalFontColor}"
-                              Foreground="{DynamicResource GlobalFontColor}"
+                              
                               HorizontalScrollBarVisibility="Disabled"
                               ScrollViewer.VerticalScrollBarVisibility="Auto"
                               SelectionMode="Single"
@@ -846,7 +804,7 @@
                               RowHeight="35"
                               Background="Transparent"
                               BorderThickness="0"
-                              Foreground="{DynamicResource GlobalFontColor}"
+                              
                               HorizontalScrollBarVisibility="Disabled"
                               ScrollViewer.VerticalScrollBarVisibility="Auto"
                               SelectionMode="Single">
@@ -947,7 +905,7 @@
                             </Grid.ColumnDefinitions>
 
                             <TextBlock Text="UKUPNO"
-                                       Foreground="{DynamicResource GlobalFontColor}"
+                                       
                                        FontSize="12"
                                        FontWeight="SemiBold"
                                        Opacity="0.65"
@@ -958,13 +916,13 @@
                                         VerticalAlignment="Center">
 
                                 <TextBlock Text="{Binding IznosRacuna, StringFormat={}{0:0.00}}"
-                                           Foreground="{DynamicResource GlobalFontColor}"
+                                           
                                            FontSize="27"
                                            FontWeight="SemiBold"
                                            VerticalAlignment="Center"/>
 
                                 <TextBlock Text=" €"
-                                           Foreground="{DynamicResource GlobalFontColor}"
+                                           
                                            FontSize="15"
                                            Opacity="0.65"
                                            Margin="3,7,0,0"

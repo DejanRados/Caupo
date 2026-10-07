@@ -30,7 +30,7 @@ namespace Caupo.Views
             Unloaded += KasaPage_Unloaded;
 
             cmbNacinPlacanja.SelectedIndex = 0;
-            lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
+           
             //this.DataContext = new KasaViewModel ();
             MultiUserGrid.IsVisibleChanged += (s, e) => UpdateBlur();
         }
@@ -771,7 +771,7 @@ namespace Caupo.Views
             if (radnik != null)
             {
                 Globals.ulogovaniKorisnik = radnik;
-                lblUlogovaniKorisnik.Content = radnik.Radnik;
+               
                 txtPassword.Text = "";
                 MainWindow.Instance.HideKeyboard();
                 return;

@@ -22,7 +22,7 @@ namespace Caupo.Views
             InitializeComponent ();
             this.DataContext = new BuyersViewModel ();
 
-            lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
+            
 
             if(DataContext is BuyersViewModel vm)
             {

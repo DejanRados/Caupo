@@ -71,7 +71,7 @@ namespace Caupo.Views
             DataContext = ordersViewModel;
 
             InitializeComponent();
-            lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
+
             Unloaded += OrdersPage_Unloaded;
         }
 
@@ -184,11 +184,6 @@ namespace Caupo.Views
             {
                 Header = header,
                 Name = name,
-                Width = 150,
-                FontSize = 14,
-                BorderThickness = new Thickness(1),
-                FontWeight = FontWeights.ExtraLight,
-                Padding = new Thickness(5),
                 Content = canvas
             };
 

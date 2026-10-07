@@ -18,7 +18,7 @@ namespace Caupo.Views
 
             InitializeComponent();
 
-            lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
+          
         }
 
         // ============================================================

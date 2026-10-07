@@ -22,7 +22,7 @@ namespace Caupo.Views
             InitializeComponent ();
             ViewModel = new FoodInViewModel ();
             this.DataContext = ViewModel;
-            lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
+           
             _ = LoadInitialStockAsync (brojulaza);
 
             if(DataContext is FoodInViewModel vm)

@@ -1,5 +1,6 @@
 ﻿
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace Caupo.Views
@@ -24,6 +25,12 @@ namespace Caupo.Views
 
         }
 
+
+        private void MessageText_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(MessageText.Text))
+                Clipboard.SetText(MessageText.Text);
+        }
         private void OKButton_Click(object sender, RoutedEventArgs e)
         {
             this.Close ();

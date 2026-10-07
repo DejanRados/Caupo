@@ -24,7 +24,7 @@ namespace Caupo.Views
 
 
             InitializeComponent ();
-            lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
+           
             _menuItemsWithSubmenus = new List<SidebarMenuItem> ();
             DataContext = new DashboardViewModel ();
             ViewModel = DataContext as DashboardViewModel;

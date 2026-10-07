@@ -24,7 +24,7 @@ namespace Caupo.Views
 
             // --- OVDJE DODAŠ LISTENER ---
             viewModel.PropertyChanged += ViewModel_PropertyChanged;
-            lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
+            
 
             if(DataContext is SuppliersViewModel vm)
             {

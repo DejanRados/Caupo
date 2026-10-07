@@ -30,7 +30,7 @@
                    Text="Nova poreska stopa"
                    FontSize="22"
                    FontWeight="SemiBold"
-                   Foreground="{DynamicResource GlobalFontColor}"/>
+                   />
 
 
                     <!-- POLJA -->
@@ -59,14 +59,14 @@
                             <!-- ID -->
 
                             <Label Content="ID"
-                       Foreground="{DynamicResource GlobalFontColor}"
+                       
                        VerticalAlignment="Center"
                        Grid.Row="0"
                        Grid.Column="0"/>
 
                             <Label x:Name="lblid"
                        Content="-"
-                       Foreground="{DynamicResource GlobalFontColor}"
+                       
                        VerticalAlignment="Center"
                        Grid.Row="0"
                        Grid.Column="1"/>
@@ -75,14 +75,14 @@
                             <!-- OPIS -->
 
                             <Label Content="Opis"
-                       Foreground="{DynamicResource GlobalFontColor}"
+                       
                        VerticalAlignment="Center"
                        Grid.Row="1"
                        Grid.Column="0"/>
 
                             <TextBox x:Name="txtOpis"
                          Style="{DynamicResource TextBoxCustom}"
-                         Foreground="{DynamicResource GlobalFontColor}"
+                         
                          Background="Transparent"
                          Height="30"
                          Margin="5"
@@ -95,7 +95,7 @@
                             <!-- POSTOTAK -->
 
                             <Label Content="Postotak"
-                       Foreground="{DynamicResource GlobalFontColor}"
+                       
                        VerticalAlignment="Center"
                        Grid.Row="2"
                        Grid.Column="0"/>
@@ -111,7 +111,7 @@
 
                                 <TextBox x:Name="txtPostotak"
                              Style="{DynamicResource TextBoxCustom}"
-                             Foreground="{DynamicResource GlobalFontColor}"
+                             
                              Background="Transparent"
                              Height="30"
                              Margin="5"
@@ -120,7 +120,7 @@
                              Grid.Column="0"/>
 
                                 <TextBlock Text="%"
-                               Foreground="{DynamicResource GlobalFontColor}"
+                               
                                FontSize="16"
                                VerticalAlignment="Center"
                                Margin="5"
@@ -132,14 +132,14 @@
                             <!-- OZNAKA -->
 
                             <Label Content="Oznaka"
-                       Foreground="{DynamicResource GlobalFontColor}"
+                       
                        VerticalAlignment="Center"
                        Grid.Row="3"
                        Grid.Column="0"/>
 
                             <TextBox x:Name="txtOznaka"
                          Style="{DynamicResource TextBoxCustom}"
-                         Foreground="{DynamicResource GlobalFontColor}"
+                         
                          Background="Transparent"
                          Height="30"
                          Width="120"
@@ -174,10 +174,10 @@
                                Text="&#xE711;"
                                FontSize="16"
                                Margin="0,0,8,0"
-                               Foreground="{DynamicResource GlobalFontColor}"/>
+                               />
 
                                 <TextBlock Text="Otkaži"
-                               Foreground="{DynamicResource GlobalFontColor}"/>
+                               />
 
                             </StackPanel>
 
@@ -196,10 +196,10 @@
                                Text="&#xE74E;"
                                FontSize="16"
                                Margin="0,0,8,0"
-                               Foreground="{DynamicResource GlobalFontColor}"/>
+                               />
 
                                 <TextBlock Text="Spremi"
-                               Foreground="{DynamicResource GlobalFontColor}"/>
+                               />
 
                             </StackPanel>
 

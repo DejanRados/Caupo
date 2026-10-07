@@ -8,7 +8,7 @@
              xmlns:loc="clr-namespace:Caupo.Helpers"
              xmlns:controls="clr-namespace:Caupo.UserControls"
              xmlns:articleImport="clr-namespace:Caupo.ArticleImport"
-             xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+             xmlns:uc="clr-namespace:Caupo.UserControls"
              mc:Ignorable="d"
              UseLayoutRounding="True">
 
@@ -144,47 +144,7 @@
             <!-- HEADER                                                -->
             <!-- ===================================================== -->
 
-            <Grid Grid.Row="0" Background="{DynamicResource HeaderBackgroundColor}">
-
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="0.2*"/>
-                </Grid.ColumnDefinitions>
-
-                <Image Source="pack://application:,,,/Images/dsoftlogosmall.png"
-                   Width="50"
-                   Height="50"
-                   Grid.Column="0"
-                   HorizontalAlignment="Left"
-                   Margin="20,0,0,0"/>
-
-                <Label x:Name="lblApp"
-                   Content="Caupo - Artikli"
-                   Foreground="#fafafa"
-                   FontSize="25"
-                   Grid.Column="0"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"/>
-
-                <Label x:Name="lblUlogovaniKorisnik"
-                   Content="Ime i prezime"
-                   Foreground="#fafafa"
-                   FontSize="15"
-                   Grid.Column="1"
-                   HorizontalAlignment="Right"
-                   VerticalAlignment="Center"/>
-
-                <Button x:Name="CloseButton"
-                    Style="{StaticResource CloseButtonStyle}"
-                    Grid.Column="2"
-                    VerticalAlignment="Top"
-                    HorizontalAlignment="Right"
-                    Padding="0"
-                    Margin="1"
-                    Click="CloseButton_Click"/>
-
-            </Grid>
+            <uc:CaupoHeader Grid.Row="0" Title="Caupo - Artikli" Close="CloseButton_Click"/>
 
             <!-- ===================================================== -->
             <!-- TOP TOOLBAR                                           -->
@@ -264,7 +224,7 @@
                                FontSize="21"
                                FontWeight="ExtraLight"
                                Text="&#xE76C;"
-                               Foreground="{DynamicResource GlobalFontColor}"
+                             
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
 
@@ -283,7 +243,7 @@
                                FontSize="22"
                                FontWeight="ExtraLight"
                                Text="&#60271;"
-                               Foreground="{DynamicResource GlobalFontColor}"
+                              
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
 
@@ -302,7 +262,7 @@
                                FontSize="22"
                                FontWeight="ExtraLight"
                                Text="&#60272;"
-                               Foreground="{DynamicResource GlobalFontColor}"
+                              
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
 
@@ -321,7 +281,7 @@
                                FontSize="21"
                                FontWeight="ExtraLight"
                                Text="&#xE76B;"
-                               Foreground="{DynamicResource GlobalFontColor}"
+                              
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
 
@@ -356,11 +316,11 @@
                                    Text="&#60000;"
                                    FontSize="21"
                                    Margin="0,0,7,0"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                  
                                    VerticalAlignment="Center"/>
 
                             <TextBlock Text="Dodaj"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                   
                                    VerticalAlignment="Center"/>
 
                         </StackPanel>
@@ -380,11 +340,11 @@
                                    Text="&#60019;"
                                    FontSize="21"
                                    Margin="0,0,7,0"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                  
                                    VerticalAlignment="Center"/>
 
                             <TextBlock Text="Uredi"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                  
                                    VerticalAlignment="Center"/>
 
                         </StackPanel>
@@ -404,11 +364,11 @@
                                    Text="&#60033;"
                                    FontSize="21"
                                    Margin="0,0,7,0"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                  
                                    VerticalAlignment="Center"/>
 
                             <TextBlock Text="Obriši"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                  
                                    VerticalAlignment="Center"/>
 
                         </StackPanel>
@@ -428,11 +388,11 @@
                                    Text="&#xEC26;"
                                    FontSize="21"
                                    Margin="0,0,7,0"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                  
                                    VerticalAlignment="Center"/>
 
                             <TextBlock Text="Uvoz"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                  
                                    VerticalAlignment="Center"/>
 
                         </StackPanel>
@@ -452,11 +412,11 @@
                                    Text="&#xEC28;"
                                    FontSize="21"
                                    Margin="0,0,7,0"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                  
                                    VerticalAlignment="Center"/>
 
                             <TextBlock Text="Izvoz"
-                                   Foreground="{DynamicResource GlobalFontColor}"
+                                  
                                    VerticalAlignment="Center"/>
 
                         </StackPanel>

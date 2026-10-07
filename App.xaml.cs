@@ -5,7 +5,6 @@ using Caupo.Models;
 using Caupo.Properties;
 using Caupo.Services;
 using Caupo.ViewModels;
-using Syncfusion.SfSkinManager;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
@@ -57,8 +56,8 @@ namespace Caupo
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
 
-            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(
-                "Ngo9BigBOggjHTQxAR8 / V1NNaF5cXmBCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWXtcc3VWRWlYV0d3X0tWYUA =");
+          //  Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(
+           //     "Ngo9BigBOggjHTQxAR8 / V1NNaF5cXmBCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdmWXtcc3VWRWlYV0d3X0tWYUA =");
         }
 
 

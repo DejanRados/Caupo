@@ -13,105 +13,40 @@
         Title="MyMessageBox">
 
     <Grid>
-
-        <Border HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch"
-                Background="#33000000">
-
-            <Border Height="320"
-                    Width="420"
-                    CornerRadius="7"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    BorderThickness="0.5"
-                    BorderBrush="{DynamicResource GlobalFontColor}"
-                    Background="{DynamicResource GlobalBackgroundColor}">
-
-                <Grid>
-
+        <Border Background="#33000000">
+            <Border Width="420" MinHeight="260" MaxHeight="420" CornerRadius="7" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="1" BorderBrush="{DynamicResource ThemeSecondaryBrush}" Background="{DynamicResource GlobalBackgroundColor}">
+                <Grid Margin="24">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="80"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
-                        <RowDefinition Height="80"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <!-- Ikona -->
-                    <TextBlock Grid.Row="0"
-                               FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
-                               Foreground="{DynamicResource GlobalFontColor}"
-                               Margin="5"
-                               FontSize="48"
-                               FontWeight="ExtraLight"
-                               Text="&#xEA74;"
-                               Width="48"
-                               Height="48"
-                               HorizontalAlignment="Left"
-                               VerticalAlignment="Center"/>
+                    <!-- HEADER: ikona + naslov -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,8,0,20">
+                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Foreground="{DynamicResource ThemePrimaryBrush}" FontSize="42" Text="&#xEA74;" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                        <TextBlock x:Name="MessageTitle" Foreground="{DynamicResource GlobalFontColor}" Text="Message Title" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    </StackPanel>
 
-                    <!-- Naslov -->
-                    <TextBlock Grid.Row="0"
-                               x:Name="MessageTitle"
-                               Foreground="{DynamicResource GlobalFontColor}"
-                               Text="Message Title"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               FontSize="20"/>
+                    <!-- PORUKA -->
+                    <ScrollViewer Grid.Row="1" MaxHeight="180" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="True">
+                        <ScrollViewer.Resources>
+                            <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
+                        </ScrollViewer.Resources>
 
-                    <!-- Poruka -->
-                    <ScrollViewer Grid.Row="1"
-                                  Margin="20,10"
-                                  VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Disabled"
-                                  CanContentScroll="True">
-
-                        <TextBlock x:Name="MessageText"
-                                   Foreground="{DynamicResource GlobalFontColor}"
-                                   Text="This is a custom alert message."
-                                   FontWeight="ExtraLight"
-                                   TextWrapping="Wrap"
-                                   TextAlignment="Center"
-                                   HorizontalAlignment="Stretch"
-                                   VerticalAlignment="Top"/>
+                        <TextBlock x:Name="MessageText" Foreground="{DynamicResource GlobalFontColor}" Text="This is a custom alert message." FontSize="14" FontWeight="Normal" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="4,0,4,12" Cursor="Hand" MouseLeftButtonUp="MessageText_MouseLeftButtonUp"/>
                     </ScrollViewer>
 
                     <!-- OK -->
-                    <Button Grid.Row="2"
-                            x:Name="OkButton"
-                            Style="{StaticResource PrimaryButtonStyle}"
-                            Margin="10"
-                            Padding="5"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Width="150"
-                            Height="50"
-                            Click="OKButton_Click">
-
-                        <StackPanel Orientation="Horizontal"
-                                    VerticalAlignment="Center">
-
-                            <TextBlock FontFamily="Segoe MDL2 Assets"
-                                       Margin="5"
-                                       FontSize="20"
-                                       FontWeight="ExtraLight"
-                                       Text="&#xE73E;"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       Foreground="{DynamicResource GlobalFontColor}"/>
-
-                            <TextBlock Text="U redu"
-                                       VerticalAlignment="Center"
-                                       Foreground="{DynamicResource GlobalFontColor}"/>
-
+                    <Button x:Name="OkButton" Grid.Row="2" Style="{StaticResource PrimaryButtonStyle}" HorizontalAlignment="Center" VerticalAlignment="Center" Width="150" Height="46" Margin="0,16,0,0" Click="OKButton_Click">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" FontSize="20" Text="&#xE73E;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="U redu" VerticalAlignment="Center"/>
                         </StackPanel>
-
                     </Button>
-
                 </Grid>
-
             </Border>
-
         </Border>
-
     </Grid>
 
 </Window>

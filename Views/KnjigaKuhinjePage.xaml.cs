@@ -72,7 +72,7 @@ namespace Caupo.Views
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
+          
         }
 
         private async void DpDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
