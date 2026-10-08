@@ -86,30 +86,7 @@
             </Setter>
         </Style>
 
-        <Style x:Key="LedgerDatePickerTextBoxStyle" TargetType="DatePickerTextBox">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="FontSize" Value="15"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="DatePickerTextBox">
-                        <ScrollViewer x:Name="PART_ContentHost" Background="Transparent" Focusable="False" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-
-            <Setter Property="Text">
-                <Setter.Value>
-                    <Binding Path="SelectedDate" RelativeSource="{RelativeSource AncestorType=DatePicker}" StringFormat="dd.MM.yyyy"/>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        
 
     </UserControl.Resources>
 

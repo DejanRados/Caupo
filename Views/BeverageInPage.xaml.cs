@@ -1,9 +1,6 @@
-﻿using Caupo.Data;
-using Caupo.Helpers;
+﻿using Caupo.Helpers;
 using Caupo.ViewModels;
-using ClosedXML.Excel;
-using Microsoft.Win32;
-using System.Diagnostics;
+using CommunityToolkit.Mvvm.Input;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -13,440 +10,177 @@ using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.Views
 {
-
     public partial class BeverageInPage : UserControl
     {
-        public BeverageInPageViewModel ViewModel { get; set; }
-        public bool OpenedFromSupplier { get; set; } = false;
-        public UserControl PreviousPage { get; set; }
-        private int _brojUlaza;
+        public BeverageInPageViewModel ViewModel { get; }
+        public bool OpenedFromSupplier { get; set; }
+        public UserControl? PreviousPage { get; set; }
+        public IRelayCommand ClosePageCommand { get; }
+
+        private readonly int _brojUlaza;
+        private bool _initialized;
+
         public BeverageInPage(int brojulaza = 0)
         {
-            InitializeComponent ();
-            ViewModel = new BeverageInPageViewModel ();
-            this.DataContext = ViewModel;
-           
-            // this.Loaded += BeverageInPage_Loaded;
-            _ = LoadInitialStockAsync (brojulaza);
-            if(DataContext is BeverageInPageViewModel vm)
-            {
-                vm.ShowDeletePopupRequested += ShowDeletePopup;
-            }
+            InitializeComponent();
+            _brojUlaza = brojulaza;
+            ViewModel = new BeverageInPageViewModel();
+            DataContext = ViewModel;
+            ClosePageCommand = new RelayCommand(ClosePage);
+
+            ViewModel.ShowDeletePopupRequested += ShowDeletePopup;
+            ViewModel.ConfirmDiscardRequested += ConfirmDiscard;
+            ViewModel.AddArticleRequested += ShowAddArticlePopup;
+            ViewModel.EditItemRequested += ShowEditItemPopup;
+            ViewModel.ErrorOccurred += ViewModel_ErrorOccurred;
+            ViewModel.InformationOccurred += ViewModel_InformationOccurred;
+            Loaded += BeverageInPage_Loaded;
         }
 
-        // metoda koja zapravo pokazuje popup i primjenjuje blur
-        private bool ShowDeletePopup(string itemName)
+        private async void BeverageInPage_Loaded(object sender, RoutedEventArgs e)
         {
-            // Blur cijelog sadržaja
+            if (_initialized) return;
+            _initialized = true;
+            await ViewModel.InitializeAsync(_brojUlaza);
+        }
+
+        private (bool Accepted, decimal Price, decimal Quantity, decimal Discount) ShowAddArticlePopup(TblArtikli artikl)
+        {
             MainContent.Effect = new BlurEffect { Radius = 5 };
-
-            var myMessageBox = new YesNoPopup
+            try
             {
-                WindowStartupLocation = WindowStartupLocation.CenterScreen
-            };
-            myMessageBox.MessageTitle.Text = "POTVRDA BRISANJA";
-            myMessageBox.MessageText.Text = $"Da li ste sigurni da želite obrisati stavku:\n{itemName}?";
-
-            bool? result = myMessageBox.ShowDialog ();
-
-            // Ukloni blur
-            MainContent.Effect = null;
-
-            return myMessageBox.Kliknuo == "Da";
-        }
-
-        /*   private async void BeverageInPage_Loaded(object sender, RoutedEventArgs e)
-           {
-               this.Loaded -= BeverageInPage_Loaded; 
-
-               await ViewModel.Start();               // prvo inicijalizacija
-               await ViewModel.LoadStockInAsync (_brojUlaza);    // zatim učitaj ulaze
-           }*/
-        private async Task LoadInitialStockAsync(int brojUlaza)
-        {
-            //await ViewModel.Start ();
-            await ViewModel.LoadStockInAsync (brojUlaza);
-        }
-
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            OnClosing (null, null);
-        }
-
-
-
-
-
-
-
-
-
-        private bool _errorOccurred = false;
-        private void ViewModel_ErrorOccurred(object? sender, string? errorMessage)
-        {
-            // Ako je došlo do greške, prikažite poruku
-            MyMessageBox myMessageBox = new MyMessageBox
-            {
-                WindowStartupLocation = WindowStartupLocation.CenterScreen
-            };
-            myMessageBox.MessageTitle.Text = "GREŠKA";
-            myMessageBox.MessageText.Text = errorMessage;
-            myMessageBox.ShowDialog ();
-            _errorOccurred = true;
-
-        }
-
-
-
-        private void ChangeTextBoxBorderBrush(DependencyObject parent, Brush? brush)
-        {
-            for(int i = 0; i < VisualTreeHelper.GetChildrenCount (parent); i++)
-            {
-                var child = VisualTreeHelper.GetChild (parent, i);
-
-                if(child is TextBox textBox)
+                var popup = new BeverageInPopup(artikl)
                 {
-                    // Preskoči SearchTextBox
-                    if(textBox.Name != "SearchTextBox")
-                    {
-                        textBox.BorderThickness = new Thickness (0, 0, 0, 1);
-                        textBox.BorderBrush = brush; // samo TextBox!
-                    }
-                }
-
-                // Rekurzivno provjeri djecu
-                ChangeTextBoxBorderBrush (child, brush);
+                    WindowStartupLocation = WindowStartupLocation.CenterScreen
+                };
+                if (popup.ShowDialog() != true) return (false, 0, 0, 0);
+                return (true, popup.EnteredPrice, popup.EnteredQuantity, popup.EnteredDiscount);
             }
+            finally { MainContent.Effect = null; }
         }
 
-
-
-
-
-
-
-
-        private void ListaNamirnica_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private (bool Accepted, decimal Price, decimal Quantity, decimal Discount) ShowEditItemPopup(TblUlazStavke stavka)
         {
-            var selectedItem = ListaArikala.SelectedItem as DatabaseTables.TblArtikli;
-            if(selectedItem != null)
+            MainContent.Effect = new BlurEffect { Radius = 5 };
+            try
             {
-                if(DataContext is BeverageInPageViewModel viewModel)
+                var popup = new BeverageInPopup(stavka)
                 {
-                    viewModel.SelectedArticle = selectedItem;
-                    // viewModel.LoadReceiptItems(selectedItem);
-                    SearchTextBox.Text = "";
-                    ListaArikala.ScrollIntoView (ListaArikala.SelectedItem);
-                }
+                    IsUpdate = true,
+                    WindowStartupLocation = WindowStartupLocation.CenterScreen
+                };
+                if (popup.ShowDialog() != true) return (false, 0, 0, 0);
+                return (true, popup.EnteredPrice, popup.EnteredQuantity, popup.EnteredDiscount);
             }
+            finally { MainContent.Effect = null; }
         }
 
+        private bool ShowDeletePopup(string itemName) =>
+            ShowConfirmation("POTVRDA BRISANJA", $"Da li ste sigurni da želite ukloniti stavku:\n{itemName}?");
 
+        private bool ConfirmDiscard(string message) =>
+            ShowConfirmation("NESPREMLJENE PROMJENE", message);
 
-
-
-
-
-
-
-
-
-
-        private void BtnExport_Click(object sender, RoutedEventArgs e)
+        private bool ShowConfirmation(string title, string message)
         {
-
-            SaveFileDialog saveFileDialog = new SaveFileDialog ();
-            saveFileDialog.InitialDirectory = "C:\\";
-            saveFileDialog.Filter = "Excel Files (*.xlsx)|*.xlsx|All Files (*.*)|*.*";
-            saveFileDialog.DefaultExt = ".xlsx";
-
-            bool? result = saveFileDialog.ShowDialog ();
-
-            if(result == true)
+            MainContent.Effect = new BlurEffect { Radius = 5 };
+            try
             {
-                string filePath = saveFileDialog.FileName;
-                SaveExcelFile (filePath);
-            }
-        }
-
-        private void SaveExcelFile(string filePath)
-        {
-
-            using(var workbook = new XLWorkbook ())
-            {
-                var worksheet = workbook.Worksheets.Add ("Namirnice");
-
-                worksheet.Cell (1, 1).Value = "ID";
-                worksheet.Cell (1, 2).Value = "Namirnica";
-                worksheet.Cell (1, 3).Value = "Jedinica mjere";
-                worksheet.Cell (1, 4).Value = "Planska cijena";
-                worksheet.Cell (1, 5).Value = "Nabavna cijena";
-
-
-                if(DataContext is IngredientsViewModel viewModel)
+                var popup = new YesNoPopup
                 {
-                    int row = 2;
-
-                    foreach(var ing in viewModel.Ingredients)
-                    {
-                        worksheet.Cell (row, 1).Value = ing.IdRepromaterijala;
-                        worksheet.Cell (row, 2).Value = ing.Repromaterijal;
-                        worksheet.Cell (row, 3).Value = ing.JedinicaMjere;
-                        worksheet.Cell (row, 4).Value = ing.JedinicaMjere;
-                        worksheet.Cell (row, 5).Value = ing.PlanskaCijena;
-                        worksheet.Cell (row, 6).Value = ing.NabavnaCijena;
-
-
-                        row++;
-                    }
-                }
-                workbook.SaveAs (filePath);
+                    WindowStartupLocation = WindowStartupLocation.CenterScreen
+                };
+                popup.MessageTitle.Text = title;
+                popup.MessageText.Text = message;
+                popup.ShowDialog();
+                return popup.Kliknuo == "Da";
             }
-
-            MyMessageBox myMessageBox = new MyMessageBox
-            {
-                WindowStartupLocation = WindowStartupLocation.CenterScreen
-            };
-            myMessageBox.MessageTitle.Text = "IZVOZ U EXCEL";
-            myMessageBox.MessageText.Text = "Izvoz tabele sa namirnicama je uspješno završen.";
-            myMessageBox.ShowDialog ();
+            finally { MainContent.Effect = null; }
         }
-        private async void BtnImport_Click(object sender, RoutedEventArgs e)
+
+        private void ViewModel_ErrorOccurred(object? sender, string? message) =>
+            ShowMessage("GREŠKA", message ?? "Došlo je do greške.");
+
+        private void ViewModel_InformationOccurred(object? sender, string? message)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog ();
-            openFileDialog.Filter = "Excel Files (*.xlsx;*.xls)|*.xlsx;*.xls|All Files (*.*)|*.*";
-            if(openFileDialog.ShowDialog () == true)
+            if (!string.IsNullOrWhiteSpace(message)) ShowMessage("INFORMACIJA", message);
+        }
+
+        private void ShowMessage(string title, string message)
+        {
+            MainContent.Effect = new BlurEffect { Radius = 5 };
+            try
             {
-                await ImportExcelToSQLiteAsync (openFileDialog.FileName);
+                var popup = new MyMessageBox
+                {
+                    WindowStartupLocation = WindowStartupLocation.CenterScreen
+                };
+                popup.MessageTitle.Text = title;
+                popup.MessageText.Text = message;
+                popup.ShowDialog();
             }
-            else
+            finally { MainContent.Effect = null; }
+        }
+
+        private void ClosePage()
+        {
+            if (ViewModel.IsBusy) return;
+            if (ViewModel.HasUnsavedChanges &&
+                !ShowConfirmation("NESPREMLJENE PROMJENE", "Postoje nespremljene promjene.\nŽelite zatvoriti stranicu bez spremanja?"))
+                return;
+
+            if (OpenedFromSupplier && PreviousPage != null)
             {
+                PageNavigator.NavigateWithFade(PreviousPage);
                 return;
             }
-
-
+            var page = new HomePage { DataContext = new HomeViewModel() };
+            PageNavigator.NavigateWithFade(page);
         }
 
-        public async Task ImportExcelToSQLiteAsync(string excelFilePath)
+        private void Artikl_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            using(var workbook = new XLWorkbook (excelFilePath))
-            {
-                var worksheet = workbook.Worksheets.First ();
-                using(var db = new AppDbContext ())
-                {
-
-                    var ingList = worksheet.RowsUsed ()
-                        .Skip (1)
-                        .Select (row => new TblRepromaterijal
-                        {
-                            Repromaterijal = row.Cell (2).GetValue<string> (),
-                            JedinicaMjere = row.Cell (3).GetValue<int> (),
-                            PlanskaCijena = row.Cell (4).GetValue<decimal?> (),
-                            NabavnaCijena = row.Cell (5).GetValue<decimal?> (),
-                            Zaliha = 0,
-
-
-                        })
-                        .ToList ();
-
-
-                    await db.Repromaterijal.AddRangeAsync (ingList);
-                    await db.SaveChangesAsync ();
-                }
-            }
-            MyMessageBox myMessageBox = new MyMessageBox
-            {
-                WindowStartupLocation = WindowStartupLocation.CenterScreen
-            };
-            myMessageBox.MessageTitle.Text = "UVOZ EXCEL";
-            myMessageBox.MessageText.Text = "Uvoz namirnica iz Excel fajla je završen!";
-            myMessageBox.ShowDialog ();
-
+            if (sender is not DataGridRow { Item: TblArtikli artikl }) return;
+            ViewModel.SelectedArticle = artikl;
+            if (ViewModel.AddArticleCommand.CanExecute(null))
+                ViewModel.AddArticleCommand.Execute(null);
         }
 
-        private async void BtnFirst_Click(object sender, RoutedEventArgs e)
+        private void Stavka_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            Debug.WriteLine (" BtnFirst_Click DataContext" + DataContext.ToString ());
-            if(DataContext is BeverageInPageViewModel viewModel)
+            DependencyObject? source = e.OriginalSource as DependencyObject;
+            while (source != null)
             {
-                int index = viewModel.StockInFilter.IndexOf (viewModel.SelectedStockIn);
-                if(index > 0)
-                {
-                    viewModel.SelectedStockIn = viewModel.StockInFilter[index - 1];
-                    await viewModel.LoadStockInItems (viewModel.SelectedStockIn);
-                }
-
+                if (source is Button) return;
+                if (source is DataGridRow) break;
+                source = VisualTreeHelper.GetParent(source);
             }
-            else
-            {
-                Debug.WriteLine (" BtnFirst_Click DataContext ELSE" + DataContext.ToString ());
-            }
+            if (sender is not DataGridRow { Item: TblUlazStavke stavka }) return;
+            ViewModel.SelectedStockInItem = stavka;
+            if (ViewModel.EditStockInItemCommand.CanExecute(null))
+                ViewModel.EditStockInItemCommand.Execute(null);
         }
 
-        private async void BtnLast_Click(object sender, RoutedEventArgs e)
+        private void CloseButton_Click(object sender, RoutedEventArgs e) => ClosePage();
+
+        private void SearchTextBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine (" BtnLast_Click DataContext" + DataContext.ToString ());
-            if(DataContext is BeverageInPageViewModel viewModel)
-            {
-                int index = viewModel.StockInFilter.IndexOf (viewModel.SelectedStockIn);
-                if(index < viewModel.StockInFilter.Count - 1)
-                {
-                    viewModel.SelectedStockIn = viewModel.StockInFilter[index + 1];
-                    await viewModel.LoadStockInItems (viewModel.SelectedStockIn);
-                }
-
-            }
-            else
-            {
-                Debug.WriteLine (" BtnLast_Click DataContext ELSE" + DataContext.ToString ());
-            }
+            if (_initialized && !ViewModel.IsBusy)
+                StockInSearchPopup.IsOpen = true;
         }
-        private void BtnDuplicate_Click(object sender, RoutedEventArgs e)
+
+        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-
+            if (_initialized && !ViewModel.IsBusy && SearchTextBox.IsKeyboardFocusWithin)
+                StockInSearchPopup.IsOpen = true;
         }
 
-
-
-
-        private void ListaArikala_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private async void StockInSearchResults_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if(ListaArikala.SelectedItem is TblArtikli artikl)
-            {
-
-                var vm = DataContext as BeverageInPageViewModel;
-                vm.ErrorOccurred -= ViewModel_ErrorOccurred;
-                vm.ErrorOccurred += ViewModel_ErrorOccurred;
-                if(vm.SelectedArticle != null)
-                {
-                    MainContent.Effect = new BlurEffect { Radius = 5 };
-                    var win = new BeverageInPopup (vm.SelectedArticle);
-                    if(win.ShowDialog () == true)
-                    {
-                        Debug.WriteLine ("Dobijam nazad, cijena: " + win.EnteredPrice + ", kolićina: " + win.EnteredQuantity + " i popust: " + win.EnteredDiscount);
-                        vm.EnteredPrice = win.EnteredPrice;
-                        vm.EnteredQuantity = win.EnteredQuantity;
-                        vm.EnteredDiscount = win.EnteredDiscount;
-
-                        vm.ProcessArticle ();
-                    }
-                    MainContent.Effect = null;
-                }
-            }
-            if(_errorOccurred)
-            {
-                _errorOccurred = false;
-                return;
-            }
+            if (StockInSearchResults.SelectedItem is not TblUlaz ulaz) return;
+            StockInSearchPopup.IsOpen = false;
+            StockInSearchResults.SelectedItem = null;
+            await ViewModel.SelectStockInAsync(ulaz);
         }
-
-        private async void ListaStavki_MouseDoubleClick(object sender, MouseButtonEventArgs e)
-        {
-            if(ListaStavki.SelectedItem is TblUlazStavke stavka)
-            {
-                Debug.WriteLine ("Selektovana stavka na stranici u listi: " + stavka.Artikl);
-                var vm = DataContext as BeverageInPageViewModel;
-                Debug.WriteLine ("Selektovana stavka na viewmodelu: " + vm.SelectedStockInItem.Artikl);
-                vm.ErrorOccurred -= ViewModel_ErrorOccurred;
-                vm.ErrorOccurred += ViewModel_ErrorOccurred;
-                if(stavka != null)
-                {
-                    var win = new BeverageInPopup (stavka);
-                    MainContent.Effect = new BlurEffect { Radius = 5 };
-                    win.IsUpdate = true;
-                    if(win.ShowDialog () == true)
-                    {
-                        Debug.WriteLine ("Dobijam nazad, cijena: " + win.EnteredPrice + ", kolićina: " + win.EnteredQuantity + " i popust: " + win.EnteredDiscount);
-                        vm.EnteredPrice = win.EnteredPrice;
-                        vm.EnteredQuantity = win.EnteredQuantity;
-                        vm.EnteredDiscount = win.EnteredDiscount;
-
-                        await vm.UpdateStockInItem ();
-
-
-                    }
-                    MainContent.Effect = null;
-                    win.IsUpdate = false;
-                }
-            }
-            if(_errorOccurred)
-            {
-                _errorOccurred = false;
-                return;
-            }
-        }
-
-        private void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            Debug.WriteLine ("OnClosing triggered");
-
-            if(DataContext is BeverageInPageViewModel viewModel && viewModel.HasUnsavedChanges)
-            {
-                Debug.WriteLine ("DataContext is BeverageInPageViewModel and HasUnsavedChanges = true");
-
-                var myMessageBox = new YesNoPopup ();
-                myMessageBox.MessageTitle.Text = "UPOZORENJE";
-                myMessageBox.MessageText.Text = "Postoje nesnimljene promjene koje ste napravili.\nŽelite zatvoriti stranicu?";
-                myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
-
-                Debug.WriteLine ("Showing YesNoPopup...");
-                bool? result = myMessageBox.ShowDialog ();
-                Debug.WriteLine ($"YesNoPopup closed. Kliknuo = {myMessageBox.Kliknuo}");
-
-                if(myMessageBox.Kliknuo != "Da")
-                {
-                    Debug.WriteLine ("Korisnik nije kliknuo 'Da', otkazujem zatvaranje.");
-                    //e.Cancel = true; // Dodao sam e.Cancel da zapravo spriječi zatvaranje
-                    return;
-                }
-                else
-                {
-                    Debug.WriteLine ("Korisnik je kliknuo 'Da', nastavljam navigaciju.");
-
-                    if(OpenedFromSupplier && PreviousPage != null)
-                    {
-                        PageNavigator.NavigateWithFade (PreviousPage);
-
-                    }
-                    else
-                    {
-                        Debug.WriteLine ("OpenedFromSupplier = false, navigiram na HomePage");
-                        var page = new HomePage ();
-                        page.DataContext = new HomeViewModel ();
-                        PageNavigator.NavigateWithFade (page);
-                    }
-
-                }
-            }
-            else
-            {
-                Debug.WriteLine ("Nema nesnimljenih promjena ili DataContext nije BeverageInPageViewModel");
-
-                if(OpenedFromSupplier && PreviousPage != null)
-                {
-                    PageNavigator.NavigateWithFade (PreviousPage);
-
-                }
-                else
-                {
-                    Debug.WriteLine ("OpenedFromSupplier = false, navigiram na HomePage");
-                    var page = new HomePage ();
-                    page.DataContext = new HomeViewModel ();
-                    PageNavigator.NavigateWithFade (page);
-                }
-            }
-
-            Debug.WriteLine ("OnClosing finished");
-        }
-
-        private void BtnPrint_Click(object sender, RoutedEventArgs e)
-        {
-            if(DataContext is BeverageInPageViewModel viewModel)
-            {
-                viewModel.PrintKalkulacija (viewModel.StockInItems, viewModel.Klijent, viewModel.SelectedStockIn, viewModel.SelectedSupplier);
-            }
-        }
-
     }
 }
-

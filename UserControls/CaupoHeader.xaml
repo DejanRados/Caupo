@@ -3,7 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Name="HeaderControl">
 
+  
     <Grid Background="{DynamicResource HeaderBackgroundColor}">
+        
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
@@ -13,9 +15,9 @@
         <Image Source="pack://application:,,,/Images/dsoftlogosmall.png" Width="50" Height="50" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20,0,0,0" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" SnapsToDevicePixels="True"/>
 
         <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Label Content="{Binding Title, ElementName=HeaderControl}" Foreground="#FAFAFA" FontSize="25" Padding="5,0" VerticalContentAlignment="Center"/>
-
-            <TextBlock x:Name="SubtitleSeparator" Text="•" Foreground="#777777" FontSize="18" Margin="5,0" VerticalAlignment="Center">
+            <Label  Content="{Binding Title, ElementName=HeaderControl}"  FontSize="25" Padding="5,0" VerticalContentAlignment="Center"/>
+   
+            <TextBlock x:Name="SubtitleSeparator" Text="•" Foreground="{DynamicResource ThemePrimaryForegroundBrush}" FontSize="18" Margin="5,0" VerticalAlignment="Center">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
                         <Setter Property="Visibility" Value="Visible"/>
@@ -31,10 +33,16 @@
                 </TextBlock.Style>
             </TextBlock>
 
-            <TextBlock Text="{Binding Subtitle, ElementName=HeaderControl}" Foreground="#FAFAFA" FontSize="18" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
+            <TextBlock Text="{Binding Subtitle, ElementName=HeaderControl}"  FontSize="18" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
         </StackPanel>
 
-        <Label x:Name="lblUlogovaniKorisnik" Grid.Column="1" Foreground="#FAFAFA" FontSize="15" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+        <TextBlock x:Name="lblUlogovaniKorisnik"
+           Grid.Column="1"
+           Style="{x:Null}"
+           Foreground="White"
+           FontSize="15"
+           HorizontalAlignment="Right"
+           VerticalAlignment="Center"/>
 
         <Button Style="{StaticResource CloseButtonStyle}" Grid.Column="2" VerticalAlignment="Top" HorizontalAlignment="Right" Padding="0" Margin="1" Click="CloseButton_Click"/>
     </Grid>

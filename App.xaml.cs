@@ -474,7 +474,7 @@ namespace Caupo
 
         private void StartKnjigaSankaSynchronization()
         {
-            _ = SinhronizujKnjiguSankaNaStartupAsync();
+            _ = Task.Run(SinhronizujKnjiguSankaNaStartupAsync);
         }
 
 
