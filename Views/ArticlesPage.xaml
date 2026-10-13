@@ -886,11 +886,10 @@
 
                                 </TextBlock>
 
-                                <Image Source="{Binding SlikaSource}"
-                                   Width="150"
-                                   Height="145"
-                                   Stretch="None"
-                                   StretchDirection="Both"
+                                <Image Source="{Binding SlikaSourceArticlesPreview}"
+                                   Width="250"
+                                   Height="160"
+                                   Stretch="Uniform"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"/>
 

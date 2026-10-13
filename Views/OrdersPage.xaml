@@ -50,7 +50,7 @@
                 <!-- SALE I STOLOVI -->
                 <!-- ================================================= -->
 
-                <Border Grid.Column="0" Style="{StaticResource OrdersCard}">
+                <Border Grid.Column="0" Style="{StaticResource OrdersCard}" BorderBrush="Transparent">
 
                     <Grid>
 

@@ -14,12 +14,10 @@ namespace Caupo.UserControls
                 var source = DependencyPropertyHelper.GetValueSource(
                     lblUlogovaniKorisnik,
                     Control.ForegroundProperty);
-                lblUlogovaniKorisnik.Text = "TEST HEADER 123";
-                lblUlogovaniKorisnik.Background = System.Windows.Media.Brushes.Yellow;
-                lblUlogovaniKorisnik.Foreground = System.Windows.Media.Brushes.Red;
+               
 
                 System.Diagnostics.Debug.WriteLine(
-    $"[HEADER] Text='{lblUlogovaniKorisnik.Text}', " +
+    $"[HEADER] Text='{lblUlogovaniKorisnik.Content}', " +
     $"Width={lblUlogovaniKorisnik.ActualWidth}, " +
     $"Height={lblUlogovaniKorisnik.ActualHeight}, " +
     $"Visibility={lblUlogovaniKorisnik.Visibility}, " +
@@ -33,7 +31,7 @@ namespace Caupo.UserControls
                     $"Coerced: {source.IsCoerced}");
             };
 
-            lblUlogovaniKorisnik.Text = Globals.ulogovaniKorisnik?.Radnik ?? string.Empty;
+            lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik?.Radnik ?? string.Empty;
         }
 
         public static readonly DependencyProperty TitleProperty = DependencyProperty.Register(nameof(Title), typeof(string), typeof(CaupoHeader), new PropertyMetadata(string.Empty));

@@ -57,6 +57,22 @@ namespace Caupo.Views
             }
         }
 
+
+        private void MultiUserGrid_IsVisibleChanged(
+    object sender,
+    DependencyPropertyChangedEventArgs e)
+        {
+            if (e.NewValue is true)
+            {
+                Dispatcher.BeginInvoke(
+                    new Action(() =>
+                    {
+                        txtPassword.Focus();
+                        Keyboard.Focus(txtPassword);
+                    }),
+                    System.Windows.Threading.DispatcherPriority.Input);
+            }
+        }
         private void KasaPage_Unloaded(object sender, RoutedEventArgs e)
         {
             VirtualKeyboardManager.EnterPressed -= VirtualKeyboard_EnterPressed;
@@ -89,10 +105,27 @@ namespace Caupo.Views
 
             await vm.InitializeAsync();
 
-            ArtikliScroll.ScrollToTop();
+            ArtikliPanel.UpdateLayout();
             KategorijeScroll.ScrollToTop();
 
-            Debug.WriteLine("[KASA] KasaPage inicijalizovan.");
+            await Dispatcher.InvokeAsync(
+                () => { },
+                System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+
+
+            Debug.WriteLine(
+    $"[KASA PERF] Artikli u kolekciji: {vm.PrikazaniArtikli.Count}");
+
+            Debug.WriteLine(
+                $"[KASA PERF] Kreirani kontejneri: " +
+                $"{Enumerable.Range(0, vm.PrikazaniArtikli.Count).Count(i => ArtikliPanel.ItemContainerGenerator.ContainerFromIndex(i) != null)}");
+            if (Tag is Stopwatch stopwatch)
+            {
+                stopwatch.Stop();
+
+                Debug.WriteLine(
+                    $"[KASA] Otvaranje kase: {stopwatch.ElapsedMilliseconds} ms");
+            }
         }
 
         public void ReceiveKey(string key)
@@ -114,7 +147,7 @@ namespace Caupo.Views
             if (DataContext is KasaViewModel vm)
             {
                 vm.FilterByFirstLetter(key);
-                ArtikliScroll.ScrollToTop();
+                ArtikliPanel.UpdateLayout();
             }
         }
 
@@ -249,7 +282,7 @@ namespace Caupo.Views
 
             vm.SelectedCategory = KasaViewModel.Category.Pice;
 
-            ArtikliScroll.ScrollToTop();
+            ArtikliPanel.UpdateLayout();
             KategorijeScroll.ScrollToTop();
         }
 
@@ -260,7 +293,7 @@ namespace Caupo.Views
 
             vm.SelectedCategory = KasaViewModel.Category.Hrana;
 
-            ArtikliScroll.ScrollToTop();
+            ArtikliPanel.UpdateLayout();
             KategorijeScroll.ScrollToTop();
         }
 
@@ -271,7 +304,7 @@ namespace Caupo.Views
 
             vm.SelectedCategory = KasaViewModel.Category.Ostalo;
 
-            ArtikliScroll.ScrollToTop();
+            ArtikliPanel.UpdateLayout();
             KategorijeScroll.ScrollToTop();
         }
 
@@ -288,7 +321,7 @@ namespace Caupo.Views
 
             vm.FilterByCategory(categoryId);
 
-            ArtikliScroll.ScrollToTop();
+            ArtikliPanel.UpdateLayout();
         }
 
         private void FadeInOut(object sender)
@@ -711,7 +744,7 @@ namespace Caupo.Views
             {
                 vm.FilterByFirstLetter(e.Key.ToString());
 
-                ArtikliScroll.ScrollToTop();
+                ArtikliPanel.UpdateLayout();
 
                 e.Handled = true;
                 return;
@@ -721,7 +754,7 @@ namespace Caupo.Views
             {
                 vm.ArtikliFilterReset();
 
-                ArtikliScroll.ScrollToTop();
+                ArtikliPanel.UpdateLayout();
 
                 e.Handled = true;
             }
@@ -829,7 +862,7 @@ namespace Caupo.Views
 
             vm.ArtikliFilterReset();
 
-            ArtikliScroll.ScrollToTop();
+            ArtikliPanel.UpdateLayout();
             KategorijeScroll.ScrollToTop();
         }
 

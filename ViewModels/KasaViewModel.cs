@@ -483,8 +483,11 @@ namespace Caupo.ViewModels
 
         #region LOAD DATA
 
+
         public async Task LoadArtikliAsync()
         {
+            var sw = Stopwatch.StartNew();
+
             try
             {
                 await using var db = new AppDbContext();
@@ -496,7 +499,15 @@ namespace Caupo.ViewModels
                     .ThenBy(a => a.Pozicija)
                     .ToListAsync();
 
+                Debug.WriteLine(
+                    $"[KASA PERF] SQLite artikli: {sw.ElapsedMilliseconds} ms");
+
+                sw.Restart();
+
                 RefreshArticles();
+
+                Debug.WriteLine(
+                    $"[KASA PERF] RefreshArticles ukupno: {sw.ElapsedMilliseconds} ms");
 
                 Debug.WriteLine($"[KASA] Artikli učitani: {_sviArtikli.Count}");
             }
@@ -505,6 +516,8 @@ namespace Caupo.ViewModels
                 Debug.WriteLine("[KASA] LoadArtikliAsync: " + ex);
             }
         }
+
+        
 
         public async Task LoadCategoriesAsync()
         {
@@ -563,9 +576,13 @@ namespace Caupo.ViewModels
 
         #region FILTER
 
+
         private void RefreshArticles()
         {
-            IEnumerable<TblArtikli> query = _sviArtikli.Where(a => a.VrstaArtikla == (int)SelectedCategory);
+            var sw = Stopwatch.StartNew();
+
+            IEnumerable<TblArtikli> query = _sviArtikli
+                .Where(a => a.VrstaArtikla == (int)SelectedCategory);
 
             if (_selectedCategoryId.HasValue)
                 query = query.Where(a => a.Kategorija == _selectedCategoryId.Value);
@@ -576,18 +593,32 @@ namespace Caupo.ViewModels
 
                 query = query.Where(a =>
                 {
-                    string naziv = a.VrstaArtikla == 0 ? a.ArtiklNormativ ?? a.Artikl ?? "" : a.Artikl ?? a.ArtiklNormativ ?? "";
-                    return naziv.StartsWith(slovo, StringComparison.CurrentCultureIgnoreCase);
+                    string naziv = a.VrstaArtikla == 0
+                        ? a.ArtiklNormativ ?? a.Artikl ?? ""
+                        : a.Artikl ?? a.ArtiklNormativ ?? "";
+
+                    return naziv.StartsWith(
+                        slovo,
+                        StringComparison.CurrentCultureIgnoreCase);
                 });
             }
 
             var noviArtikli = query.OrderBy(a => a.Pozicija).ToList();
 
+            Debug.WriteLine(
+                $"[KASA PERF] Filtriranje {noviArtikli.Count} artikala: {sw.ElapsedMilliseconds} ms");
+
+            sw.Restart();
+
             PrikazaniArtikli.Clear();
 
             foreach (var artikl in noviArtikli)
                 PrikazaniArtikli.Add(artikl);
+
+            Debug.WriteLine(
+                $"[KASA PERF] ObservableCollection ({noviArtikli.Count}): {sw.ElapsedMilliseconds} ms");
         }
+
 
         private void RefreshCategories()
         {

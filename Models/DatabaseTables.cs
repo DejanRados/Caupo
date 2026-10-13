@@ -1,4 +1,5 @@
 ﻿//using Newtonsoft.Json;
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -15,6 +16,7 @@ namespace Caupo.Data
     public class DatabaseTables
     {
         [Table("tblArtikli")]
+
         public class TblArtikli : INotifyPropertyChanged
         {
             [Key]
@@ -29,6 +31,7 @@ namespace Caupo.Data
             {
                 return Artikl ?? string.Empty;
             }
+
             public bool Koktel { get; set; } = false;
 
             public int? JedinicaMjere { get; set; }
@@ -81,10 +84,27 @@ namespace Caupo.Data
                 }
             }
 
+            // ============================================================
+            // SLIKE ARTIKLA
+            // ============================================================
+
             private string? _slika;
+
             private ImageSource? _slikaSource;
-            private string? _cachedSlikaPath;
-            private bool _slikaProvjerena;
+            private ImageSource? _slikaSourceArticlesPreview;
+
+            private string? _loadingKasaPath;
+            private string? _loadingPreviewPath;
+
+            // Zajednički keš za sve instance artikala.
+            // Jedna putanja + jedna veličina = jedno učitavanje.
+            private static readonly ConcurrentDictionary<
+                string,
+                Lazy<Task<ImageSource?>>> ImageCache =
+                new(StringComparer.OrdinalIgnoreCase);
+
+            // Ograničavamo istovremeno dekodiranje slika.
+            private static readonly SemaphoreSlim ImageSemaphore = new(4, 4);
 
             public string? Slika
             {
@@ -95,14 +115,90 @@ namespace Caupo.Data
                         return;
 
                     _slika = value;
+
                     _slikaSource = null;
-                    _cachedSlikaPath = null;
-                    _slikaProvjerena = false;
+                    _slikaSourceArticlesPreview = null;
+
+                    _loadingKasaPath = null;
+                    _loadingPreviewPath = null;
 
                     OnPropertyChanged(nameof(Slika));
                     OnPropertyChanged(nameof(SlikaSource));
+                    OnPropertyChanged(nameof(SlikaSourceArticlesPreview));
                 }
             }
+
+            // ============================================================
+            // ZAJEDNIČKO ASINHRONO UČITAVANJE SLIKE
+            // ============================================================
+
+            private static Task<ImageSource?> LoadImageAsync(
+                string path,
+                int width)
+            {
+                string fullPath;
+
+                try
+                {
+                    fullPath = Path.GetFullPath(path);
+                }
+                catch
+                {
+                    return Task.FromResult<ImageSource?>(null);
+                }
+
+                string key = $"{width}|{fullPath}";
+
+                var lazy = ImageCache.GetOrAdd(
+                    key,
+                    _ => new Lazy<Task<ImageSource?>>(
+                        () => Task.Run(async () =>
+                        {
+                            await ImageSemaphore.WaitAsync();
+
+                            try
+                            {
+                                if (!File.Exists(fullPath))
+                                    return null;
+
+                                using var stream = new FileStream(
+                                    fullPath,
+                                    FileMode.Open,
+                                    FileAccess.Read,
+                                    FileShare.Read);
+
+                                var bitmap = new BitmapImage();
+
+                                bitmap.BeginInit();
+                                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                                bitmap.DecodePixelWidth = width;
+                                bitmap.StreamSource = stream;
+                                bitmap.EndInit();
+
+                                bitmap.Freeze();
+
+                                return (ImageSource)bitmap;
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine(
+                                    $"[ARTIKL SLIKA] {fullPath}: {ex.Message}");
+
+                                return null;
+                            }
+                            finally
+                            {
+                                ImageSemaphore.Release();
+                            }
+                        }),
+                        LazyThreadSafetyMode.ExecutionAndPublication));
+
+                return lazy.Value;
+            }
+
+            // ============================================================
+            // SLIKA ZA KASU - 128 px
+            // ============================================================
 
             [NotMapped]
             [JsonIgnore]
@@ -110,50 +206,129 @@ namespace Caupo.Data
             {
                 get
                 {
-                    if (string.IsNullOrWhiteSpace(Slika) || Slika == "bez_slike")
+                    if (string.IsNullOrWhiteSpace(Slika) ||
+                        Slika == "bez_slike")
+                    {
                         return null;
+                    }
 
-                    // Ako smo ovu putanju već provjerili, odmah vraćamo
-                    // rezultat bez ponovnog pristupa disku.
-                    if (_slikaProvjerena && string.Equals(_cachedSlikaPath, Slika, StringComparison.OrdinalIgnoreCase))
+                    if (_slikaSource != null)
                         return _slikaSource;
 
-                    _slikaProvjerena = true;
-                    _cachedSlikaPath = Slika;
-
-                    // Ne pokušavamo BitmapImage ako fajl fizički ne postoji.
-                    if (!File.Exists(Slika))
+                    if (!string.Equals(
+                            _loadingKasaPath,
+                            Slika,
+                            StringComparison.Ordinal))
                     {
-                        _slikaSource = null;
-                        return null;
+                        _loadingKasaPath = Slika;
+
+                        _ = LoadAndNotifyAsync(
+                            Slika,
+                            128,
+                            preview: false);
                     }
 
-                    try
-                    {
-                        var bitmap = new BitmapImage();
-
-                        bitmap.BeginInit();
-                        bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                        bitmap.DecodePixelWidth = 50;
-                        bitmap.UriSource = new Uri(Slika, UriKind.Absolute);
-                        bitmap.EndInit();
-
-                        if (bitmap.CanFreeze)
-                            bitmap.Freeze();
-
-                        _slikaSource = bitmap;
-
-                        return _slikaSource;
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"[ARTIKL] Ne mogu učitati sliku '{Slika}': {ex.Message}");
-                        _slikaSource = null;
-
-                        return null;
-                    }
+                    return null;
                 }
             }
+
+            // ============================================================
+            // SLIKA ZA PREGLED ARTIKLA - 256 px
+            // ============================================================
+
+            [NotMapped]
+            [JsonIgnore]
+            public ImageSource? SlikaSourceArticlesPreview
+            {
+                get
+                {
+                    if (string.IsNullOrWhiteSpace(Slika) ||
+                        Slika == "bez_slike")
+                    {
+                        return null;
+                    }
+
+                    if (_slikaSourceArticlesPreview != null)
+                        return _slikaSourceArticlesPreview;
+
+                    if (!string.Equals(
+                            _loadingPreviewPath,
+                            Slika,
+                            StringComparison.Ordinal))
+                    {
+                        _loadingPreviewPath = Slika;
+
+                        _ = LoadAndNotifyAsync(
+                            Slika,
+                            256,
+                            preview: true);
+                    }
+
+                    return null;
+                }
+            }
+
+            // ============================================================
+            // OBAVJEŠTAVANJE WPF-a KADA JE SLIKA SPREMNA
+            // ============================================================
+
+            private async Task LoadAndNotifyAsync(
+                string path,
+                int width,
+                bool preview)
+            {
+                try
+                {
+                    var image = await LoadImageAsync(path, width)
+                        .ConfigureAwait(false);
+
+                    var dispatcher = System.Windows.Application.Current?.Dispatcher;
+
+                    if (dispatcher == null ||
+                        dispatcher.HasShutdownStarted ||
+                        dispatcher.HasShutdownFinished)
+                    {
+                        return;
+                    }
+
+                    await dispatcher.InvokeAsync(() =>
+                    {
+                        // Ako se putanja promijenila tokom učitavanja,
+                        // ne prikazujemo rezultat prethodnog zahtjeva.
+                        if (!string.Equals(
+                                Slika,
+                                path,
+                                StringComparison.Ordinal))
+                        {
+                            return;
+                        }
+
+                        if (preview)
+                        {
+                            _slikaSourceArticlesPreview = image;
+
+                            OnPropertyChanged(
+                                nameof(SlikaSourceArticlesPreview));
+                        }
+                        else
+                        {
+                            _slikaSource = image;
+
+                            OnPropertyChanged(
+                                nameof(SlikaSource));
+                        }
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(
+                        $"[ARTIKL SLIKA ASYNC] {ex.Message}");
+                }
+            }
+
+            // ============================================================
+            // OSTALI PODACI ARTIKLA
+            // ============================================================
 
             public decimal? Normativ { get; set; }
 
@@ -176,6 +351,7 @@ namespace Caupo.Data
             }
 
             public int? Kategorija { get; set; }
+
             [NotMapped]
             [JsonIgnore]
             public string? KategorijaName { get; set; }
@@ -184,7 +360,7 @@ namespace Caupo.Data
 
             public string? ArtiklNormativ { get; set; }
 
-            //public string? PrikazatiNaDispleju { get; set; }
+            // public string? PrikazatiNaDispleju { get; set; }
 
             public bool Aktivan { get; set; } = true;
 
@@ -205,17 +381,25 @@ namespace Caupo.Data
                         return;
 
                     _isVisible = value;
+
                     OnPropertyChanged(nameof(IsVisible));
                 }
             }
+
+            // ============================================================
+            // PROPERTY CHANGED
+            // ============================================================
 
             public event PropertyChangedEventHandler? PropertyChanged;
 
             protected void OnPropertyChanged(string propertyName)
             {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+                PropertyChanged?.Invoke(
+                    this,
+                    new PropertyChangedEventArgs(propertyName));
             }
         }
+
 
         [Table("tblAuditLog")]
         public class TblAuditLog

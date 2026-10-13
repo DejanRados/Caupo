@@ -1979,6 +1979,133 @@ namespace Caupo.ViewModels
 
         #endregion
 
+        #region Testni uvoz artikala iz JSON-a
+
+
+
+
+        private async Task ImportCatalogAsync(string fileName)
+        {
+            string jsonPath = Path.Combine(AppContext.BaseDirectory, fileName);
+
+            if (!File.Exists(jsonPath))
+                throw new FileNotFoundException(
+                    $"Nije pronađen {fileName}.", jsonPath);
+
+            await using var db = new AppDbContext();
+
+            // PRODUKCIJA: Uvoz samo kada je tabela prazna.
+            // Za sada je namjerno isključeno radi testiranja.
+            //
+            // if (await db.Set<TblArtikli>().AnyAsync())
+            //     return;
+
+            string json = await File.ReadAllTextAsync(jsonPath);
+
+            using JsonDocument document = JsonDocument.Parse(json);
+
+            JsonElement artikliJson =
+                document.RootElement.GetProperty("artikli");
+
+            string regija = OdabranaDrzava.ToString();
+
+            var poreskeStope = await db.PoreskeStope
+                .AsNoTracking()
+                .Where(x => x.Aktivna)
+                .ToListAsync();
+
+            var artikli = new List<TblArtikli>();
+
+            foreach (JsonElement item in artikliJson.EnumerateArray())
+            {
+                string sifra = item.GetProperty("Sifra").GetString()
+                    ?? throw new Exception("Artikl nema šifru.");
+
+                string naziv = item
+                    .GetProperty("Nazivi")
+                    .GetProperty(regija)
+                    .GetString()
+                    ?? throw new Exception($"Artikl {sifra} nema naziv.");
+
+                decimal normativ =
+                    item.GetProperty("Normativ").GetDecimal();
+
+                string nazivNormativa = normativ == 1m
+                    ? naziv
+                    : $"{naziv} {normativ.ToString(
+                        "0.##",
+                        System.Globalization.CultureInfo.InvariantCulture)}";
+
+                string poreskaOznaka = item
+                    .GetProperty("PoreskaOznakaPoRegiji")
+                    .GetProperty(regija)
+                    .GetString()
+                    ?? throw new Exception(
+                        $"Artikl {sifra} nema poresku oznaku.");
+
+                var stopa = poreskeStope.FirstOrDefault(x =>
+                    string.Equals(
+                        x.Oznaka?.Trim(),
+                        poreskaOznaka.Trim(),
+                        StringComparison.Ordinal));
+
+                if (stopa == null)
+                    throw new Exception(
+                        $"Za artikl {sifra} nije pronađena poreska stopa '{poreskaOznaka}'.");
+
+                string? slika = item.GetProperty("Slika").GetString();
+
+                if (!string.IsNullOrWhiteSpace(slika))
+                {
+                    slika = Path.GetFullPath(
+                        Path.Combine(AppContext.BaseDirectory, slika));
+
+                    if (!File.Exists(slika))
+                    {
+                        Debug.WriteLine(
+                            $"[CATALOG] Slika nije pronađena: {slika}");
+                    }
+                }
+
+                artikli.Add(new TblArtikli
+                {
+                    Sifra = sifra,
+                    Artikl = naziv,
+                    ArtiklNormativ = nazivNormativa,
+                    Cijena = item.GetProperty("Cijena").GetDecimal(),
+                    JedinicaMjere = item.GetProperty("JedinicaMjere").GetInt32(),
+                    Normativ = normativ,
+                    PoreskaStopa = stopa.IdStope,
+                    VrstaArtikla = item.GetProperty("VrstaArtikla").GetInt32(),
+                    Kategorija = item.GetProperty("Kategorija").GetInt32(),
+                    Pozicija = item.GetProperty("Pozicija").GetInt32(),
+                    Aktivan = item.GetProperty("Aktivan").GetBoolean(),
+                    Slika = slika,
+                    Koktel = false,
+                    PorezNaPotrosnju = false
+                });
+            }
+
+            if (artikli.Select(x => x.Sifra).Distinct().Count() != artikli.Count)
+                throw new Exception("JSON sadrži duple šifre artikala.");
+
+            await using var transaction =
+                await db.Database.BeginTransactionAsync();
+
+            db.Set<TblArtikli>().AddRange(artikli);
+
+            await db.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            Debug.WriteLine(
+                $"[CATALOG] Uvezeno {artikli.Count} artikala za {regija}.");
+        }
+
+
+
+
+        #endregion
+
 
         #region Save settings
 
@@ -1998,7 +2125,7 @@ namespace Caupo.ViewModels
                     if (_regionPromijenjen || !imaAktivnihPoreskihStopa)
                         await SyncPoreskeStopeFromJsonAsync(OdabranaDrzava);
                 }
-
+                await ImportCatalogAsync("articles.json");
                 // =================================================
                 // DRŽAVA
                 // =================================================

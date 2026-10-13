@@ -14,8 +14,9 @@
 
         <Image Source="pack://application:,,,/Images/dsoftlogosmall.png" Width="50" Height="50" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20,0,0,0" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" SnapsToDevicePixels="True"/>
 
-        <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Label  Content="{Binding Title, ElementName=HeaderControl}"  FontSize="25" Padding="5,0" VerticalContentAlignment="Center"/>
+        <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
+            <TextBlock  Text="{Binding Title, ElementName=HeaderControl}"  
+           Foreground="{DynamicResource ThemePrimaryForegroundBrush}" FontSize="25" Padding="5,0" />
    
             <TextBlock x:Name="SubtitleSeparator" Text="•" Foreground="{DynamicResource ThemePrimaryForegroundBrush}" FontSize="18" Margin="5,0" VerticalAlignment="Center">
                 <TextBlock.Style>
@@ -36,13 +37,41 @@
             <TextBlock Text="{Binding Subtitle, ElementName=HeaderControl}"  FontSize="18" FontWeight="SemiBold" Margin="5,0,0,0" VerticalAlignment="Center"/>
         </StackPanel>
 
-        <TextBlock x:Name="lblUlogovaniKorisnik"
-           Grid.Column="1"
-           Style="{x:Null}"
-           Foreground="White"
-           FontSize="15"
-           HorizontalAlignment="Right"
-           VerticalAlignment="Center"/>
+        <Label x:Name="lblUlogovaniKorisnik"
+       Grid.Column="1"
+       FontSize="15"
+       Foreground="{DynamicResource ThemePrimaryForegroundBrush}"
+       HorizontalAlignment="Right"
+       VerticalAlignment="Center"
+       Padding="0">
+
+            <Label.ContentTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center">
+
+                        <!-- Ikonica radnika -->
+                        <TextBlock Text="&#xE77B;"
+                       FontFamily="Segoe MDL2 Assets"
+                       FontSize="19"
+                       Style="{x:Null}"
+                       Foreground="{Binding Foreground,
+                           RelativeSource={RelativeSource AncestorType={x:Type Label}}}"
+                       VerticalAlignment="Center"
+                       Margin="0,0,8,0"/>
+
+                        <!-- Ime radnika -->
+                        <TextBlock Text="{Binding}" FontSize="19"
+                       Style="{x:Null}"
+                       Foreground="{Binding Foreground,
+                           RelativeSource={RelativeSource AncestorType={x:Type Label}}}"
+                       VerticalAlignment="Center"/>
+
+                    </StackPanel>
+                </DataTemplate>
+            </Label.ContentTemplate>
+
+        </Label>
 
         <Button Style="{StaticResource CloseButtonStyle}" Grid.Column="2" VerticalAlignment="Top" HorizontalAlignment="Right" Padding="0" Margin="1" Click="CloseButton_Click"/>
     </Grid>

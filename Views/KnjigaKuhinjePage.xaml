@@ -239,7 +239,14 @@
                                     <Setter Property="ContentTemplate">
                                         <Setter.Value>
                                             <DataTemplate>
-                                                <TextBlock Text="{Binding}" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="4,2"/>
+                                                <TextBlock Text="{Binding}"
+                                                   Foreground="{Binding Foreground,
+                                                       RelativeSource={RelativeSource AncestorType={x:Type DataGridColumnHeader}}}"
+                                                   TextWrapping="Wrap"
+                                                   TextAlignment="Center"
+                                                   HorizontalAlignment="Stretch"
+                                                   VerticalAlignment="Center"
+                                                   Margin="4,2"/>
                                             </DataTemplate>
                                         </Setter.Value>
                                     </Setter>

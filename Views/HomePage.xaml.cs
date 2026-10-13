@@ -25,7 +25,7 @@ namespace Caupo.Views
         {
             InitializeComponent ();
             this.DataContext = new HomeViewModel ();
-            lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik.Radnik;
+            lblUlogovaniKorisnik.Text = Globals.ulogovaniKorisnik.Radnik;
 
         }
 
@@ -51,13 +51,18 @@ namespace Caupo.Views
 
         private void KasaButton_Click(object sender, RoutedEventArgs e)
         {
-            if(sender is Button button)
+            if (sender is Button button)
             {
-                FadeInOut (button);
-                var page = new KasaPage ();
-                page.DataContext = new KasaViewModel ();
-                PageNavigator.NavigateWithFade (page);
+                var stopwatch = Stopwatch.StartNew();
 
+                FadeInOut(button);
+
+                var page = new KasaPage();
+                page.DataContext = new KasaViewModel();
+
+                page.Tag = stopwatch;
+
+                PageNavigator.NavigateWithFade(page);
             }
         }
 

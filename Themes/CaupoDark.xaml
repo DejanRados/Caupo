@@ -10,6 +10,7 @@
     <SolidColorBrush x:Key="GlobalBackgroundColor" Color="#1E1D1A"/>
     <SolidColorBrush x:Key="HeaderBackgroundColor" Color="#383838"/>
     <SolidColorBrush x:Key="GlobalFontColor" Color="#E4E7E7"/>
+    <SolidColorBrush x:Key="GlobalBorderColor" Color="#CDD0D0"/>
 
     <!-- PRIMARY -->
     <SolidColorBrush x:Key="ThemePrimaryBrush" Color="#287C8B"/>
