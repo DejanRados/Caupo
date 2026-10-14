@@ -18,8 +18,11 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Windows.Input;
+using CommunityToolkit.Mvvm.Input;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using SearchSuggestion = Caupo.UserControls.SearchSuggestion;
 using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.ViewModels
@@ -167,6 +170,7 @@ namespace Caupo.ViewModels
 
         private ObservableCollection<TblRacuni> _receiptsFilter = new();
 
+
         public ObservableCollection<TblRacuni> ReceiptsFilter
         {
             get => _receiptsFilter;
@@ -174,8 +178,19 @@ namespace Caupo.ViewModels
             {
                 _receiptsFilter = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(SearchSuggestions));
             }
         }
+
+
+        public IEnumerable<SearchSuggestion> SearchSuggestions =>
+            ReceiptsFilter.Select(receipt => new SearchSuggestion
+            {
+                Title = $"Račun br. {receipt.BrojRacuna}",
+                Subtitle = $"{receipt.Datum:dd.MM.yyyy HH:mm} / ",
+                Detail = $"{receipt.Kupac}",
+                Item = receipt
+            });
 
         private string? _searchText;
 
@@ -191,7 +206,43 @@ namespace Caupo.ViewModels
                 OnPropertyChanged();
 
                 FilterItems(_searchText);
+               
             }
+        }
+
+        private bool _isSuggestionsOpen;
+        public bool IsSuggestionsOpen
+        {
+            get => _isSuggestionsOpen;
+            set
+            {
+                if (_isSuggestionsOpen == value) return;
+                _isSuggestionsOpen = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ICommand FirstReceiptCommand { get; }
+        public ICommand PreviousReceiptCommand { get; }
+        public ICommand NextReceiptCommand { get; }
+        public ICommand LastReceiptCommand { get; }
+
+        private async Task NavigateReceiptAsync(int index)
+        {
+            if (ReceiptsFilter.Count == 0) return;
+            if (index < 0 || index >= ReceiptsFilter.Count) return;
+            var receipt = ReceiptsFilter[index];
+            SelectedReceipt = receipt;
+            await LoadReceiptItems(receipt);
+        }
+
+        private async Task NavigateRelativeReceiptAsync(int step)
+        {
+            if (ReceiptsFilter.Count == 0) return;
+            int index = SelectedReceipt == null ? -1 : ReceiptsFilter.IndexOf(SelectedReceipt);
+            if (index < 0)
+                index = step > 0 ? -1 : ReceiptsFilter.Count;
+            await NavigateReceiptAsync(index + step);
         }
 
         // ============================================================
@@ -219,6 +270,10 @@ namespace Caupo.ViewModels
 
         public ReceiptsViewModel()
         {
+            FirstReceiptCommand = new AsyncRelayCommand(() => NavigateReceiptAsync(0));
+            PreviousReceiptCommand = new AsyncRelayCommand(() => NavigateRelativeReceiptAsync(-1));
+            NextReceiptCommand = new AsyncRelayCommand(() => NavigateRelativeReceiptAsync(1));
+            LastReceiptCommand = new AsyncRelayCommand(() => NavigateReceiptAsync(ReceiptsFilter.Count - 1));
             _ = Start();
         }
 

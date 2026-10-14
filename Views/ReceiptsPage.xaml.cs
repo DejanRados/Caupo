@@ -18,7 +18,7 @@ namespace Caupo.Views
 
             InitializeComponent();
 
-          
+
         }
 
         // ============================================================
@@ -68,53 +68,31 @@ namespace Caupo.Views
 
             await viewModel.LoadReceiptItems(selectedItem);
 
-            SearchTextBox.Text = "";
+            viewModel.SearchText = "";
 
             dataGrid.ScrollIntoView(dataGrid.SelectedItem);
         }
 
-        // ============================================================
-        // PRETHODNI RAČUN
-        // ============================================================
+        // Izbor rezultata pretrage računa.
 
-        private async void BtnFirst_Click(object sender, RoutedEventArgs e)
+        private async void ReceiptSearchBar_SuggestionSelected(object? sender, Caupo.UserControls.SearchSuggestionSelectedEventArgs e)
         {
-            if (DataContext is not ReceiptsViewModel viewModel)
+            if (e.Suggestion.Item is not TblRacuni receipt)
                 return;
 
-            if (viewModel.SelectedReceipt == null)
+            if (DataContext is not ReceiptsViewModel vm)
                 return;
 
-            int index = viewModel.Receipts.IndexOf(viewModel.SelectedReceipt);
+            vm.SelectedReceipt = receipt;
+            await vm.LoadReceiptItems(receipt);
 
-            if (index <= 0)
-                return;
+            if (ReferenceEquals(vm.SelectedReceipt, receipt))
+            {
+                ReceiptSearchBar.SearchText = string.Empty;
+                vm.SearchText = string.Empty;
+            }
 
-            viewModel.SelectedReceipt = viewModel.Receipts[index - 1];
-
-            await viewModel.LoadReceiptItems(viewModel.SelectedReceipt);
-        }
-
-        // ============================================================
-        // SLJEDEĆI RAČUN
-        // ============================================================
-
-        private async void BtnLast_Click(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is not ReceiptsViewModel viewModel)
-                return;
-
-            if (viewModel.SelectedReceipt == null)
-                return;
-
-            int index = viewModel.Receipts.IndexOf(viewModel.SelectedReceipt);
-
-            if (index < 0 || index >= viewModel.Receipts.Count - 1)
-                return;
-
-            viewModel.SelectedReceipt = viewModel.Receipts[index + 1];
-
-            await viewModel.LoadReceiptItems(viewModel.SelectedReceipt);
+            ListaRacuna.ScrollIntoView(receipt);
         }
 
         // ============================================================
@@ -318,9 +296,9 @@ namespace Caupo.Views
                 "Fiskalizacija računa",
                 "Dalji pokušaji fiskalizacije ovog računa su prekinuti.");
 
-           
 
-           
+
+
 
             await viewModel.LoadReceiptsAsync(selectedReceipt);
         }

@@ -1997,8 +1997,8 @@ namespace Caupo.ViewModels
             // PRODUKCIJA: Uvoz samo kada je tabela prazna.
             // Za sada je namjerno isključeno radi testiranja.
             //
-            // if (await db.Set<TblArtikli>().AnyAsync())
-            //     return;
+             if (await db.Set<TblArtikli>().AnyAsync())
+                 return;
 
             string json = await File.ReadAllTextAsync(jsonPath);
 

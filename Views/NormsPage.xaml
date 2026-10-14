@@ -67,53 +67,53 @@
                 <Grid Grid.Column="0">
 
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="300"/>
-                        <ColumnDefinition Width="55"/>
-                        <ColumnDefinition Width="55"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Height="48" Margin="0,0,8,0" Padding="5" BorderThickness="1" BorderBrush="#3F3F46" CornerRadius="6" Background="Transparent">
-                        <DockPanel>
 
-                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
-                                       FontSize="22"
-                                       Width="34"
-                                       FontWeight="ExtraLight"
-                                       Text="&#60013;"
-                                       Foreground="{DynamicResource GlobalFontColor}"
-                                       Opacity="0.65"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
+                    <uc:CaupoSearchBar
+                        x:Name="NormSearchBar"
+                        SearchText="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        Suggestions="{Binding SearchSuggestions}"
+                        SuggestionSelected="NormSearchBar_SuggestionSelected"
+                        FirstCommand="{Binding FirstJeloCommand}"
+                        PreviousCommand="{Binding PreviousJeloCommand}"
+                        NextCommand="{Binding NextJeloCommand}"
+                        LastCommand="{Binding LastJeloCommand}"/>
 
-                            <TextBox x:Name="SearchTextBox"
-                                     Style="{StaticResource TextBoxCustom}"
-                                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                                     GotFocus="TextBox_GotFocus"
-                                     LostFocus="TextBox_LostFocus"
-                                     Foreground="{DynamicResource GlobalFontColor}"
-                                     CaretBrush="{DynamicResource GlobalFontColor}"
-                                     Background="Transparent"
-                                     BorderBrush="Transparent"
-                                     BorderThickness="0"
-                                     FontSize="15"
-                                     Padding="5,0"
-                                     VerticalContentAlignment="Center"/>
 
-                        </DockPanel>
-                    </Border>
-
-                    <Popup IsOpen="{Binding IsSuggestionsOpen}" PlacementTarget="{Binding ElementName=SearchTextBox}" StaysOpen="False" AllowsTransparency="True" Placement="Bottom" Width="350">
-                        <ListBox ItemsSource="{Binding Suggestions}" MaxHeight="350" Foreground="{DynamicResource GlobalFontColor}" Background="{Binding BackColor}" BorderBrush="{DynamicResource GlobalFontColor}" SelectionChanged="lstSuggestions_SelectionChanged"/>
+                    <Popup IsOpen="{Binding IsSuggestionsOpen}"
+                            PlacementTarget="{Binding ElementName=NormSearchBar}"
+                            Placement="Bottom" VerticalOffset="8"
+                            StaysOpen="False" AllowsTransparency="True"
+                            PopupAnimation="Fade">
+                        <Border Width="330" MaxHeight="350"
+                                Background="{DynamicResource GlobalBackgroundColor}"
+                                BorderBrush="#666666" BorderThickness="1"
+                                 CornerRadius="8" Padding="5">
+                            <ListBox x:Name="IngredientSearchResults"
+                                  ItemsSource="{Binding Suggestions}"
+                                  Background="Transparent"
+                                  Foreground="{DynamicResource GlobalFontColor}"
+                                  BorderThickness="0" MaxHeight="330"
+                                  >      
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Artikl}"
+                                            Foreground="{DynamicResource GlobalFontColor}"
+                                            TextTrimming="CharacterEllipsis"
+                                            Margin="8,7"/>  
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
                     </Popup>
 
-                    <Button x:Name="BtnFirst" Grid.Column="1" Style="{StaticResource SecondaryButtonStyle}" Width="48" Height="48" Padding="0" Click="BtnFirst_Click" ToolTip="Prvi artikl">
-                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" FontSize="22" FontWeight="ExtraLight" Text="&#60271;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Button>
 
-                    <Button x:Name="BtnLast" Grid.Column="2" Style="{StaticResource SecondaryButtonStyle}" Width="48" Height="48" Padding="0" Click="BtnLast_Click" ToolTip="Naredni artikl">
-                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" FontSize="22" FontWeight="ExtraLight" Text="&#60272;" Foreground="{DynamicResource GlobalFontColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Button>
+
+
+
 
                 </Grid>
 

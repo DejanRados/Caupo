@@ -20,8 +20,8 @@
             <Setter Property="Padding" Value="16"/>
         </Style>
 
-       
-      
+
+
 
         <!-- TEKST U DATAGRIDU -->
         <Style x:Key="UlazGridText" TargetType="TextBlock">
@@ -60,7 +60,7 @@
         <Grid Grid.Row="1" Margin="18,10,18,8">
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="280"/>
+                <ColumnDefinition Width="532"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
@@ -70,131 +70,34 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <!-- PRETRAGA ULAZA -->
+            <!-- PRETRAGA I NAVIGACIJA ULAZA -->
+
+            <!-- PRETRAGA I NAVIGACIJA ULAZA -->
             <Grid Grid.Column="0" Margin="0,0,12,0">
-
-                <Border Height="49"
-                        BorderBrush="#555555"
-                        BorderThickness="1"
-                        CornerRadius="7"
-                        Padding="8,0">
-
-                    <DockPanel>
-                        <TextBlock DockPanel.Dock="Left"
-                                   Text="&#xE721;"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="19"
-                                   Foreground="{DynamicResource GlobalFontColor}"
-                                   Opacity="0.65"
-                                   VerticalAlignment="Center"
-                                   Margin="3,0,10,0"/>
-
-                        <TextBox x:Name="SearchTextBox"
-                                 Style="{DynamicResource TextBoxCustom}"
-                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                                 ToolTip="Pretraži broj, datum ili dobavljača"
-                                 BorderThickness="0"
-                                 VerticalAlignment="Center"
-                                 GotFocus="SearchTextBox_GotFocus"
-                                 TextChanged="SearchTextBox_TextChanged"/>
-                    </DockPanel>
-
-                </Border>
-
-                <!-- REZULTATI PRETRAGE -->
-                <Popup x:Name="StockInSearchPopup"
-                       PlacementTarget="{Binding ElementName=SearchTextBox}"
-                       Placement="Bottom"
-                       VerticalOffset="8"
-                       StaysOpen="False"
-                       AllowsTransparency="True"
-                       PopupAnimation="Fade">
-
-                    <Border Width="330"
-                            MaxHeight="350"
-                            Background="{DynamicResource GlobalBackgroundColor}"
-                            BorderBrush="#666666"
-                            BorderThickness="1"
-                            CornerRadius="8"
-                            Padding="5">
-
-                        <ListBox x:Name="StockInSearchResults"
-                                 ItemsSource="{Binding StockInFilter}"
-                                 Background="Transparent"
-                                 Foreground="{DynamicResource GlobalFontColor}"
-                                 BorderThickness="0"
-                                 MaxHeight="330"
-                                 SelectionChanged="StockInSearchResults_SelectionChanged">
-
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Margin="8,7">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="70"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-
-                                        <TextBlock Grid.Column="0"
-                                                   Text="{Binding BrojUlaza}"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource GlobalFontColor}"
-                                                   VerticalAlignment="Center"/>
-
-                                        <StackPanel Grid.Column="1">
-                                            <TextBlock Text="{Binding Dobavljac}"
-                                                       Foreground="{DynamicResource GlobalFontColor}"
-                                                       TextTrimming="CharacterEllipsis"/>
-
-                                            <TextBlock Text="{Binding Datum, StringFormat={}{0:dd.MM.yyyy}}"
-                                                       Foreground="{DynamicResource GlobalFontColor}"
-                                                       Opacity="0.65"
-                                                       FontSize="12"/>
-                                        </StackPanel>
-                                    </Grid>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-
-                        </ListBox>
-
-                    </Border>
-                </Popup>
-
+                <uc:CaupoSearchBar
+                x:Name="StockInSearchBar"
+                SearchText="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                Suggestions="{Binding SearchSuggestions}"
+                SuggestionSelected="StockInSearchBar_SuggestionSelected"
+                FirstCommand="{Binding FirstStockInCommand}"
+                PreviousCommand="{Binding PreviousStockInCommand}"
+                NextCommand="{Binding NextStockInCommand}"
+                LastCommand="{Binding LastStockInCommand}"/>
             </Grid>
 
-            <!-- PRETHODNI -->
-            <Button Grid.Column="1"
-                    Style="{DynamicResource SecondaryButtonStyle}"
-                    Command="{Binding PreviousStockInCommand}"
-                    Width="49" Height="49" Margin="3"
-                    ToolTip="Prethodni ulaz">
-                <TextBlock Text="&#xE76B;"
-                           FontFamily="Segoe MDL2 Assets"
-                           FontSize="21"/>
-            </Button>
-
-            <!-- NAREDNI -->
-            <Button Grid.Column="2"
-                    Style="{DynamicResource SecondaryButtonStyle}"
-                    Command="{Binding NextStockInCommand}"
-                    Width="49" Height="49" Margin="3"
-                    ToolTip="Naredni ulaz">
-                <TextBlock Text="&#xE76C;"
-                           FontFamily="Segoe MDL2 Assets"
-                           FontSize="21"/>
-            </Button>
 
             <!-- NOVI -->
             <Button Grid.Column="3"
-                    Style="{DynamicResource SecondaryButtonStyle}"
+                    Style="{DynamicResource PrimaryButtonStyle}"
                     Command="{Binding AddNewStockInCommand}"
-                    Width="49" Height="49" Margin="3"
+                     Height="49" Margin="3"
                     ToolTip="Novi ulaz">
                 <TextBlock Text="&#xE710;"
-                           FontFamily="Segoe MDL2 Assets"
-                           FontSize="21"/>
+                           FontFamily="Segoe MDL2 Assets" FontWeight="Bold"
+                           FontSize="24"/>
             </Button>
 
-            <!-- ODBACI -->
+            <!-- ODBACI 
             <Button Grid.Column="4"
                     Style="{DynamicResource SecondaryButtonStyle}"
                     Command="{Binding DiscardChangesCommand}"
@@ -203,7 +106,7 @@
                 <TextBlock Text="&#xE72B;"
                            FontFamily="Segoe MDL2 Assets"
                            FontSize="21"/>
-            </Button>
+            </Button>-->
 
             <!-- ŠTAMPAJ -->
             <Button Grid.Column="6"
@@ -272,12 +175,8 @@
 
                         <StackPanel Grid.Row="0">
                             <TextBlock Text="Podaci o ulazu"
-                                       Style="{DynamicResource UlazSectionTitle}"/>
-                            <TextBlock Text="Osnovni podaci dokumenta"
-                                       FontSize="12"
-                                       Opacity="0.65"
-                                       Foreground="{DynamicResource GlobalFontColor}"
-                                       Margin="0,4,0,0"/>
+                                       />
+                           
                         </StackPanel>
 
                         <Grid Grid.Row="2">
@@ -296,10 +195,10 @@
                             </Grid.RowDefinitions>
 
                             <!-- BROJ ULAZA -->
-                            <TextBlock Grid.Row="0"
+                            <TextBlock Grid.Row="0" VerticalAlignment="Center"
                                        Grid.Column="0"
                                        Text="Broj ulaza:"
-                                       Style="{DynamicResource UlazLabel}"/>
+                                       />
 
                             <Label Grid.Row="0"
                                    Grid.Column="1"
@@ -314,11 +213,11 @@
                             <TextBlock Grid.Row="1"
                                        Grid.Column="0"
                                        Text="Datum:"
-                                       Style="{DynamicResource UlazLabel}"/>
+                                       VerticalAlignment="Center"/>
 
 
 
-                                <DatePicker x:Name="DpDate" Grid.Row="1"
+                            <DatePicker x:Name="DpDate" Grid.Row="1"
                                     Grid.Column="1"
                                             CalendarStyle="{DynamicResource styleCalendar}"
                                             Language="bs-BA"
@@ -340,13 +239,13 @@
 
                             </DatePicker>
 
-                           
+
 
                             <!-- DOBAVLJAČ -->
                             <TextBlock Grid.Row="2"
                                        Grid.Column="0"
                                        Text="Dobavljač:"
-                                       Style="{DynamicResource UlazLabel}"/>
+                                       VerticalAlignment="Center"/>
 
                             <ComboBox Grid.Row="2"
                                       Grid.Column="1"
@@ -364,7 +263,7 @@
                             <TextBlock Grid.Row="3"
                                        Grid.Column="0"
                                        Text="Broj fakture:"
-                                       Style="{DynamicResource UlazLabel}"/>
+                                       VerticalAlignment="Center"/>
 
                             <TextBox Grid.Row="3"
                                      Grid.Column="1"
@@ -378,7 +277,7 @@
                             <TextBlock Grid.Row="4"
                                        Grid.Column="0"
                                        Text="Radnik:"
-                                       Style="{DynamicResource UlazLabel}"/>
+                                       VerticalAlignment="Center"/>
 
                             <Label Grid.Row="4"
                                    Grid.Column="1"
@@ -559,7 +458,7 @@
 
                         <StackPanel>
                             <TextBlock Text="Stavke ulaza"
-                                       Style="{DynamicResource UlazSectionTitle}"/>
+                                       />
 
                             <TextBlock Text="Tap na stavku za izmjenu cijene, količine i rabata"
                                        FontSize="12"

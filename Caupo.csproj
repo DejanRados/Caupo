@@ -3905,6 +3905,7 @@
 
   <ItemGroup>
     <Resource Include="Assets\Fonts\codicon.ttf" />
+    <Resource Include="Assets\Fonts\FluentSystemIcons-Regular.ttf" />
     <Resource Include="Assets\Fonts\password.ttf">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>

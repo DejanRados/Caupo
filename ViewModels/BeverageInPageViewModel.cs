@@ -13,6 +13,9 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+
+using SearchSuggestion = Caupo.UserControls.SearchSuggestion;
+
 using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.ViewModels
@@ -39,6 +42,17 @@ namespace Caupo.ViewModels
         public ObservableCollection<TblUlazStavke> StockInItems { get; } = new();
         public ObservableCollection<TblArtikli> Artikli { get; } = new();
         public ObservableCollection<TblArtikli> ArtikliFilter { get; } = new();
+
+
+        public IEnumerable<SearchSuggestion> SearchSuggestions =>
+            StockInFilter.Select(ulaz => new SearchSuggestion
+            {
+                Title = ulaz.Dobavljac ?? string.Empty,
+                Subtitle = ulaz.BrojUlaza.ToString(),
+                Detail = ulaz.Datum.ToString("dd.MM.yyyy"),
+                Item = ulaz
+            });
+
 
         public TblUlaz? SelectedStockIn
         {
@@ -102,8 +116,10 @@ namespace Caupo.ViewModels
         public IAsyncRelayCommand AddNewStockInCommand { get; }
         public IAsyncRelayCommand SaveStockInCommand { get; }
         public IRelayCommand<TblUlazStavke> DeleteArticleCommand { get; }
+        public IAsyncRelayCommand FirstStockInCommand { get; }
         public IAsyncRelayCommand PreviousStockInCommand { get; }
         public IAsyncRelayCommand NextStockInCommand { get; }
+        public IAsyncRelayCommand LastStockInCommand { get; }
         public IRelayCommand AddArticleCommand { get; }
         public IRelayCommand EditStockInItemCommand { get; }
         public IRelayCommand PrintStockInCommand { get; }
@@ -123,8 +139,10 @@ namespace Caupo.ViewModels
             AddNewStockInCommand = new AsyncRelayCommand(AddNewStockInAsync, () => !IsBusy);
             SaveStockInCommand = new AsyncRelayCommand(SaveSelectedStockInAsync, () => CanEdit && !IsBusy);
             DeleteArticleCommand = new RelayCommand<TblUlazStavke>(DeleteStockInItem, s => s != null && CanEdit);
+            FirstStockInCommand = new AsyncRelayCommand(() => NavigateToEndAsync(false), () => !IsBusy && StockInFilter.Count > 0);
             PreviousStockInCommand = new AsyncRelayCommand(() => NavigateAsync(-1), () => !IsBusy);
             NextStockInCommand = new AsyncRelayCommand(() => NavigateAsync(1), () => !IsBusy);
+            LastStockInCommand = new AsyncRelayCommand(() => NavigateToEndAsync(true), () => !IsBusy && StockInFilter.Count > 0);
             AddArticleCommand = new RelayCommand(RequestAddArticle, () => CanEdit && SelectedArticle != null);
             EditStockInItemCommand = new RelayCommand(RequestEditItem, () => CanEdit && SelectedStockInItem != null);
             PrintStockInCommand = new RelayCommand(PrintCurrentStockIn, () => SelectedStockIn != null && SelectedSupplier != null);
@@ -234,6 +252,12 @@ namespace Caupo.ViewModels
             if (next >= 0 && next < StockInFilter.Count) await SelectStockInAsync(StockInFilter[next]);
         }
 
+        private async Task NavigateToEndAsync(bool last)
+        {
+            if (StockInFilter.Count == 0) return;
+            await SelectStockInAsync(last ? StockInFilter[^1] : StockInFilter[0]);
+        }
+
         public void FilterItems(string? searchtext)
         {
             string q = (searchtext ?? "").Trim();
@@ -243,6 +267,11 @@ namespace Caupo.ViewModels
                 (x.Dobavljac?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false)).ToList();
             StockInFilter.Clear();
             foreach (var row in rows) StockInFilter.Add(row);
+            FirstStockInCommand.NotifyCanExecuteChanged();
+            LastStockInCommand.NotifyCanExecuteChanged();
+
+            OnPropertyChanged(nameof(SearchSuggestions));
+
         }
 
         public void FilterArticleItems(string? searcharticletext)
@@ -479,8 +508,10 @@ namespace Caupo.ViewModels
             AddNewStockInCommand.NotifyCanExecuteChanged();
             SaveStockInCommand.NotifyCanExecuteChanged();
             DeleteArticleCommand.NotifyCanExecuteChanged();
+            FirstStockInCommand.NotifyCanExecuteChanged();
             PreviousStockInCommand.NotifyCanExecuteChanged();
             NextStockInCommand.NotifyCanExecuteChanged();
+            LastStockInCommand.NotifyCanExecuteChanged();
             AddArticleCommand.NotifyCanExecuteChanged();
             EditStockInItemCommand.NotifyCanExecuteChanged();
             PrintStockInCommand.NotifyCanExecuteChanged();

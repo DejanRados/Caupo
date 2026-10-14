@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using SearchSuggestion = Caupo.UserControls.SearchSuggestion;
 using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.ViewModels
@@ -24,7 +25,7 @@ namespace Caupo.ViewModels
             set
             {
                 proizvodnaCijena = value;
-                OnPropertyChanged (nameof (ProizvodnaCijena));
+                OnPropertyChanged(nameof(ProizvodnaCijena));
             }
         }
 
@@ -35,7 +36,7 @@ namespace Caupo.ViewModels
             set
             {
                 prodajnaCijena = value;
-                OnPropertyChanged (nameof (ProdajnaCijena));
+                OnPropertyChanged(nameof(ProdajnaCijena));
             }
         }
 
@@ -46,7 +47,7 @@ namespace Caupo.ViewModels
             set
             {
                 marza = value;
-                OnPropertyChanged (nameof (Marza));
+                OnPropertyChanged(nameof(Marza));
             }
         }
 
@@ -57,7 +58,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathFirstButton = value;
-                OnPropertyChanged (nameof (ImagePathFirstButton));
+                OnPropertyChanged(nameof(ImagePathFirstButton));
             }
         }
 
@@ -68,7 +69,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathLastButton = value;
-                OnPropertyChanged (nameof (ImagePathLastButton));
+                OnPropertyChanged(nameof(ImagePathLastButton));
             }
         }
 
@@ -79,7 +80,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathPhotoButton = value;
-                OnPropertyChanged (nameof (ImagePathPhotoButton));
+                OnPropertyChanged(nameof(ImagePathPhotoButton));
             }
         }
         private string? _imagePathEditButton;
@@ -89,7 +90,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathEditButton = value;
-                OnPropertyChanged (nameof (ImagePathEditButton));
+                OnPropertyChanged(nameof(ImagePathEditButton));
             }
         }
         private string? _imagePathAddButton;
@@ -99,7 +100,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathAddButton = value;
-                OnPropertyChanged (nameof (ImagePathAddButton));
+                OnPropertyChanged(nameof(ImagePathAddButton));
             }
         }
         private string? _imagePathDeleteButton;
@@ -109,7 +110,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathDeleteButton = value;
-                OnPropertyChanged (nameof (ImagePathDeleteButton));
+                OnPropertyChanged(nameof(ImagePathDeleteButton));
             }
         }
 
@@ -120,7 +121,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathCancelButton = value;
-                OnPropertyChanged (nameof (ImagePathCancelButton));
+                OnPropertyChanged(nameof(ImagePathCancelButton));
             }
         }
 
@@ -131,7 +132,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathSaveButton = value;
-                OnPropertyChanged (nameof (ImagePathSaveButton));
+                OnPropertyChanged(nameof(ImagePathSaveButton));
             }
         }
 
@@ -142,7 +143,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathExportButton = value;
-                OnPropertyChanged (nameof (ImagePathExportButton));
+                OnPropertyChanged(nameof(ImagePathExportButton));
             }
         }
 
@@ -153,7 +154,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathImportButton = value;
-                OnPropertyChanged (nameof (ImagePathImportButton));
+                OnPropertyChanged(nameof(ImagePathImportButton));
             }
         }
         private string? _imagePathSearchTextBox;
@@ -163,7 +164,7 @@ namespace Caupo.ViewModels
             set
             {
                 _imagePathSearchTextBox = value;
-                OnPropertyChanged (nameof (ImagePathSearchTextBox));
+                OnPropertyChanged(nameof(ImagePathSearchTextBox));
             }
         }
 
@@ -173,10 +174,10 @@ namespace Caupo.ViewModels
             get { return _fontColor; }
             set
             {
-                if(_fontColor != value)
+                if (_fontColor != value)
                 {
                     _fontColor = value;
-                    OnPropertyChanged (nameof (FontColor));
+                    OnPropertyChanged(nameof(FontColor));
                 }
             }
         }
@@ -187,10 +188,10 @@ namespace Caupo.ViewModels
             get { return _backColor; }
             set
             {
-                if(_backColor != value)
+                if (_backColor != value)
                 {
                     _backColor = value;
-                    OnPropertyChanged (nameof (BackColor));
+                    OnPropertyChanged(nameof(BackColor));
                 }
             }
         }
@@ -199,18 +200,29 @@ namespace Caupo.ViewModels
         public ObservableCollection<TblArtikli> Jela
         {
             get => _jela;
-            set { _jela = value; OnPropertyChanged (); }
+            set { _jela = value; OnPropertyChanged(); }
         }
 
         private ObservableCollection<TblArtikli> _suggestions;
         public ObservableCollection<TblArtikli> Suggestions
         {
             get => _suggestions;
-            set { _suggestions = value; OnPropertyChanged (); }
+            set { _suggestions = value; OnPropertyChanged(); }
         }
 
-        public ObservableCollection<DatabaseTables.TblRepromaterijal> Ingredients { get; set; } = new ObservableCollection<DatabaseTables.TblRepromaterijal> ();
-        public ObservableCollection<DatabaseTables.TblJediniceMjere> JediniceMjere { get; set; } = new ObservableCollection<DatabaseTables.TblJediniceMjere> ();
+
+        public IEnumerable<SearchSuggestion> SearchSuggestions =>
+            Suggestions.Select(jelo => new SearchSuggestion
+            {
+                Title = jelo.Artikl ?? string.Empty,
+                Subtitle = $"Šifra: {jelo.Sifra}",
+                Detail = $"Cijena: {jelo.Cijena:N2} KM",
+                Item = jelo
+            });
+
+
+        public ObservableCollection<DatabaseTables.TblRepromaterijal> Ingredients { get; set; } = new ObservableCollection<DatabaseTables.TblRepromaterijal>();
+        public ObservableCollection<DatabaseTables.TblJediniceMjere> JediniceMjere { get; set; } = new ObservableCollection<DatabaseTables.TblJediniceMjere>();
 
         private DatabaseTables.TblRepromaterijal? _selectedIngredient;
         public DatabaseTables.TblRepromaterijal? SelectedIngredient
@@ -218,10 +230,10 @@ namespace Caupo.ViewModels
             get => _selectedIngredient;
             set
             {
-                if(_selectedIngredient != value)
+                if (_selectedIngredient != value)
                 {
                     _selectedIngredient = value;
-                    OnPropertyChanged (nameof (SelectedIngredient));
+                    OnPropertyChanged(nameof(SelectedIngredient));
 
                 }
             }
@@ -233,10 +245,10 @@ namespace Caupo.ViewModels
             get => _selectedNorm;
             set
             {
-                if(_selectedNorm != value)
+                if (_selectedNorm != value)
                 {
                     _selectedNorm = value;
-                    OnPropertyChanged (nameof (SelectedNorm));
+                    OnPropertyChanged(nameof(SelectedNorm));
 
                 }
             }
@@ -248,10 +260,10 @@ namespace Caupo.ViewModels
             get => _selectedJedinicaMjere;
             set
             {
-                if(_selectedJedinicaMjere != value)
+                if (_selectedJedinicaMjere != value)
                 {
                     _selectedJedinicaMjere = value;
-                    OnPropertyChanged (nameof (SelectedJedinicaMjere));
+                    OnPropertyChanged(nameof(SelectedJedinicaMjere));
                 }
             }
         }
@@ -262,10 +274,10 @@ namespace Caupo.ViewModels
             get => _selectedJelo;
             set
             {
-                if(_selectedJelo != value)
+                if (_selectedJelo != value)
                 {
                     _selectedJelo = value;
-                    OnPropertyChanged (nameof (SelectedJelo));
+                    OnPropertyChanged(nameof(SelectedJelo));
                 }
             }
         }
@@ -278,7 +290,7 @@ namespace Caupo.ViewModels
             set
             {
                 _norm = value;
-                OnPropertyChanged (nameof (Norm));
+                OnPropertyChanged(nameof(Norm));
             }
         }
 
@@ -290,7 +302,7 @@ namespace Caupo.ViewModels
             set
             {
                 _ingredientFilter = value;
-                OnPropertyChanged (nameof (IngredientFilter));
+                OnPropertyChanged(nameof(IngredientFilter));
             }
         }
 
@@ -300,10 +312,10 @@ namespace Caupo.ViewModels
             get => _isSuggestionsOpen;
             set
             {
-                if(_isSuggestionsOpen != value)
+                if (_isSuggestionsOpen != value)
                 {
                     _isSuggestionsOpen = value;
-                    OnPropertyChanged ();
+                    OnPropertyChanged();
                 }
             }
         }
@@ -314,13 +326,13 @@ namespace Caupo.ViewModels
             get => _searchText;
             set
             {
-                if(_searchText != value)
+                if (_searchText != value)
                 {
                     _searchText = value;
-                    OnPropertyChanged (nameof (SearchText));
-                    Debug.WriteLine ($"SearchText changed to: ");  // Dodaj log za testiranje
-                    FilterItems (_searchText);
-                    IsSuggestionsOpen = !string.IsNullOrWhiteSpace (_searchText) && Suggestions.Any ();
+                    OnPropertyChanged(nameof(SearchText));
+                    Debug.WriteLine($"SearchText changed to: ");  // Dodaj log za testiranje
+                    FilterItems(_searchText);
+                   
                 }
             }
         }
@@ -331,12 +343,12 @@ namespace Caupo.ViewModels
             get => _searchTextIngredient;
             set
             {
-                if(_searchTextIngredient != value)
+                if (_searchTextIngredient != value)
                 {
                     _searchTextIngredient = value;
-                    OnPropertyChanged (nameof (SearchTextIngredient));
-                    Debug.WriteLine ($"SearchTextIngredient changed to: " + _searchTextIngredient);  // Dodaj log za testiranje
-                    FilterItemsIngredient (_searchTextIngredient);
+                    OnPropertyChanged(nameof(SearchTextIngredient));
+                    Debug.WriteLine($"SearchTextIngredient changed to: " + _searchTextIngredient);  // Dodaj log za testiranje
+                    FilterItemsIngredient(_searchTextIngredient);
 
                 }
             }
@@ -344,18 +356,29 @@ namespace Caupo.ViewModels
 
         public ICommand DeleteCommand { get; }
 
+        // Navigacija kroz jela za CaupoSearchBar.
+        public ICommand FirstJeloCommand { get; }
+        public ICommand PreviousJeloCommand { get; }
+        public ICommand NextJeloCommand { get; }
+        public ICommand LastJeloCommand { get; }
+
+
         public NormsViewModel()
         {
-            Start ();
-            Suggestions = new ObservableCollection<TblArtikli> ();
-            Jela = new ObservableCollection<TblArtikli> ();
-            Ingredients = new ObservableCollection<TblRepromaterijal> ();
-            IngredientFilter = new ObservableCollection<TblRepromaterijal> ();
-            Norm = new ObservableCollection<TblNormativ> ();
-            SelectedIngredient = IngredientFilter?.FirstOrDefault ();
-            DeleteCommand = new AsyncRelayCommand (async () => await DeleteNorm (SelectedNorm));
+            Start();
+            Suggestions = new ObservableCollection<TblArtikli>();
+            Jela = new ObservableCollection<TblArtikli>();
+            Ingredients = new ObservableCollection<TblRepromaterijal>();
+            IngredientFilter = new ObservableCollection<TblRepromaterijal>();
+            Norm = new ObservableCollection<TblNormativ>();
+            SelectedIngredient = IngredientFilter?.FirstOrDefault();
+            DeleteCommand = new AsyncRelayCommand(async () => await DeleteNorm(SelectedNorm));
+            FirstJeloCommand = new AsyncRelayCommand(async () => await NavigateJeloAsync(0, true));
+            PreviousJeloCommand = new AsyncRelayCommand(async () => await NavigateJeloAsync(-1, false));
+            NextJeloCommand = new AsyncRelayCommand(async () => await NavigateJeloAsync(1, false));
+            LastJeloCommand = new AsyncRelayCommand(async () => await NavigateJeloAsync(-1, true));
             // Debug.WriteLine("SelectedArticle = " + SelectedIngredient.Repromaterijal);
-            Debug.WriteLine ("SearchText = " + SearchText);
+            Debug.WriteLine("SearchText = " + SearchText);
             ProizvodnaCijena = 0;
             ProdajnaCijena = 0;
             Marza = "0.00 KM        0%";
@@ -363,13 +386,34 @@ namespace Caupo.ViewModels
 
 
 
+        private async Task NavigateJeloAsync(int direction, bool boundary)
+        {
+            if (Jela == null || Jela.Count == 0)
+                return;
+
+            int currentIndex = Jela.IndexOf(SelectedJelo);
+            int targetIndex = boundary
+                ? (direction == 0 ? 0 : Jela.Count - 1)
+                : currentIndex + direction;
+
+            if (currentIndex < 0 && !boundary)
+                targetIndex = direction > 0 ? 0 : Jela.Count - 1;
+
+            if (targetIndex < 0 || targetIndex >= Jela.Count)
+                return;
+
+            var jelo = Jela[targetIndex];
+            if (SelectedJelo != jelo)
+                await LoadNormativ(jelo);
+        }
+
         private async void Start()
         {
-            await SetImage ();
-            await LoadJela ();
-            await LoadIngredientsAsync ();
-            await LoadJediniceMjere ();
-            await LoadNormativ (SelectedJelo);
+            await SetImage();
+            await LoadJela();
+            await LoadIngredientsAsync();
+            await LoadJediniceMjere();
+            await LoadNormativ(SelectedJelo);
 
         }
 
@@ -377,31 +421,31 @@ namespace Caupo.ViewModels
         {
 
 
-            YesNoPopup myMessageBox = new YesNoPopup ();
+            YesNoPopup myMessageBox = new YesNoPopup();
 
             myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
 
             myMessageBox.MessageTitle.Text = "POTVRDA BRISANJA";
             myMessageBox.MessageText.Text = "Da li ste sigurni da želite obrisati normativ:" + Environment.NewLine + norm.Repromaterijal + ", količina: " + norm.Kolicina + " ?";
-            myMessageBox.ShowDialog ();
-            if(myMessageBox.Kliknuo == "Da")
+            myMessageBox.ShowDialog();
+            if (myMessageBox.Kliknuo == "Da")
             {
                 try
                 {
-                    using(var db = new AppDbContext ())
+                    using (var db = new AppDbContext())
                     {
-                        var stavka = await db.Normativ.FindAsync (norm.IdStavkeNormativa);
-                        if(stavka != null)
+                        var stavka = await db.Normativ.FindAsync(norm.IdStavkeNormativa);
+                        if (stavka != null)
                         {
-                            db.Normativ.Remove (stavka);
-                            await db.SaveChangesAsync ();
-                            await LoadNormativ (SelectedJelo);
+                            db.Normativ.Remove(stavka);
+                            await db.SaveChangesAsync();
+                            await LoadNormativ(SelectedJelo);
                         }
                     }
                 }
-                catch(Exception d)
+                catch (Exception d)
                 {
-                    Debug.WriteLine ("Brisanje normativa error: " + d.Message + ", " + Environment.NewLine + "Stack: " + d.StackTrace);
+                    Debug.WriteLine("Brisanje normativa error: " + d.Message + ", " + Environment.NewLine + "Stack: " + d.StackTrace);
                 }
             }
         }
@@ -411,55 +455,55 @@ namespace Caupo.ViewModels
             try
             {
 
-                using(var db = new AppDbContext ())
+                using (var db = new AppDbContext())
                 {
-                    var artikli = await db.Artikli.ToListAsync ();
+                    var artikli = await db.Artikli.ToListAsync();
 
-                    var jela = artikli.Where (a => a.VrstaArtikla == 1).OrderBy (a => a.Pozicija).ToList ();
+                    var jela = artikli.Where(a => a.VrstaArtikla == 1).OrderBy(a => a.Pozicija).ToList();
 
 
-                    Jela?.Clear ();
+                    Jela?.Clear();
 
-                    foreach(var jelo in jela)
+                    foreach (var jelo in jela)
                     {
-                        Jela?.Add (jelo);
+                        Jela?.Add(jelo);
 
                     }
-                    Debug.WriteLine ("Jela ima >>>>>> " + Jela.Count);
+                    Debug.WriteLine("Jela ima >>>>>> " + Jela.Count);
                     SelectedJelo = Jela?[0];
 
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (ex.ToString ());
+                Debug.WriteLine(ex.ToString());
             }
         }
 
         public async Task InsertNorm(TblNormativ normativ, TblArtikli jelo)
         {
 
-            using(var db = new AppDbContext ())
+            using (var db = new AppDbContext())
             {
                 var duplicateNormativ = await db.Normativ
-                    .Where (a => a.Repromaterijal == normativ.Repromaterijal && a.IdProizvoda == normativ.IdProizvoda)
-                    .FirstOrDefaultAsync ();
+                    .Where(a => a.Repromaterijal == normativ.Repromaterijal && a.IdProizvoda == normativ.IdProizvoda)
+                    .FirstOrDefaultAsync();
 
-                if(duplicateNormativ != null)
+                if (duplicateNormativ != null)
                 {
 
                     string poruka = normativ.Repromaterijal + " se već koristi u izradi ovog jela.";
-                    OnErrorOccurred (poruka);
+                    OnErrorOccurred(poruka);
                     return;
 
 
                 }
                 else
                 {
-                    await db.Normativ.AddAsync (normativ);
-                    db.SaveChanges ();
-                    Debug.WriteLine ("Novi zapis je uspešno dodat!");
-                    await LoadNormativ (jelo);
+                    await db.Normativ.AddAsync(normativ);
+                    db.SaveChanges();
+                    Debug.WriteLine("Novi zapis je uspešno dodat!");
+                    await LoadNormativ(jelo);
 
                 }
             }
@@ -467,15 +511,15 @@ namespace Caupo.ViewModels
 
         public async Task UpdateNorm(TblNormativ normativ, TblArtikli jelo)
         {
-            using(var db = new AppDbContext ())
+            using (var db = new AppDbContext())
             {
                 // Pronađi postojeći zapis po ID-u
                 var existingNorm = await db.Normativ
-                    .FirstOrDefaultAsync (a => a.IdStavkeNormativa == normativ.IdStavkeNormativa);
+                    .FirstOrDefaultAsync(a => a.IdStavkeNormativa == normativ.IdStavkeNormativa);
 
-                if(existingNorm == null)
+                if (existingNorm == null)
                 {
-                    OnErrorOccurred ("Normativ nije pronađen u bazi.");
+                    OnErrorOccurred("Normativ nije pronađen u bazi.");
                     return;
                 }
 
@@ -486,11 +530,11 @@ namespace Caupo.ViewModels
                 existingNorm.IdProizvoda = normativ.IdProizvoda;
                 existingNorm.Cijena = normativ.Cijena;
 
-                await db.SaveChangesAsync ();
-                Debug.WriteLine ("Zapis je uspješno ažuriran!");
+                await db.SaveChangesAsync();
+                Debug.WriteLine("Zapis je uspješno ažuriran!");
 
                 // Ponovno učitaj podatke za prikaz
-                await LoadNormativ (jelo);
+                await LoadNormativ(jelo);
             }
         }
 
@@ -498,32 +542,32 @@ namespace Caupo.ViewModels
         public async Task LoadNormativ(TblArtikli jelo)
         {
             SelectedJelo = jelo;
-            Norm.Clear ();
+            Norm.Clear();
             ProizvodnaCijena = 0;
             ProdajnaCijena = 0;
             Marza = string.Empty;
-            Debug.WriteLine ("Jelo : " + jelo.Artikl + " ima ID: " + jelo.IdArtikla);
+            Debug.WriteLine("Jelo : " + jelo.Artikl + " ima ID: " + jelo.IdArtikla);
             try
             {
 
-                using(var db = new AppDbContext ())
+                using (var db = new AppDbContext())
                 {
-                    var norms = await db.Normativ.ToListAsync ();
+                    var norms = await db.Normativ.ToListAsync();
 
-                    var norm = norms.Where (a => a.IdProizvoda == jelo.IdArtikla).OrderBy (a => a.IdStavkeNormativa).ToList ();
+                    var norm = norms.Where(a => a.IdProizvoda == jelo.IdArtikla).OrderBy(a => a.IdStavkeNormativa).ToList();
 
-                    if(norm.Count != 0)
+                    if (norm.Count != 0)
                     {
 
-                        foreach(var ingredient in norm)
+                        foreach (var ingredient in norm)
                         {
-                            Norm?.Add (ingredient);
+                            Norm?.Add(ingredient);
                             ProizvodnaCijena += ingredient.Ukupno;
                         }
-                        Debug.WriteLine ("Jelo ima >>>>>> " + Norm.Count + " sastojaka");
+                        Debug.WriteLine("Jelo ima >>>>>> " + Norm.Count + " sastojaka");
                         decimal marzarazlika = (jelo.Cijena ?? 0) - (proizvodnaCijena ?? 0);
                         decimal marzapostotak = ((jelo.Cijena ?? 0) / (proizvodnaCijena ?? 0)) * 100;
-                        Marza = marzarazlika.ToString ("F2") + " KM    " + marzapostotak.ToString ("F2") + "%";
+                        Marza = marzarazlika.ToString("F2") + " KM    " + marzapostotak.ToString("F2") + "%";
                         ProdajnaCijena = jelo.Cijena;
                         SelectedNorm = Norm[0];
                     }
@@ -535,9 +579,9 @@ namespace Caupo.ViewModels
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (ex.ToString ());
+                Debug.WriteLine(ex.ToString());
             }
         }
 
@@ -546,22 +590,22 @@ namespace Caupo.ViewModels
             try
             {
 
-                using(var db = new AppDbContext ())
+                using (var db = new AppDbContext())
                 {
-                    var JM = await db.JediniceMjere.ToListAsync ();
+                    var JM = await db.JediniceMjere.ToListAsync();
 
-                    JediniceMjere.Clear ();
-                    foreach(var jm in JM)
+                    JediniceMjere.Clear();
+                    foreach (var jm in JM)
                     {
-                        JediniceMjere.Add (jm);
-                        Debug.WriteLine (jm.JedinicaMjere + ", JM Count = " + JediniceMjere.Count);
+                        JediniceMjere.Add(jm);
+                        Debug.WriteLine(jm.JedinicaMjere + ", JM Count = " + JediniceMjere.Count);
                     }
 
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (ex.ToString ());
+                Debug.WriteLine(ex.ToString());
             }
         }
 
@@ -572,17 +616,17 @@ namespace Caupo.ViewModels
         public event EventHandler<string?>? ErrorOccurred;
         protected virtual void OnErrorOccurred(string? message)
         {
-            ErrorOccurred?.Invoke (this, message);
+            ErrorOccurred?.Invoke(this, message);
         }
 
         public async Task SetImage()
         {
-            await Task.Delay (1);
+            await Task.Delay(1);
             string tema = Settings.Default.Tema;
 
-            if(tema == "Tamna")
+            if (tema == "Tamna")
             {
-                Debug.WriteLine ("Aktivna tema koju vidi viewmodel je : " + tema);
+                Debug.WriteLine("Aktivna tema koju vidi viewmodel je : " + tema);
                 //ImagePathFirstButton = "pack://application:,,,/Images/Dark/first.svg";
                 //ImagePathLastButton = "pack://application:,,,/Images/Dark/last.svg";
                 //ImagePathPhotoButton = "pack://application:,,,/Images/Dark/image.png";
@@ -594,15 +638,15 @@ namespace Caupo.ViewModels
                 //ImagePathSaveButton = "pack://application:,,,/Images/Dark/save.svg";
                 //ImagePathExportButton = "pack://application:,,,/Images/Dark/export.svg";
                 //ImagePathImportButton = "pack://application:,,,/Images/Dark/import.svg";
-                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
+                FontColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(212, 212, 212));
                 //Application.Current.Resources["GlobalFontColor"] = FontColor;
-                BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
+                BackColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 50, 50));
 
 
             }
             else
             {
-                Debug.WriteLine ("Aktivna tema koju vidi viewmodel je : " + tema);
+                Debug.WriteLine("Aktivna tema koju vidi viewmodel je : " + tema);
                 // ImagePathFirstButton = "pack://application:,,,/Images/Light/first.svg";
                 //  ImagePathLastButton = "pack://application:,,,/Images/Light/last.svg";
                 // ImagePathPhotoButton = "pack://application:,,,/Images/Light/image.svg";
@@ -614,9 +658,9 @@ namespace Caupo.ViewModels
                 // ImagePathSaveButton = "pack://application:,,,/Images/Light/save.svg";
                 //ImagePathExportButton = "pack://application:,,,/Images/Light/export.svg";
                 //ImagePathImportButton = "pack://application:,,,/Images/Light/import.svg";
-                FontColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (50, 50, 50));
+                FontColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 50, 50));
                 //Application.Current.Resources["GlobalFontColor"] = FontColor;
-                BackColor = new SolidColorBrush (System.Windows.Media.Color.FromRgb (212, 212, 212));
+                BackColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(212, 212, 212));
                 //FontColorAdv = new System.Windows.Media.Color();
                 //FontColorAdv = System.Windows.Media.Color.FromRgb(50, 50, 50);
             }
@@ -626,67 +670,67 @@ namespace Caupo.ViewModels
             try
             {
 
-                using(var db = new AppDbContext ())
+                using (var db = new AppDbContext())
                 {
-                    var ingredients = await db.Repromaterijal.ToListAsync ();
-                    Ingredients.Clear ();
-                    IngredientFilter?.Clear ();
-                    foreach(var ingredient in ingredients)
+                    var ingredients = await db.Repromaterijal.ToListAsync();
+                    Ingredients.Clear();
+                    IngredientFilter?.Clear();
+                    foreach (var ingredient in ingredients)
                     {
 
-                        Ingredients.Add (ingredient);
-                        IngredientFilter?.Add (ingredient);
+                        Ingredients.Add(ingredient);
+                        IngredientFilter?.Add(ingredient);
 
                     }
 
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (ex.ToString ());
+                Debug.WriteLine(ex.ToString());
             }
         }
+
 
 
         public void FilterItems(string? searchtext)
         {
-            Debug.WriteLine ("Okida search");
+            string query = (searchtext ?? string.Empty).Trim();
 
-            if(string.IsNullOrWhiteSpace (SearchText))
+            Suggestions.Clear();
+
+            if (!string.IsNullOrWhiteSpace(query))
             {
-                Suggestions.Clear ();
-                return;
+                foreach (var jelo in Jela.Where(a =>
+                    (a.Artikl ?? string.Empty).Contains(
+                        query, StringComparison.OrdinalIgnoreCase)))
+                {
+                    Suggestions.Add(jelo);
+                }
             }
-            var filtered = Jela
-                 .Where (a => (a.Artikl ?? string.Empty)
-                 .ToLower ()
-                 .Contains ((SearchText ?? string.Empty).ToLower ()))
-                 .ToList ();
 
-
-            Suggestions.Clear ();
-            foreach(var item in filtered)
-                Suggestions.Add (item);
+            OnPropertyChanged(nameof(SearchSuggestions));
         }
+
 
         public void FilterItemsIngredient(string? searchtext)
         {
-            Debug.WriteLine ("Okida search");
+            Debug.WriteLine("Okida search");
 
             var filtered = Ingredients
-                 .Where (a => (a.Repromaterijal ?? string.Empty)
-                 .ToLower ()
-                 .Contains ((SearchTextIngredient ?? string.Empty).ToLower ()))
-                 .ToList ();
+                 .Where(a => (a.Repromaterijal ?? string.Empty)
+                 .ToLower()
+                 .Contains((SearchTextIngredient ?? string.Empty).ToLower()))
+                 .ToList();
 
 
-            IngredientFilter = new ObservableCollection<DatabaseTables.TblRepromaterijal> (filtered);
+            IngredientFilter = new ObservableCollection<DatabaseTables.TblRepromaterijal>(filtered);
         }
         public event PropertyChangedEventHandler? PropertyChanged;
 
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
-            PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (propertyName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

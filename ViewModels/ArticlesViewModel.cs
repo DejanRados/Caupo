@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Data;
+using SearchSuggestion = Caupo.UserControls.SearchSuggestion;
 using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.ViewModels
@@ -260,7 +261,8 @@ namespace Caupo.ViewModels
             }
         }
 
-        private ObservableCollection<TblArtikli> _artikliFilter = new ObservableCollection<TblArtikli>();
+        private ObservableCollection<TblArtikli> _artikliFilter = new();
+
         public ObservableCollection<TblArtikli> ArtikliFilter
         {
             get => _artikliFilter;
@@ -269,7 +271,33 @@ namespace Caupo.ViewModels
                 _artikliFilter = value;
                 OnPropertyChanged(nameof(ArtikliFilter));
                 OnPropertyChanged(nameof(BrojPrikazanihArtikala));
+                OnPropertyChanged(nameof(SearchSuggestions));
                 NotifyNavigationCommands();
+            }
+        }
+
+
+
+        public IEnumerable<SearchSuggestion> SearchSuggestions =>
+            ArtikliFilter.Select(article => new SearchSuggestion
+            {
+                Title = article.Artikl ?? string.Empty,
+                Subtitle = article.Sifra ?? string.Empty,
+                Detail = article.Cijena?.ToString("F2", System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
+                Item = article
+            });
+
+
+
+        private bool _isSuggestionsOpen;
+        public bool IsSuggestionsOpen
+        {
+            get => _isSuggestionsOpen;
+            private set
+            {
+                if (_isSuggestionsOpen == value) return;
+                _isSuggestionsOpen = value;
+                OnPropertyChanged(nameof(IsSuggestionsOpen));
             }
         }
 
@@ -566,6 +594,7 @@ namespace Caupo.ViewModels
             }
 
             ArtikliFilter = new ObservableCollection<TblArtikli>(filtered);
+            IsSuggestionsOpen = !string.IsNullOrWhiteSpace(search) && ArtikliFilter.Count > 0;
 
             TblArtikli? selected = null;
 
@@ -713,12 +742,12 @@ namespace Caupo.ViewModels
         public async Task<bool> UpdateArticle(TblArtikli artikl)
         {
             await using var db = new AppDbContext();
-            Debug.WriteLine ($"[ARTICLE EDIT] Id={artikl.IdArtikla}, Sifra='{artikl.Sifra}', Interna='{artikl.InternaSifra}', ArtiklNormativ='{artikl.ArtiklNormativ}'");
+            Debug.WriteLine($"[ARTICLE EDIT] Id={artikl.IdArtikla}, Sifra='{artikl.Sifra}', Interna='{artikl.InternaSifra}', ArtiklNormativ='{artikl.ArtiklNormativ}'");
             var duplicateArticle = await db.Artikli.FirstOrDefaultAsync(a => a.IdArtikla != artikl.IdArtikla && (a.Sifra == artikl.Sifra || a.InternaSifra == artikl.InternaSifra || a.ArtiklNormativ == artikl.ArtiklNormativ));
 
             if (duplicateArticle != null)
             {
-                Debug.WriteLine ($"[ARTICLE EDIT] DUPLIKAT: Id={duplicateArticle.IdArtikla}, Sifra='{duplicateArticle.Sifra}', Interna='{duplicateArticle.InternaSifra}', ArtiklNormativ='{duplicateArticle.ArtiklNormativ}'");
+                Debug.WriteLine($"[ARTICLE EDIT] DUPLIKAT: Id={duplicateArticle.IdArtikla}, Sifra='{duplicateArticle.Sifra}', Interna='{duplicateArticle.InternaSifra}', ArtiklNormativ='{duplicateArticle.ArtiklNormativ}'");
                 string poruka = string.Empty;
 
                 if (duplicateArticle.Sifra == artikl.Sifra)
@@ -899,11 +928,11 @@ namespace Caupo.ViewModels
 
         public async Task<bool> HasArticleBeenSold(int idArtikla)
         {
-            if(idArtikla <= 0)
+            if (idArtikla <= 0)
                 return false;
 
-            await using var db = new AppDbContext ();
-            return await db.RacunStavka.AnyAsync (x => x.IdArtikla == idArtikla);
+            await using var db = new AppDbContext();
+            return await db.RacunStavka.AnyAsync(x => x.IdArtikla == idArtikla);
         }
 
         public async Task LoadJediniceMjere()

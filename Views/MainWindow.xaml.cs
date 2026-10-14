@@ -1,4 +1,5 @@
-﻿using Caupo.Helpers;
+﻿
+using Caupo.Helpers;
 using Caupo.Server;
 using Caupo.ViewModels;
 using Caupo.Views;
@@ -21,15 +22,12 @@ namespace Caupo
 
         public static MainWindow? Instance { get; private set; }
 
-
         // =====================================================
         // FIELDS
         // =====================================================
 
         private readonly VirtualKeyboard _keyboard;
-
         private TcpIpServer? _server;
-
 
         // =====================================================
         // CONSTRUCTOR
@@ -37,78 +35,49 @@ namespace Caupo
 
         public MainWindow()
         {
-            InitializeComponent ();
+            InitializeComponent();
 
+            Instance = this;
 
-            Instance =
-                this;
-
-
-            // =================================================
             // VIRTUALNA TASTATURA
-            // =================================================
+            _keyboard = new VirtualKeyboard();
+            _keyboard.KeyPressed += Keyboard_KeyPressed;
 
-            _keyboard =
-                new VirtualKeyboard ();
+            SetKeyboardControl(_keyboard);
 
-
-            _keyboard.KeyPressed +=
-                Keyboard_KeyPressed;
-
-
-            SetKeyboardControl (
-                _keyboard);
+            VirtualKeyboardManager.EnterPressed += HideKeyboard;
+            PreviewKeyDown += MainWindow_PreviewKeyDown;
         }
-
 
         // =====================================================
         // WINDOW LOADED
         // =====================================================
 
-        private void Window_Loaded(
-            object sender,
-            RoutedEventArgs e)
+        private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine (
-                "[SERVER] Pokrećem TCP server.");
+            Debug.WriteLine("[SERVER] Pokrećem TCP server.");
 
-
-            string dbPath =
-                Properties.Settings.Default.DbPath;
-
-
-            string connectionString =
-                $"Data Source={dbPath};Version=3;";
-
+            string dbPath = Properties.Settings.Default.DbPath;
+            string connectionString = $"Data Source={dbPath};Version=3;";
 
             try
             {
-                _server =
-                    new TcpIpServer (
-                        5000,
-                        connectionString);
+                _server = new TcpIpServer(5000, connectionString);
 
+                _ = Task.Run(async () =>
+                {
+                    await _server.StartAsync();
+                });
 
-                _ = Task.Run (
-                    async () =>
-                    {
-                        await _server.StartAsync ();
-                    });
+                ClientRegistry.LoadFromFile();
 
-
-                ClientRegistry.LoadFromFile ();
-
-
-                Debug.WriteLine (
-                    "[SERVER] TCP server je pokrenut iz MainWindow.");
+                Debug.WriteLine("[SERVER] TCP server je pokrenut iz MainWindow.");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Debug.WriteLine (
-                    $"[SERVER] Greška pri pokretanju TCP servera: {ex}");
+                Debug.WriteLine($"[SERVER] Greška pri pokretanju TCP servera: {ex}");
             }
         }
-
 
         // =====================================================
         // TOGGLE KEYBOARD
@@ -116,14 +85,10 @@ namespace Caupo
 
         public void ToggleKeyboard()
         {
-            KeyboardHost.Visibility =
-                KeyboardHost.Visibility ==
-                Visibility.Visible
-
-                    ? Visibility.Collapsed
-                    : Visibility.Visible;
+            KeyboardHost.Visibility = KeyboardHost.Visibility == Visibility.Visible
+                ? Visibility.Collapsed
+                : Visibility.Visible;
         }
-
 
         // =====================================================
         // KEYBOARD KEY PRESSED
@@ -137,17 +102,14 @@ namespace Caupo
             }
         }
 
-
         // =====================================================
         // SHOW KEYBOARD
         // =====================================================
 
         public void ShowKeyboard()
         {
-            KeyboardHost.Visibility =
-                Visibility.Visible;
+            KeyboardHost.Visibility = Visibility.Visible;
         }
-
 
         // =====================================================
         // HIDE KEYBOARD
@@ -155,22 +117,17 @@ namespace Caupo
 
         public void HideKeyboard()
         {
-            KeyboardHost.Visibility =
-                Visibility.Collapsed;
+            KeyboardHost.Visibility = Visibility.Collapsed;
         }
-
 
         // =====================================================
         // SET KEYBOARD CONTROL
         // =====================================================
 
-        public void SetKeyboardControl(
-            VirtualKeyboard keyboard)
+        public void SetKeyboardControl(VirtualKeyboard keyboard)
         {
-            KeyboardHost.Content =
-                keyboard;
+            KeyboardHost.Content = keyboard;
         }
-
 
         // =====================================================
         // SLIDE ANIMATION
@@ -178,51 +135,36 @@ namespace Caupo
 
         public void SlideInContent()
         {
-            if(MainContent.Content
-               is not UIElement content)
+            if (MainContent.Content is not UIElement content)
             {
                 return;
             }
 
+            var transform = new TranslateTransform();
+            content.RenderTransform = transform;
+            transform.X = ActualWidth;
 
-            var transform =
-                new TranslateTransform ();
-
-
-            content.RenderTransform =
-                transform;
-
-
-            transform.X =
-                ActualWidth;
-
-
-            var animation =
-                new DoubleAnimation
+            var animation = new DoubleAnimation
+            {
+                From = ActualWidth,
+                To = 0,
+                Duration = TimeSpan.FromMilliseconds(800),
+                EasingFunction = new QuadraticEase
                 {
-                    From =
-                        ActualWidth,
+                    EasingMode = EasingMode.EaseInOut
+                }
+            };
 
-                    To =
-                        0,
+            transform.BeginAnimation(TranslateTransform.XProperty, animation);
+        }
 
-                    Duration =
-                        TimeSpan.FromMilliseconds (
-                            800),
-
-                    EasingFunction =
-                        new QuadraticEase
-                        {
-                            EasingMode =
-                                EasingMode.EaseInOut
-                        }
-                };
-
-
-            transform.BeginAnimation (
-                TranslateTransform.XProperty,
-                animation);
+        private void MainWindow_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter &&
+                KeyboardHost.Visibility == Visibility.Visible)
+            {
+                HideKeyboard();
+            }
         }
     }
 }
-

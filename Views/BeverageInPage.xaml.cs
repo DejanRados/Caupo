@@ -1,6 +1,7 @@
 ﻿using Caupo.Helpers;
 using Caupo.ViewModels;
 using CommunityToolkit.Mvvm.Input;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -32,6 +33,7 @@ namespace Caupo.Views
             ViewModel.ConfirmDiscardRequested += ConfirmDiscard;
             ViewModel.AddArticleRequested += ShowAddArticlePopup;
             ViewModel.EditItemRequested += ShowEditItemPopup;
+            
             ViewModel.ErrorOccurred += ViewModel_ErrorOccurred;
             ViewModel.InformationOccurred += ViewModel_InformationOccurred;
             Loaded += BeverageInPage_Loaded;
@@ -163,24 +165,29 @@ namespace Caupo.Views
 
         private void CloseButton_Click(object sender, RoutedEventArgs e) => ClosePage();
 
-        private void SearchTextBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            if (_initialized && !ViewModel.IsBusy)
-                StockInSearchPopup.IsOpen = true;
-        }
 
-        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (_initialized && !ViewModel.IsBusy && SearchTextBox.IsKeyboardFocusWithin)
-                StockInSearchPopup.IsOpen = true;
-        }
 
-        private async void StockInSearchResults_SelectionChanged(object sender, SelectionChangedEventArgs e)
+
+        private async void StockInSearchBar_SuggestionSelected(
+            object? sender,
+            Caupo.UserControls.SearchSuggestionSelectedEventArgs e)
         {
-            if (StockInSearchResults.SelectedItem is not TblUlaz ulaz) return;
-            StockInSearchPopup.IsOpen = false;
-            StockInSearchResults.SelectedItem = null;
+            if (e.Suggestion.Item is not TblUlaz ulaz)
+                return;
+
             await ViewModel.SelectStockInAsync(ulaz);
+
+            if (ReferenceEquals(ViewModel.SelectedStockIn, ulaz))
+            {
+                StockInSearchBar.SearchText = string.Empty;
+                ViewModel.SearchText = string.Empty;
+            }
         }
+
+
+
+
+
+
     }
 }

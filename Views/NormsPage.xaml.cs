@@ -19,7 +19,7 @@ namespace Caupo.Views
             this.DataContext = new NormsViewModel();
 
             InitializeComponent();
-           
+
         }
 
 
@@ -90,7 +90,8 @@ namespace Caupo.Views
                 if (DataContext is IngredientsViewModel viewModel)
                 {
                     viewModel.SelectedIngredient = selectedItem;
-                    SearchTextBox.Text = "";
+                    if (DataContext is NormsViewModel normsViewModel)
+                        normsViewModel.SearchText = "";
                     ListaNamirnica.ScrollIntoView(
                         ListaNamirnica.SelectedItem);
                 }
@@ -145,28 +146,27 @@ namespace Caupo.Views
         }
 
 
-        int IdJela = 0;
 
 
-        private async void lstSuggestions_SelectionChanged(
-            object sender,
-            SelectionChangedEventArgs e)
+
+
+        private async void NormSearchBar_SuggestionSelected(object? sender,Caupo.UserControls.SearchSuggestionSelectedEventArgs e)
         {
-            if (sender is ListBox lb &&
-               lb.SelectedItem is TblArtikli selectedArtikl)
+            if (e.Suggestion.Item is not TblArtikli jelo)
+                return;
+
+            if (DataContext is not NormsViewModel vm)
+                return;
+
+            await vm.LoadNormativ(jelo);
+
+            if (ReferenceEquals(vm.SelectedJelo, jelo))
             {
-                IdJela = selectedArtikl.IdArtikla;
-
-                var vm = DataContext as NormsViewModel;
-
-                vm.SearchText = "";
-                vm.Suggestions.Clear();
-
-                await vm.LoadNormativ(selectedArtikl);
-
-                lb.SelectedItem = null;
+                NormSearchBar.SearchText = string.Empty;
+                vm.SearchText = string.Empty;
             }
         }
+
 
 
         private async void ListaNamirnica_MouseDoubleClick(

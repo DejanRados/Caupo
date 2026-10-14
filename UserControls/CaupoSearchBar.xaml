@@ -1,0 +1,139 @@
+﻿<UserControl x:Class="Caupo.UserControls.CaupoSearchBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="55"/>
+            <ColumnDefinition Width="55"/>
+            <ColumnDefinition Width="55"/>
+            <ColumnDefinition Width="55"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- PRETRAGA -->
+        <Border x:Name="SearchBorder" Grid.Column="0" Height="48" Margin="0,0,8,0" Padding="5" BorderThickness="1" BorderBrush="{DynamicResource ThemeCancelBrush}" CornerRadius="6" Background="Transparent">
+            <DockPanel>
+                <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" FontSize="22" Width="34" FontWeight="ExtraLight" Text="&#60013;" Foreground="{DynamicResource GlobalFontColor}" Opacity="0.65" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBox x:Name="SearchTextBox" Style="{StaticResource TextBoxCustom}" Text="{Binding SearchText, ElementName=Root, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Foreground="{DynamicResource GlobalFontColor}" CaretBrush="{DynamicResource GlobalFontColor}" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" FontSize="15" Padding="5,0" VerticalContentAlignment="Center"/>
+            </DockPanel>
+        </Border>
+
+        <!-- PRVI -->
+        <Button Grid.Column="1" Style="{StaticResource CancelButtonStyle}" Width="48" Height="48" Padding="0" Command="{Binding FirstCommand, ElementName=Root}" ToolTip="Prvi">
+            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#FluentSystemIcons-Regular" Text="&#xF285;" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Button>
+
+        <!-- PRETHODNI -->
+        <Button Grid.Column="2" Style="{StaticResource CancelButtonStyle}" Width="48" Height="48" Padding="0" Command="{Binding PreviousCommand, ElementName=Root}" ToolTip="Prethodni">
+            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#FluentSystemIcons-Regular" Text="&#xF2AB;" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Button>
+
+        <!-- SLJEDEĆI -->
+        <Button Grid.Column="3" Style="{StaticResource CancelButtonStyle}" Width="48" Height="48" Padding="0" Command="{Binding NextCommand, ElementName=Root}" ToolTip="Sljedeći">
+            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#FluentSystemIcons-Regular" Text="&#xF2B1;" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Button>
+
+        <!-- POSLJEDNJI -->
+        <Button Grid.Column="4" Style="{StaticResource CancelButtonStyle}" Width="48" Height="48" Padding="0" Command="{Binding LastCommand, ElementName=Root}" ToolTip="Posljednji">
+            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#FluentSystemIcons-Regular" Text="&#xF2A7;" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Button>
+
+        <!-- ZAJEDNIČKI POPUP REZULTATA -->
+        <Popup x:Name="SuggestionsPopup"
+               Grid.Column="0"
+               PlacementTarget="{Binding ElementName=SearchBorder}"
+               Placement="Bottom"
+               VerticalOffset="8"
+               StaysOpen="False"
+               AllowsTransparency="True"
+               PopupAnimation="Fade"
+               IsOpen="{Binding AreSuggestionsVisible, ElementName=Root, Mode=TwoWay}">
+            <Border Width="330" MaxHeight="350"
+                    Background="{DynamicResource GlobalBackgroundColor}"
+                    BorderBrush="{DynamicResource ThemeCancelBrush}" BorderThickness="1"
+                    CornerRadius="8" Padding="5">
+
+                <ListBox x:Name="SuggestionsList"
+                     ItemsSource="{Binding Suggestions, ElementName=Root}"
+                     SelectionChanged="SuggestionsList_SelectionChanged"
+                     Background="Transparent"
+                     Foreground="{DynamicResource GlobalFontColor}"
+                     BorderThickness="0"
+                     MaxHeight="330"
+                     HorizontalContentAlignment="Stretch"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+
+                    <ListBox.Resources>
+                        <Style TargetType="{x:Type ScrollBar}"
+                            BasedOn="{StaticResource WideVerticalScrollBar}">
+                            <Setter Property="Width" Value="24"/>
+                            <Setter Property="MinWidth" Value="24"/>
+                            <Setter Property="Opacity" Value="0.35"/>
+                        </Style>
+                    </ListBox.Resources>
+
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Margin" Value="0"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+
+                                        <Border x:Name="ItemBorder"
+                                            Background="{TemplateBinding Background}"
+                                            BorderBrush="{DynamicResource ThemeCancelBrush}"
+                                            BorderThickness="0,0,0,1"
+                                            Padding="8,7">
+                                            <ContentPresenter HorizontalAlignment="Stretch"/>
+                                        </Border>
+
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="ItemBorder" Property="Background"  Value="{DynamicResource ThemeCancelHoverBrush}"/>
+                                            </Trigger>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource ThemeCancelPressedBrush}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <TextBlock Text="{Binding Title}"
+                           FontSize="14"
+                           FontWeight="Normal"
+                           Foreground="{DynamicResource GlobalFontColor}"
+                           TextTrimming="CharacterEllipsis"/>
+
+                                <StackPanel Orientation="Horizontal"
+                            Margin="4,2,0,0">
+                                    <TextBlock Text="{Binding Subtitle}"
+                               Width="76"
+                               FontSize="10"
+                               Foreground="{DynamicResource GlobalFontColor}"/>
+
+                                    <TextBlock Text="{Binding Detail}"
+                               FontSize="10"
+                               Foreground="{DynamicResource GlobalFontColor}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+            </Border>
+        </Popup>
+    </Grid>
+</UserControl>
