@@ -179,14 +179,13 @@
                             <TextBlock Grid.Row="2" Grid.Column="0"
                                        Text="Dobavljač:" VerticalAlignment="Center"/>
                             <ComboBox Grid.Row="2" Grid.Column="1"
-                                      ItemsSource="{Binding Suppliers}"
-                                      DisplayMemberPath="Dobavljac"
-                                      SelectedValuePath="Dobavljac"
-                                      SelectedValue="{Binding SelectedStockIn.Dobavljac, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                      Height="36" FontSize="14" MinWidth="350"
-                                      HorizontalAlignment="Left"
-                                      VerticalContentAlignment="Center"
-                                      Margin="0,0,0,5"/>
+                                  ItemsSource="{Binding Suppliers}"
+                                  DisplayMemberPath="Dobavljac"
+                                  SelectedItem="{Binding SelectedSupplier, Mode=TwoWay}"
+                                  Height="36" FontSize="14" MinWidth="350"
+                                  HorizontalAlignment="Left"
+                                  VerticalContentAlignment="Center"
+                                  Margin="0,0,0,5"/>
 
                             <!-- BROJ FAKTURE -->
                             <TextBlock Grid.Row="3" Grid.Column="0"
@@ -252,7 +251,7 @@
                         <DataGrid x:Name="ListaArikala" Grid.Row="2"
                                   ItemsSource="{Binding ArtikliFilter}"
                                   SelectedItem="{Binding SelectedArticle, Mode=TwoWay}"
-                                  MouseUp="ListaArikala_MouseDoubleClick"
+                                 
                                   Margin="0,3" AutoGenerateColumns="False"
                                   IsReadOnly="True" HeadersVisibility="Column"
                                   CanUserAddRows="False" CanUserDeleteRows="False"
@@ -273,6 +272,7 @@
                                 <Style TargetType="DataGridRow"
                                        BasedOn="{StaticResource {x:Type DataGridRow}}">
                                     <Setter Property="MinHeight" Value="49"/>
+                                    <EventSetter Event="MouseLeftButtonUp" Handler="Artikl_MouseLeftButtonUp"/>
                                 </Style>
                             </DataGrid.RowStyle>
                             <DataGrid.Columns>
@@ -355,7 +355,7 @@
                     <DataGrid x:Name="ListaStavki" Grid.Row="2"
                               ItemsSource="{Binding StockInItems}"
                               SelectedItem="{Binding SelectedStockInItem, Mode=TwoWay}"
-                              MouseUp="ListaStavki_MouseDoubleClick"
+                    
                               Margin="0,5" AutoGenerateColumns="False"
                               IsReadOnly="True" HeadersVisibility="Column"
                               CanUserAddRows="False" CanUserDeleteRows="False"
@@ -376,6 +376,7 @@
                             <Style TargetType="DataGridRow"
                                    BasedOn="{StaticResource {x:Type DataGridRow}}">
                                 <Setter Property="MinHeight" Value="49"/>
+                                <EventSetter Event="MouseLeftButtonUp" Handler="Stavka_MouseLeftButtonUp"/>
                             </Style>
                         </DataGrid.RowStyle>
 

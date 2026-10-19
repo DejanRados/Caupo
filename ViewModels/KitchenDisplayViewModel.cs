@@ -1,13 +1,19 @@
 ﻿using Caupo.Data;
 using Caupo.Server;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Media;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -16,56 +22,73 @@ namespace Caupo.ViewModels
 {
     public class KitchenDisplayViewModel : INotifyPropertyChanged
     {
-        public class OrderItem
+        public class OrderItem : INotifyPropertyChanged
         {
-            public string Name { get; set; }
-            public string Note { get; set; }
-            public bool Visible => !string.IsNullOrWhiteSpace (Note);
+            public int IdStavke { get; set; }
+            public string Name { get; set; } = string.Empty;
+            public string Note { get; set; } = string.Empty;
+            public bool Visible => !string.IsNullOrWhiteSpace(Note);
             public decimal? Quantity { get; set; }
+
+            private bool _isFinished;
+            public bool IsFinished
+            {
+                get => _isFinished;
+                set
+                {
+                    if (_isFinished == value) return;
+                    _isFinished = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(CanFinish));
+                }
+            }
+
+            private bool _isBusy;
+            public bool IsBusy
+            {
+                get => _isBusy;
+                set
+                {
+                    if (_isBusy == value) return;
+                    _isBusy = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(CanFinish));
+                }
+            }
+
+            private bool _isKeyboardSelected;
+            public bool IsKeyboardSelected
+            {
+                get => _isKeyboardSelected;
+                set
+                {
+                    if (_isKeyboardSelected == value) return;
+                    _isKeyboardSelected = value;
+                    OnPropertyChanged();
+                }
+            }
+
+            public bool CanFinish => !IsFinished && !IsBusy && IdStavke > 0;
+
+            public event PropertyChangedEventHandler? PropertyChanged;
+            private void OnPropertyChanged([CallerMemberName] string? name = null) =>
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
         public class DisplayOrder : INotifyPropertyChanged
         {
             public int Number { get; set; }
-            public string Waiter { get; set; }
-            public string TableName { get; set; }
+            public string Waiter { get; set; } = string.Empty;
+            public string TableName { get; set; } = string.Empty;
             public DateTime OrderTime { get; set; }
-            public ObservableCollection<OrderItem> Items { get; set; }
+            public ObservableCollection<OrderItem> Items { get; set; } = new();
 
             public string ColorGreenBackgroundHex { get; set; } = "#1E3A2B";
             public string ColorGreenBorderHex { get; set; } = "#2F9E44";
-            public string ColorYellowBackgroundHex { get; set; } = " #3A2F1A";
+            public string ColorYellowBackgroundHex { get; set; } = "#3A2F1A";
             public string ColorYellowBorderHex { get; set; } = "#F59F00";
             public string ColorRedBackgroundHex { get; set; } = "#3A1E1E";
             public string ColorRedBorderHex { get; set; } = "#E03131";
-
-            private Brush _background = Brushes.LightGreen;
-            public Brush Background
-            {
-                get
-                {
-                    if(Elapsed.TotalMinutes >= 20)
-                        return (SolidColorBrush)(new BrushConverter ().ConvertFrom (ColorRedBackgroundHex));
-                    else if(Elapsed.TotalMinutes >= 10)
-                        return (SolidColorBrush)(new BrushConverter ().ConvertFrom (ColorYellowBackgroundHex));
-                    else
-                        return (SolidColorBrush)(new BrushConverter ().ConvertFrom (ColorGreenBackgroundHex));
-                }
-            }
-
-            private Brush _border = Brushes.LightGreen;
-            public Brush Border
-            {
-                get
-                {
-                    if(Elapsed.TotalMinutes >= 20)
-                        return (SolidColorBrush)(new BrushConverter ().ConvertFrom (ColorRedBorderHex));
-                    else if(Elapsed.TotalMinutes >= 10)
-                        return (SolidColorBrush)(new BrushConverter ().ConvertFrom (ColorYellowBorderHex));
-                    else
-                        return (SolidColorBrush)(new BrushConverter ().ConvertFrom (ColorGreenBorderHex));
-                }
-            }
 
             private TimeSpan _elapsed;
             public TimeSpan Elapsed
@@ -73,227 +96,774 @@ namespace Caupo.ViewModels
                 get => _elapsed;
                 set
                 {
+                    var oldState = ColorState;
                     _elapsed = value;
-                    OnPropertyChanged ();
-                    OnPropertyChanged (nameof (Background));
-                    OnPropertyChanged (nameof (Border));
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(ElapsedText));
+
+                    if (oldState != ColorState)
+                    {
+                        OnPropertyChanged(nameof(Background));
+                        OnPropertyChanged(nameof(Border));
+                        OnPropertyChanged(nameof(HeaderBackground));
+                        OnPropertyChanged(nameof(HeaderBorder));
+                        OnPropertyChanged(nameof(ItemBackground));
+                        OnPropertyChanged(nameof(ItemBorder));
+                    }
                 }
             }
 
-            private bool _isNote = false;
+            private int ColorState =>
+                Elapsed.TotalMinutes >= 20 ? 2 :
+                Elapsed.TotalMinutes >= 10 ? 1 : 0;
+
+            public string ElapsedText =>
+                $"{(int)Math.Max(0, Elapsed.TotalHours):00}:{Elapsed.Minutes:00}:{Elapsed.Seconds:00}";
+
+            private static Brush MakeBrush(string hex) =>
+                new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex));
+
+            public Brush Background => MakeBrush(ColorState switch
+            {
+                2 => ColorRedBackgroundHex,
+                1 => ColorYellowBackgroundHex,
+                _ => ColorGreenBackgroundHex
+            });
+
+            public Brush Border => MakeBrush(ColorState switch
+            {
+                2 => ColorRedBorderHex,
+                1 => ColorYellowBorderHex,
+                _ => ColorGreenBorderHex
+            });
+
+            public Brush HeaderBackground => MakeBrush(ColorState switch
+            {
+                2 => "#482626",
+                1 => "#493B22",
+                _ => "#294B37"
+            });
+
+            public Brush HeaderBorder => MakeBrush(ColorState switch
+            {
+                2 => "#874343",
+                1 => "#896A32",
+                _ => "#3D7950"
+            });
+
+            public Brush ItemBackground => MakeBrush(ColorState switch
+            {
+                2 => "#512B2B",
+                1 => "#514128",
+                _ => "#30583F"
+            });
+
+            public Brush ItemBorder => MakeBrush(ColorState switch
+            {
+                2 => "#975050",
+                1 => "#99783C",
+                _ => "#4B8860"
+            });
+
+            private bool _isBusy;
+            public bool IsBusy
+            {
+                get => _isBusy;
+                set
+                {
+                    if (_isBusy == value) return;
+                    _isBusy = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(CanFinish));
+
+                    foreach (var item in Items)
+                        item.IsBusy = value;
+                }
+            }
+
+            private bool _isKeyboardSelected;
+            public bool IsKeyboardSelected
+            {
+                get => _isKeyboardSelected;
+                set
+                {
+                    if (_isKeyboardSelected == value) return;
+                    _isKeyboardSelected = value;
+                    OnPropertyChanged();
+                }
+            }
+
+            public bool CanFinish => !IsBusy;
+
+            private bool _isNote;
             public bool IsNote
             {
                 get => _isNote;
                 set
                 {
-                    if(_isNote != value)
-                    {
-                        _isNote = value;
-
-                        OnPropertyChanged (nameof (IsNote));
-                    }
+                    if (_isNote == value) return;
+                    _isNote = value;
+                    OnPropertyChanged();
                 }
             }
 
-            public event PropertyChangedEventHandler PropertyChanged;
-            protected void OnPropertyChanged([CallerMemberName] string name = null) =>
-                PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (name));
+            public event PropertyChangedEventHandler? PropertyChanged;
+            protected void OnPropertyChanged([CallerMemberName] string? name = null) =>
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public ObservableCollection<DisplayOrder> Orders { get; set; } = new ObservableCollection<DisplayOrder> ();
+        public ObservableCollection<DisplayOrder> Orders { get; set; } = new();
 
-        private DispatcherTimer timer;
+        private readonly DispatcherTimer timer;
+        private readonly SemaphoreSlim _operationGate = new(1, 1);
 
-
+        private int? _selectedOrderNumber;
+        private int? _selectedItemId;
+        private bool _finishingKeyboardSelection;
 
         public KitchenDisplayViewModel()
         {
+            timer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(1)
+            };
 
-            timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds (1) };
             timer.Tick += (s, e) =>
             {
-                foreach(var order in Orders)
+                foreach (var order in Orders)
                     order.Elapsed = DateTime.Now - order.OrderTime;
             };
-            timer.Start ();
 
-            _ = LoadPendingOrdersAsync ();
+            Orders.CollectionChanged += Orders_CollectionChanged;
+
+            timer.Start();
+            _ = LoadPendingOrdersAsync();
         }
 
-        public async Task LoadPendingOrdersAsync()
+        // =====================================================
+        // SELEKCIJA TASTATUROM
+        // =====================================================
+
+        private void Orders_CollectionChanged(
+            object? sender,
+            NotifyCollectionChangedEventArgs e)
         {
-            Orders.Clear (); // očisti stare
+            if (e.Action != NotifyCollectionChangedAction.Reset)
+                RefreshKeyboardSelection();
+        }
 
-            using(var db = new AppDbContext ())
+        private void RefreshKeyboardSelection()
+        {
+            var order = _selectedOrderNumber.HasValue
+                ? Orders.FirstOrDefault(o => o.Number == _selectedOrderNumber.Value)
+                : null;
+
+            // Dok F5 završava narudžbu ili stavku, ne brišemo
+            // identitet selekcije zbog privremenog IsBusy stanja.
+            if (!_finishingKeyboardSelection)
             {
-                // Učitaj sve narudžbe koje nisu završene
-                var kuhinjaOrders = await db.Kuhinja
-                    .Where (k => db.KuhinjaStavke.Any (s => s.IdKuhinje == k.IdKuhinje && s.Zavrseno == "NE"))
-                    .ToListAsync ();
-
-                foreach(var order in kuhinjaOrders)
+                if (order == null || order.IsBusy)
                 {
-                    var stavke = await db.KuhinjaStavke
-                        .Where (s => s.IdKuhinje == order.IdKuhinje && s.Zavrseno == "NE")
-                        .ToListAsync ();
-                    Debug.WriteLine ("Ime stola: " + order.NazivStola);
-                    var displayOrder = new DisplayOrder
-                    {
-                        Number = order.IdKuhinje,
-                        Waiter = order.Radnik,
-                        TableName = order.NazivStola,
-                        OrderTime = order.Datum,
-                        Items = new ObservableCollection<OrderItem> (
-                            stavke.Select (s => new OrderItem
-                            {
-                                Name = s.Artikl,
-                                Note = s.Note,
-                                Quantity = s.Kolicina
-                            }))
-                    };
+                    order = null;
+                    _selectedOrderNumber = null;
+                    _selectedItemId = null;
+                }
 
-                    Orders.Add (displayOrder);
+                if (order != null &&
+                    _selectedItemId.HasValue &&
+                    !order.Items.Any(i =>
+                        i.IdStavke == _selectedItemId.Value && i.CanFinish))
+                {
+                    _selectedItemId = null;
+                }
+            }
+
+            foreach (var currentOrder in Orders)
+            {
+                bool selectedOrder =
+                    ReferenceEquals(currentOrder, order) &&
+                    !currentOrder.IsBusy;
+
+                currentOrder.IsKeyboardSelected =
+                    selectedOrder && !_selectedItemId.HasValue;
+
+                foreach (var item in currentOrder.Items)
+                {
+                    item.IsKeyboardSelected =
+                        selectedOrder &&
+                        _selectedItemId.HasValue &&
+                        item.IdStavke == _selectedItemId.Value &&
+                        item.CanFinish;
                 }
             }
         }
 
-
-        public void AddOrder(DisplayOrder order)
+        private void SelectOrder(int direction)
         {
-            order.OrderTime = DateTime.Now;
-            order.Elapsed = TimeSpan.Zero;
-            Orders.Add (order);
+            var available = Orders
+                .Where(o => o.CanFinish)
+                .ToList();
+
+            if (available.Count == 0)
+            {
+                _selectedOrderNumber = null;
+                _selectedItemId = null;
+                RefreshKeyboardSelection();
+                return;
+            }
+
+            int index = available.FindIndex(
+                o => o.Number == _selectedOrderNumber);
+
+            index = index < 0
+                ? (direction > 0 ? 0 : available.Count - 1)
+                : (index + direction + available.Count) % available.Count;
+
+            _selectedOrderNumber = available[index].Number;
+            _selectedItemId = null;
+
+            RefreshKeyboardSelection();
         }
 
-        public async void RemoveOrder(DisplayOrder order)
+        private void SelectItem(int direction)
         {
+            var order = _selectedOrderNumber.HasValue
+                ? Orders.FirstOrDefault(o =>
+                    o.Number == _selectedOrderNumber.Value &&
+                    o.CanFinish)
+                : null;
 
+            if (order == null)
+            {
+                order = Orders.FirstOrDefault(o =>
+                    o.CanFinish &&
+                    o.Items.Any(i => i.CanFinish));
+
+                if (order == null)
+                    return;
+
+                _selectedOrderNumber = order.Number;
+            }
+
+            var available = order.Items
+                .Where(i => i.CanFinish)
+                .ToList();
+
+            if (available.Count == 0)
+            {
+                _selectedItemId = null;
+                RefreshKeyboardSelection();
+                return;
+            }
+
+            int index = available.FindIndex(
+                i => i.IdStavke == _selectedItemId);
+
+            index = index < 0
+                ? (direction > 0 ? 0 : available.Count - 1)
+                : (index + direction + available.Count) % available.Count;
+
+            _selectedItemId = available[index].IdStavke;
+
+            RefreshKeyboardSelection();
+        }
+
+        // F1
+        public void SelectPreviousOrder()
+        {
+            SelectOrder(-1);
+        }
+
+        // F2
+        public void SelectNextOrder()
+        {
+            SelectOrder(1);
+        }
+
+        // F3
+        public void SelectPreviousItem()
+        {
+            SelectItem(-1);
+        }
+
+        // F4
+        public void SelectNextItem()
+        {
+            SelectItem(1);
+        }
+
+        // =====================================================
+        // F5 - ZAVRŠAVANJE SELEKTOVANOG ELEMENTA
+        // =====================================================
+
+        public async Task FinishKeyboardSelectionAsync()
+        {
+            if (_finishingKeyboardSelection ||
+                !_selectedOrderNumber.HasValue)
+                return;
+
+            var order = Orders.FirstOrDefault(
+                o => o.Number == _selectedOrderNumber.Value);
+
+            if (order == null || !order.CanFinish)
+                return;
+
+            OrderItem? item = _selectedItemId.HasValue
+                ? order.Items.FirstOrDefault(
+                    i => i.IdStavke == _selectedItemId.Value)
+                : null;
+
+            if (_selectedItemId.HasValue &&
+                (item == null || !item.CanFinish))
+                return;
+
+            // Pamtimo redoslijed prije završavanja.
+            // MasonryPanel može prerasporediti kartice nakon uklanjanja.
+            var orderNumbers = Orders
+                .Where(o => o.CanFinish)
+                .Select(o => o.Number)
+                .ToList();
+
+            int oldOrderIndex = orderNumbers.IndexOf(order.Number);
+            int oldItemIndex = item != null
+                ? order.Items.IndexOf(item)
+                : -1;
+
+            _finishingKeyboardSelection = true;
 
             try
             {
-                using(var db = new AppDbContext ())
+                if (item != null)
                 {
-                    var stavke = await db.KuhinjaStavke
-                        .Where (s => s.IdKuhinje == order.Number)
-                        .ToListAsync ();
-                    Debug.WriteLine ("Traži Idkuhinje:" + order.Number);
-                    foreach(var s in stavke)
+                    await FinishItemAsync(item, order);
+                }
+                else
+                {
+                    await FinishOrderAsync(order);
+                }
+
+                // Ako je narudžba još prisutna, ostajemo na njoj.
+                if (Orders.Contains(order))
+                {
+                    _selectedOrderNumber = order.Number;
+
+                    if (item != null)
                     {
-                        s.Zavrseno = "DA";
-                    }
-
-                    await db.SaveChangesAsync ();
-
-                    var stavkeList = order.Items.Select (i => $"{i.Quantity}x  {i.Name}").ToList ();
-
-                    try
-                    {
-
-                        string uriString = $"pack://application:,,,/Caupo;component/Sounds/notificationbell.mp3";
-
-                        var mediaPlayer = new MediaPlayer ();
-                        mediaPlayer.Open (new Uri (uriString));
-                        mediaPlayer.MediaEnded += (s, e) => mediaPlayer.Close ();
-                        mediaPlayer.Play ();
-                        mediaPlayer.MediaFailed += (s, e) =>
+                        // Ako završavanje nije uspjelo, zadržavamo
+                        // istu stavku umjesto preskakanja.
+                        if (!item.IsFinished)
                         {
-                            Debug.WriteLine (e.ErrorException?.Message);
-                        };
-
-                    }
-                    catch(Exception ex)
-                    {
-                        Debug.WriteLine ($"Error playing sound: {ex.Message}");
-                        // Fallback na SystemSounds
-                        SystemSounds.Beep.Play ();
-                    }
-
-
-                    // Prikaži popup na WPF-u
-                    Application.Current.Dispatcher.Invoke (() =>
-                    {
-                        Debug.WriteLine ("Application.Current.Dispatcher.Invoke (() => Otvara popup");
-                        var popup = new Caupo.Views.OrderCompletedPopup (
-                            order.Waiter,
-                            order.TableName,
-                            order.Number.ToString (),
-                            stavkeList);
-                        popup.Show ();
-                    });
-
-                    // 2️⃣ Pripremi uniformni JSON za Android notifikaciju
-                    var notifData = new
-                    {
-                        type = "KUHINJA",
-                        orderNumber = order.Number,
-                        tableName = order.TableName,
-                        message = $"Narudžba broj {order.Number} za {order.TableName}   je spremna "
-                    };
-
-                    // Wrapamo u objekt sa Status/Data, isto kao u handlerima
-                    var notifWrapper = new
-                    {
-                        Status = "OK",
-                        Data = notifData
-                    };
-
-                    // Serijaliziramo i dodajemo \n kao delimiter
-                    var notifJson = JsonSerializer.Serialize (notifWrapper) + "\n";
-
-                    // 3️⃣ Pošalji notifikaciju Android uređaju
-                    // 3️⃣ Pošalji notifikaciju Android uređaju
-                    Debug.WriteLine ($"[Notification] Tražim Android sesiju za waiter: '{order.Waiter}'");
-
-                    // Prikaži sve registrovanje klijente prije traženja
-                    ClientRegistry.ListAll ();
-
-                    var androidSession = ClientRegistry.Get (order.Waiter); // order.Waiter = userId
-
-                    if(androidSession != null)
-                    {
-                        Debug.WriteLine ($"[Notification] Sesija pronađena za '{order.Waiter}'");
-                        Debug.WriteLine ($"[Notification] Client.Connected: {androidSession.Client?.Connected}");
-
-                        if(androidSession.Client?.Connected == true)
-                        {
-                            var bytes = Encoding.UTF8.GetBytes (notifJson);
-                            await androidSession.Stream.WriteAsync (bytes, 0, bytes.Length);
-                            Debug.WriteLine ("[Notification] Poslana ORDER_READY notifikacija Androidu: " + notifJson);
+                            _selectedItemId = item.IdStavke;
                         }
                         else
                         {
-                            Debug.WriteLine ($"[Notification] Klijent '{order.Waiter}' nije povezan, uklanjam iz registry");
-                            ClientRegistry.Remove (order.Waiter);
+                            // Sljedeća nezavršena stavka iza prethodne.
+                            var nextItem = order.Items
+                                .Skip(oldItemIndex + 1)
+                                .FirstOrDefault(i => i.CanFinish);
+
+                            // Ako nema sljedeće, vraćamo se na početak
+                            // liste nezavršenih stavki iste narudžbe.
+                            nextItem ??= order.Items
+                                .FirstOrDefault(i => i.CanFinish);
+
+                            // Ako nema stavki, selektujemo zaglavlje.
+                            _selectedItemId = nextItem?.IdStavke;
                         }
                     }
                     else
                     {
-                        Debug.WriteLine ($"[Notification] Android session nije pronađen za userId: '{order.Waiter}'");
-                        Debug.WriteLine ($"[Notification] Dostupni klijenti: {string.Join (", ", GetRegisteredClients ())}");
+                        // Narudžba nije uklonjena.
+                        // Ne prelazimo dalje ako završavanje nije uspjelo.
+                        _selectedItemId = null;
+                    }
+                }
+                else
+                {
+                    // Narudžba je uklonjena.
+                    // Tražimo prvu narednu narudžbu prema starom redoslijedu.
+                    int? nextOrderNumber = null;
+
+                    if (oldOrderIndex >= 0)
+                    {
+                        for (int offset = 1; offset < orderNumbers.Count; offset++)
+                        {
+                            int index =
+                                (oldOrderIndex + offset) % orderNumbers.Count;
+
+                            int candidate = orderNumbers[index];
+
+                            if (Orders.Any(o =>
+                                o.Number == candidate && o.CanFinish))
+                            {
+                                nextOrderNumber = candidate;
+                                break;
+                            }
+                        }
                     }
 
+                    // Ako su u međuvremenu dodane nove narudžbe,
+                    // a nijedna stara nije ostala, biramo prvu novu.
+                    nextOrderNumber ??= Orders
+                        .FirstOrDefault(o => o.CanFinish)?.Number;
 
-
-                    Orders.Remove (order);
+                    _selectedOrderNumber = nextOrderNumber;
+                    _selectedItemId = null;
                 }
             }
-            catch(Exception ex)
+            finally
             {
-                Debug.WriteLine ($"Greška pri ažuriranju baze: {ex.Message}");
+                _finishingKeyboardSelection = false;
+                RefreshKeyboardSelection();
             }
         }
 
+        // =====================================================
+        // UČITAVANJE NARUDŽBI
+        // =====================================================
 
-        private List<string> GetRegisteredClients()
+        public async Task LoadPendingOrdersAsync()
         {
-            return ClientRegistry.GetAll ()
-                .Select (s => $"'{s.DeviceId}' (Connected: {s.Client?.Connected})")
-                .ToList ();
+            await _operationGate.WaitAsync();
+
+            try
+            {
+                using var db = new AppDbContext();
+
+                var headers = await db.Kuhinja.AsNoTracking()
+                    .Where(k => db.KuhinjaStavke.Any(
+                        s => s.IdKuhinje == k.IdKuhinje &&
+                             s.Zavrseno == "NE"))
+                    .OrderBy(k => k.Datum)
+                    .ToListAsync();
+
+                var ids = headers
+                    .Select(h => h.IdKuhinje)
+                    .ToList();
+
+                var allItems = await db.KuhinjaStavke.AsNoTracking()
+                    .Where(s => ids.Contains(s.IdKuhinje))
+                    .OrderBy(s => s.IdStavke)
+                    .ToListAsync();
+
+                var loaded = headers.Select(h => new DisplayOrder
+                {
+                    Number = h.IdKuhinje,
+                    Waiter = h.Radnik ?? string.Empty,
+                    TableName = h.NazivStola ?? string.Empty,
+                    OrderTime = h.Datum,
+                    Elapsed = DateTime.Now - h.Datum,
+
+                    Items = new ObservableCollection<OrderItem>(
+                        allItems
+                            .Where(s => s.IdKuhinje == h.IdKuhinje)
+                            .Select(s => new OrderItem
+                            {
+                                IdStavke = s.IdStavke,
+                                Name = s.Artikl ?? string.Empty,
+                                Note = s.Note ?? string.Empty,
+                                Quantity = s.Kolicina,
+                                IsFinished = s.Zavrseno == "DA"
+                            }))
+                }).ToList();
+
+                Orders.Clear();
+
+                foreach (var order in loaded)
+                    Orders.Add(order);
+
+                RefreshKeyboardSelection();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(
+                    $"[KUHINJA] Učitavanje nije uspjelo: {ex}");
+            }
+            finally
+            {
+                _operationGate.Release();
+            }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = null) =>
-            PropertyChanged?.Invoke (this, new PropertyChangedEventArgs (name));
-    }
+        public void AddOrder(DisplayOrder order)
+        {
+            if (order == null)
+                return;
 
+            _ = LoadPendingOrdersAsync();
+        }
+
+        public async void RemoveOrder(DisplayOrder order)
+        {
+            await FinishOrderAsync(order);
+        }
+
+        // =====================================================
+        // ZAVRŠAVANJE CIJELE NARUDŽBE
+        // =====================================================
+
+        public async Task FinishOrderAsync(DisplayOrder order)
+        {
+            if (order == null ||
+                order.IsBusy ||
+                !Orders.Contains(order))
+                return;
+
+            order.IsBusy = true;
+            await _operationGate.WaitAsync();
+
+            try
+            {
+                using var db = new AppDbContext();
+
+                var remaining = await db.KuhinjaStavke
+                    .Where(s =>
+                        s.IdKuhinje == order.Number &&
+                        s.Zavrseno == "NE")
+                    .ToListAsync();
+
+                if (remaining.Count == 0)
+                {
+                    Orders.Remove(order);
+                    return;
+                }
+
+                foreach (var item in remaining)
+                    item.Zavrseno = "DA";
+
+                await db.SaveChangesAsync();
+
+                var names = remaining
+                    .Select(s => $"{s.Kolicina}x  {s.Artikl}")
+                    .ToList();
+
+                Orders.Remove(order);
+
+                ShowCompletedPopup(order, names);
+                await SendNotificationAsync(order, names, true);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(
+                    $"[KUHINJA] Završavanje narudžbe {order.Number}: {ex}");
+            }
+            finally
+            {
+                order.IsBusy = false;
+                _operationGate.Release();
+            }
+        }
+
+        // =====================================================
+        // ZAVRŠAVANJE POJEDINAČNE STAVKE
+        // =====================================================
+
+        public async Task FinishItemAsync(
+            OrderItem item,
+            DisplayOrder order)
+        {
+            if (item == null ||
+                order == null ||
+                item.IdStavke <= 0 ||
+                item.IsFinished ||
+                order.IsBusy ||
+                !Orders.Contains(order))
+                return;
+
+            order.IsBusy = true;
+            await _operationGate.WaitAsync();
+
+            try
+            {
+                using var db = new AppDbContext();
+
+                var dbItem = await db.KuhinjaStavke
+                    .FirstOrDefaultAsync(s =>
+                        s.IdStavke == item.IdStavke &&
+                        s.IdKuhinje == order.Number);
+
+                if (dbItem == null)
+                    return;
+
+                if (dbItem.Zavrseno == "DA")
+                {
+                    item.IsFinished = true;
+
+                    if (!await db.KuhinjaStavke.AnyAsync(s =>
+                        s.IdKuhinje == order.Number &&
+                        s.Zavrseno == "NE"))
+                    {
+                        Orders.Remove(order);
+                    }
+
+                    return;
+                }
+
+                if (dbItem.Zavrseno != "NE")
+                    return;
+
+                dbItem.Zavrseno = "DA";
+                await db.SaveChangesAsync();
+
+                item.IsFinished = true;
+
+                var names = new List<string>
+                {
+                    $"{dbItem.Kolicina}x  {dbItem.Artikl}"
+                };
+
+                var hasRemaining =
+                    await db.KuhinjaStavke.AnyAsync(s =>
+                        s.IdKuhinje == order.Number &&
+                        s.Zavrseno == "NE");
+
+                if (!hasRemaining)
+                    Orders.Remove(order);
+
+                ShowCompletedPopup(order, names);
+
+                await SendNotificationAsync(
+                    order,
+                    names,
+                    !hasRemaining);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(
+                    $"[KUHINJA] Završavanje stavke {item.IdStavke}: {ex}");
+            }
+            finally
+            {
+                order.IsBusy = false;
+                _operationGate.Release();
+            }
+        }
+
+        // =====================================================
+        // ZVUK I POPUP
+        // =====================================================
+
+        private static void ShowCompletedPopup(
+            DisplayOrder order,
+            List<string> names)
+        {
+            try
+            {
+                var uri = new Uri(
+                    "pack://application:,,,/Caupo;component/Sounds/notificationbell.mp3");
+
+                var player = new MediaPlayer();
+
+                player.MediaEnded += (s, e) =>
+                    player.Close();
+
+                player.MediaFailed += (s, e) =>
+                {
+                    Debug.WriteLine(e.ErrorException);
+                    player.Close();
+                };
+
+                player.Open(uri);
+                player.Play();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(
+                    $"[KUHINJA] Zvuk: {ex.Message}");
+
+                try
+                {
+                    SystemSounds.Beep.Play();
+                }
+                catch
+                {
+                }
+            }
+
+            try
+            {
+                new Caupo.Views.OrderCompletedPopup(
+                    order.Waiter,
+                    order.TableName,
+                    order.Number.ToString(),
+                    names).Show();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(
+                    $"[KUHINJA] Popup: {ex}");
+            }
+        }
+
+        // =====================================================
+        // ANDROID NOTIFIKACIJE
+        // =====================================================
+
+        private static async Task SendNotificationAsync(
+            DisplayOrder order,
+            List<string> names,
+            bool complete)
+        {
+            try
+            {
+                var message = complete
+                    ? $"Narudžba broj {order.Number} za {order.TableName} je spremna. Gotovo: {string.Join(", ", names)}"
+                    : $"Za narudžbu broj {order.Number}, {order.TableName}, spremno: {string.Join(", ", names)}";
+
+                var payload = new
+                {
+                    Status = "OK",
+                    Data = new
+                    {
+                        type = "KUHINJA",
+                        orderNumber = order.Number,
+                        tableName = order.TableName,
+                        message
+                    }
+                };
+
+                var json = JsonSerializer.Serialize(payload) + "\n";
+
+                var session = ClientRegistry.Get(order.Waiter);
+
+                if (session == null)
+                {
+                    Debug.WriteLine(
+                        $"[KUHINJA] Nema Android sesije za '{order.Waiter}'");
+                    return;
+                }
+
+                if (session.Client?.Connected != true)
+                {
+                    ClientRegistry.Remove(order.Waiter);
+                    return;
+                }
+
+                var bytes = Encoding.UTF8.GetBytes(json);
+
+                await session.Stream.WriteAsync(
+                    bytes,
+                    0,
+                    bytes.Length);
+
+                Debug.WriteLine(
+                    $"[KUHINJA] Android poruka poslana: {json}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(
+                    $"[KUHINJA] Android notifikacija nije poslana: {ex}");
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void OnPropertyChanged(
+            [CallerMemberName] string? name = null)
+        {
+            PropertyChanged?.Invoke(
+                this,
+                new PropertyChangedEventArgs(name));
+        }
+    }
 }

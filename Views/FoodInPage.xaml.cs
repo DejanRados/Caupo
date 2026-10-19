@@ -1,9 +1,6 @@
 ﻿
-using Caupo.Data;
 using Caupo.Helpers;
 using Caupo.ViewModels;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -15,330 +12,180 @@ namespace Caupo.Views
 {
     public partial class FoodInPage : UserControl
     {
-        public FoodInViewModel ViewModel { get; set; }
+        public FoodInViewModel ViewModel { get; }
+        public bool OpenedFromSupplier { get; set; }
+        public UserControl? PreviousPage { get; set; }
 
-        public bool OpenedFromSupplier { get; set; } = false;
-
-        public UserControl PreviousPage { get; set; }
-
-        private bool _errorOccurred = false;
-        private bool _initialized = false;
+        private readonly int _brojUlaza;
+        private bool _initialized;
 
         public FoodInPage(int brojulaza = 0)
         {
             InitializeComponent();
-
+            _brojUlaza = brojulaza;
             ViewModel = new FoodInViewModel();
             DataContext = ViewModel;
 
             ViewModel.ShowDeletePopupRequested += ShowDeletePopup;
-           
+            ViewModel.ConfirmDiscardRequested += ConfirmDiscard;
+            ViewModel.AddArticleRequested += ShowAddArticlePopup;
+            ViewModel.EditItemRequested += ShowEditItemPopup;
+            ViewModel.ErrorOccurred += ViewModel_ErrorOccurred;
+            ViewModel.InformationOccurred += ViewModel_InformationOccurred;
 
-            _ = LoadInitialStockAsync(brojulaza);
+            Loaded += FoodInPage_Loaded;
         }
 
-        // ============================================================
-        // UČITAVANJE ULAZA
-        // ============================================================
-
-        private async Task LoadInitialStockAsync(int brojUlaza)
+        private async void FoodInPage_Loaded(object sender, RoutedEventArgs e)
         {
-            await ViewModel.LoadStockInAsync(brojUlaza);
+            if (_initialized) return;
             _initialized = true;
+            await ViewModel.InitializeAsync(_brojUlaza);
         }
 
-        // ============================================================
-        // PRETRAGA ULAZA
-        // ============================================================
-
-
-        private async void StockInSearchBar_SuggestionSelected(
-            object? sender,
+        private async void StockInSearchBar_SuggestionSelected(object? sender,
             Caupo.UserControls.SearchSuggestionSelectedEventArgs e)
         {
-            if (e.Suggestion.Item is not TblUlazRepromaterijal ulaz)
-                return;
+            if (e.Suggestion.Item is not TblUlazRepromaterijal ulaz) return;
 
-            ViewModel.SelectedStockIn = ulaz;
-            await ViewModel.LoadStockInItems(ulaz);
+            await ViewModel.SelectStockInAsync(ulaz);
+            if (ViewModel.SelectedStockIn?.BrojUlaza != ulaz.BrojUlaza) return;
 
-            if (ReferenceEquals(ViewModel.SelectedStockIn, ulaz))
-            {
-                StockInSearchBar.SearchText = string.Empty;
-                ViewModel.SearchText = string.Empty;
-            }
+            StockInSearchBar.SearchText = string.Empty;
+            ViewModel.SearchText = string.Empty;
         }
-
-
-        // ============================================================
-        // POTVRDA BRISANJA STAVKE
-        // ============================================================
 
         private bool ShowDeletePopup(string itemName)
         {
-            MainContent.Effect = new BlurEffect { Radius = 5 };
+            return ShowConfirmation("POTVRDA BRISANJA",
+                $"Da li ste sigurni da želite obrisati stavku:\n{itemName}?");
+        }
 
+        private bool ConfirmDiscard(string message)
+        {
+            return ShowConfirmation("UPOZORENJE", message);
+        }
+
+        private bool ShowConfirmation(string title, string message)
+        {
+            MainContent.Effect = new BlurEffect { Radius = 5 };
             try
             {
-                var myMessageBox = new YesNoPopup
-                {
-                    WindowStartupLocation = WindowStartupLocation.CenterScreen
-                };
+                var popup = new YesNoPopup { WindowStartupLocation = WindowStartupLocation.CenterScreen };
+                popup.MessageTitle.Text = title;
+                popup.MessageText.Text = message;
+                popup.ShowDialog();
+                return popup.Kliknuo == "Da";
+            }
+            finally { MainContent.Effect = null; }
+        }
 
-                myMessageBox.MessageTitle.Text = "POTVRDA BRISANJA";
-                myMessageBox.MessageText.Text =
-                    $"Da li ste sigurni da želite obrisati stavku:\n{itemName}?";
+        private (bool Accepted, decimal Price, decimal Quantity, decimal Discount)
+            ShowAddArticlePopup(TblRepromaterijal article)
+        {
+            var popup = new FoodInPopup(article);
+            MainContent.Effect = new BlurEffect { Radius = 5 };
+            try
+            {
+                if (popup.ShowDialog() != true) return (false, 0, 0, 0);
+                return (true, popup.EnteredPrice, popup.EnteredQuantity, popup.EnteredDiscount);
+            }
+            finally { MainContent.Effect = null; }
+        }
 
-                myMessageBox.ShowDialog();
-
-                return myMessageBox.Kliknuo == "Da";
+        private (bool Accepted, decimal Price, decimal Quantity, decimal Discount)
+            ShowEditItemPopup(TblUlazRepromaterijalStavka item)
+        {
+            var popup = new FoodInPopup(item) { IsUpdate = true };
+            MainContent.Effect = new BlurEffect { Radius = 5 };
+            try
+            {
+                if (popup.ShowDialog() != true) return (false, 0, 0, 0);
+                return (true, popup.EnteredPrice, popup.EnteredQuantity, popup.EnteredDiscount);
             }
             finally
             {
+                popup.IsUpdate = false;
                 MainContent.Effect = null;
             }
         }
 
-        // ============================================================
-        // PRIKAZ GREŠKE
-        // ============================================================
-
-        private void ViewModel_ErrorOccurred(
-            object? sender,
-            string? errorMessage)
+        private void ViewModel_ErrorOccurred(object? sender, string? message)
         {
-            MyMessageBox myMessageBox = new MyMessageBox
-            {
-                WindowStartupLocation = WindowStartupLocation.CenterScreen
-            };
-
-            myMessageBox.MessageTitle.Text = "GREŠKA";
-            myMessageBox.MessageText.Text = errorMessage;
-            myMessageBox.ShowDialog();
-
-            _errorOccurred = true;
+            ShowMessage("GREŠKA", message);
         }
 
-        // ============================================================
-        // BOJA BORDERA TEXTBOX KONTROLA
-        // ============================================================
-
-        private void ChangeTextBoxBorderBrush(
-            DependencyObject parent,
-            Brush? brush)
+        private void ViewModel_InformationOccurred(object? sender, string? message)
         {
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
-            {
-                var child = VisualTreeHelper.GetChild(parent, i);
-
-                if (child is TextBox textBox)
-                {
-                    if (textBox.Name != "SearchTextBox")
-                    {
-                        textBox.BorderThickness = new Thickness(0, 0, 0, 1);
-                        textBox.BorderBrush = brush;
-                    }
-                }
-
-                ChangeTextBoxBorderBrush(child, brush);
-            }
+            ShowMessage("INFORMACIJA", message);
         }
 
-        // ============================================================
-        // ODABIR REPROMATERIJALA
-        // ============================================================
-
-        private void ListaNamirnica_SelectionChanged(
-            object sender,
-            SelectionChangedEventArgs e)
+        private void ShowMessage(string title, string? message)
         {
-            if (ListaArikala.SelectedItem is TblRepromaterijal selectedItem)
-            {
-                ViewModel.SelectedArticle = selectedItem;
-
-                ListaArikala.ScrollIntoView(selectedItem);
-            }
-        }
-
-        // ============================================================
-        // DODAVANJE REPROMATERIJALA U ULAZ
-        // ============================================================
-
-        private void ListaArikala_MouseDoubleClick(
-            object sender,
-            MouseButtonEventArgs e)
-        {
-            if (ListaArikala.SelectedItem is not TblRepromaterijal artikl)
-                return;
-
-            var vm = ViewModel;
-
-            if (vm.StockIn.Count == 0)
-                return;
-
-            vm.ErrorOccurred -= ViewModel_ErrorOccurred;
-            vm.ErrorOccurred += ViewModel_ErrorOccurred;
-
-            if (vm.SelectedArticle == null)
-                return;
-
-            var win = new FoodInPopup(vm.SelectedArticle);
-
             MainContent.Effect = new BlurEffect { Radius = 5 };
-
             try
             {
-                if (win.ShowDialog() == true)
-                {
-                    Debug.WriteLine(
-                        "Dobijam nazad, cijena: " + win.EnteredPrice +
-                        ", količina: " + win.EnteredQuantity +
-                        " i popust: " + win.EnteredDiscount);
-
-                    vm.EnteredPrice = win.EnteredPrice;
-                    vm.EnteredQuantity = win.EnteredQuantity;
-                    vm.EnteredDiscount = win.EnteredDiscount;
-
-                    vm.ProcessArticle();
-                }
+                var popup = new MyMessageBox { WindowStartupLocation = WindowStartupLocation.CenterScreen };
+                popup.MessageTitle.Text = title;
+                popup.MessageText.Text = message ?? string.Empty;
+                popup.ShowDialog();
             }
-            finally
-            {
-                MainContent.Effect = null;
-            }
-
-            if (_errorOccurred)
-            {
-                _errorOccurred = false;
-                return;
-            }
+            finally { MainContent.Effect = null; }
         }
 
-        // ============================================================
-        // IZMJENA POSTOJEĆE STAVKE ULAZA
-        // ============================================================
-
-        private async void ListaStavki_MouseDoubleClick(
-            object sender,
-            MouseButtonEventArgs e)
+        private void Artikl_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (ListaStavki.SelectedItem is not TblUlazRepromaterijalStavka stavka)
-                return;
-
-            var vm = ViewModel;
-
-            Debug.WriteLine(
-                "Selektovana stavka na stranici u listi: " + stavka.Artikl);
-
-            if (vm.SelectedStockInItem != null)
-            {
-                Debug.WriteLine(
-                    "Selektovana stavka na ViewModelu: " +
-                    vm.SelectedStockInItem.Artikl);
-            }
-
-            vm.ErrorOccurred -= ViewModel_ErrorOccurred;
-            vm.ErrorOccurred += ViewModel_ErrorOccurred;
-
-            var win = new FoodInPopup(stavka)
-            {
-                IsUpdate = true
-            };
-
-            MainContent.Effect = new BlurEffect { Radius = 5 };
-
-            try
-            {
-                if (win.ShowDialog() == true)
-                {
-                    Debug.WriteLine(
-                        "Dobijam nazad, cijena: " + win.EnteredPrice +
-                        ", količina: " + win.EnteredQuantity +
-                        " i popust: " + win.EnteredDiscount);
-
-                    vm.EnteredPrice = win.EnteredPrice;
-                    vm.EnteredQuantity = win.EnteredQuantity;
-                    vm.EnteredDiscount = win.EnteredDiscount;
-
-                    await vm.UpdateStockInItem();
-                }
-            }
-            finally
-            {
-                MainContent.Effect = null;
-                win.IsUpdate = false;
-            }
-
-            if (_errorOccurred)
-            {
-                _errorOccurred = false;
-                return;
-            }
+            if (sender is not DataGridRow { Item: TblRepromaterijal artikl }) return;
+            ViewModel.SelectedArticle = artikl;
+            if (ViewModel.AddArticleCommand.CanExecute(null))
+                ViewModel.AddArticleCommand.Execute(null);
         }
 
-        // ============================================================
-        // ZATVARANJE STRANICE
-        // ============================================================
-
-        private void CloseButton_Click(
-            object sender,
-            RoutedEventArgs e)
+        private void Stavka_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            Window_Closing(null, null);
-        }
-
-        private void Window_Closing(
-            object sender,
-            CancelEventArgs e)
-        {
-            if (ViewModel.HasUnsavedChanges)
+            DependencyObject? source = e.OriginalSource as DependencyObject;
+            while (source != null)
             {
-                var myMessageBox = new YesNoPopup
-                {
-                    WindowStartupLocation = WindowStartupLocation.CenterScreen
-                };
-
-                myMessageBox.MessageTitle.Text = "UPOZORENJE";
-                myMessageBox.MessageText.Text =
-                    "Postoje nesnimljene promjene koje ste napravili.\n" +
-                    "Želite zatvoriti stranicu?";
-
-                myMessageBox.ShowDialog();
-
-                if (myMessageBox.Kliknuo != "Da")
-                    return;
+                if (source is Button) return;
+                if (source is DataGridRow) break;
+                source = VisualTreeHelper.GetParent(source);
             }
 
-            if (!OpenedFromSupplier)
-            {
-                var page = new HomePage
-                {
-                    DataContext = new HomeViewModel()
-                };
-
-                PageNavigator.NavigateWithFade(page);
-            }
+            if (sender is not DataGridRow { Item: TblUlazRepromaterijalStavka stavka }) return;
+            ViewModel.SelectedStockInItem = stavka;
+            if (ViewModel.EditStockInItemCommand.CanExecute(null))
+                ViewModel.EditStockInItemCommand.Execute(null);
         }
 
-        // ============================================================
-        // ŠTAMPANJE KALKULACIJE
-        // ============================================================
-
-        private void BtnPrint_Click(
-            object sender,
-            RoutedEventArgs e)
+        private void ListaNamirnica_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (ViewModel.SelectedStockIn == null)
+            if (ListaArikala.SelectedItem is not TblRepromaterijal article) return;
+            ViewModel.SelectedArticle = article;
+            ListaArikala.ScrollIntoView(article);
+        }
+
+        private void BtnPrint_Click(object sender, RoutedEventArgs e)
+        {
+            if (ViewModel.PrintStockInCommand.CanExecute(null))
+                ViewModel.PrintStockInCommand.Execute(null);
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (ViewModel.HasUnsavedChanges &&
+                !ShowConfirmation("UPOZORENJE",
+                    "Postoje nespremljene promjene.\nŽelite zatvoriti stranicu bez spremanja?"))
                 return;
 
-            if (ViewModel.SelectedSupplier == null)
+            if (OpenedFromSupplier && PreviousPage != null)
+            {
+                PageNavigator.NavigateWithFade(PreviousPage);
                 return;
+            }
 
-            ViewModel.PrintKalkulacija(
-                ViewModel.StockInItems,
-                ViewModel.Klijent,
-                ViewModel.SelectedStockIn,
-                ViewModel.SelectedSupplier);
+            if (OpenedFromSupplier) return;
+
+            PageNavigator.NavigateWithFade(new HomePage { DataContext = new HomeViewModel() });
         }
     }
 }

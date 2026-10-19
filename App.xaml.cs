@@ -256,7 +256,7 @@ namespace Caupo
             // 8. KNJIGA ŠANKA - POZADINSKA SINHRONIZACIJA
             // =================================================
 
-            StartKnjigaSankaSynchronization();
+            StartKnjigeSynchronization();
 
             // =================================================
             // 9. PRIMJENA TEME NA KREIRANE WINDOWE
@@ -472,13 +472,13 @@ namespace Caupo
         // =====================================================
 
 
-        private void StartKnjigaSankaSynchronization()
+
+        private void StartKnjigeSynchronization()
         {
-            _ = Task.Run(SinhronizujKnjiguSankaNaStartupAsync);
+            _ = Task.Run(SinhronizujKnjigeNaStartupAsync);
         }
 
-
-        private async Task SinhronizujKnjiguSankaNaStartupAsync()
+        private async Task SinhronizujKnjigeNaStartupAsync()
         {
             try
             {
@@ -493,10 +493,28 @@ namespace Caupo
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("[KNJIGA ŠANKA] Startup sinhronizacija nije uspjela: " + ex);
+                Debug.WriteLine("[KNJIGA ŠANKA] Startup greška: " + ex);
                 WriteCrashLog("Knjiga šanka - startup sinhronizacija", ex);
             }
+
+            try
+            {
+                Debug.WriteLine("[KNJIGA KUHINJE] Startup sinhronizacija pokrenuta.");
+
+                using var db = new AppDbContext();
+                var service = new KnjigaKuhinjeService(db);
+
+                await service.SinhronizujDoDanasAsync();
+
+                Debug.WriteLine("[KNJIGA KUHINJE] Startup sinhronizacija završena.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[KNJIGA KUHINJE] Startup greška: " + ex);
+                WriteCrashLog("Knjiga kuhinje - startup sinhronizacija", ex);
+            }
         }
+
 
 
         // =====================================================

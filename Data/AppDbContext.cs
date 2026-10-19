@@ -270,7 +270,10 @@ namespace Caupo.Data
 
         public DbSet<TblKnjigaKuhinje> KnjigaKuhinje { get; set; }
 
+        public DbSet<TblKnjigaKuhinjeKontrola> KnjigaKuhinjeKontrola { get; set; }
+
         public DbSet<TblKnjigaSanka> KnjigaSanka { get; set; }
+
         public DbSet<TblKnjigaSankaKontrola> KnjigaSankaKontrola { get; set; }
 
         public DbSet<TblKuhinja> Kuhinja { get; set; }

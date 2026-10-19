@@ -26,6 +26,7 @@ namespace Caupo.Views
         public KasaPage()
         {
             InitializeComponent();
+           
             VirtualKeyboardManager.EnterPressed += VirtualKeyboard_EnterPressed;
             Unloaded += KasaPage_Unloaded;
 

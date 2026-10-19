@@ -11,9 +11,9 @@
 
 
             <!-- Destructive ostaje semantički crven i ne zavisi od teme. -->
-            <SolidColorBrush x:Key="DestructiveButtonBrush" Color="#7B1E3B"/>
-            <SolidColorBrush x:Key="DestructiveButtonHoverBrush" Color="#96304F"/>
-            <SolidColorBrush x:Key="DestructiveButtonPressedBrush" Color="#5F162D"/>
+            <SolidColorBrush x:Key="DestructiveButtonBrush" Color="#9F454B"/>
+            <SolidColorBrush x:Key="DestructiveButtonHoverBrush" Color="#B55B60"/>
+            <SolidColorBrush x:Key="DestructiveButtonPressedBrush" Color="#78343A"/>
 
 
             <!-- ========================================================= -->
@@ -55,7 +55,7 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
-                            <Border x:Name="Root" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="7" SnapsToDevicePixels="True">
+                            <Border x:Name="Root" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" SnapsToDevicePixels="True">
                                 <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True"/>
                             </Border>
 
@@ -91,9 +91,9 @@
             <!-- ========================================================= -->
 
             <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource BaseActionButtonStyle}">
-                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Background" Value="{DynamicResource ThemeControlBrush}"/>
                 <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource ThemeSecondaryBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource ThemeNeutralBorderBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
 
                 <Setter Property="Template">
@@ -314,9 +314,11 @@
                 <Setter Property="Margin" Value="3"/>
                 <Setter Property="Padding" Value="0"/>
                 <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
-                <Setter Property="Background" Value="{DynamicResource ThemeSelectionHoverBrush}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource ThemePrimaryBrush}"/>
-                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Background" Value="{DynamicResource ThemeArticleBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource ThemeOutlineBrush}"/>
+                <Setter Property="BorderThickness" Value="0.5"/>
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
+                <Setter Property="UseLayoutRounding" Value="True"/>
                 <Setter Property="FontWeight" Value="Normal"/>
                 <Setter Property="FontSize" Value="12"/>
                 <Setter Property="Cursor" Value="Hand"/>
@@ -327,13 +329,14 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
-                            <Border x:Name="Root" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                            <Border x:Name="Root" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
                                 <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                             </Border>
 
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="Root" Property="Background" Value="{DynamicResource ThemePrimaryHoverBrush}"/>
+                                    <Setter TargetName="Root" Property="Background" Value="{DynamicResource ThemeArticleHoverBrush}"/>
+                                    
                                 </Trigger>
 
                                 <Trigger Property="IsPressed" Value="True">
@@ -703,8 +706,8 @@
                 </Style.Resources>
 
                 <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
-                <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource ThemePrimaryBrush}"/>
+                <Setter Property="Background" Value="{DynamicResource ThemeControlBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource ThemeNeutralBorderBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="Padding" Value="14,8"/>
                 <Setter Property="FontWeight" Value="SemiBold"/>
@@ -746,18 +749,19 @@
             <Style TargetType="Label">
                 <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}" />
                 <Setter Property="FontFamily" Value="Segoe UI Variable Text"/>
-                
+
             </Style>
 
 
             <Style TargetType="TextBox">
+                <Setter Property="Background" Value="{DynamicResource ThemeInputBrush}"/>
                 <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}" />
                 <Setter Property="CaretBrush" Value="{DynamicResource GlobalFontColor}" />
             </Style>
             <Style TargetType="TextBlock">
                 <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
                 <Setter Property="FontFamily" Value="Segoe UI Variable Text"/>
-                
+
             </Style>
 
             <Style x:Key="TextBoxCustom"
@@ -924,36 +928,60 @@
 
             </Style>
 
-            <Style x:Key="WideVerticalScrollBar" TargetType="{x:Type ScrollBar}">
-                <Setter Property="Width" Value="40"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource ThemeSecondaryBrush}"/>
+
+
+            <Style x:Key="WideVerticalScrollBar"
+       TargetType="{x:Type ScrollBar}">
+
+                <Setter Property="Width" Value="24"/>
+                <Setter Property="MinWidth" Value="24"/>
                 <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="MinWidth" Value="40"/>
+
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="ScrollBar">
+
                             <Grid Background="{TemplateBinding Background}">
-                                <Track Name="PART_Track" 
-                           IsDirectionReversed="true" 
+
+                                <Track x:Name="PART_Track"
+                           IsDirectionReversed="True"
                            Focusable="False">
+
                                     <Track.Thumb>
-                                        <Thumb Background="{DynamicResource GlobalFontColor}" BorderThickness="0" />
+                                        <Thumb BorderThickness="0">
+                                            <Thumb.Template>
+                                                <ControlTemplate TargetType="Thumb">
+                                                    <Grid Background="Transparent">
+                                                        <Border Width="8"
+                                                    HorizontalAlignment="Center"
+                                                    Background="{DynamicResource ThemeOutlineBrush}"
+                                                    CornerRadius="4"/>
+                                                    </Grid>
+                                                </ControlTemplate>
+                                            </Thumb.Template>
+                                        </Thumb>
                                     </Track.Thumb>
+
                                 </Track>
+
                             </Grid>
+
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
+
                 <Style.Triggers>
                     <Trigger Property="Orientation" Value="Horizontal">
                         <Setter Property="Height" Value="0"/>
                         <Setter Property="Opacity" Value="0"/>
                     </Trigger>
                 </Style.Triggers>
+
             </Style>
 
+
             <Style TargetType="ComboBox">
-                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Background" Value="{DynamicResource ThemeInputBrush}"/>
                 <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
                 <Setter Property="Padding" Value="5,3"/>
 
@@ -1007,7 +1035,7 @@
                            StaysOpen="False">
 
                                     <Border x:Name="DropDownBorder"
-                                Background="{DynamicResource GlobalFontColor}"
+                                Background="{DynamicResource ThemePopupBrush}"
                                 BorderBrush="{DynamicResource ThemeSecondaryBrush}"
                                 BorderThickness="1"
                                 CornerRadius="2">
@@ -1044,8 +1072,8 @@
                     <Setter.Value>
                         <Style TargetType="ComboBoxItem">
 
-                            <Setter Property="Background" Value="{DynamicResource GlobalFontColor}"/>
-                            <Setter Property="Foreground" Value="{DynamicResource GlobalBackgroundColor}"/>
+                            <Setter Property="Background" Value="{DynamicResource ThemePopupBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
                             <Setter Property="BorderBrush" Value="{DynamicResource ThemeSecondaryBrush}"/>
                             <Setter Property="Padding" Value="6,2"/>
                             <Setter Property="MinHeight" Value="45"/>
@@ -1067,7 +1095,7 @@
                                                     <!-- Override globalnog implicitnog TextBlock stila
                                              samo unutar ComboBox dropdowna -->
                                                     <Style TargetType="TextBlock">
-                                                        <Setter Property="Foreground" Value="{DynamicResource GlobalBackgroundColor}"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
                                                     </Style>
 
                                                 </ContentPresenter.Resources>
@@ -1092,7 +1120,7 @@
             </Style>
 
             <Style TargetType="ListBox">
-                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Background" Value="{DynamicResource ThemeSurfaceBrush}"/>
                 <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
                 <Setter Property="Padding" Value="5,2"/>
                 <Setter Property="BorderBrush" Value="{DynamicResource ThemeSecondaryBrush}"/>
@@ -1191,7 +1219,7 @@
                 <Setter Property="BorderBrush" Value="{DynamicResource HeaderBackgroundColor}" />
                 <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="Padding" Value="2,0,2,0" />
-                <Setter Property="Foreground" Value="#F5F5F5"/>
+                <Setter Property="Foreground" Value="{DynamicResource ThemeHeaderForegroundBrush}"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type GridViewColumnHeader}">
@@ -1291,7 +1319,7 @@
 
             <Style TargetType="DataGridColumnHeader">
                 <Setter Property="Background" Value="{DynamicResource HeaderBackgroundColor}"/>
-                <Setter Property="Foreground" Value="#F5F5F5" />
+                <Setter Property="Foreground" Value="{DynamicResource ThemeHeaderForegroundBrush}" />
                 <Setter Property="MinHeight" Value="45"/>
                 <Setter Property="HorizontalContentAlignment" Value="Center"/>
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -1580,7 +1608,7 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-            
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -3,10 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Caupo.Views"
-        xmlns:vm="clr-namespace:Caupo.ViewModels"
-        xmlns:sys="clr-namespace:System;assembly=netstandard"
-        xmlns:system="clr-namespace:System;assembly=mscorlib"
         xmlns:uc="clr-namespace:Caupo.UserControls"
         mc:Ignorable="d"
         WindowState="Maximized"
@@ -16,6 +12,108 @@
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+        <!-- Zaglavlje narudžbe -->
+        <Style x:Key="KitchenOrderHeaderStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="MinHeight" Value="100"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="HeaderBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="HeaderBorder"
+                                        Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="HeaderBorder"
+                                        Property="Opacity" Value="0.65"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="HeaderBorder"
+                                        Property="Opacity" Value="0.55"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Dugme stavke -->
+        <Style x:Key="KitchenItemButtonStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,9"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="MinHeight" Value="52"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ItemBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ItemBorder"
+                                        Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ItemBorder"
+                                        Property="Opacity" Value="0.65"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="ItemBorder"
+                                        Property="Opacity" Value="0.5"/>
+                                <Setter Property="Cursor" Value="Arrow"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Žuti okvir selektovane narudžbe -->
+        <Style x:Key="KitchenOrderSelectionStyle" TargetType="Border">
+            <Setter Property="BorderThickness" Value="4"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsKeyboardSelected}" Value="True">
+                    <Setter Property="BorderBrush" Value="#FFD700"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Žuti okvir selektovane stavke -->
+        <Style x:Key="KitchenItemSelectionStyle" TargetType="Border">
+            <Setter Property="BorderThickness" Value="4"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsKeyboardSelected}" Value="True">
+                    <Setter Property="BorderBrush" Value="#FFD700"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
     <Grid Background="{DynamicResource GlobalBackgroundColor}">
@@ -24,79 +122,182 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ===================================================== -->
-        <!-- HEADER -->
-        <!-- ===================================================== -->
         <uc:CaupoHeader Grid.Row="0" Title="Caupo - Kuhinja"/>
 
-        <!-- ===================================================== -->
-        <!-- NARUDŽBE -->
-        <!-- ===================================================== -->
-        <ScrollViewer Grid.Row="1" Margin="10">
+        <ScrollViewer Grid.Row="1"
+                      Margin="10"
+                      VerticalScrollBarVisibility="Auto">
+
             <ScrollViewer.Resources>
-                <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
+                <Style TargetType="ScrollBar"
+                       BasedOn="{StaticResource WideVerticalScrollBar}"/>
             </ScrollViewer.Resources>
 
             <ItemsControl ItemsSource="{Binding Orders}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal"/>
+                        <uc:MasonryPanel ItemWidth="260"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
 
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border BorderBrush="{Binding Border}" Background="{Binding Background}" BorderThickness="1" CornerRadius="5" Padding="5" Margin="5" Width="250">
-                            <StackPanel MouseLeftButtonUp="Order_Click" Background="Transparent">
 
-                                <TextBlock FontSize="18" Foreground="#f8f8f8">
-                                    <Run Text="Broj bloka: "/>
-                                    <Run Text="{Binding Number}"/>
-                                </TextBlock>
+                        <!-- Narudžba -->
+                        <Border Style="{StaticResource KitchenOrderSelectionStyle}"
+                                Background="{Binding Background}"
+                                CornerRadius="10"
+                                Padding="5"
+                                Margin="0"
+                                Width="250">
 
-                                <Separator Margin="5"/>
+                            <StackPanel>
 
-                                <TextBlock Text="{Binding Waiter}" FontWeight="Bold" FontSize="16" Foreground="#f8f8f8"/>
+                                <!-- Zaglavlje narudžbe -->
+                                <Button Style="{StaticResource KitchenOrderHeaderStyle}"
+                                        Margin="5"
+                                        Background="{Binding HeaderBackground}"
+                                        BorderBrush="{Binding HeaderBorder}"
+                                        IsEnabled="{Binding CanFinish}"
+                                        Click="Order_Click">
 
-                                <TextBlock Foreground="#f8f8f8">
-                                    <Run Text="Sto: "/>
-                                    <Run Text="{Binding TableName}"/>
-                                </TextBlock>
+                                    <StackPanel>
+                                        <TextBlock FontSize="18"
+                                                   FontWeight="Bold"
+                                                   Foreground="#F8F8F8">
+                                            <Run Text="Broj bloka: "/>
+                                            <Run Text="{Binding Number}"/>
+                                        </TextBlock>
 
-                                <TextBlock FontSize="16" Foreground="#f8f8f8">
-                                    <Run Text="Naručeno: "/>
-                                    <Run Text="{Binding OrderTime, StringFormat={}{0:HH\\:mm\\:ss}}"/>
-                                </TextBlock>
+                                        <Separator Margin="0,5"/>
 
-                                <TextBlock FontSize="16" Foreground="#f8f8f8">
-                                    <Run Text="Proteklo od narudžbe: "/>
-                                    <Run FontSize="18" Text="{Binding Elapsed, StringFormat={}{0:mm\\:ss}}"/>
-                                </TextBlock>
+                                        <TextBlock Text="{Binding Waiter}"
+                                                   FontWeight="Bold"
+                                                   FontSize="16"
+                                                   Foreground="#F8F8F8"/>
 
-                                <Separator Margin="5"/>
+                                        <TextBlock Foreground="#F8F8F8"
+                                                   Margin="0,3">
+                                            <Run Text="Sto: "/>
+                                            <Run Text="{Binding TableName}"/>
+                                        </TextBlock>
 
+                                        <TextBlock FontSize="15"
+                                                   Foreground="#F8F8F8">
+                                            <Run Text="Naručeno: "/>
+                                            <Run Text="{Binding OrderTime, StringFormat={}{0:HH:mm:ss}}"/>
+                                        </TextBlock>
+
+                                        <TextBlock FontSize="15"
+                                                   Foreground="#F8F8F8"
+                                                   TextWrapping="Wrap">
+                                            <Run Text="Proteklo: "/>
+                                            <Run FontSize="18"
+                                                 FontWeight="Bold"
+                                                 Text="{Binding ElapsedText, Mode=OneWay}"/>
+                                        </TextBlock>
+
+                                    </StackPanel>
+                                </Button>
+
+                                <!-- Stavke narudžbe -->
                                 <ItemsControl ItemsSource="{Binding Items}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <StackPanel Orientation="Vertical">
 
-                                                <StackPanel Orientation="Horizontal" Margin="0,5">
-                                                    <TextBlock FontSize="16" Foreground="#f8f8f8" Text="{Binding Quantity}" Margin="0,0,5,5"/>
-                                                    <TextBlock FontSize="16" Foreground="#f8f8f8" Text="x" Margin="0,0,5,5"/>
-                                                    <TextBlock FontSize="16" Foreground="#f8f8f8" Text="{Binding Name}" Margin="0,0,5,5"/>
-                                                </StackPanel>
+                                            <!-- Tag čuva roditeljsku narudžbu -->
+                                            <Border Style="{StaticResource KitchenItemSelectionStyle}"
+                                                    CornerRadius="10"
+                                                    Margin="0"
+                                                    Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}">
 
-                                                <!-- TextBlock za Note -->
-                                                <TextBlock Foreground="#88f5f5f5" FontStyle="Italic" Text="{Binding Note}" TextWrapping="Wrap" Margin="30,0,0,10" Visibility="{Binding Visible, Converter={StaticResource BoolToVis}}"/>
+                                                <Button Style="{StaticResource KitchenItemButtonStyle}"
+                                                        Margin="0"
+                                                        Background="{Binding Tag.ItemBackground, RelativeSource={RelativeSource AncestorType={x:Type Border}}}"
+                                                        BorderBrush="{Binding Tag.ItemBorder, RelativeSource={RelativeSource AncestorType={x:Type Border}}}"
+                                                        IsEnabled="{Binding CanFinish}"
+                                                        Loaded="Item_Loaded"
+                                                        Click="Item_Click">
 
-                                                <Separator Opacity="0.1" Margin="5"/>
-                                            </StackPanel>
+                                                    <StackPanel>
+                                                        <DockPanel LastChildFill="True">
+
+                                                            <TextBlock DockPanel.Dock="Left"
+                                                                       Text="✓"
+                                                                       Foreground="#F8F8F8"
+                                                                       FontSize="18"
+                                                                       FontWeight="Bold"
+                                                                       Margin="0,0,3,0">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsFinished}" Value="True">
+                                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+
+                                                            <TextBlock Foreground="#F8F8F8"
+                                                                       FontSize="16"
+                                                                       FontWeight="SemiBold"
+                                                                       TextWrapping="Wrap">
+                                                                <Run Text="{Binding Quantity}"/>
+                                                                <Run Text=" x "/>
+                                                                <Run Text="{Binding Name}"/>
+
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="TextDecorations" Value="{x:Null}"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsFinished}" Value="True">
+                                                                                <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                        </DockPanel>
+
+                                                        <TextBlock Text="{Binding Note}"
+                                                                   Foreground="#F8F8F8"
+                                                                   FontStyle="Italic"
+                                                                   FontSize="13"
+                                                                   TextWrapping="Wrap"
+                                                                   Margin="0,5,0,0"
+                                                                   Visibility="{Binding Visible, Converter={StaticResource BoolToVis}}"/>
+
+                                                        <TextBlock Text="GOTOVO"
+                                                                   Foreground="#F8F8F8"
+                                                                   FontSize="11"
+                                                                   FontWeight="Bold"
+                                                                   HorizontalAlignment="Right"
+                                                                   Margin="0,5,0,0">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsFinished}" Value="True">
+                                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+
+                                                    </StackPanel>
+                                                </Button>
+                                            </Border>
+
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
 
                             </StackPanel>
                         </Border>
+
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

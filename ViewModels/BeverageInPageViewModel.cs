@@ -1,6 +1,7 @@
 ﻿
 using Caupo.Data;
 using Caupo.Properties;
+using Caupo.Services;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
@@ -13,10 +14,8 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-
-using SearchSuggestion = Caupo.UserControls.SearchSuggestion;
-
 using static Caupo.Data.DatabaseTables;
+using SearchSuggestion = Caupo.UserControls.SearchSuggestion;
 
 namespace Caupo.ViewModels
 {
@@ -383,6 +382,8 @@ namespace Caupo.ViewModels
         }
 
         // 6. TRANSAKCIJSKO SPREMANJE INSERT/UPDATE/DELETE
+
+
         public async Task SaveSelectedStockInAsync()
         {
             if (SelectedStockIn == null || IsBusy) return;
@@ -398,6 +399,7 @@ namespace Caupo.ViewModels
                 return;
             }
             IsBusy = true;
+            bool ulazSpremljen = false;
             try
             {
                 using var db = new AppDbContext();
@@ -407,6 +409,10 @@ namespace Caupo.ViewModels
                     existing = await db.Ulaz.FirstOrDefaultAsync(x => x.IdUlaza == edited.IdUlaza);
                 if (edited.IdUlaza != 0 && existing == null)
                     throw new InvalidOperationException("Ulaz više ne postoji u bazi. Ponovo učitajte podatke.");
+
+                DateTime datumPromjene = edited.Datum.Date;
+                if (existing != null && existing.Datum.Date < datumPromjene)
+                    datumPromjene = existing.Datum.Date;
 
                 int brojUlaza;
                 if (existing == null)
@@ -422,7 +428,7 @@ namespace Caupo.ViewModels
                 }
                 else
                 {
-                    brojUlaza = existing.BrojUlaza; // Identitet ulaza se nikad ne mijenja.
+                    brojUlaza = existing.BrojUlaza;
                 }
                 existing.Datum = edited.Datum;
                 existing.Dobavljac = edited.Dobavljac;
@@ -448,16 +454,40 @@ namespace Caupo.ViewModels
                     }
                     CopyItem(item, target, brojUlaza);
                 }
+
+                var kontrola = await db.KnjigaSankaKontrola.FirstOrDefaultAsync(x => x.Id == 1)
+                    ?? throw new InvalidOperationException("Nedostaje kontrolni red Knjige šanka (Id=1).");
+                if (!kontrola.DatumPromjeneStanja.HasValue || datumPromjene < kontrola.DatumPromjeneStanja.Value.Date)
+                {
+                    kontrola.DatumPromjeneStanja = datumPromjene;
+                }
+
                 await db.SaveChangesAsync();
                 await transaction.CommitAsync();
+                ulazSpremljen = true;
+
+                using (var knjigaDb = new AppDbContext())
+                {
+                    var knjigaService = new KnjigaSankaService(knjigaDb);
+                    await knjigaService.SinhronizujDoDanasAsync();
+                }
+
                 int savedNumber = existing.BrojUlaza;
                 HasUnsavedChanges = false;
                 await LoadStockInAsync(savedNumber);
                 InformationOccurred?.Invoke(this, "Ulaz je uspješno sačuvan.");
             }
-            catch (Exception ex) { ReportError("Spremanje Ulaza nije uspjelo. Nijedna djelimična izmjena nije potvrđena.", ex); }
+            catch (Exception ex)
+            {
+                if (ulazSpremljen)
+                    ReportError("Ulaz je sačuvan, ali sinhronizacija Knjige šanka ili ponovno učitavanje nije uspjelo.", ex);
+                else
+                    ReportError("Spremanje Ulaza nije uspjelo. Nijedna djelimična izmjena nije potvrđena.", ex);
+            }
             finally { IsBusy = false; }
         }
+
+
 
         private static void CopyItem(TblUlazStavke source, TblUlazStavke target, int brojUlaza)
         {

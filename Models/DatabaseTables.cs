@@ -642,7 +642,12 @@ namespace Caupo.Data
             public string? Kategorija
             {
                 get => _kategorija;
-                set { _kategorija = value; OnPropertyChanged (nameof (Kategorija)); }
+                set
+                {
+                    _kategorija = value;
+                    OnPropertyChanged(nameof(Kategorija));
+                    OnPropertyChanged(nameof(Icon));
+                }
             }
             public override string ToString()
             {
@@ -657,6 +662,58 @@ namespace Caupo.Data
                     _vrstaArtikla = value;
                     OnPropertyChanged (nameof (VrstaArtikla));
                     OnPropertyChanged (nameof (VrstaArtiklaName)); // 👈 BITNO
+                }
+            }
+
+            [NotMapped]
+            public string Icon
+            {
+                get
+                {
+                    string fajl = IdKategorije switch
+                    {
+                        // PIĆE
+                        1 => "cup-soda.svg",       // Sokovi
+                        2 => "cup-soda.svg",       // Voda
+                        3 => "beer.svg",           // Piva
+                        4 => "wine.svg",           // Vina
+                        5 => "bottle-wine.svg",    // Žestoka pića
+                        6 => "coffee.svg",         // Topli napici
+                        7 => "wine.svg",           // Kokteli
+                        8 => "zap.svg",            // Energetska pića
+                        9 => "cup-soda.svg",       // Ostala pića
+
+                        // HRANA
+                        10 => "ham.svg",           // Hladna predjela
+                        11 => "cooking-pot.svg",   // Topla predjela
+                        12 => "soup.svg",          // Supe i čorbe
+                        13 => "beef.svg",          // Jela sa roštilja
+                        14 => "cooking-pot.svg",   // Kuhana jela
+                        15 => "cooking-pot.svg",   // Tjestenine i rižota
+                        16 => "salad.svg",         // Salate
+                        17 => "cookie.svg",        // Deserti
+                        18 => "cooking-pot.svg",   // Ostala jela
+                        28 => "pizza.svg",         // Pizze
+                        29 => "hamburger.svg",     // Burgeri i sendviči
+                        30 => "ham.svg",           // Doručak
+                        31 => "fish.svg",          // Riba i morski plodovi
+                        32 => "salad.svg",         // Prilozi
+
+                        // OSTALO — privremene ikonice
+                        19 => "sobe.svg",   // Sobe
+                        20 => "najam.svg",   // Apartmani
+                        21 => "takse.svg",        // Takse
+                        22 => "car.svg",           // Vozila
+                        23 => "ev-charger.svg",           // Dodatni sadržaji
+                        24 => "usluge.svg",           // Usluge
+                        25 => "najam.svg",           // Najam
+                        26 => "landmark.svg",        // Naknade
+                        27 => "rafting.svg",        // Ostalo
+
+                        _ => "cup-soda.svg"
+                    };
+
+                    return $"pack://application:,,,/Assets/Icons/{fajl}";
                 }
             }
 
@@ -696,6 +753,17 @@ namespace Caupo.Data
             public DateTime Datum { get; set; }
             public string? Sifra { get; set; }
         }
+
+
+        [Table("tblKnjigaKuhinjeKontrola")]
+        public class TblKnjigaKuhinjeKontrola
+        {
+            [Key]
+            public int Id { get; set; }
+
+            public DateTime? DatumPromjeneStanja { get; set; }
+        }
+
 
         [Table("tblKnjigaSanka")]
         public class TblKnjigaSanka
@@ -1342,8 +1410,8 @@ namespace Caupo.Data
                 }
             }
 
-            private decimal _cijenaBezUPDV;
-            public decimal CijenaBezUPDV
+            private decimal? _cijenaBezUPDV;
+            public decimal? CijenaBezUPDV
             {
                 get => _cijenaBezUPDV;
                 set
@@ -1358,10 +1426,10 @@ namespace Caupo.Data
                 }
             }
 
-            public decimal IznosBezUPDV { get; set; }
+            public decimal? IznosBezUPDV { get; set; }
 
-            private decimal _rabat;
-            public decimal Rabat
+            private decimal? _rabat;
+            public decimal? Rabat
             {
                 get => _rabat;
                 set
@@ -1387,8 +1455,8 @@ namespace Caupo.Data
                 _ => 0
             };
 
-            public decimal IznosUPDVa { get; set; }
-            public decimal CijenaSaUPDV { get; set; }
+            public decimal? IznosUPDVa { get; set; }
+            public decimal?  CijenaSaUPDV { get; set; }
 
             public decimal? Cijena { get; set; }
 
@@ -1420,36 +1488,36 @@ namespace Caupo.Data
             // ---------------------
 
             [NotMapped]
-            public decimal MPVrijednost => Kolicina * (Cijena ?? CijenaBezUPDV);
+            public decimal? MPVrijednost => Kolicina * (Cijena ?? CijenaBezUPDV);
 
             [NotMapped]
-            public decimal IPDV => (Cijena ?? CijenaBezUPDV) * 0.1453m;
+            public decimal? IPDV => (Cijena ?? CijenaBezUPDV) * 0.1453m;
 
             [NotMapped]
-            public decimal IznosIPDV => Kolicina * IPDV;
+            public decimal? IznosIPDV => Kolicina * IPDV;
 
             [NotMapped]
-            public decimal ProdajnaVrijBezIPDV => MPVrijednost - IznosIPDV;
+            public decimal? ProdajnaVrijBezIPDV => MPVrijednost - IznosIPDV;
 
             [NotMapped]
-            public decimal FakVrBezPDV => CijenaBezUPDV * Kolicina;
+            public decimal? FakVrBezPDV => CijenaBezUPDV * Kolicina;
 
             [NotMapped]
-            public decimal NabavnaCijenaBezPDV => CijenaBezUPDV;
+            public decimal? NabavnaCijenaBezPDV => CijenaBezUPDV;
             [NotMapped]
-            public decimal NabavnaVrijednostBezPDV => FakVrBezPDV;
-
-            [NotMapped]
-            public decimal PDVMarza => (MPVrijednost - NabavnaVrijednostBezPDV) * 0.1453m;
+            public decimal? NabavnaVrijednostBezPDV => FakVrBezPDV;
 
             [NotMapped]
-            public decimal RazlikaCijBezPDV => MPVrijednost - NabavnaVrijednostBezPDV - PDVMarza;
+            public decimal? PDVMarza => (MPVrijednost - NabavnaVrijednostBezPDV) * 0.1453m;
+
+            [NotMapped]
+            public decimal? RazlikaCijBezPDV => MPVrijednost - NabavnaVrijednostBezPDV - PDVMarza;
 
 
 
 
             [NotMapped]
-            public decimal MarzaPostotak => (ProdajnaVrijBezIPDV - FakVrBezPDV) * 100 / ProdajnaVrijBezIPDV;
+            public decimal? MarzaPostotak => (ProdajnaVrijBezIPDV - FakVrBezPDV) * 100 / ProdajnaVrijBezIPDV;
 
             public event PropertyChangedEventHandler? PropertyChanged;
             protected void OnPropertyChanged(string propertyName) =>

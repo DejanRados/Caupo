@@ -26,6 +26,33 @@
     <None Remove="articles.json" />
     <None Remove="Assets\Fonts\codicon.ttf" />
     <None Remove="Assets\Fonts\password.ttf" />
+    <None Remove="Assets\Icons\beef.svg" />
+    <None Remove="Assets\Icons\beer.svg" />
+    <None Remove="Assets\Icons\bike.svg" />
+    <None Remove="Assets\Icons\bottle-wine.svg" />
+    <None Remove="Assets\Icons\car.svg" />
+    <None Remove="Assets\Icons\coffee.svg" />
+    <None Remove="Assets\Icons\cookie.svg" />
+    <None Remove="Assets\Icons\cooking-pot.svg" />
+    <None Remove="Assets\Icons\cup-soda.svg" />
+    <None Remove="Assets\Icons\ev-charger.svg" />
+    <None Remove="Assets\Icons\fish.svg" />
+    <None Remove="Assets\Icons\ham.svg" />
+    <None Remove="Assets\Icons\hamburger.svg" />
+    <None Remove="Assets\Icons\kamp.svg" />
+    <None Remove="Assets\Icons\landmark.svg" />
+    <None Remove="Assets\Icons\motorbike.svg" />
+    <None Remove="Assets\Icons\najam.svg" />
+    <None Remove="Assets\Icons\pizza.svg" />
+    <None Remove="Assets\Icons\rafting.svg" />
+    <None Remove="Assets\Icons\salad.svg" />
+    <None Remove="Assets\Icons\settings.svg" />
+    <None Remove="Assets\Icons\sobe.svg" />
+    <None Remove="Assets\Icons\soup.svg" />
+    <None Remove="Assets\Icons\takse.svg" />
+    <None Remove="Assets\Icons\usluge.svg" />
+    <None Remove="Assets\Icons\wine.svg" />
+    <None Remove="Assets\Icons\zap.svg" />
     <None Remove="Data\poreskestope.json" />
     <None Remove="Data\sysFormWPF.db" />
     <None Remove="Images\Articles\Drink\100_pipers.png" />
@@ -3907,6 +3934,63 @@
     <Resource Include="Assets\Fonts\codicon.ttf" />
     <Resource Include="Assets\Fonts\FluentSystemIcons-Regular.ttf" />
     <Resource Include="Assets\Fonts\password.ttf">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Icons\beef.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Icons\beer.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Icons\bike.svg" />
+    <Resource Include="Assets\Icons\bottle-wine.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Icons\car.svg" />
+    <Resource Include="Assets\Icons\coffee.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Icons\cookie.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Icons\cooking-pot.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Icons\cup-soda.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Icons\ev-charger.svg" />
+    <Resource Include="Assets\Icons\fish.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Icons\ham.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Icons\hamburger.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Icons\kamp.svg" />
+    <Resource Include="Assets\Icons\landmark.svg" />
+    <Resource Include="Assets\Icons\motorbike.svg" />
+    <Resource Include="Assets\Icons\najam.svg" />
+    <Resource Include="Assets\Icons\pizza.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Icons\rafting.svg" />
+    <Resource Include="Assets\Icons\salad.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Icons\settings.svg" />
+    <Resource Include="Assets\Icons\sobe.svg" />
+    <Resource Include="Assets\Icons\soup.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Icons\takse.svg" />
+    <Resource Include="Assets\Icons\usluge.svg" />
+    <Resource Include="Assets\Icons\wine.svg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Icons\zap.svg">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Images\caupodark.svg" />

@@ -41,7 +41,7 @@ namespace Caupo.Views
             ArticleName = stavka.Artikl;
             ArticleQty = stavka.Kolicina;
             ArticlePrice = stavka.CijenaBezUPDV;
-            ArticleDiscount = stavka.Rabat;
+            ArticleDiscount = stavka.Rabat ?? 0m;
             IsUpdate = true;
         }
 

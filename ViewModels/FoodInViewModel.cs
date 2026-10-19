@@ -1,5 +1,6 @@
 ﻿
 using Caupo.Data;
+using Caupo.Services;
 using Caupo.Views;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
@@ -14,549 +15,641 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-
-using SearchSuggestion = Caupo.UserControls.SearchSuggestion;
-
 using static Caupo.Data.DatabaseTables;
+using SearchSuggestion = Caupo.UserControls.SearchSuggestion;
 
 namespace Caupo.ViewModels
 {
     public class FoodInViewModel : INotifyPropertyChanged
     {
-        public TblFirma Klijent = new TblFirma();
+        private TblUlazRepromaterijal? _selectedStockIn;
+        private TblUlazRepromaterijalStavka? _selectedStockInItem;
+        private TblRepromaterijal? _selectedArticle;
+        private string? _searchText, _searchArticleText, _savedHeader;
+        private bool _dirty, _isBusy, _initialized;
+        private int _originalBrojUlaza;
 
-        public TblDobavljaci SelectedSupplier
+        public TblFirma Klijent { get; private set; } = new();
+        public TblDobavljaci? SelectedSupplier
         {
-            get
+            get => Suppliers.FirstOrDefault(s =>
+                s.IdDobavljaca.ToString() == SelectedStockIn?.Dobavljac);
+            set
             {
-                if (SelectedStockIn == null || string.IsNullOrEmpty(SelectedStockIn.Dobavljac))
-                    return null;
-
-                return Suppliers.FirstOrDefault(s => s.Dobavljac == SelectedStockIn.Dobavljac);
+                if (SelectedStockIn == null || value == null) return;
+                SelectedStockIn.Dobavljac = value.IdDobavljaca.ToString();
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasUnsavedChanges));
+                NotifyCommands();
             }
         }
+        public ObservableCollection<TblDobavljaci> Suppliers { get; } = new();
+        public ObservableCollection<TblUlazRepromaterijal> StockIn { get; } = new();
+        public ObservableCollection<TblUlazRepromaterijal> StockInFilter { get; } = new();
+        public ObservableCollection<TblUlazRepromaterijalStavka> StockInItems { get; } = new();
+        public ObservableCollection<TblRepromaterijal> Artikli { get; } = new();
+        public ObservableCollection<TblRepromaterijal> ArtikliFilter { get; } = new();
 
-        public ObservableCollection<DatabaseTables.TblDobavljaci> Suppliers { get; set; } = new ObservableCollection<DatabaseTables.TblDobavljaci>();
-        public ObservableCollection<DatabaseTables.TblUlazRepromaterijal> StockIn { get; set; } = new ObservableCollection<DatabaseTables.TblUlazRepromaterijal>();
-        public ObservableCollection<DatabaseTables.TblUlazRepromaterijalStavka> StockInItems { get; set; } = new ObservableCollection<DatabaseTables.TblUlazRepromaterijalStavka>();
+        public IEnumerable<SearchSuggestion> SearchSuggestions => StockInFilter.Select(x => new SearchSuggestion
+        {
+            Title = Suppliers.FirstOrDefault(s => s.IdDobavljaca.ToString() == x.Dobavljac)?.Dobavljac ?? string.Empty,
+            Subtitle = x.BrojUlaza.ToString(),
+            Detail = x.Datum.ToString("dd.MM.yyyy"),
+            Item = x
+        });
 
-        private DatabaseTables.TblUlazRepromaterijal? _selectedStockIn;
-        public DatabaseTables.TblUlazRepromaterijal? SelectedStockIn
+        public TblUlazRepromaterijal? SelectedStockIn
         {
             get => _selectedStockIn;
             set
             {
-                if (_selectedStockIn != value)
-                {
-                    _selectedStockIn = value;
-                    OnPropertyChanged(nameof(SelectedStockIn));
-                }
+                if (ReferenceEquals(_selectedStockIn, value)) return;
+                _selectedStockIn = value;
+                _originalBrojUlaza = value?.BrojUlaza ?? 0;
+                _savedHeader = value == null ? null : HeaderFingerprint(value);
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SelectedSupplier));
+                OnPropertyChanged(nameof(CanEdit));
+                OnPropertyChanged(nameof(HasUnsavedChanges));
+                NotifyCommands();
             }
         }
 
-        private DatabaseTables.TblUlazRepromaterijalStavka? _selectedStockInItem;
-        public DatabaseTables.TblUlazRepromaterijalStavka? SelectedStockInItem
+        public TblUlazRepromaterijalStavka? SelectedStockInItem
         {
             get => _selectedStockInItem;
             set
             {
-                if (_selectedStockInItem != value)
-                {
-                    _selectedStockInItem = value;
-                    OnPropertyChanged(nameof(SelectedStockInItem));
-                }
+                if (ReferenceEquals(_selectedStockInItem, value)) return;
+                _selectedStockInItem = value;
+                OnPropertyChanged();
+                NotifyCommands();
             }
         }
 
-        private ObservableCollection<TblUlazRepromaterijal>? stockInFilter;
-
-        public ObservableCollection<TblUlazRepromaterijal>? StockInFilter
-        {
-            get => stockInFilter;
-            set
-            {
-                stockInFilter = value;
-                OnPropertyChanged(nameof(StockInFilter));
-                OnPropertyChanged(nameof(SearchSuggestions));
-            }
-        }
-
-
-
-        public IEnumerable<SearchSuggestion> SearchSuggestions =>
-            (StockInFilter ?? Enumerable.Empty<TblUlazRepromaterijal>())
-            .Select(ulaz => new SearchSuggestion
-            {
-                Title = ulaz.Dobavljac ?? string.Empty,
-                Subtitle = ulaz.BrojUlaza.ToString(),
-                Detail = ulaz.Datum.ToString("dd.MM.yyyy"),
-                Item = ulaz
-            });
-
-
-        private DatabaseTables.TblRepromaterijal? _selectedArticle;
-        public DatabaseTables.TblRepromaterijal? SelectedArticle
+        public TblRepromaterijal? SelectedArticle
         {
             get => _selectedArticle;
             set
             {
+                if (ReferenceEquals(_selectedArticle, value)) return;
                 _selectedArticle = value;
-                OnPropertyChanged(nameof(SelectedArticle));
+                OnPropertyChanged();
+                NotifyCommands();
             }
         }
 
-        private ObservableCollection<TblRepromaterijal>? _artikli;
-        public ObservableCollection<TblRepromaterijal>? Artikli
-        {
-            get => _artikli;
-            set
-            {
-                _artikli = value;
-                OnPropertyChanged(nameof(Artikli));
-            }
-        }
-
-        private ObservableCollection<TblRepromaterijal>? _artikliFilter;
-        public ObservableCollection<TblRepromaterijal>? ArtikliFilter
-        {
-            get => _artikliFilter;
-            set
-            {
-                _artikliFilter = value;
-                OnPropertyChanged(nameof(ArtikliFilter));
-            }
-        }
-
-        public string? _searchArticleText;
-        public string? SearchArticleText
-        {
-            get => _searchArticleText;
-            set
-            {
-                if (_searchArticleText != value)
-                {
-                    _searchArticleText = value;
-                    OnPropertyChanged(nameof(SearchArticleText));
-                    Debug.WriteLine("SearchText changed to: ");
-                    FilterArticleItems(_searchArticleText);
-                }
-            }
-        }
-
-        public string? _searchText;
         public string? SearchText
         {
             get => _searchText;
             set
             {
-                if (_searchText != value)
-                {
-                    _searchText = value;
-                    OnPropertyChanged(nameof(SearchText));
-                    Debug.WriteLine("SearchText changed to: " + _searchText);
-                    FilterItems(_searchText);
-                }
+                if (_searchText == value) return;
+                _searchText = value;
+                OnPropertyChanged();
+                FilterItems(value);
             }
         }
 
-        private decimal? iznosRacuna = 0;
-        public decimal? IznosRacuna
+        public string? SearchArticleText
         {
-            get => iznosRacuna;
+            get => _searchArticleText;
             set
             {
-                iznosRacuna = value;
-                OnPropertyChanged(nameof(IznosRacuna));
+                if (_searchArticleText == value) return;
+                _searchArticleText = value;
+                OnPropertyChanged();
+                FilterArticleItems(value);
             }
         }
 
-        private string? _imagePathPrintButton;
-        public string? ImagePathPrintButton
+        public bool HasUnsavedChanges
         {
-            get => _imagePathPrintButton;
+            get => _dirty || (SelectedStockIn != null && _savedHeader != null &&
+                HeaderFingerprint(SelectedStockIn) != _savedHeader);
             set
             {
-                _imagePathPrintButton = value;
-                OnPropertyChanged(nameof(ImagePathPrintButton));
+                _dirty = value;
+                OnPropertyChanged();
+                NotifyCommands();
             }
         }
 
+        public bool IsBusy
+        {
+            get => _isBusy;
+            private set
+            {
+                if (_isBusy == value) return;
+                _isBusy = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CanEdit));
+                NotifyCommands();
+            }
+        }
+
+        public bool CanEdit => !IsBusy && SelectedStockIn != null;
+        public decimal? IznosRacuna => StockInItems.Sum(x => x.IznosBezUPDV);
         public decimal EnteredPrice { get; set; }
         public decimal EnteredQuantity { get; set; }
         public decimal EnteredDiscount { get; set; }
+        public string? ImagePathPrintButton { get; set; }
 
-        public ICommand AddNewStockInCommand { get; }
-        public ICommand SaveStockInCommand { get; }
-        public ICommand DeleteArticleCommand { get; }
-
-        // Navigacija kroz ulaze
+        public IAsyncRelayCommand AddNewStockInCommand { get; }
+        public IAsyncRelayCommand SaveStockInCommand { get; }
+        public IRelayCommand<TblUlazRepromaterijalStavka> DeleteArticleCommand { get; }
         public IAsyncRelayCommand FirstStockInCommand { get; }
         public IAsyncRelayCommand PreviousStockInCommand { get; }
         public IAsyncRelayCommand NextStockInCommand { get; }
         public IAsyncRelayCommand LastStockInCommand { get; }
-
-        public bool HasUnsavedChanges { get; set; }
+        public IRelayCommand AddArticleCommand { get; }
+        public IRelayCommand EditStockInItemCommand { get; }
+        public IRelayCommand PrintStockInCommand { get; }
+        public IAsyncRelayCommand DiscardChangesCommand { get; }
 
         public event Func<string, bool>? ShowDeletePopupRequested;
+        public event Func<string, bool>? ConfirmDiscardRequested;
+        public event Func<TblRepromaterijal, (bool Accepted, decimal Price, decimal Quantity, decimal Discount)>? AddArticleRequested;
+        public event Func<TblUlazRepromaterijalStavka, (bool Accepted, decimal Price, decimal Quantity, decimal Discount)>? EditItemRequested;
+        public event EventHandler<string?>? ErrorOccurred;
+        public event EventHandler<string?>? InformationOccurred;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public FoodInViewModel()
         {
-            AddNewStockInCommand = new RelayCommand(AddNewStockIn);
-            SaveStockInCommand = new RelayCommand(async () => await SaveSelectedStockInAsync());
-            DeleteArticleCommand = new RelayCommand<TblUlazRepromaterijalStavka>(DeleteStockInItem);
+            AddNewStockInCommand = new AsyncRelayCommand(AddNewStockInAsync, () => !IsBusy);
+            SaveStockInCommand = new AsyncRelayCommand(SaveSelectedStockInAsync, () => CanEdit);
+            DeleteArticleCommand = new RelayCommand<TblUlazRepromaterijalStavka>(
+                DeleteStockInItem, x => x != null && CanEdit);
+            FirstStockInCommand = new AsyncRelayCommand(
+                () => NavigateToEndAsync(false), () => !IsBusy && StockInFilter.Count > 0);
+            PreviousStockInCommand = new AsyncRelayCommand(() => NavigateAsync(-1), () => !IsBusy);
+            NextStockInCommand = new AsyncRelayCommand(() => NavigateAsync(1), () => !IsBusy);
+            LastStockInCommand = new AsyncRelayCommand(
+                () => NavigateToEndAsync(true), () => !IsBusy && StockInFilter.Count > 0);
+            AddArticleCommand = new RelayCommand(RequestAddArticle, () => CanEdit && SelectedArticle != null);
+            EditStockInItemCommand = new RelayCommand(RequestEditItem, () => CanEdit && SelectedStockInItem != null);
+            PrintStockInCommand = new RelayCommand(PrintCurrentStockIn,
+                () => SelectedStockIn != null && SelectedSupplier != null);
+            DiscardChangesCommand = new AsyncRelayCommand(DiscardChangesAsync,
+                () => HasUnsavedChanges && !IsBusy);
 
-            FirstStockInCommand = new AsyncRelayCommand(() => NavigateToStockInAsync(0));
-            PreviousStockInCommand = new AsyncRelayCommand(() => NavigateStockInAsync(-1));
-            NextStockInCommand = new AsyncRelayCommand(() => NavigateStockInAsync(1));
-            LastStockInCommand = new AsyncRelayCommand(() => NavigateToStockInAsync(-1));
-
-            StockIn = new ObservableCollection<TblUlazRepromaterijal>();
-            StockInFilter = new ObservableCollection<TblUlazRepromaterijal>();
-            StockInItems = new ObservableCollection<TblUlazRepromaterijalStavka>();
-            Suppliers = new ObservableCollection<TblDobavljaci>();
-            Artikli = new ObservableCollection<TblRepromaterijal>();
-            ArtikliFilter = new ObservableCollection<TblRepromaterijal>();
-
-            Start();
+            StockInItems.CollectionChanged += (_, _) => OnPropertyChanged(nameof(IznosRacuna));
         }
 
-        private async void Start()
+        private static string HeaderFingerprint(TblUlazRepromaterijal x) =>
+            string.Join("|", x.Datum.Ticks, x.Dobavljac, x.BrojFakture, x.Locked);
+
+        private bool CanLeaveCurrent() => !HasUnsavedChanges ||
+            (ConfirmDiscardRequested?.Invoke("Postoje nespremljene promjene. Odbaciti ih?") ?? false);
+
+        public async Task Start()
         {
             await LoadArticlesAsync();
             await LoadSuppliersAsync();
             await LoadFirmaAsync();
-            HasUnsavedChanges = false;
+            _initialized = true;
         }
 
-        // ============================================================
-        // NAVIGACIJA ULAZA
-        // ============================================================
-
-        private async Task NavigateToStockInAsync(int position)
+        public async Task InitializeAsync(int brojUlaza = 0)
         {
-            if (StockInFilter == null || StockInFilter.Count == 0)
-                return;
-
-            int index = position == -1 ? StockInFilter.Count - 1 : 0;
-
-            SelectedStockIn = StockInFilter[index];
-            await LoadStockInItems(SelectedStockIn);
+            if (IsBusy) return;
+            IsBusy = true;
+            try
+            {
+                if (!_initialized) await Start();
+                await LoadStockInCoreAsync(brojUlaza);
+            }
+            catch (Exception ex) { ReportError("Učitavanje ulaza hrane nije uspjelo.", ex); }
+            finally { IsBusy = false; }
         }
 
-        private async Task NavigateStockInAsync(int direction)
-        {
-            if (StockInFilter == null || StockInFilter.Count == 0)
-                return;
-
-            int index = StockInFilter.IndexOf(SelectedStockIn);
-            int next = index + direction;
-
-            if (next < 0 || next >= StockInFilter.Count)
-                return;
-
-            SelectedStockIn = StockInFilter[next];
-            await LoadStockInItems(SelectedStockIn);
-        }
-
-        // ============================================================
-        // FIRMA
-        // ============================================================
+        public Task LoadStockInAsync(int brojulaza) => InitializeAsync(brojulaza);
 
         public async Task LoadFirmaAsync()
         {
+            using var db = new AppDbContext();
+            Klijent = await db.Firma.AsNoTracking().FirstOrDefaultAsync() ?? new TblFirma();
+            OnPropertyChanged(nameof(Klijent));
+        }
+
+        public async Task LoadSuppliersAsync()
+        {
+            using var db = new AppDbContext();
+            var rows = await db.Dobavljaci.AsNoTracking().OrderBy(x => x.Dobavljac).ToListAsync();
+            Suppliers.Clear();
+            foreach (var row in rows) Suppliers.Add(row);
+            OnPropertyChanged(nameof(SelectedSupplier));
+        }
+
+        public async Task LoadArticlesAsync()
+        {
+            using var db = new AppDbContext();
+            var rows = await db.Repromaterijal.AsNoTracking()
+                .OrderBy(x => x.Repromaterijal).ToListAsync();
+
+            Artikli.Clear();
+            foreach (var row in rows) Artikli.Add(row);
+            FilterArticleItems(SearchArticleText);
+            SelectedArticle = ArtikliFilter.FirstOrDefault();
+        }
+
+        private async Task LoadStockInCoreAsync(int brojulaza)
+        {
+            using var db = new AppDbContext();
+            var rows = await db.UlazRepromaterijal.AsNoTracking()
+                .OrderBy(x => x.BrojUlaza).ToListAsync();
+            var radnici = await db.Radnici.AsNoTracking().ToListAsync();
+
+            StockIn.Clear();
+            foreach (var row in rows)
+            {
+                row.RadnikName = radnici.FirstOrDefault(
+                    r => r.IdRadnika.ToString() == row.Radnik)?.Radnik ?? string.Empty;
+                StockIn.Add(row);
+            }
+
+            FilterItems(SearchText);
+            var selected = brojulaza != 0
+                ? StockIn.FirstOrDefault(x => x.BrojUlaza == brojulaza)
+                : StockIn.LastOrDefault();
+
+            SelectedStockIn = selected;
+            await LoadStockInItems(selected);
+            HasUnsavedChanges = false;
+        }
+
+        public async Task LoadStockInItems(TblUlazRepromaterijal? selectedulaz)
+        {
+            StockInItems.Clear();
+            SelectedStockInItem = null;
+            if (selectedulaz == null) return;
+
+            using var db = new AppDbContext();
+            var rows = await db.UlazRepromaterijalStavka.AsNoTracking()
+                .Where(x => x.BrojUlaza == selectedulaz.BrojUlaza)
+                .OrderBy(x => x.RedniBroj).ToListAsync();
+
+            foreach (var row in rows) StockInItems.Add(row);
+            OnPropertyChanged(nameof(IznosRacuna));
+        }
+
+        public async Task SelectStockInAsync(TblUlazRepromaterijal? ulaz)
+        {
+            if (IsBusy || ReferenceEquals(SelectedStockIn, ulaz)) return;
+            if (!CanLeaveCurrent()) return;
+
+            int broj = ulaz?.BrojUlaza ?? 0;
+            IsBusy = true;
+            try { await LoadStockInCoreAsync(broj); }
+            catch (Exception ex) { ReportError("Odabir ulaza nije uspio.", ex); }
+            finally { IsBusy = false; }
+        }
+
+        private async Task NavigateAsync(int direction)
+        {
+            if (SelectedStockIn == null || StockInFilter.Count == 0) return;
+            int index = StockInFilter.IndexOf(SelectedStockIn);
+            int next = index + direction;
+            if (next >= 0 && next < StockInFilter.Count)
+                await SelectStockInAsync(StockInFilter[next]);
+        }
+
+        private async Task NavigateToEndAsync(bool last)
+        {
+            if (StockInFilter.Count == 0) return;
+            await SelectStockInAsync(last ? StockInFilter[^1] : StockInFilter[0]);
+        }
+
+        public void FilterItems(string? searchtext)
+        {
+            string q = (searchtext ?? "").Trim();
+            var rows = StockIn.Where(x => string.IsNullOrEmpty(q) ||
+                x.BrojUlaza.ToString().Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                x.Datum.ToString("dd.MM.yyyy").Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                (x.Dobavljac?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false)).ToList();
+
+            StockInFilter.Clear();
+            foreach (var row in rows) StockInFilter.Add(row);
+            OnPropertyChanged(nameof(SearchSuggestions));
+            FirstStockInCommand.NotifyCanExecuteChanged();
+            LastStockInCommand.NotifyCanExecuteChanged();
+        }
+
+        public void FilterArticleItems(string? searcharticletext)
+        {
+            string q = (searcharticletext ?? "").Trim();
+            var rows = Artikli.Where(x => string.IsNullOrEmpty(q) ||
+                (x.Repromaterijal?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false)).ToList();
+
+            ArtikliFilter.Clear();
+            foreach (var row in rows) ArtikliFilter.Add(row);
+        }
+
+        private async Task AddNewStockInAsync()
+        {
+            if (!CanLeaveCurrent()) return;
+            IsBusy = true;
             try
             {
                 using var db = new AppDbContext();
-                Klijent = await db.Firma.FirstOrDefaultAsync();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-            }
-        }
+                int broj = (await db.UlazRepromaterijal.MaxAsync(
+                    x => (int?)x.BrojUlaza) ?? 0) + 1;
 
-        // ============================================================
-        // BRISANJE STAVKE
-        // ============================================================
+                await LoadStockInCoreAsync(0);
 
-        private async void DeleteStockInItem(TblUlazRepromaterijalStavka stavka)
-        {
-            if (stavka == null)
-                return;
+                var row = new TblUlazRepromaterijal
+                {
+                    BrojUlaza = broj,
+                    Datum = DateTime.Now,
+                    Radnik = Globals.ulogovaniKorisnik.IdRadnika.ToString(),
+                    RadnikName = Globals.ulogovaniKorisnik.Radnik
+                };
 
-            bool confirmDelete = ShowDeletePopupRequested?.Invoke(stavka.Artikl) ?? false;
-
-            if (!confirmDelete)
-                return;
-
-            using var db = new AppDbContext();
-
-            var item = await db.UlazRepromaterijalStavka.FindAsync(stavka.RedniBroj);
-            if (item != null)
-            {
-                db.UlazRepromaterijalStavka.Remove(item);
-                await db.SaveChangesAsync();
-            }
-
-            StockInItems.Remove(stavka);
-        }
-
-        // ============================================================
-        // IZMJENA STAVKE
-        // ============================================================
-
-        public async Task UpdateStockInItem()
-        {
-            if (SelectedStockInItem == null)
-                return;
-
-            Debug.WriteLine("Radimo UPDATE stavke: " + SelectedStockInItem.Artikl);
-
-            using var db = new AppDbContext();
-
-            var item = await db.UlazRepromaterijalStavka.FindAsync(SelectedStockInItem.RedniBroj);
-
-            if (item != null)
-            {
-                Debug.WriteLine("Našao je u bazi tu stavku redni broj: " + item.RedniBroj);
-
-                item.CijenaBezUPDV = EnteredPrice;
-                item.Kolicina = EnteredQuantity;
-                item.Rabat = EnteredDiscount;
-                item.Cijena = SelectedStockInItem.Cijena;
-                item.BrojUlaza = SelectedStockIn.BrojUlaza;
-                item.Artikl = SelectedStockInItem.Artikl;
-                item.JedinicaMjere = SelectedStockInItem.JedinicaMjere;
-                item.PoreskaStopa = SelectedStockInItem.PoreskaStopa;
-                item.IznosBezUPDV = EnteredQuantity * EnteredPrice;
-                item.CijenaSaUPDV = EnteredPrice * 1.17m;
-                item.IznosUPDVa = EnteredQuantity * (item.CijenaSaUPDV * 0.14529m);
-
-                await db.SaveChangesAsync();
-
-                SelectedStockInItem.Cijena = item.Cijena;
-                SelectedStockInItem.BrojUlaza = item.BrojUlaza;
-                SelectedStockInItem.Artikl = item.Artikl;
-                SelectedStockInItem.Kolicina = item.Kolicina;
-                SelectedStockInItem.JedinicaMjere = item.JedinicaMjere;
-                SelectedStockInItem.CijenaBezUPDV = item.CijenaBezUPDV;
-                SelectedStockInItem.PoreskaStopa = item.PoreskaStopa;
-                SelectedStockInItem.IznosBezUPDV = item.IznosBezUPDV;
-                SelectedStockInItem.Rabat = item.Rabat;
-                SelectedStockInItem.IznosUPDVa = item.IznosUPDVa;
-                SelectedStockInItem.CijenaSaUPDV = item.CijenaSaUPDV;
-
-                CollectionViewSource.GetDefaultView(StockInItems).Refresh();
-
-                Debug.WriteLine("Trebalo bi da je snimio kol: " + item.Kolicina +
-                                ", cijena: " + item.CijenaBezUPDV);
-            }
-            else
-            {
-                Debug.WriteLine("Nije našao u bazi stavku: " + SelectedStockInItem.Artikl);
-
-                SelectedStockInItem.CijenaBezUPDV = EnteredPrice;
-                SelectedStockInItem.Kolicina = EnteredQuantity;
-                SelectedStockInItem.Rabat = EnteredDiscount;
-                SelectedStockInItem.BrojUlaza = SelectedStockIn.BrojUlaza;
-                SelectedStockInItem.IznosBezUPDV = EnteredQuantity * EnteredPrice;
-                SelectedStockInItem.CijenaSaUPDV = EnteredPrice * 1.17m;
-                SelectedStockInItem.IznosUPDVa =
-                    EnteredQuantity * (SelectedStockInItem.CijenaSaUPDV * 0.14529m);
-
-                CollectionViewSource.GetDefaultView(StockInItems).Refresh();
+                StockIn.Add(row);
+                FilterItems(SearchText);
+                SelectedStockIn = row;
+                StockInItems.Clear();
+                SelectedStockInItem = null;
                 HasUnsavedChanges = true;
             }
+            catch (Exception ex) { ReportError("Kreiranje ulaza nije uspjelo.", ex); }
+            finally { IsBusy = false; }
         }
 
-        // ============================================================
-        // DODAVANJE ARTIKLA
-        // ============================================================
+        private void RequestAddArticle()
+        {
+            if (SelectedArticle == null || !CanEdit) return;
+            var result = AddArticleRequested?.Invoke(SelectedArticle);
+            if (result is { Accepted: true } v)
+                AddArticle(SelectedArticle, v.Price, v.Quantity, v.Discount);
+        }
 
+        private void RequestEditItem()
+        {
+            if (SelectedStockInItem == null || !CanEdit) return;
+            var result = EditItemRequested?.Invoke(SelectedStockInItem);
+            if (result is { Accepted: true } v)
+                UpdateStockInItem(SelectedStockInItem, v.Price, v.Quantity, v.Discount);
+        }
+
+        // Kompatibilnost sa starijim FoodInPage.xaml.cs.
         public void ProcessArticle()
         {
-            Debug.WriteLine("Kreće ProcessArticle()");
-
-            if (SelectedArticle == null)
-                return;
-
-            Debug.WriteLine("Imamo SelectedArticle " + SelectedArticle.Repromaterijal);
-
-            TblUlazRepromaterijalStavka stavka = new TblUlazRepromaterijalStavka();
-
-            stavka.BrojUlaza = SelectedStockIn.BrojUlaza;
-            stavka.Artikl = SelectedArticle.Repromaterijal;
-            stavka.Kolicina = EnteredQuantity;
-            stavka.Cijena = SelectedArticle.PlanskaCijena;
-            stavka.JedinicaMjere = SelectedArticle.JedinicaMjere;
-            stavka.CijenaBezUPDV = EnteredPrice;
-            stavka.PoreskaStopa = 2;
-            stavka.IznosBezUPDV = EnteredQuantity * EnteredPrice;
-            stavka.Rabat = EnteredDiscount;
-            stavka.CijenaSaUPDV = EnteredPrice * 1.17m;
-            stavka.IznosUPDVa = EnteredQuantity * (stavka.CijenaSaUPDV * 0.14529m);
-
-            StockInItems.Add(stavka);
-            HasUnsavedChanges = true;
-
-            Debug.WriteLine("Dodao stavku: " + Environment.NewLine +
-                "Artikl: " + stavka.Artikl + Environment.NewLine +
-                "BrojUlaza: " + stavka.BrojUlaza + Environment.NewLine +
-                "Kolicina: " + stavka.Kolicina + Environment.NewLine +
-                "Cijena: " + stavka.Cijena + Environment.NewLine +
-                "JedinicaMjere: " + stavka.JedinicaMjere + Environment.NewLine +
-                "CijenaBezUPDV: " + stavka.CijenaBezUPDV + Environment.NewLine +
-                "PoreskaStopa: " + stavka.PoreskaStopa + Environment.NewLine +
-                "IznosBezUPDV: " + stavka.IznosBezUPDV + Environment.NewLine +
-                "Rabat: " + stavka.Rabat + Environment.NewLine +
-                "IznosUPDVa: " + stavka.IznosUPDVa + Environment.NewLine +
-                "CijenaSaUPDV: " + stavka.CijenaSaUPDV);
-
-            Debug.WriteLine("Imamo stavki: " + StockInItems.Count);
+            if (SelectedArticle != null)
+                AddArticle(SelectedArticle, EnteredPrice, EnteredQuantity, EnteredDiscount);
         }
 
-        // ============================================================
-        // SPREMANJE ULAZA
-        // ============================================================
+        public Task UpdateStockInItem()
+        {
+            if (SelectedStockInItem != null)
+                UpdateStockInItem(SelectedStockInItem, EnteredPrice, EnteredQuantity, EnteredDiscount);
+            return Task.CompletedTask;
+        }
+
+        public void AddArticle(TblRepromaterijal article, decimal price, decimal quantity, decimal discount)
+        {
+            if (!CanEdit || !ValidateItem(price, quantity, discount)) return;
+
+            var row = new TblUlazRepromaterijalStavka
+            {
+                BrojUlaza = SelectedStockIn!.BrojUlaza,
+                Artikl = article.Repromaterijal,
+                Cijena = article.PlanskaCijena,
+                JedinicaMjere = article.JedinicaMjere,
+                PoreskaStopa = 2
+            };
+
+            ApplyItemValues(row, price, quantity, discount);
+            StockInItems.Add(row);
+            HasUnsavedChanges = true;
+        }
+
+        public void UpdateStockInItem(TblUlazRepromaterijalStavka row,
+            decimal price, decimal quantity, decimal discount)
+        {
+            if (!CanEdit || !StockInItems.Contains(row) ||
+                !ValidateItem(price, quantity, discount)) return;
+
+            ApplyItemValues(row, price, quantity, discount);
+            CollectionViewSource.GetDefaultView(StockInItems).Refresh();
+            OnPropertyChanged(nameof(IznosRacuna));
+            HasUnsavedChanges = true;
+        }
+
+        private static void ApplyItemValues(TblUlazRepromaterijalStavka row,
+            decimal price, decimal quantity, decimal discount)
+        {
+            row.Kolicina = quantity;
+            row.Rabat = discount;
+            row.CijenaBezUPDV = price;
+            row.IznosBezUPDV = quantity * price;
+            row.CijenaSaUPDV = price * 1.17m;
+            row.IznosUPDVa = quantity * (row.CijenaSaUPDV * 0.14529m);
+        }
+
+        private bool ValidateItem(decimal price, decimal quantity, decimal discount)
+        {
+            if (price >= 0 && quantity > 0 && discount >= 0 && discount <= 100)
+                return true;
+
+            OnErrorOccurred("Količina mora biti pozitivna, cijena nenegativna, a rabat između 0 i 100%.");
+            return false;
+        }
+
+        private void DeleteStockInItem(TblUlazRepromaterijalStavka? row)
+        {
+            if (row == null || !CanEdit || !StockInItems.Contains(row)) return;
+            if (ShowDeletePopupRequested?.Invoke(row.Artikl ?? "") != true) return;
+            StockInItems.Remove(row);
+            HasUnsavedChanges = true;
+        }
+
+
 
         public async Task SaveSelectedStockInAsync()
         {
-            if (SelectedStockIn == null)
-                return;
+            if (SelectedStockIn == null || IsBusy) return;
+            var edited = SelectedStockIn;
 
-            if (string.IsNullOrWhiteSpace(SelectedStockIn.Dobavljac))
+            if (string.IsNullOrWhiteSpace(edited.Dobavljac) ||
+                string.IsNullOrWhiteSpace(edited.BrojFakture))
+            {
+                OnErrorOccurred("Dobavljač i broj fakture su obavezni.");
                 return;
+            }
 
-            if (string.IsNullOrWhiteSpace(SelectedStockIn.BrojFakture))
+            if (StockInItems.Any(x => x.Kolicina <= 0))
+            {
+                OnErrorOccurred("Sve stavke moraju imati količinu veću od nule.");
                 return;
+            }
 
+            IsBusy = true;
+            bool ulazSpremljen = false;
             try
             {
                 using var db = new AppDbContext();
-                using var transaction = await db.Database.BeginTransactionAsync();
+                await using var transaction = await db.Database.BeginTransactionAsync();
+                TblUlazRepromaterijal? existing = null;
 
-                var existing = await db.UlazRepromaterijal
-                    .FirstOrDefaultAsync(u => u.BrojUlaza == SelectedStockIn.BrojUlaza);
-
-                List<TblUlazRepromaterijalStavka> existingItems =
-                    new List<TblUlazRepromaterijalStavka>();
-
-                if (existing != null)
+                if (edited.IdUlaza != 0)
                 {
-                    existingItems = await db.UlazRepromaterijalStavka
-                        .Where(s => s.BrojUlaza == existing.BrojUlaza)
-                        .ToListAsync();
+                    existing = await db.UlazRepromaterijal
+                        .FirstOrDefaultAsync(x => x.IdUlaza == edited.IdUlaza);
+
+                    if (existing == null)
+                        throw new InvalidOperationException("Ulaz više ne postoji u bazi.");
+
+                    if (existing.BrojUlaza != _originalBrojUlaza)
+                        throw new InvalidOperationException(
+                            "Broj ulaza je promijenjen izvan ove stranice.");
                 }
 
-                bool isNew = existing == null;
+                DateTime? prethodniDatum = existing?.Datum.Date;
+                int broj;
 
-                if (isNew)
+                if (existing == null)
                 {
-                    await db.UlazRepromaterijal.AddAsync(SelectedStockIn);
-                    await db.SaveChangesAsync();
+                    broj = (await db.UlazRepromaterijal.MaxAsync(
+                        x => (int?)x.BrojUlaza) ?? 0) + 1;
 
-                    foreach (var s in StockInItems)
+                    existing = new TblUlazRepromaterijal
                     {
-                        TblUlazRepromaterijalStavka stavka = new TblUlazRepromaterijalStavka
-                        {
-                            BrojUlaza = SelectedStockIn.BrojUlaza,
-                            Artikl = s.Artikl,
-                            Kolicina = s.Kolicina,
-                            Cijena = s.Cijena,
-                            JedinicaMjere = s.JedinicaMjere,
-                            CijenaBezUPDV = s.CijenaBezUPDV,
-                            PoreskaStopa = s.PoreskaStopa,
-                            IznosBezUPDV = s.IznosBezUPDV,
-                            Rabat = s.Rabat,
-                            IznosUPDVa = s.IznosUPDVa,
-                            CijenaSaUPDV = s.CijenaSaUPDV
-                        };
+                        BrojUlaza = broj,
+                        Radnik = edited.Radnik,
+                        RadnikName = edited.RadnikName
+                    };
 
-                        await db.UlazRepromaterijalStavka.AddAsync(stavka);
-                    }
+                    db.UlazRepromaterijal.Add(existing);
                 }
-                else
+                else broj = existing.BrojUlaza;
+
+                existing.Datum = edited.Datum;
+                existing.Dobavljac = edited.Dobavljac;
+                existing.BrojFakture = edited.BrojFakture;
+                existing.Locked = edited.Locked;
+
+                var saved = await db.UlazRepromaterijalStavka
+                    .Where(x => x.BrojUlaza == broj).ToListAsync();
+
+                var editedIds = StockInItems.Where(x => x.RedniBroj > 0)
+                    .Select(x => x.RedniBroj).ToHashSet();
+
+                foreach (var old in saved.Where(x => !editedIds.Contains(x.RedniBroj)))
+                    db.UlazRepromaterijalStavka.Remove(old);
+
+                foreach (var item in StockInItems)
                 {
-                    db.Entry(existing).CurrentValues.SetValues(SelectedStockIn);
+                    TblUlazRepromaterijalStavka target;
 
-                    foreach (var s in StockInItems)
+                    if (item.RedniBroj > 0)
                     {
-                        bool isExisting = existingItems.Any(st => st.RedniBroj == s.RedniBroj);
-
-                        if (!isExisting)
-                        {
-                            TblUlazRepromaterijalStavka nova = new TblUlazRepromaterijalStavka
-                            {
-                                BrojUlaza = existing.BrojUlaza,
-                                Artikl = s.Artikl,
-                                Kolicina = s.Kolicina,
-                                Cijena = s.Cijena,
-                                JedinicaMjere = s.JedinicaMjere,
-                                CijenaBezUPDV = s.CijenaBezUPDV,
-                                PoreskaStopa = s.PoreskaStopa,
-                                IznosBezUPDV = s.IznosBezUPDV,
-                                Rabat = s.Rabat,
-                                IznosUPDVa = s.IznosUPDVa,
-                                CijenaSaUPDV = s.CijenaSaUPDV
-                            };
-
-                            await db.UlazRepromaterijalStavka.AddAsync(nova);
-                        }
+                        target = saved.FirstOrDefault(x => x.RedniBroj == item.RedniBroj)
+                            ?? throw new InvalidOperationException(
+                                $"Stavka {item.RedniBroj} više ne postoji.");
                     }
+                    else
+                    {
+                        target = new TblUlazRepromaterijalStavka();
+                        db.UlazRepromaterijalStavka.Add(target);
+                    }
+
+                    target.BrojUlaza = broj;
+                    target.Artikl = item.Artikl;
+                    target.Kolicina = item.Kolicina;
+                    target.Cijena = item.Cijena;
+                    target.JedinicaMjere = item.JedinicaMjere;
+                    target.CijenaBezUPDV = item.CijenaBezUPDV;
+                    target.PoreskaStopa = item.PoreskaStopa;
+                    target.IznosBezUPDV = item.IznosBezUPDV;
+                    target.Rabat = item.Rabat;
+                    target.IznosUPDVa = item.IznosUPDVa;
+                    target.CijenaSaUPDV = item.CijenaSaUPDV;
                 }
+
+                DateTime datumPromjene = edited.Datum.Date;
+                if (prethodniDatum.HasValue && prethodniDatum.Value < datumPromjene)
+                    datumPromjene = prethodniDatum.Value;
+
+                var kontrola = await db.KnjigaKuhinjeKontrola
+                    .FirstOrDefaultAsync(x => x.Id == 1)
+                    ?? throw new InvalidOperationException(
+                        "Nedostaje kontrolni red Knjige kuhinje (Id=1).");
+
+                if (!kontrola.DatumPromjeneStanja.HasValue ||
+                    datumPromjene < kontrola.DatumPromjeneStanja.Value.Date)
+                    kontrola.DatumPromjeneStanja = datumPromjene;
 
                 await db.SaveChangesAsync();
                 await transaction.CommitAsync();
+                ulazSpremljen = true;
+
+                using (var knjigaDb = new AppDbContext())
+                {
+                    var knjigaService = new KnjigaKuhinjeService(knjigaDb);
+                    await knjigaService.SinhronizujDoDanasAsync();
+                }
 
                 HasUnsavedChanges = false;
+                await LoadStockInCoreAsync(broj);
+                InformationOccurred?.Invoke(this, "Ulaz hrane je uspješno sačuvan.");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Greška u SaveSelectedStockInAsync: " + ex);
-                throw;
+                if (ulazSpremljen)
+                    ReportError("Ulaz hrane je sačuvan, ali sinhronizacija Knjige kuhinje ili ponovno učitavanje nije uspjelo.", ex);
+                else
+                    ReportError("Spremanje ulaza hrane nije uspjelo. Transakcija nije potvrđena.", ex);
             }
+            finally { IsBusy = false; }
         }
 
-        // ============================================================
-        // NOVI ULAZ
-        // ============================================================
 
-        private async void AddNewStockIn()
+
+        private async Task DiscardChangesAsync()
         {
-            Debug.WriteLine("Dodavanje ulaza repromaterijala " + StockIn.Count);
+            if (SelectedStockIn == null || !CanLeaveCurrent()) return;
+            int broj = SelectedStockIn.IdUlaza == 0 ? 0 : SelectedStockIn.BrojUlaza;
 
-            if (StockIn.Count != 0)
-            {
-                if (SelectedStockIn == null)
-                    return;
-
-                if (string.IsNullOrWhiteSpace(SelectedStockIn.Dobavljac))
-                    return;
-
-                if (string.IsNullOrWhiteSpace(SelectedStockIn.BrojFakture))
-                    return;
-            }
-
-            var newStockIn = new TblUlazRepromaterijal
-            {
-                Datum = DateTime.Now,
-                BrojUlaza = GenerateNextBrojUlaza(),
-                Radnik = Globals.ulogovaniKorisnik.IdRadnika.ToString(),
-                RadnikName = Globals.ulogovaniKorisnik.Radnik
-            };
-
-            StockIn.Add(newStockIn);
-            StockInFilter?.Add(newStockIn);
-
-            SelectedStockIn = newStockIn;
-            await LoadStockInItems(SelectedStockIn);
-
-            OnPropertyChanged(nameof(SelectedStockIn));
+            IsBusy = true;
+            try { await LoadStockInCoreAsync(broj); }
+            catch (Exception ex) { ReportError("Odbacivanje promjena nije uspjelo.", ex); }
+            finally { IsBusy = false; }
         }
 
-        // ============================================================
-        // ŠTAMPANJE KALKULACIJE
-        // ============================================================
+        private void PrintCurrentStockIn()
+        {
+            if (SelectedStockIn == null || SelectedSupplier == null) return;
+            PrintKalkulacija(StockInItems, Klijent, SelectedStockIn, SelectedSupplier);
+        }
+
+        private void ReportError(string message, Exception ex)
+        {
+            Debug.WriteLine(ex);
+            OnErrorOccurred(message + Environment.NewLine + ex.Message);
+        }
+
+        protected virtual void OnErrorOccurred(string? message) =>
+            ErrorOccurred?.Invoke(this, message);
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string? name = null) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+        private void NotifyCommands()
+        {
+            AddNewStockInCommand.NotifyCanExecuteChanged();
+            SaveStockInCommand.NotifyCanExecuteChanged();
+            DeleteArticleCommand.NotifyCanExecuteChanged();
+            FirstStockInCommand.NotifyCanExecuteChanged();
+            PreviousStockInCommand.NotifyCanExecuteChanged();
+            NextStockInCommand.NotifyCanExecuteChanged();
+            LastStockInCommand.NotifyCanExecuteChanged();
+            AddArticleCommand.NotifyCanExecuteChanged();
+            EditStockInItemCommand.NotifyCanExecuteChanged();
+            PrintStockInCommand.NotifyCanExecuteChanged();
+            DiscardChangesCommand.NotifyCanExecuteChanged();
+        }
 
         public void PrintKalkulacija(
             ObservableCollection<TblUlazRepromaterijalStavka> stavke,
@@ -574,7 +667,6 @@ namespace Caupo.ViewModels
                 PagePadding = new Thickness(30)
             };
 
-            // HEADER
             Table headerTable = new Table();
             headerTable.Columns.Add(new TableColumn { Width = new GridLength(300) });
             headerTable.Columns.Add(new TableColumn { Width = new GridLength(400) });
@@ -582,7 +674,6 @@ namespace Caupo.ViewModels
 
             TableRowGroup trg = new TableRowGroup();
             headerTable.RowGroups.Add(trg);
-
             TableRow row = new TableRow();
             trg.Rows.Add(row);
 
@@ -595,31 +686,14 @@ namespace Caupo.ViewModels
             row.Cells.Add(new TableCell(korisnikPar) { BorderThickness = new Thickness(0) });
 
             Paragraph sredinaPar = new Paragraph { TextAlignment = TextAlignment.Center };
-
-            Run naslovRun = new Run(
-                "KALKULACIJA CIJENA: " + ulaz.BrojUlaza + "/" +
-                DateTime.Now.ToString("yy") + Environment.NewLine)
+            sredinaPar.Inlines.Add(new Run($"KALKULACIJA CIJENA: {ulaz.BrojUlaza}/{DateTime.Now:yy}\n")
             {
                 FontSize = 20,
                 FontWeight = FontWeights.Normal
-            };
-            sredinaPar.Inlines.Add(naslovRun);
-
-            Run razmakRun = new Run(Environment.NewLine) { FontSize = 10 };
-            sredinaPar.Inlines.Add(razmakRun);
-
-            Run datumRun = new Run("Datum: " + ulaz.Datum.ToString("dd.MM.yyyy") + Environment.NewLine)
-            {
-                FontSize = 15
-            };
-            sredinaPar.Inlines.Add(datumRun);
-
-            Run fakturaRun = new Run("Broj fakture: " + ulaz.BrojFakture)
-            {
-                FontSize = 15
-            };
-            sredinaPar.Inlines.Add(fakturaRun);
-
+            });
+            sredinaPar.Inlines.Add(new Run(Environment.NewLine) { FontSize = 10 });
+            sredinaPar.Inlines.Add(new Run($"Datum: {ulaz.Datum:dd.MM.yyyy}\n") { FontSize = 15 });
+            sredinaPar.Inlines.Add(new Run("Broj fakture: " + ulaz.BrojFakture) { FontSize = 15 });
             row.Cells.Add(new TableCell(sredinaPar) { BorderThickness = new Thickness(0) });
 
             Paragraph dobavljacPar = new Paragraph { TextAlignment = TextAlignment.Left };
@@ -633,21 +707,17 @@ namespace Caupo.ViewModels
             doc.Blocks.Add(headerTable);
             doc.Blocks.Add(new Paragraph(new Run(" ")) { FontSize = 6 });
 
-            // TABELA
             Table table = new Table { CellSpacing = 0 };
             doc.Blocks.Add(table);
 
             string[] kolone =
             {
-                "#",
-                "Naziv artikla",
-                "JM",
-                "Količina",
+                "#", "Naziv artikla", "JM", "Količina",
                 "Fakturna cijena po jedinici mjere bez PDV-a",
                 "Fakturna vrijednost bez PDV-a",
                 "Zavisni troškovi bez PDV",
                 "Nabavna cijena po jedinici mjere bez PDV",
-                "Nabavna vrijednost bez PDV -a",
+                "Nabavna vrijednost bez PDV-a",
                 "Stopa razlike u cijeni",
                 "Iznos razlike u cijeni",
                 "Prodajna vrijednost bez PDV-a",
@@ -668,7 +738,6 @@ namespace Caupo.ViewModels
 
             TableRowGroup headerGroup = new TableRowGroup();
             table.RowGroups.Add(headerGroup);
-
             TableRow headerRow = new TableRow();
             headerGroup.Rows.Add(headerRow);
 
@@ -683,27 +752,19 @@ namespace Caupo.ViewModels
                     Margin = new Thickness(0)
                 };
 
-                TableCell cell = new TableCell(new BlockUIContainer(tb))
+                headerRow.Cells.Add(new TableCell(new BlockUIContainer(tb))
                 {
                     Padding = new Thickness(3),
                     BorderBrush = Brushes.Gray,
                     BorderThickness = new Thickness(0.5)
-                };
-
-                headerRow.Cells.Add(cell);
+                });
             }
 
             TableRowGroup bodyGroup = new TableRowGroup();
             table.RowGroups.Add(bodyGroup);
 
-            decimal sumFakVr = 0;
-            decimal sumNabavna = 0;
-            decimal sumZavisni = 0;
-            decimal sumRabat = 0;
-            decimal sumProdVr = 0;
-            decimal sumIznosPDV = 0;
-            decimal sumMP = 0;
-
+            decimal sumFakVr = 0, sumNabavna = 0, sumZavisni = 0, sumRabat = 0;
+            decimal sumProdVr = 0, sumIznosPDV = 0, sumMP = 0;
             int index = 1;
 
             foreach (var s in stavke)
@@ -713,53 +774,52 @@ namespace Caupo.ViewModels
 
                 r.Cells.Add(CreateCell(index.ToString(), TextAlignment.Center));
                 r.Cells.Add(CreateCell(s.Artikl ?? "", TextAlignment.Left));
-                r.Cells.Add(CreateCell(s.JedinicaMjere?.ToString() ?? "", TextAlignment.Center));
+                r.Cells.Add(CreateCell(s.JedinicaMjereName ?? "", TextAlignment.Center));
                 r.Cells.Add(CreateCell(s.Kolicina.ToString("F2"), TextAlignment.Right));
-                r.Cells.Add(CreateCell(s.CijenaBezUPDV.ToString("F2"), TextAlignment.Right));
-                r.Cells.Add(CreateCell(s.FakVrBezPDV.ToString("F2"), TextAlignment.Right));
+                r.Cells.Add(CreateCell(s.CijenaBezUPDV?.ToString("F2") ?? "", TextAlignment.Right));
+                r.Cells.Add(CreateCell(s.FakVrBezPDV?.ToString("F2") ?? "", TextAlignment.Right));
                 r.Cells.Add(CreateCell("0.00", TextAlignment.Right));
-                r.Cells.Add(CreateCell(s.NabavnaCijenaBezPDV.ToString("F2"), TextAlignment.Right));
-                r.Cells.Add(CreateCell(s.NabavnaVrijednostBezPDV.ToString("F2"), TextAlignment.Right));
-                r.Cells.Add(CreateCell(s.MarzaPostotak.ToString("F2"), TextAlignment.Right));
-                r.Cells.Add(CreateCell(s.RazlikaCijBezPDV.ToString("F2"), TextAlignment.Right));
-                r.Cells.Add(CreateCell(s.ProdajnaVrijBezIPDV.ToString("F2"), TextAlignment.Right));
-                r.Cells.Add(CreateCell(s.PoreskaStopaPostotak?.ToString("F2") ?? "0", TextAlignment.Center));
-                r.Cells.Add(CreateCell(s.IznosIPDV.ToString("F2"), TextAlignment.Right));
-                r.Cells.Add(CreateCell(s.MPVrijednost.ToString("F2"), TextAlignment.Right));
-                r.Cells.Add(CreateCell(s.Cijena?.ToString("F2") ?? "0", TextAlignment.Right));
+                r.Cells.Add(CreateCell(s.NabavnaCijenaBezPDV?.ToString("F2") ?? "", TextAlignment.Right));
+                r.Cells.Add(CreateCell(s.NabavnaVrijednostBezPDV?.ToString("F2") ?? "", TextAlignment.Right));
+                r.Cells.Add(CreateCell(s.MarzaPostotak?.ToString("F2") ?? "", TextAlignment.Right));
+                r.Cells.Add(CreateCell(s.RazlikaCijBezPDV?.ToString("F2") ?? "", TextAlignment.Right));
+                r.Cells.Add(CreateCell(s.ProdajnaVrijBezIPDV?.ToString("F2") ?? "", TextAlignment.Right));
+                r.Cells.Add(CreateCell(s.PoreskaStopaPostotak?.ToString("F2") ?? "", TextAlignment.Center));
+                r.Cells.Add(CreateCell(s.IznosIPDV?.ToString("F2") ?? "", TextAlignment.Right));
+                r.Cells.Add(CreateCell(s.MPVrijednost?.ToString("F2") ?? "", TextAlignment.Right));
+                r.Cells.Add(CreateCell(s.Cijena?.ToString("F2") ?? "", TextAlignment.Right));
 
-                sumFakVr += s.FakVrBezPDV;
-                sumNabavna += s.NabavnaVrijednostBezPDV;
-                sumZavisni += 0;
-                sumRabat += s.Rabat;
-                sumProdVr += s.ProdajnaVrijBezIPDV;
-                sumIznosPDV += s.IznosIPDV;
-                sumMP += s.MPVrijednost;
-
+                sumFakVr += s.FakVrBezPDV ?? 0m;
+                sumNabavna += s.NabavnaVrijednostBezPDV ?? 0m;
+                sumRabat += s.Rabat ?? 0m;
+                sumProdVr += s.ProdajnaVrijBezIPDV ?? 0m;
+                sumIznosPDV += s.IznosIPDV ?? 0m;
+                sumMP += s.MPVrijednost ?? 0m;
                 index++;
             }
 
             TableRow sumRow = new TableRow();
             bodyGroup.Rows.Add(sumRow);
 
-            sumRow.Cells.Add(CreateCell("", TextAlignment.Center));
-            sumRow.Cells.Add(CreateCell("UKUPNO", TextAlignment.Left));
-            sumRow.Cells.Add(CreateCell("", TextAlignment.Center));
-            sumRow.Cells.Add(CreateCell("", TextAlignment.Right));
-            sumRow.Cells.Add(CreateCell("", TextAlignment.Right));
-            sumRow.Cells.Add(CreateCell(sumFakVr.ToString("F2"), TextAlignment.Right));
-            sumRow.Cells.Add(CreateCell(sumZavisni.ToString("F2"), TextAlignment.Right));
-            sumRow.Cells.Add(CreateCell(sumRabat.ToString("F2"), TextAlignment.Right));
-            sumRow.Cells.Add(CreateCell(sumNabavna.ToString("F2"), TextAlignment.Right));
-            sumRow.Cells.Add(CreateCell("", TextAlignment.Right));
-            sumRow.Cells.Add(CreateCell("", TextAlignment.Right));
-            sumRow.Cells.Add(CreateCell(sumProdVr.ToString("F2"), TextAlignment.Right));
-            sumRow.Cells.Add(CreateCell("", TextAlignment.Center));
-            sumRow.Cells.Add(CreateCell(sumIznosPDV.ToString("F2"), TextAlignment.Right));
-            sumRow.Cells.Add(CreateCell(sumMP.ToString("F2"), TextAlignment.Right));
-            sumRow.Cells.Add(CreateCell("", TextAlignment.Right));
+            string[] ukupno =
+            {
+                "", "UKUPNO", "", "", "",
+                sumFakVr.ToString("F2"),
+                sumZavisni.ToString("F2"),
+                sumRabat.ToString("F2"),
+                sumNabavna.ToString("F2"),
+                "", "",
+                sumProdVr.ToString("F2"),
+                "",
+                sumIznosPDV.ToString("F2"),
+                sumMP.ToString("F2"),
+                ""
+            };
 
-            // FOOTER
+            for (int i = 0; i < ukupno.Length; i++)
+                sumRow.Cells.Add(CreateCell(
+                    ukupno[i], i == 1 ? TextAlignment.Left : TextAlignment.Right));
+
             Table footerTable = new Table();
             footerTable.Columns.Add(new TableColumn { Width = new GridLength(350) });
             footerTable.Columns.Add(new TableColumn { Width = new GridLength(400) });
@@ -767,7 +827,6 @@ namespace Caupo.ViewModels
 
             TableRowGroup footerGroup = new TableRowGroup();
             footerTable.RowGroups.Add(footerGroup);
-
             TableRow footerRow = new TableRow();
             footerGroup.Rows.Add(footerRow);
 
@@ -779,24 +838,25 @@ namespace Caupo.ViewModels
             Paragraph sumaPar = new Paragraph();
             sumaPar.Inlines.Add($"UKUPNO: {sumFakVr:F2}" + Environment.NewLine);
             sumaPar.Inlines.Add($"PDV: {sumIznosPDV:F2}" + Environment.NewLine);
-            sumaPar.Inlines.Add($"UKUPNO ZA PLAĆANJE: {(sumNabavna + sumIznosPDV):F2}");
+            sumaPar.Inlines.Add(
+                $"UKUPNO ZA PLAĆANJE: {(sumNabavna + sumIznosPDV):F2}");
             footerRow.Cells.Add(new TableCell(sumaPar));
 
             Paragraph potpisPar = new Paragraph();
-            potpisPar.Inlines.Add("                                     Kalkulaciju sačinio: " + Environment.NewLine);
-            potpisPar.Inlines.Add("M.P.                                                          " + Environment.NewLine);
-            potpisPar.Inlines.Add("                                     ____________________");
+            potpisPar.Inlines.Add(
+                "                                     Kalkulaciju sačinio: " + Environment.NewLine);
+            potpisPar.Inlines.Add(
+                "M.P.                                                          " + Environment.NewLine);
+            potpisPar.Inlines.Add(
+                "                                     ____________________");
             footerRow.Cells.Add(new TableCell(potpisPar));
-
             doc.Blocks.Add(footerTable);
 
             try
             {
                 PrintDialog printDlg = new PrintDialog();
-
                 LocalPrintServer server = new LocalPrintServer();
                 PrintQueue defaultQueue = server.DefaultPrintQueue;
-
                 defaultQueue.Refresh();
 
                 if (defaultQueue.IsNotAvailable || defaultQueue.IsOffline)
@@ -804,276 +864,29 @@ namespace Caupo.ViewModels
                     var pdfPrinter = server.GetPrintQueues()
                         .FirstOrDefault(p => p.FullName.Contains("Microsoft Print to PDF"));
 
-                    if (pdfPrinter != null)
-                        printDlg.PrintQueue = pdfPrinter;
+                    if (pdfPrinter != null) printDlg.PrintQueue = pdfPrinter;
                 }
-                else
-                {
-                    printDlg.PrintQueue = defaultQueue;
-                }
+                else printDlg.PrintQueue = defaultQueue;
 
-                bool? result = printDlg.ShowDialog();
-
-                if (result == true)
-                {
+                if (printDlg.ShowDialog() == true)
                     printDlg.PrintDocument(
                         ((IDocumentPaginatorSource)doc).DocumentPaginator,
                         "Kalkulacija cijena");
-                }
             }
-            catch (System.Printing.PrintQueueException ex)
+            catch (PrintQueueException ex)
             {
-                MessageBox.Show("Ne može se otvoriti dijalog za štampu:\n" + ex.Message);
+                MessageBox.Show(
+                    "Ne može se otvoriti dijalog za štampu:\n" + ex.Message);
             }
         }
 
-        private TableCell CreateCell(string text, TextAlignment alignment)
-        {
-            return new TableCell(new Paragraph(new Run(text)))
+        private TableCell CreateCell(string text, TextAlignment alignment) =>
+            new TableCell(new Paragraph(new Run(text)))
             {
                 TextAlignment = alignment,
                 Padding = new Thickness(5),
                 BorderBrush = Brushes.Gray,
                 BorderThickness = new Thickness(0.5)
             };
-        }
-
-        // ============================================================
-        // GENERISANJE BROJA ULAZA
-        // ============================================================
-
-        private int GenerateNextBrojUlaza()
-        {
-            return StockIn.Any() ? StockIn.Max(x => x.BrojUlaza) + 1 : 1;
-        }
-
-        // ============================================================
-        // UČITAVANJE REPROMATERIJALA
-        // ============================================================
-
-        public async Task LoadArticlesAsync()
-        {
-            try
-            {
-                using var db = new AppDbContext();
-
-                var artikli = await db.Repromaterijal.ToListAsync();
-
-                Artikli?.Clear();
-                ArtikliFilter?.Clear();
-
-                foreach (var artikl in artikli)
-                {
-                    Artikli?.Add(artikl);
-                    ArtikliFilter?.Add(artikl);
-
-                    Debug.WriteLine(artikl.Repromaterijal +
-                                    ", Artikli Count = " + Artikli?.Count);
-                }
-
-                Debug.WriteLine("ArtikliFilter Count = " + (ArtikliFilter?.Count ?? 0));
-
-                SelectedArticle = ArtikliFilter?.FirstOrDefault();
-
-                if (SelectedArticle != null)
-                    Debug.WriteLine("SelectedArticle = " + SelectedArticle.Repromaterijal);
-                else
-                    Debug.WriteLine("SelectedArticle je null!");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("Exception na LoadArticlesAsync(): " + ex);
-            }
-        }
-
-        // ============================================================
-        // UČITAVANJE STAVKI ULAZA
-        // ============================================================
-
-        public async Task LoadStockInItems(TblUlazRepromaterijal selectedulaz)
-        {
-            if (selectedulaz == null)
-                return;
-
-            try
-            {
-                using var db = new AppDbContext();
-
-                IznosRacuna = 0;
-
-                var allStockInitems = await db.UlazRepromaterijalStavka.ToListAsync();
-
-                var stockInitems = allStockInitems
-                    .Where(a => a.BrojUlaza == selectedulaz.BrojUlaza)
-                    .OrderBy(a => a.RedniBroj)
-                    .ToList();
-
-                StockInItems.Clear();
-
-                foreach (var ri in stockInitems)
-                {
-                    StockInItems.Add(ri);
-                    Debug.WriteLine("Ubacuje u stavke broj ulaza: " + ri.BrojUlaza);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.ToString());
-            }
-        }
-
-        public event EventHandler<string?>? ErrorOccurred;
-
-        protected virtual void OnErrorOccurred(string? message)
-        {
-            ErrorOccurred?.Invoke(this, message);
-        }
-
-        // ============================================================
-        // UČITAVANJE ULAZA
-        // ============================================================
-
-        public async Task LoadStockInAsync(int brojulaza)
-        {
-            Debug.WriteLine($"LoadStockInAsync started. BrojUlaza: {brojulaza}");
-
-            try
-            {
-                using var db = new AppDbContext();
-
-                var stockIns = await (
-                    from u in db.UlazRepromaterijal
-                    join r in db.Radnici
-                        on u.Radnik equals r.IdRadnika.ToString() into rad
-                    from r2 in rad.DefaultIfEmpty()
-                    select new TblUlazRepromaterijal
-                    {
-                        IdUlaza = u.IdUlaza,
-                        BrojUlaza = u.BrojUlaza,
-                        Datum = u.Datum,
-                        Dobavljac = u.Dobavljac,
-                        BrojFakture = u.BrojFakture,
-                        Locked = u.Locked,
-                        Radnik = u.Radnik,
-                        RadnikName = r2 != null ? r2.Radnik : string.Empty
-                    }).ToListAsync();
-
-                StockIn.Clear();
-                StockInFilter?.Clear();
-
-                foreach (var receipt in stockIns)
-                {
-                    StockIn.Add(receipt);
-                    StockInFilter?.Add(receipt);
-
-                    Debug.WriteLine(
-                        $"Adding Ulaz: BrojUlaza={receipt.BrojUlaza}, " +
-                        $"RadnikName={receipt.RadnikName}");
-                }
-
-                if (brojulaza != 0)
-                {
-                    SelectedStockIn = StockInFilter?
-                        .FirstOrDefault(x => x.BrojUlaza == brojulaza);
-
-                    Debug.WriteLine(
-                        $"SelectedStockIn for BrojUlaza={brojulaza} is " +
-                        $"{SelectedStockIn?.BrojUlaza}");
-                }
-                else
-                {
-                    SelectedStockIn = StockInFilter?.LastOrDefault();
-
-                    Debug.WriteLine(
-                        $"SelectedStockIn (last) is {SelectedStockIn?.BrojUlaza}");
-                }
-
-                Debug.WriteLine("StockInFilter Count: " + StockInFilter?.Count);
-
-                await LoadStockInItems(SelectedStockIn);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.ToString());
-            }
-        }
-
-        // ============================================================
-        // DOBAVLJAČI
-        // ============================================================
-
-        public async Task LoadSuppliersAsync()
-        {
-            try
-            {
-                using var db = new AppDbContext();
-
-                var suppliers = await db.Dobavljaci.ToListAsync();
-
-                Suppliers.Clear();
-
-                foreach (var supplier in suppliers)
-                    Suppliers.Add(supplier);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.ToString());
-            }
-        }
-
-        // ============================================================
-        // PRETRAGA ULAZA
-        // ============================================================
-
-        public void FilterItems(string? searchtext)
-        {
-            Debug.WriteLine("Okida search");
-
-            string q = (searchtext ?? string.Empty).Trim();
-
-            var filtered = StockIn
-                .Where(a =>
-                    a.BrojUlaza.ToString().Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                    a.Datum.ToString("dd.MM.yyyy").Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                    (a.Dobavljac?.Contains(q, StringComparison.OrdinalIgnoreCase) ?? false))
-                .ToList();
-
-            StockInFilter = new ObservableCollection<TblUlazRepromaterijal>(filtered);
-
-            // Pretraga ne mijenja SelectedStockIn.
-            // Korisnik bira ulaz iz popup liste ili navigacijskim dugmetom.
-        }
-
-        // ============================================================
-        // PRETRAGA REPROMATERIJALA
-        // ============================================================
-
-        public void FilterArticleItems(string? searcharticletext)
-        {
-            Debug.WriteLine("Okida article search");
-
-            var lowerSearch = (searcharticletext ?? string.Empty).ToLower();
-
-            var filtered = Artikli
-                .Where(a =>
-                    (a.Repromaterijal ?? string.Empty)
-                    .ToLower()
-                    .Contains(lowerSearch))
-                .ToList();
-
-            ArtikliFilter = new ObservableCollection<TblRepromaterijal>(filtered);
-        }
-
-        // ============================================================
-        // PROPERTY CHANGED
-        // ============================================================
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        protected virtual void OnPropertyChanged(
-            [CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }

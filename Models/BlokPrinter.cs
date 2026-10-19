@@ -62,7 +62,7 @@ namespace Caupo.Models
             }
         }
 
-        private async Task<int> InsertKuhinjaAsync()
+        private async Task<(int BrojBloka, List<int> IdStavki)> InsertKuhinjaAsync()
         {
             await using var db = new AppDbContext();
             await using var transaction = await db.Database.BeginTransactionAsync();
@@ -78,6 +78,8 @@ namespace Caupo.Models
             db.Kuhinja.Add(novaKuhinja);
             await db.SaveChangesAsync();
 
+            var spremljeneStavke = new List<TblKuhinjaStavke>();
+
             foreach (var item in _stavke)
             {
                 var kuhinjaStavka = new TblKuhinjaStavke
@@ -92,12 +94,16 @@ namespace Caupo.Models
                 };
 
                 db.KuhinjaStavke.Add(kuhinjaStavka);
+                spremljeneStavke.Add(kuhinjaStavka);
             }
 
             await db.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            return novaKuhinja.IdKuhinje;
+            return (
+                novaKuhinja.IdKuhinje,
+                spremljeneStavke.Select(s => s.IdStavke).ToList()
+            );
         }
 
         private async Task<int> InsertSankAsync()
@@ -250,9 +256,7 @@ namespace Caupo.Models
             return printer;
         }
 
-        public static BlokPrinter FromKuhinjaBlock(
-            TblKuhinja blok,
-            List<TblKuhinjaStavke> stavke)
+        public static BlokPrinter FromKuhinjaBlock( TblKuhinja blok, List<TblKuhinjaStavke> stavke)
         {
             var racunStavke = stavke
                 .Select(x => new RacunStavka
@@ -279,7 +283,9 @@ namespace Caupo.Models
         }
         private async Task ProcessKitchenAsync()
         {
-            _brojBloka = await InsertKuhinjaAsync();
+            var rezultat = await InsertKuhinjaAsync();
+
+            _brojBloka = rezultat.BrojBloka;
 
             var newOrder = new DisplayOrder
             {
@@ -289,8 +295,9 @@ namespace Caupo.Models
                 OrderTime = _datumBloka,
                 Elapsed = TimeSpan.Zero,
                 Items = new ObservableCollection<OrderItem>(
-                    _stavke.Select(s => new OrderItem
+                    _stavke.Select((s, index) => new OrderItem
                     {
+                        IdStavke = rezultat.IdStavki[index],
                         Name = s.Name,
                         Note = s.Note,
                         Quantity = s.Quantity

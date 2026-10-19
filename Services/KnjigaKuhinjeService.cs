@@ -1,368 +1,453 @@
-﻿using Caupo.Data;
+﻿
+using Caupo.Data;
 using Caupo.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Threading;
+using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.Services
 {
-    public class KnjigaKuhinjeService
+    public sealed class KnjigaKuhinjeService
     {
+        private static readonly SemaphoreSlim SyncLock = new(1, 1);
         private readonly AppDbContext _db;
 
         public KnjigaKuhinjeService(AppDbContext db)
         {
-            _db = db;
+            _db = db ?? throw new ArgumentNullException(nameof(db));
         }
 
-        public async Task<List<StavkaKnjigeKuhinje>> GetKnjigaZaDanAsync(DateTime datum)
+        public async Task SinhronizujDoDanasAsync()
         {
-
-            var knjiga = new List<StavkaKnjigeKuhinje> ();
+            await SyncLock.WaitAsync();
             try
             {
+                DateTime danas = DateTime.Today;
 
+                DateTime? prviUlaz = await _db.UlazRepromaterijal
+                    .AsNoTracking()
+                    .Select(x => (DateTime?)x.Datum)
+                    .MinAsync();
 
-                // 1. Svi repromaterijali (namirnice)
-                var namirnice = await _db.Repromaterijal.ToListAsync ();
+                DateTime? prviRacun = await (
+                    from r in _db.Racuni.AsNoTracking()
+                    join s in _db.RacunStavka.AsNoTracking()
+                        on r.BrojRacuna equals s.BrojRacuna
+                    where s.VrstaArtikla == 1
+                       && r.TipRacuna != "Storno"
+                    select (DateTime?)r.Datum
+                ).MinAsync();
 
-                int redniBroj = 1;
-                foreach(var n in namirnice)
+                DateTime? prviDatum = null;
+                if (prviUlaz.HasValue)
+                    prviDatum = prviUlaz.Value.Date;
+                if (prviRacun.HasValue &&
+                    (!prviDatum.HasValue || prviRacun.Value.Date < prviDatum))
+                    prviDatum = prviRacun.Value.Date;
+
+                DateTime? zadnji = await _db.KnjigaKuhinje
+                    .AsNoTracking()
+                    .Select(x => (DateTime?)x.Datum)
+                    .MaxAsync();
+
+                DateTime? promjena = await _db.KnjigaKuhinjeKontrola
+                    .AsNoTracking()
+                    .Where(x => x.Id == 1)
+                    .Select(x => x.DatumPromjeneStanja)
+                    .FirstOrDefaultAsync();
+
+                if (zadnji.HasValue && zadnji.Value.Date > danas)
+                    throw new InvalidOperationException(
+                        "Knjiga kuhinje sadrži datum u budućnosti.");
+
+                DateTime od;
+
+                if (!zadnji.HasValue)
                 {
+                    od = prviDatum ?? danas;
+                }
+                else if (zadnji.Value.Date < danas)
+                {
+                    od = zadnji.Value.Date.AddDays(1);
+                }
+                else
+                {
+                    od = danas;
+                }
 
-                    knjiga.Add (new StavkaKnjigeKuhinje
+                if (promjena.HasValue && promjena.Value.Date < od)
+                    od = promjena.Value.Date;
+
+                if (prviDatum.HasValue && !zadnji.HasValue &&
+                    prviDatum.Value.Date < od)
+                    od = prviDatum.Value.Date;
+
+                if (od > danas)
+                    od = danas;
+
+                Debug.WriteLine(
+                    $"[KUHINJA] Sinhronizacija {od:dd.MM.yyyy} - {danas:dd.MM.yyyy}, " +
+                    $"promjena: {promjena:dd.MM.yyyy}");
+
+                await ObracunajPeriodAsync(od, danas, promjena);
+            }
+            finally
+            {
+                SyncLock.Release();
+            }
+        }
+
+        private async Task ObracunajPeriodAsync(
+            DateTime od, DateTime doDatuma, DateTime? evidentiranaPromjena)
+        {
+            od = od.Date;
+            doDatuma = doDatuma.Date;
+
+            var materijal = await _db.Repromaterijal
+                .AsNoTracking()
+                .Where(x => x.Repromaterijal != null &&
+                            x.Repromaterijal != "")
+                .OrderBy(x => x.Repromaterijal)
+                .ToListAsync();
+
+            var nazivi = materijal.Select(x => x.Repromaterijal!)
+                .ToHashSet(StringComparer.Ordinal);
+
+            if (nazivi.Count != materijal.Count)
+                throw new InvalidOperationException(
+                    "Postoje dupli nazivi repromaterijala.");
+
+            var stanje = new Dictionary<string, decimal>(
+                StringComparer.Ordinal);
+
+            DateTime prethodni = od.AddDays(-1);
+
+            var prethodniRedovi = await _db.KnjigaKuhinje
+                .AsNoTracking()
+                .Where(x => x.Datum >= prethodni && x.Datum < od)
+                .ToListAsync();
+
+            if (prethodniRedovi.Count > 0)
+            {
+                foreach (var red in prethodniRedovi)
+                    if (red.Artikl != null)
+                        stanje[red.Artikl] = red.Zaliha ?? 0m;
+            }
+            else
+            {
+                bool imaStarijih = await _db.KnjigaKuhinje
+                    .AsNoTracking()
+                    .AnyAsync(x => x.Datum < od);
+
+                if (imaStarijih)
+                    throw new InvalidOperationException(
+                        $"Nedostaje dnevni list za {prethodni:dd.MM.yyyy}.");
+
+                var ranijiUlazi = await (
+                    from u in _db.UlazRepromaterijal.AsNoTracking()
+                    join s in _db.UlazRepromaterijalStavka.AsNoTracking()
+                        on u.BrojUlaza equals s.BrojUlaza
+                    where u.Datum < od
+                    group s by s.Artikl into g
+                    select new
                     {
-                        RedniBroj = redniBroj++,
-                        Namirnica = n.Repromaterijal,
-                        JedinicaMjere = GetJmName (n.JedinicaMjere),
-                        OstatakOdJuce = 0m,
-                        NabavljenoDanas = 0m,
-                        NabavljenoDoDanas = 0m,
-                        NaStanju = 0m,
-                        OstatakZaSutra = 0m,
-                        UtrosenoDanas = 0m,
-                        UtrosenoDoDanas = 0m,
-                        ReklamiranoDoDanas = 0m,
+                        Naziv = g.Key,
+                        Kolicina = g.Sum(x => x.Kolicina)
+                    }
+                ).ToListAsync();
 
+                foreach (var x in ranijiUlazi)
+                    if (x.Naziv != null)
+                        stanje[x.Naziv] = x.Kolicina;
+            }
+
+            var spremljeni = await _db.KnjigaKuhinje
+                .AsNoTracking()
+                .Where(x => x.Datum >= od &&
+                            x.Datum < doDatuma.AddDays(1))
+                .ToListAsync();
+
+            var poDanu = spremljeni
+                .GroupBy(x => x.Datum.Date)
+                .ToDictionary(x => x.Key, x => x.ToList());
+
+            var artikli = await _db.Artikli.AsNoTracking()
+                .Where(x => x.VrstaArtikla == 1)
+                .ToListAsync();
+
+            var normativi = await _db.Normativ.AsNoTracking()
+                .ToListAsync();
+
+            var artiklPoId = artikli.ToDictionary(x => x.IdArtikla);
+
+            var artiklPoNazivu = artikli
+                .Where(x => !string.IsNullOrWhiteSpace(x.Artikl))
+                .GroupBy(x => x.Artikl!)
+                .ToDictionary(x => x.Key, x => x.First());
+
+            var normPoId = normativi
+                .Where(x => !string.IsNullOrWhiteSpace(x.Repromaterijal))
+                .GroupBy(x => x.IdProizvoda)
+                .ToDictionary(x => x.Key, x => x.ToList());
+
+            var novi = new List<TblKnjigaKuhinje>();
+
+            for (DateTime dan = od; dan <= doDatuma; dan = dan.AddDays(1))
+            {
+                DateTime sutra = dan.AddDays(1);
+
+                var ulazi = await (
+                    from u in _db.UlazRepromaterijal.AsNoTracking()
+                    join s in _db.UlazRepromaterijalStavka.AsNoTracking()
+                        on u.BrojUlaza equals s.BrojUlaza
+                    where u.Datum >= dan && u.Datum < sutra
+                    select new
+                    {
+                        s.Artikl,
+                        s.Kolicina,
+                        u.Dobavljac,
+                        u.BrojFakture
+                    }
+                ).ToListAsync();
+
+                Dictionary<string, decimal> utroseno;
+
+                if (dan < DateTime.Today &&
+                    poDanu.TryGetValue(dan, out var sacuvani) &&
+                    sacuvani.Count > 0)
+                {
+                    utroseno = sacuvani
+                        .Where(x => x.Artikl != null)
+                        .ToDictionary(
+                            x => x.Artikl!,
+                            x => x.Utroseno ?? 0m,
+                            StringComparer.Ordinal);
+                }
+                else
+                {
+                    var prodaja = await (
+                        from r in _db.Racuni.AsNoTracking()
+                        join s in _db.RacunStavka.AsNoTracking()
+                            on r.BrojRacuna equals s.BrojRacuna
+                        where r.Datum >= dan && r.Datum < sutra
+                           && r.TipRacuna != "Storno"
+                           && s.VrstaArtikla == 1
+                        select new
+                        {
+                            s.IdArtikla,
+                            s.Artikl,
+                            s.Kolicina
+                        }
+                    ).ToListAsync();
+
+                    var refund = await (
+                        from r in _db.Racuni.AsNoTracking()
+                        join s in _db.RacunStavka.AsNoTracking()
+                            on r.BrojRacuna equals s.BrojRacuna
+                        where r.Reklamiran == "DA"
+                           && r.DatumRefundRacuna >= dan
+                           && r.DatumRefundRacuna < sutra
+                           && r.TipRacuna != "Storno"
+                           && s.VrstaArtikla == 1
+                        select new
+                        {
+                            s.IdArtikla,
+                            s.Artikl,
+                            s.Kolicina
+                        }
+                    ).ToListAsync();
+
+                    utroseno = new Dictionary<string, decimal>(
+                        StringComparer.Ordinal);
+
+                    void DodajPotrosnju(
+                        int id, string? naziv, decimal? kolicina, int znak)
+                    {
+                        if (!artiklPoId.TryGetValue(id, out var art) &&
+                            (naziv == null ||
+                             !artiklPoNazivu.TryGetValue(naziv, out art)))
+                            throw new InvalidOperationException(
+                                $"Jelo '{naziv}' nije pronađeno.");
+
+                        if (!normPoId.TryGetValue(art.IdArtikla, out var recept))
+                            throw new InvalidOperationException(
+                                $"Jelo '{art.Artikl}' nema normativ.");
+
+                        foreach (var n in recept)
+                        {
+                            string namirnica = n.Repromaterijal!;
+
+                            if (!nazivi.Contains(namirnica))
+                                throw new InvalidOperationException(
+                                    $"Namirnica '{namirnica}' nije pronađena.");
+
+                            utroseno[namirnica] =
+                                utroseno.GetValueOrDefault(namirnica)
+                                + znak * (kolicina ?? 0m) *
+                                (n.Kolicina ?? 0m);
+                        }
+                    }
+
+                    foreach (var x in prodaja)
+                        DodajPotrosnju(
+                            x.IdArtikla, x.Artikl, x.Kolicina, 1);
+
+                    foreach (var x in refund)
+                        DodajPotrosnju(
+                            x.IdArtikla, x.Artikl, x.Kolicina, -1);
+                }
+
+                foreach (var n in materijal)
+                {
+                    string naziv = n.Repromaterijal!;
+                    var nabavke = ulazi
+                        .Where(x => x.Artikl == naziv).ToList();
+
+                    decimal pocetno = stanje.GetValueOrDefault(naziv);
+                    decimal primljeno = nabavke.Sum(x => x.Kolicina);
+                    decimal trosak = utroseno.GetValueOrDefault(naziv);
+                    decimal ukupno = pocetno + primljeno;
+                    decimal kraj = ukupno - trosak;
+
+                    novi.Add(new TblKnjigaKuhinje
+                    {
+                        Datum = dan,
+                        Artikl = naziv,
+                        JedinicaMjere = n.JedinicaMjere ?? 0,
+                        Ostatak = pocetno,
+                        Primljeno = primljeno,
+                        Stanje = ukupno,
+                        Utroseno = trosak,
+                        Zaliha = kraj,
+                        Cijena = n.NabavnaCijena,
+                        Dobavljac = string.Join(", ",
+                            nabavke.Select(x => x.Dobavljac)
+                                .Where(x => !string.IsNullOrWhiteSpace(x))
+                                .Distinct()),
+                        BrojFakture = string.Join(", ",
+                            nabavke.Select(x => x.BrojFakture)
+                                .Where(x => !string.IsNullOrWhiteSpace(x))
+                                .Distinct())
                     });
+
+                    stanje[naziv] = kraj;
                 }
-            }
-            catch(Exception e)
-            {
-                Debug.WriteLine ("--------------     // 1. Svi repromaterijali (namirnice) -Exception e-------------------" + e.Message);
-            }
 
-            // 2. Ukupni ulaz do datuma
-            try
-            {
-                var ulazDo = await (from u in _db.UlazRepromaterijal
-                                    join s in _db.UlazRepromaterijalStavka on u.BrojUlaza equals s.BrojUlaza
-                                    where u.Datum.Date < datum.Date
-                                    group s by s.Artikl into g
-                                    select new { Naziv = g.Key, Kolicina = g.Sum (x => x.Kolicina) })
-                                    .ToListAsync ();
-
-                foreach(var r in ulazDo)
-                {
-                    var stavka = knjiga.FirstOrDefault (x => x.Namirnica == r.Naziv);
-                    if(stavka != null)
-                    {
-
-                        stavka.NabavljenoDoDanas += r.Kolicina;
-                        Debug.WriteLine ("--------------     Ukupni ulaz do datuma namirnica: " + stavka.Namirnica + " =" + stavka.NabavljenoDoDanas);
-                    }
-                }
-            }
-            catch(Exception x)
-            {
-                Debug.WriteLine ("--------------     // 2. Ukupni ulaz do datuma ---------Exception x----------" + x.Message);
+                Debug.WriteLine(
+                    $"[KUHINJA] Obračunat {dan:dd.MM.yyyy}");
             }
 
-            // 3. Ukupni izlaz (jela) do datuma preko normativa
+            await using var transakcija =
+                await _db.Database.BeginTransactionAsync();
 
             try
             {
-                // 1. Dohvati sumirane količine jela do datuma sa eksplicitnim provjerama NULL vrijednosti
-                var izlazDo = await (from i in _db.Racuni
-                                     join s in _db.RacunStavka on i.BrojRacuna equals s.BrojRacuna
-                                     where i.Datum.Date < datum.Date && s.VrstaArtikla == 1
-                                     && s.Artikl != null // eksplicitna provjera za NULL
-                                     group s by s.Artikl into g
-                                     select new
-                                     {
-                                         NazivJela = g.Key,
-                                         Kolicina = g.Sum (x => x.Kolicina ?? 0m)
-                                     }).ToListAsync ();
+                var stari = await _db.KnjigaKuhinje
+                    .Where(x => x.Datum >= od &&
+                                x.Datum < doDatuma.AddDays(1))
+                    .ToListAsync();
 
-                foreach(var jelo in izlazDo)
+                _db.KnjigaKuhinje.RemoveRange(stari);
+                await _db.SaveChangesAsync();
+
+                _db.KnjigaKuhinje.AddRange(novi);
+                await _db.SaveChangesAsync();
+
+                if (evidentiranaPromjena.HasValue)
                 {
-                    if(string.IsNullOrEmpty (jelo.NazivJela))
-                        continue;
+                    var kontrola = await _db.KnjigaKuhinjeKontrola
+                        .FirstOrDefaultAsync(x => x.Id == 1);
 
-                    // 2. Pronađi Id jela iz tabele Artikli sa eksplicitnom selekcijom polja
-                    var jeloArtikl = await _db.Artikli
-                                              .Where (a => a.Artikl != null && a.Artikl == jelo.NazivJela && a.VrstaArtikla == 1)
-                                              .Select (a => new { a.IdArtikla, a.Artikl }) // eksplicitno selektuj samo potrebna polja
-                                              .FirstOrDefaultAsync ();
-
-                    if(jeloArtikl == null)
-                        continue;
-
-                    // 3. Dohvati normativ(e) po IdProizvoda sa eksplicitnim provjerama
-                    var normativi = await _db.Normativ
-                                             .Where (n => n.IdProizvoda == jeloArtikl.IdArtikla && n.Repromaterijal != null)
-                                             .Select (n => new { n.Repromaterijal, n.Kolicina }) // eksplicitno selektuj polja
-                                             .ToListAsync ();
-
-                    if(!normativi.Any ())
-                        continue;
-
-                    // 4. Prođi kroz normativ i primijeni količine
-                    foreach(var n in normativi)
+                    if (kontrola != null &&
+                        kontrola.DatumPromjeneStanja.HasValue &&
+                        kontrola.DatumPromjeneStanja.Value.Date ==
+                            evidentiranaPromjena.Value.Date)
                     {
-                        if(n?.Repromaterijal == null)
-                            continue;
-
-                        var stavka = knjiga.FirstOrDefault (x => x.Namirnica == n.Repromaterijal);
-                        if(stavka != null)
-                        {
-                            decimal jeloKolicina = jelo.Kolicina;
-                            decimal normativKolicina = n.Kolicina ?? 0m;
-
-                            stavka.UtrosenoDoDanas += jeloKolicina * normativKolicina;
-                            Debug.WriteLine ("-------------- Ukupni izlaz do  danas (namirnica): " + stavka.Namirnica + " =  " + stavka.UtrosenoDoDanas);
-                        }
-                    }
-                }
-            }
-            catch(Exception m)
-            {
-                Debug.WriteLine ("-------------- Ukupni izlaz (jela) do datuma preko normativa - Exception --------- " + m.Message);
-                Debug.WriteLine ("Inner exception: " + m.InnerException?.Message);
-                Debug.WriteLine ("Stack trace: " + m.StackTrace);
-
-                // Dodatna dijagnostika
-                Debug.WriteLine ("Datum parametar: " + datum);
-            }
-
-
-
-
-            // 4. Reklamacije do datuma
-            try
-            {
-                var reklDo = await (from r in _db.ReklamiraniRacun
-                                    join s in _db.ReklamiraniStavka
-                                        on r.BrojRekRacuna equals s.BrojReklamiranogRacuna
-                                    where r.Datum.Date < datum.Date
-                                    group s by s.Artikl into g
-                                    select new { NazivJela = g.Key, Kolicina = g.Sum (x => x.Kolicina) })
-                                    .ToListAsync ();
-
-                foreach(var rekl in reklDo)
-                {
-                    // Pronađi Id jela iz Artikli
-                    var jeloArtikl = await _db.Artikli.FirstOrDefaultAsync (a => a.Artikl == rekl.NazivJela && a.VrstaArtikla == 1);
-                    if(jeloArtikl == null)
-                        continue;
-
-                    // Dohvati normativ za to jelo
-                    var normativi = await _db.Normativ
-                                        .Where (n => n.IdProizvoda == jeloArtikl.IdArtikla)
-                                        .ToListAsync ();
-
-                    foreach(var n in normativi)
-                    {
-                        var stavka = knjiga.FirstOrDefault (x => x.Namirnica == n.Repromaterijal);
-                        if(stavka != null)
-                            stavka.ReklamiranoDoDanas += rekl.Kolicina * n.Kolicina ?? 0m;
-                    }
-                }
-            }
-            catch(Exception g)
-            {
-                Debug.WriteLine ("--------------     // 4. Reklamacije do datuma ---------Exception g----------" + g.Message);
-            }
-
-            // 5. Preneseno od juče
-            foreach(var s in knjiga)
-            {
-                s.OstatakOdJuce = s.NabavljenoDoDanas - s.UtrosenoDoDanas + s.ReklamiranoDoDanas;
-            }
-            // 6. Ulaz danas
-            try
-            {
-                var ulazDanas = await (from u in _db.UlazRepromaterijal
-                                       join s in _db.UlazRepromaterijalStavka
-                                           on u.BrojUlaza equals s.BrojUlaza
-                                       where u.Datum.Date == datum.Date
-                                       select new
-                                       {
-                                           Artikl = s.Artikl,
-                                           Kolicina = s.Kolicina,
-                                           Dobavljac = u.Dobavljac,
-                                           Dokument = u.BrojFakture
-                                       })
-                                       .ToListAsync ();
-
-
-                foreach(var grupa in ulazDanas.GroupBy (x => new { x.Artikl, x.Dobavljac, x.Dokument }))
-                {
-                    var stavka = knjiga.FirstOrDefault (x => x.Namirnica == grupa.Key.Artikl);
-                    if(stavka != null)
-                    {
-                        stavka.NabavljenoDanas += grupa.Sum (x => x.Kolicina);
-                        stavka.Dobavljac = grupa.Key.Dobavljac;
-                        stavka.Dokument = grupa.Key.Dokument;
-                        Debug.WriteLine ("Nabavljeno danas  Namirnica: " + grupa.Key.Artikl + ", dobavljac: " + stavka.Dobavljac + ", dokument: " + stavka.Dokument);
+                        kontrola.DatumPromjeneStanja = null;
+                        await _db.SaveChangesAsync();
                     }
                 }
 
+                await transakcija.CommitAsync();
             }
-            catch(Exception h)
+            catch
             {
-                Debug.WriteLine ("--------------     // 6. Ulaz danas ---------Exception h----------" + h.Message);
+                await transakcija.RollbackAsync();
+                _db.ChangeTracker.Clear();
+                throw;
             }
-
-            // 7. Na stanju
-            foreach(var s in knjiga)
-            {
-                s.NaStanju = s.OstatakOdJuce + s.NabavljenoDanas;
-            }
-
-            // 8. Izlaz danas (jela) preko normativi
-
-            try
-            {
-                // 1. Dohvati sumirane količine jela danas sa eksplicitnim provjerama NULL vrijednosti
-                var izlazDanas = await (from i in _db.Racuni
-                                        join s in _db.RacunStavka on i.BrojRacuna equals s.BrojRacuna
-                                        where i.Datum.Date == datum.Date && s.VrstaArtikla == 1
-                                        && s.Artikl != null // eksplicitna provjera za NULL
-                                        group s by s.Artikl into g
-                                        select new
-                                        {
-                                            NazivJela = g.Key,
-                                            Kolicina = g.Sum (x => x.Kolicina ?? 0m)
-                                        }).ToListAsync ();
-
-                foreach(var jelo in izlazDanas)
-                {
-                    if(string.IsNullOrEmpty (jelo.NazivJela))
-                        continue;
-
-                    // 2. Pronađi Id jela iz tabele Artikli sa eksplicitnom selekcijom polja
-                    var jeloArtikl = await _db.Artikli
-                                              .Where (a => a.Artikl != null && a.Artikl == jelo.NazivJela && a.VrstaArtikla == 1)
-                                              .Select (a => new { a.IdArtikla, a.Artikl }) // eksplicitno selektuj samo potrebna polja
-                                              .FirstOrDefaultAsync ();
-
-                    if(jeloArtikl == null)
-                        continue;
-
-                    // 3. Dohvati normativ(e) po IdProizvoda sa eksplicitnim provjerama
-                    var normativi = await _db.Normativ
-                                             .Where (n => n.IdProizvoda == jeloArtikl.IdArtikla && n.Repromaterijal != null)
-                                             .Select (n => new { n.Repromaterijal, n.Kolicina }) // eksplicitno selektuj polja
-                                             .ToListAsync ();
-
-                    if(!normativi.Any ())
-                        continue;
-
-                    // 4. Prođi kroz normativ i primijeni količine
-                    foreach(var n in normativi)
-                    {
-                        if(n?.Repromaterijal == null)
-                            continue;
-
-                        var stavka = knjiga.FirstOrDefault (x => x.Namirnica == n.Repromaterijal);
-                        if(stavka != null)
-                        {
-                            decimal jeloKolicina = jelo.Kolicina;
-                            decimal normativKolicina = n.Kolicina ?? 0m;
-
-                            stavka.UtrosenoDanas += jeloKolicina * normativKolicina;
-                            stavka.IsPromet = true;
-                            Debug.WriteLine ("-------------- Ukupni izlaz  danas (namirnica): " + stavka.Namirnica + " =  " + stavka.UtrosenoDanas);
-                        }
-                    }
-                }
-            }
-            catch(Exception m)
-            {
-                Debug.WriteLine ("-------------- Ukupni izlaz (jela) danas preko normativa - Exception --------- " + m.Message);
-                Debug.WriteLine ("Inner exception: " + m.InnerException?.Message);
-                Debug.WriteLine ("Stack trace: " + m.StackTrace);
-
-                // Dodatna dijagnostika
-                Debug.WriteLine ("Datum parametar: " + datum);
-            }
-
-            // 9. Reklamacije danas
-            try
-            {
-                var reklDanas = await (from r in _db.ReklamiraniRacun
-                                       join s in _db.ReklamiraniStavka
-                                           on r.BrojRekRacuna equals s.BrojReklamiranogRacuna
-                                       where r.Datum.Date == datum.Date
-                                       group s by s.Artikl into g
-                                       select new { NazivJela = g.Key, Kolicina = g.Sum (x => x.Kolicina) })
-                                       .ToListAsync ();
-
-                foreach(var reklamacija in reklDanas)
-                {
-                    // Nađi artikl u tblArtikli (VrstaArtikla = 1 → jelo)
-                    var jeloArtikl = await _db.Artikli
-                                        .FirstOrDefaultAsync (a => a.Artikl == reklamacija.NazivJela && a.VrstaArtikla == 1);
-
-                    if(jeloArtikl == null)
-                        continue;
-
-                    // Dohvati normativ za to jelo
-                    var normativi = await _db.Normativ
-                                        .Where (n => n.IdProizvoda == jeloArtikl.IdArtikla)
-                                        .ToListAsync ();
-
-                    foreach(var n in normativi)
-                    {
-                        var stavka = knjiga.FirstOrDefault (x => x.Namirnica == n.Repromaterijal);
-                        if(stavka != null)
-                            // reklamacija vraća repromaterijal → treba oduzeti utrošeno
-                            stavka.UtrosenoDanas -= reklamacija.Kolicina * n.Kolicina ?? 0m;
-
-                    }
-                }
-            }
-            catch(Exception c)
-            {
-                Debug.WriteLine ("--------------        // 9. Reklamacije danas ---------Exception c----------" + c.Message);
-            }
-
-            // 10. Ostatak za sutra i promet
-            foreach(var s in knjiga)
-            {
-                s.OstatakZaSutra = s.NaStanju - s.UtrosenoDanas;
-
-            }
-
-            return knjiga;
         }
 
-        private string GetJmName(int? jm)
+        public async Task<List<StavkaKnjigeKuhinje>>
+            GetKnjigaZaDanAsync(DateTime datum)
         {
-            return jm switch
+            DateTime dan = datum.Date;
+
+            var redovi = await _db.KnjigaKuhinje.AsNoTracking()
+                .Where(x => x.Datum >= dan &&
+                            x.Datum < dan.AddDays(1))
+                .OrderBy(x => x.Artikl)
+                .ToListAsync();
+
+            return redovi.Select((x, i) => new StavkaKnjigeKuhinje
             {
-                1 => "kom",
-                2 => "kg",
-                3 => "m",
-                4 => "m2",
-                5 => "m3",
-                6 => "lit",
-                7 => "tona",
-                8 => "g",
-                9 => "por",
-                10 => "pak",
-                _ => ""
-            };
+                RedniBroj = i + 1,
+                Datum = x.Datum,
+                Namirnica = x.Artikl,
+                JedinicaMjere = GetJmName(x.JedinicaMjere),
+                OstatakOdJuce = x.Ostatak,
+                NabavljenoDanas = x.Primljeno,
+                NaStanju = x.Stanje,
+                UtrosenoDanas = x.Utroseno,
+                OstatakZaSutra = x.Zaliha,
+                Dobavljac = x.Dobavljac,
+                Dokument = x.BrojFakture,
+                IsPromet = (x.Utroseno ?? 0m) != 0m
+            }).ToList();
         }
+
+        public async Task<List<(string Naziv, decimal Kolicina,
+            decimal Vrijednost)>> GetJelaZaDanAsync(DateTime datum)
+        {
+            DateTime dan = datum.Date;
+
+            var jela = await (
+                from r in _db.Racuni.AsNoTracking()
+                join s in _db.RacunStavka.AsNoTracking()
+                    on r.BrojRacuna equals s.BrojRacuna
+                where r.Datum >= dan &&
+                      r.Datum < dan.AddDays(1) &&
+                      r.TipRacuna != "Storno" &&
+                      s.VrstaArtikla == 1
+                group s by s.Artikl into g
+                select new
+                {
+                    Naziv = g.Key,
+                    Kolicina = g.Sum(x => x.Kolicina),
+                    Vrijednost = g.Sum(x => x.Cijena * x.Kolicina)
+                }
+            ).ToListAsync();
+
+            return jela.Select(x => (
+                x.Naziv ?? "",
+                x.Kolicina ?? 0m,
+                x.Vrijednost ?? 0m)).ToList();
+        }
+
+        private static string GetJmName(int jm) => jm switch
+        {
+            1 => "kom",
+            2 => "kg",
+            3 => "m",
+            4 => "m2",
+            5 => "m3",
+            6 => "lit",
+            7 => "tona",
+            8 => "g",
+            9 => "por",
+            10 => "pak",
+            _ => ""
+        };
     }
 }

@@ -8,80 +8,53 @@ using System.Windows.Controls;
 
 namespace Caupo.Views
 {
-    /// <summary>
-    /// Interaction logic for KasaPage.xaml
-    /// </summary>
     public partial class KnjigaKuhinjePage : UserControl
     {
         public KnjigaKuhinjePage()
         {
-            InitializeComponent ();
-            var db = new AppDbContext ();
-            var service = new KnjigaKuhinjeService (db);
-            DataContext = new KnjigaKuhinjeViewModel (service);
+            InitializeComponent();
 
+            var db = new AppDbContext();
+            var service = new KnjigaKuhinjeService(db);
+
+            DataContext = new KnjigaKuhinjeViewModel(service);
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            var page = new HomePage ();
-            page.DataContext = new HomeViewModel ();
-            PageNavigator.NavigateWithFade (page);
-        }
-
-
-
-
-        private void ShowMessage(string title, string message)
-        {
-            var myMessageBox = new MyMessageBox
+            var page = new HomePage
             {
-                WindowStartupLocation = WindowStartupLocation.CenterScreen
+                DataContext = new HomeViewModel()
             };
-            myMessageBox.MessageTitle.Text = title;
-            myMessageBox.MessageText.Text = message;
-            myMessageBox.ShowDialog ();
+
+            PageNavigator.NavigateWithFade(page);
         }
 
-        private async void BtnFirst_Click(object sender, RoutedEventArgs e)
+        private void BtnFirst_Click(object sender, RoutedEventArgs e)
         {
-            if(DataContext is KnjigaKuhinjeViewModel viewModel)
-            {
-                viewModel.OdabraniDatum = viewModel.OdabraniDatum.AddDays (-1);
-                await viewModel.GetJelaZaOdabraniDatumAsync ();
-            }
+            if (DataContext is KnjigaKuhinjeViewModel vm)
+                vm.OdabraniDatum = vm.OdabraniDatum.AddDays(-1);
         }
 
-        private async void BtnLast_Click(object sender, RoutedEventArgs e)
+        private void BtnLast_Click(object sender, RoutedEventArgs e)
         {
-            if(DataContext is KnjigaKuhinjeViewModel viewModel)
-            {
-                viewModel.OdabraniDatum = viewModel.OdabraniDatum.AddDays (1);
-                await viewModel.GetJelaZaOdabraniDatumAsync ();
-            }
+            if (DataContext is KnjigaKuhinjeViewModel vm)
+                vm.OdabraniDatum = vm.OdabraniDatum.AddDays(1);
         }
-
 
         private void BtnPrint_Click(object sender, RoutedEventArgs e)
         {
-            if(DataContext is KnjigaKuhinjeViewModel viewModel)
-            {
-                viewModel.PrintReport (viewModel.Knjiga, viewModel.Firma.NazivFirme, viewModel.Firma.Adresa, viewModel.Firma.Grad, viewModel.Firma.JIB, viewModel.Firma.PDV, viewModel.OdabraniDatum, viewModel.Total);
-            }
+            if (DataContext is KnjigaKuhinjeViewModel vm)
+                vm.PrintReport();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-          
         }
 
-        private async void DpDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        private void DpDate_SelectedDateChanged(
+            object sender, SelectionChangedEventArgs e)
         {
-            if(DataContext is KnjigaKuhinjeViewModel viewModel)
-            {
-                //viewModel.OdabraniDatum = viewModel.OdabraniDatum.AddDays (1);
-                await viewModel.GetJelaZaOdabraniDatumAsync ();
-            }
         }
     }
 }
