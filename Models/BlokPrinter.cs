@@ -304,10 +304,10 @@ namespace Caupo.Models
                     }))
             };
 
-            await System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
             {
-                App.GlobalKitchenVM.Orders.Add(newOrder);
-            }));
+                App.GlobalKitchenVM.AddOrder(newOrder);
+            });
 
             Debug.WriteLine($"[BLOK] Kuhinja spremljena i poslana na display. Broj bloka={_brojBloka}");
         }

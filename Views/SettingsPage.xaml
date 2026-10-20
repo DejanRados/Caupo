@@ -2163,6 +2163,7 @@
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="42"/>
                                         <RowDefinition Height="42"/>
+                                        <RowDefinition Height="42"/>
                                     </Grid.RowDefinitions>
 
                                     <Label Content="Displej u kuhinji" Style="{StaticResource SettingsLabel}" Grid.Row="0" Grid.Column="0"/>
@@ -2180,12 +2181,43 @@
                                           HorizontalAlignment="Left"
                                           VerticalContentAlignment="Center"/>
 
-                                    <Label Content="Tema aplikacije" Style="{StaticResource SettingsLabel}" Grid.Row="1" Grid.Column="0"/>
+                                    <Label Content="Tastatura u kuhinji"
+                                           Style="{StaticResource SettingsLabel}"
+                                           Grid.Row="1"
+                                           Grid.Column="0"/>    
+
+                                    <StackPanel Grid.Row="1"
+                                            Grid.Column="1"
+                                            Orientation="Horizontal"
+                                            VerticalAlignment="Center"
+                                            Margin="9,0">
+
+                                        <TextBlock x:Name="txtKitchenKeyboardStatus"
+                                               Text="Nije odabrana"
+                                               Foreground="{DynamicResource GlobalFontColor}"
+                                               VerticalAlignment="Center"
+                                               Width="150"/>
+
+                                        <Button x:Name="btnSelectKitchenKeyboard"   Style="{StaticResource SecondaryButtonStyle}"
+                                            Content="Odaberi tastaturu"
+                                            Width="155"
+                                            Height="36"
+                                            Click="SelectKitchenKeyboard_Click"/>
+
+                                        <Button x:Name="btnRemoveKitchenKeyboard"   Style="{StaticResource SecondaryButtonStyle}"
+                                            Content="Ukloni"
+                                            Width="75"
+                                            Height="36"
+                                            Margin="8,0,0,0"
+                                            Click="RemoveKitchenKeyboard_Click"/>
+                                    </StackPanel>
+
+                                    <Label Content="Tema aplikacije" Style="{StaticResource SettingsLabel}" Grid.Row="2" Grid.Column="0"/>
 
                                     <ComboBox x:Name="cmbTema"
                                       SelectedIndex="{Binding Tema, Mode=TwoWay}"
                                       Foreground="{DynamicResource GlobalFontColor}"
-                                      Grid.Row="1"
+                                      Grid.Row="2"
                                       Grid.Column="1"
                                       Margin="9,3"
                                       Width="150"

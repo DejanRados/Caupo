@@ -29,22 +29,18 @@
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="5"
                                 Padding="{TemplateBinding Padding}">
-                            <ContentPresenter
-                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                VerticalAlignment="Center"/>
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="HeaderBorder"
-                                        Property="Opacity" Value="0.85"/>
+                                <Setter TargetName="HeaderBorder" Property="Opacity" Value="0.85"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="HeaderBorder"
-                                        Property="Opacity" Value="0.65"/>
+                                <Setter TargetName="HeaderBorder" Property="Opacity" Value="0.65"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="HeaderBorder"
-                                        Property="Opacity" Value="0.55"/>
+                                <Setter TargetName="HeaderBorder" Property="Opacity" Value="0.55"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -69,22 +65,18 @@
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="5"
                                 Padding="{TemplateBinding Padding}">
-                            <ContentPresenter
-                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                VerticalAlignment="Center"/>
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ItemBorder"
-                                        Property="Opacity" Value="0.85"/>
+                                <Setter TargetName="ItemBorder" Property="Opacity" Value="0.85"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ItemBorder"
-                                        Property="Opacity" Value="0.65"/>
+                                <Setter TargetName="ItemBorder" Property="Opacity" Value="0.65"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="ItemBorder"
-                                        Property="Opacity" Value="0.5"/>
+                                <Setter TargetName="ItemBorder" Property="Opacity" Value="0.5"/>
                                 <Setter Property="Cursor" Value="Arrow"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -95,139 +87,196 @@
 
         <!-- Žuti okvir selektovane narudžbe -->
         <Style x:Key="KitchenOrderSelectionStyle" TargetType="Border">
-            <Setter Property="BorderThickness" Value="4"/>
+            <Setter Property="BorderThickness" Value="5"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
+           
+            
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsKeyboardSelected}" Value="True">
-                    <Setter Property="BorderBrush" Value="#FFD700"/>
+                    <Setter Property="BorderBrush" Value="#b9fa05"/>
+                   
                 </DataTrigger>
             </Style.Triggers>
         </Style>
 
         <!-- Žuti okvir selektovane stavke -->
         <Style x:Key="KitchenItemSelectionStyle" TargetType="Border">
-            <Setter Property="BorderThickness" Value="4"/>
+            <Setter Property="BorderThickness" Value="5"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
+           
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsKeyboardSelected}" Value="True">
-                    <Setter Property="BorderBrush" Value="#FFD700"/>
+                    <Setter Property="BorderBrush" Value="#b9fa05"/>
+                    
                 </DataTrigger>
             </Style.Triggers>
         </Style>
     </Window.Resources>
 
+    <!-- Glavni sadržaj i overlay nove narudžbe -->
     <Grid Background="{DynamicResource GlobalBackgroundColor}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="55"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
 
-        <uc:CaupoHeader Grid.Row="0" Title="Caupo - Kuhinja"/>
+        <!-- GLAVNI SADRŽAJ KUHINJE -->
+        <Grid x:Name="MainContent">
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding HasPendingOrders}" Value="True">
+                            <Setter Property="Effect">
+                                <Setter.Value>
+                                    <BlurEffect Radius="8"/>
+                                </Setter.Value>
+                            </Setter>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="55"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-        <ScrollViewer Grid.Row="1"
-                      Margin="10"
-                      VerticalScrollBarVisibility="Auto">
+            <!-- HEADER -->
+            <uc:CaupoHeader Grid.Row="0" Title="Caupo - Kuhinja"/>
 
-            <ScrollViewer.Resources>
-                <Style TargetType="ScrollBar"
-                       BasedOn="{StaticResource WideVerticalScrollBar}"/>
-            </ScrollViewer.Resources>
+            <!-- NARUDŽBE -->
+            <ScrollViewer x:Name="OrdersScrollViewer" Grid.Row="1" Margin="10" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer.Resources>
+                    <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
+                </ScrollViewer.Resources>
 
-            <ItemsControl ItemsSource="{Binding Orders}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <uc:MasonryPanel ItemWidth="260"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
+                <ItemsControl ItemsSource="{Binding Orders}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel ItemWidth="280"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
 
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <!-- KARTICA NARUDŽBE -->
+                            <Border Style="{StaticResource KitchenOrderSelectionStyle}"
+                                    Background="{Binding Background}"
+                                   
+                                    CornerRadius="10"   
+                                    VerticalAlignment="Top"
+                                    Padding="2"
+                                    Margin="0"
+                                    Width="280">
+                                <StackPanel>
 
-                        <!-- Narudžba -->
-                        <Border Style="{StaticResource KitchenOrderSelectionStyle}"
-                                Background="{Binding Background}"
-                                CornerRadius="10"
-                                Padding="5"
-                                Margin="0"
-                                Width="250">
+                                    <!-- ZAGLAVLJE NARUDŽBE -->
+                                    <Button Style="{StaticResource KitchenOrderHeaderStyle}"
+                                            Margin="5"  
+                                            Background="{Binding HeaderBackground}"
+                                            BorderBrush="{Binding HeaderBorder}"
+                                            IsEnabled="{Binding CanFinish}"
+                                            Command="{Binding DataContext.FinishOrderCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            CommandParameter="{Binding}">
+                                        <StackPanel>
+                                            <TextBlock FontSize="24" FontWeight="Bold" Foreground="{DynamicResource ThemePrimaryForegroundBrush}">
+                                                <Run Text="Narudžba: "/>
+                                                <Run Text="{Binding Number}"/>
+                                            </TextBlock>
 
-                            <StackPanel>
+                                            <Separator Margin="0,5"/>
 
-                                <!-- Zaglavlje narudžbe -->
-                                <Button Style="{StaticResource KitchenOrderHeaderStyle}"
-                                        Margin="5"
-                                        Background="{Binding HeaderBackground}"
-                                        BorderBrush="{Binding HeaderBorder}"
-                                        IsEnabled="{Binding CanFinish}"
-                                        Click="Order_Click">
+                                            <TextBlock Text="{Binding Waiter}"
+                                                       FontWeight="Bold"
+                                                       FontSize="16"
+                                                       Foreground="{DynamicResource ThemePrimaryForegroundBrush}"/>
 
-                                    <StackPanel>
-                                        <TextBlock FontSize="18"
-                                                   FontWeight="Bold"
-                                                   Foreground="#F8F8F8">
-                                            <Run Text="Broj bloka: "/>
-                                            <Run Text="{Binding Number}"/>
-                                        </TextBlock>
+                                            <TextBlock Foreground="{DynamicResource ThemePrimaryForegroundBrush}" Margin="0,3">
+                                                <Run Text="Sto: "/>
+                                                <Run Text="{Binding TableName}"/>
+                                            </TextBlock>
 
-                                        <Separator Margin="0,5"/>
+                                     
 
-                                        <TextBlock Text="{Binding Waiter}"
-                                                   FontWeight="Bold"
-                                                   FontSize="16"
-                                                   Foreground="#F8F8F8"/>
+                                            <TextBlock FontSize="15" Foreground="{DynamicResource ThemePrimaryForegroundBrush}" TextWrapping="Wrap">
+                                                <Run Text="Proteklo: "/>
+                                                <Run FontSize="24" FontWeight="Bold" Text="{Binding ElapsedText, Mode=OneWay}"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Button>
 
-                                        <TextBlock Foreground="#F8F8F8"
-                                                   Margin="0,3">
-                                            <Run Text="Sto: "/>
-                                            <Run Text="{Binding TableName}"/>
-                                        </TextBlock>
-
-                                        <TextBlock FontSize="15"
-                                                   Foreground="#F8F8F8">
-                                            <Run Text="Naručeno: "/>
-                                            <Run Text="{Binding OrderTime, StringFormat={}{0:HH:mm:ss}}"/>
-                                        </TextBlock>
-
-                                        <TextBlock FontSize="15"
-                                                   Foreground="#F8F8F8"
-                                                   TextWrapping="Wrap">
-                                            <Run Text="Proteklo: "/>
-                                            <Run FontSize="18"
-                                                 FontWeight="Bold"
-                                                 Text="{Binding ElapsedText, Mode=OneWay}"/>
-                                        </TextBlock>
-
-                                    </StackPanel>
-                                </Button>
-
-                                <!-- Stavke narudžbe -->
-                                <ItemsControl ItemsSource="{Binding Items}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-
-                                            <!-- Tag čuva roditeljsku narudžbu -->
-                                            <Border Style="{StaticResource KitchenItemSelectionStyle}"
-                                                    CornerRadius="10"
-                                                    Margin="0"
-                                                    Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}">
-
-                                                <Button Style="{StaticResource KitchenItemButtonStyle}"
+                                    <!-- STAVKE NARUDŽBE -->
+                                    <ItemsControl ItemsSource="{Binding Items}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <!-- Tag čuva roditeljsku narudžbu -->
+                                                <Border Style="{StaticResource KitchenItemSelectionStyle}"
+                                                        CornerRadius="10"
                                                         Margin="0"
-                                                        Background="{Binding Tag.ItemBackground, RelativeSource={RelativeSource AncestorType={x:Type Border}}}"
-                                                        BorderBrush="{Binding Tag.ItemBorder, RelativeSource={RelativeSource AncestorType={x:Type Border}}}"
-                                                        IsEnabled="{Binding CanFinish}"
-                                                        Loaded="Item_Loaded"
-                                                        Click="Item_Click">
+                                                        Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}">
 
-                                                    <StackPanel>
-                                                        <DockPanel LastChildFill="True">
+                                                    <Button Style="{StaticResource KitchenItemButtonStyle}"
+                                                            Margin="0"
+                                                            Background="{Binding Tag.ItemBackground, RelativeSource={RelativeSource AncestorType={x:Type Border}}}"
+                                                            BorderBrush="{Binding Tag.ItemBorder, RelativeSource={RelativeSource AncestorType={x:Type Border}}}"
+                                                            IsEnabled="{Binding CanFinish}"
+                                                            Command="{Binding DataContext.FinishItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding}">
+                                                        <StackPanel>
+                                                            <DockPanel LastChildFill="True">
 
-                                                            <TextBlock DockPanel.Dock="Left"
-                                                                       Text="✓"
-                                                                       Foreground="#F8F8F8"
-                                                                       FontSize="18"
+                                                                <!-- OZNAKA ZAVRŠENE STAVKE -->
+                                                                <TextBlock DockPanel.Dock="Left"
+                                                                           Text="✓"
+                                                                           Foreground="{DynamicResource ThemePrimaryForegroundBrush}"
+                                                                           FontSize="18"
+                                                                           FontWeight="Bold"
+                                                                           Margin="0,0,3,0">
+                                                                    <TextBlock.Style>
+                                                                        <Style TargetType="TextBlock">
+                                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding IsFinished}" Value="True">
+                                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </TextBlock.Style>
+                                                                </TextBlock>
+
+                                                                <!-- KOLIČINA I NAZIV ARTIKLA -->
+                                                                <TextBlock Foreground="{DynamicResource ThemePrimaryForegroundBrush}"
+                                                                           FontSize="20"
+                                                                           FontWeight="SemiBold"
+                                                                           TextWrapping="Wrap">
+                                                                    <Run Text="{Binding Quantity}"/>
+                                                                    <Run Text=" x "/>
+                                                                    <Run Text="{Binding Name}"/>
+
+                                                                    <TextBlock.Style>
+                                                                        <Style TargetType="TextBlock">
+                                                                            <Setter Property="TextDecorations" Value="{x:Null}"/>
+                                                                            <Style.Triggers>
+                                                                                <DataTrigger Binding="{Binding IsFinished}" Value="True">
+                                                                                    <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                                                </DataTrigger>
+                                                                            </Style.Triggers>
+                                                                        </Style>
+                                                                    </TextBlock.Style>
+                                                                </TextBlock>
+                                                            </DockPanel>
+
+                                                            <!-- NAPOMENA -->
+                                                            <TextBlock Text="{Binding Note}"
+                                                                       Foreground="{DynamicResource ThemePrimaryForegroundBrush}"
+                                                                       FontStyle="Italic"
+                                                                       FontSize="13"
+                                                                       TextWrapping="Wrap"
+                                                                       Margin="0,5,0,0"
+                                                                       Visibility="{Binding Visible, Converter={StaticResource BoolToVis}}"/>
+
+                                                            <!-- STATUS STAVKE -->
+                                                            <TextBlock Text="GOTOVO"
+                                                                       Foreground="{DynamicResource ThemePrimaryForegroundBrush}"
+                                                                       FontSize="11"
                                                                        FontWeight="Bold"
-                                                                       Margin="0,0,3,0">
+                                                                       HorizontalAlignment="Right"
+                                                                       Margin="0,5,0,0">
                                                                 <TextBlock.Style>
                                                                     <Style TargetType="TextBlock">
                                                                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -239,68 +288,190 @@
                                                                     </Style>
                                                                 </TextBlock.Style>
                                                             </TextBlock>
+                                                        </StackPanel>
+                                                    </Button>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
 
-                                                            <TextBlock Foreground="#F8F8F8"
-                                                                       FontSize="16"
-                                                                       FontWeight="SemiBold"
-                                                                       TextWrapping="Wrap">
-                                                                <Run Text="{Binding Quantity}"/>
-                                                                <Run Text=" x "/>
-                                                                <Run Text="{Binding Name}"/>
+        <!-- PLUTAJUĆE UNDO DUGME: F11, MIŠ I TOUCH -->
+        <Button x:Name="UndoButton"
+                Panel.ZIndex="100"
+                Width="84"
+                Height="84"
+                Margin="0,0,38,38"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Command="{Binding UndoCommand}"
+                IsEnabled="{Binding CanUndo}"
+                Cursor="Hand"
+                ToolTip="Poništi posljednje završavanje (F11)">
 
-                                                                <TextBlock.Style>
-                                                                    <Style TargetType="TextBlock">
-                                                                        <Setter Property="TextDecorations" Value="{x:Null}"/>
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding IsFinished}" Value="True">
-                                                                                <Setter Property="TextDecorations" Value="Strikethrough"/>
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </TextBlock.Style>
-                                                            </TextBlock>
-                                                        </DockPanel>
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Ellipse x:Name="UndoCircle"
+                                 Fill="{DynamicResource ThemePrimaryBrush}"
+                                 Stroke="{DynamicResource ThemePrimaryBrush}"
+                                 StrokeThickness="2"/>
+                        <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#FluentSystemIcons-Regular"
+                                   Text="&#xF140;"
+                                   FontSize="48"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Grid>
 
-                                                        <TextBlock Text="{Binding Note}"
-                                                                   Foreground="#F8F8F8"
-                                                                   FontStyle="Italic"
-                                                                   FontSize="13"
-                                                                   TextWrapping="Wrap"
-                                                                   Margin="0,5,0,0"
-                                                                   Visibility="{Binding Visible, Converter={StaticResource BoolToVis}}"/>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="UndoCircle" Property="Fill" Value="{DynamicResource ThemePrimaryHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="UndoCircle" Property="Fill" Value="{DynamicResource ThemePrimaryPressedBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="UndoCircle" Property="Opacity" Value="0.65"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
 
-                                                        <TextBlock Text="GOTOVO"
-                                                                   Foreground="#F8F8F8"
-                                                                   FontSize="11"
-                                                                   FontWeight="Bold"
-                                                                   HorizontalAlignment="Right"
-                                                                   Margin="0,5,0,0">
-                                                            <TextBlock.Style>
-                                                                <Style TargetType="TextBlock">
-                                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding IsFinished}" Value="True">
-                                                                            <Setter Property="Visibility" Value="Visible"/>
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </TextBlock.Style>
-                                                        </TextBlock>
+        <!-- ===================================================== -->
+        <!-- NOVA NARUDŽBA - F12 -->
+        <!-- Overlay je izvan MainContent, zato ostaje oštar -->
+        <!-- ===================================================== -->
+        <Grid x:Name="NewOrderOverlay"
+              Panel.ZIndex="999"
+              Visibility="{Binding HasPendingOrders, Converter={StaticResource BoolToVis}}"
+              >
+            <Grid.Background>
+                <SolidColorBrush Color="{DynamicResource ThemeShadowColor}" Opacity="0.6"/>
+            </Grid.Background>
 
-                                                    </StackPanel>
-                                                </Button>
-                                            </Border>
+            <!-- CENTRALNA KARTICA -->
+            <Border Width="530"
+                    MaxHeight="650"
+                    Padding="24"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    CornerRadius="16"
+                    Background="{DynamicResource GlobalBackgroundColor}"
+                    BorderBrush="{DynamicResource GlobalBorderColor}"
+                    BorderThickness="1">
 
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                            </StackPanel>
-                        </Border>
+                    <!-- NASLOV -->
+                    <TextBlock Grid.Row="0"
+                               Text="NOVA NARUDŽBA"
+                               FontSize="26"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,18"/>
 
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
+                    <!-- PODACI O NARUDŽBI -->
+                    <StackPanel Grid.Row="1" DataContext="{Binding PendingOrder}" Margin="0,0,0,18">
+                        <TextBlock Text="{Binding Number, StringFormat=BLOK {0}}"
+                                   FontSize="23"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource GlobalFontColor}"/>
+
+                        <TextBlock Text="{Binding TableName}"
+                                   FontSize="18"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource GlobalFontColor}"/>
+
+                        <TextBlock Text="{Binding Waiter}"
+                                   FontSize="15"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource GlobalFontColor}"/>
+                    </StackPanel>
+
+                    <!-- STAVKE NOVE NARUDŽBE -->
+                    <ScrollViewer Grid.Row="2" MaxHeight="350" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding PendingOrder.Items}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="10"
+                                            Margin="0,0,0,6"
+                                            CornerRadius="6"
+                                            BorderBrush="{DynamicResource GlobalBorderColor}"
+                                            BorderThickness="0,0,0,1">
+                                        <StackPanel>
+                                            <DockPanel>
+                                                <TextBlock Text="{Binding Quantity, StringFormat={}{0:0.##} ×}"
+                                                           FontSize="19"
+                                                           FontWeight="Bold"
+                                                           Margin="0,0,12,0"
+                                                           Foreground="{DynamicResource GlobalFontColor}"/>
+
+                                                <TextBlock Text="{Binding Name}"
+                                                           FontSize="19"
+                                                           FontWeight="SemiBold"
+                                                           TextWrapping="Wrap"
+                                                           Foreground="{DynamicResource GlobalFontColor}"/>
+                                            </DockPanel>
+
+                                            <TextBlock Text="{Binding Note}"
+                                                       FontSize="14"
+                                                       FontStyle="Italic"
+                                                       Margin="20,4,0,0"
+                                                       TextWrapping="Wrap"
+                                                       Foreground="{DynamicResource GlobalFontColor}"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <!-- Potvrda nove narudžbe: F12, miš i touch koriste istu komandu. -->
+                    <Button Grid.Row="3"
+                            Margin="0,20,0,0"
+                            Padding="16"
+                            Command="{Binding ConfirmNewOrderCommand}"
+                            Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{DynamicResource ThemePrimaryBrush}"
+                                        CornerRadius="9"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Button.Template>
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="F12"
+                                       FontSize="34"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center"
+                                       Foreground="{DynamicResource ThemePrimaryForegroundBrush}"/>
+                            <TextBlock Text="POTVRDI NARUDŽBU"
+                                       FontSize="15"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource ThemePrimaryForegroundBrush}"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </Window>

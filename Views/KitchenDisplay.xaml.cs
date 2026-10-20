@@ -2,226 +2,263 @@
 using Caupo.ViewModels;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace Caupo.Views
 {
     public partial class KitchenDisplay : Window
     {
         private readonly KitchenKeyboardService _keyboardService;
+        private bool _f6Held;
+        private bool _f7Held;
+        private int _scrollDirection;
+        private TimeSpan _lastScrollFrame;
+        private bool _scrollRenderingActive;
+        private const double ScrollSpeed = 1300;
 
         public KitchenDisplay()
         {
             InitializeComponent();
-
             WindowState = WindowState.Normal;
             ShowActivated = false;
-
-            AddHandler(
-                Button.LoadedEvent,
-                new RoutedEventHandler((sender, e) =>
-                {
-                    if (e.OriginalSource is not Button button)
-                        return;
-
-                    if (button.DataContext is not KitchenDisplayViewModel.OrderItem item)
-                        return;
-
-                    Debug.WriteLine(
-                        $"[KUHINJA DIJAGNOSTIKA] Stavka={item.Name}, " +
-                        $"IdStavke={item.IdStavke}, " +
-                        $"IsFinished={item.IsFinished}, " +
-                        $"IsBusy={item.IsBusy}, " +
-                        $"CanFinish={item.CanFinish}, " +
-                        $"Button.IsEnabled={button.IsEnabled}");
-                }),
-                true);
-
             DataContext = App.GlobalKitchenVM;
 
             _keyboardService = new KitchenKeyboardService();
-
-            _keyboardService.CommandReceived +=
-                KeyboardService_CommandReceived;
+            _keyboardService.CommandReceived += KeyboardService_CommandReceived;
+            _keyboardService.ScrollKeyChanged += KeyboardService_ScrollKeyChanged;
 
             SourceInitialized += KitchenDisplay_SourceInitialized;
             Closed += KitchenDisplay_Closed;
+            Loaded += KitchenDisplay_Loaded;
         }
 
-        // =====================================================
-        // RAW INPUT - POKRETANJE
-        // =====================================================
+        // Samo infrastruktura prozora; poslovne akcije su ICommand u ViewModelu.
+        private void KitchenDisplay_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(Properties.Settings.Default.KitchenKeyboardId))
+                return;
 
-        private void KitchenDisplay_SourceInitialized(
-            object? sender,
-            EventArgs e)
+            var popup = new MyMessageBox();
+            popup.MessageTitle.Text = "Kuhinjska tastatura";
+            popup.MessageText.Text = "Tastatura za kuhinjski ekran nije podešena.\n\nKuhinjski ekran nastavlja normalno raditi bez tastature.";
+            popup.ShowDialog();
+        }
+
+        private void KitchenDisplay_SourceInitialized(object? sender, EventArgs e)
         {
             try
             {
                 _keyboardService.Start(this);
-
-                Debug.WriteLine(
-                    "[KUHINJA TASTATURA] Raw Input servis pokrenut.");
+                Debug.WriteLine("[KUHINJA TASTATURA] Raw Input servis pokrenut.");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(
-                    $"[KUHINJA TASTATURA] Greška pri pokretanju: {ex}");
+                Debug.WriteLine($"[KUHINJA TASTATURA] Greška pri pokretanju: {ex}");
             }
         }
 
-        // =====================================================
-        // RAW INPUT - KOMANDE F1-F5
-        // =====================================================
-
-        private async void KeyboardService_CommandReceived(
-            object? sender,
-            KitchenKeyCommand command)
+        // Raw Input prevodi tipke u iste komande koje koriste miš i touch.
+        private void KeyboardService_CommandReceived(object? sender, KitchenKeyCommand key)
         {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke(new Action(() => KeyboardService_CommandReceived(sender, key)));
+                return;
+            }
+
             if (DataContext is not KitchenDisplayViewModel vm)
                 return;
+
+            ICommand? command = key switch
+            {
+                KitchenKeyCommand.PreviousOrder => vm.PreviousOrderCommand,
+                KitchenKeyCommand.NextOrder => vm.NextOrderCommand,
+                KitchenKeyCommand.PreviousItem => vm.PreviousItemCommand,
+                KitchenKeyCommand.NextItem => vm.NextItemCommand,
+                KitchenKeyCommand.Finish => vm.FinishSelectionCommand,
+                KitchenKeyCommand.Undo => vm.UndoCommand,
+                KitchenKeyCommand.ConfirmNewOrder => vm.ConfirmNewOrderCommand,
+                _ => null
+            };
 
             try
             {
-                switch (command)
+                if (command?.CanExecute(null) == true)
                 {
-                    case KitchenKeyCommand.PreviousOrder:
-                        vm.SelectPreviousOrder();
-                        break;
+                    command.Execute(null);
 
-                    case KitchenKeyCommand.NextOrder:
-                        vm.SelectNextOrder();
-                        break;
-
-                    case KitchenKeyCommand.PreviousItem:
-                        vm.SelectPreviousItem();
-                        break;
-
-                    case KitchenKeyCommand.NextItem:
-                        vm.SelectNextItem();
-                        break;
-
-                    case KitchenKeyCommand.Finish:
-                        await vm.FinishKeyboardSelectionAsync();
-                        break;
+                    if (key is KitchenKeyCommand.PreviousOrder or KitchenKeyCommand.NextOrder)
+                    {
+                        Dispatcher.BeginInvoke(new Action(ScrollToSelectedOrder), DispatcherPriority.Loaded);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(
-                    $"[KUHINJA TASTATURA] Greška pri obradi komande {command}: {ex}");
+                Debug.WriteLine($"[KUHINJA TASTATURA] Greška pri obradi komande {key}: {ex}");
             }
         }
 
-        // =====================================================
-        // RAW INPUT - GAŠENJE
-        // =====================================================
-
-        private void KitchenDisplay_Closed(
-            object? sender,
-            EventArgs e)
+        // F6/F7: kratak pritisak pomjera sadržaj, držanje omogućava kontinuirano skrolanje.
+        private void KeyboardService_ScrollKeyChanged(int direction, bool pressed)
         {
-            _keyboardService.CommandReceived -=
-                KeyboardService_CommandReceived;
-
-            _keyboardService.Dispose();
-
-            Debug.WriteLine(
-                "[KUHINJA TASTATURA] Raw Input servis zaustavljen.");
-        }
-
-        // =====================================================
-        // DIJAGNOSTIKA STAVKE
-        // =====================================================
-
-        private void Item_Loaded(
-            object sender,
-            RoutedEventArgs e)
-        {
-            if (sender is not Button button)
-                return;
-
-            if (button.DataContext is not KitchenDisplayViewModel.OrderItem item)
-                return;
-
-            Debug.WriteLine(
-                $"[KUHINJA STAVKA] Naziv={item.Name}, " +
-                $"Id={item.IdStavke}, " +
-                $"Finished={item.IsFinished}, " +
-                $"Busy={item.IsBusy}, " +
-                $"CanFinish={item.CanFinish}, " +
-                $"IsEnabled={button.IsEnabled}");
-        }
-
-        // =====================================================
-        // GOTOVO - CIJELA NARUDŽBA
-        // =====================================================
-
-        private async void Order_Click(
-            object sender,
-            RoutedEventArgs e)
-        {
-            if (sender is not Button button)
-                return;
-
-            if (button.DataContext is not KitchenDisplayViewModel.DisplayOrder order)
-                return;
-
-            if (DataContext is not KitchenDisplayViewModel vm)
-                return;
-
-            await vm.FinishOrderAsync(order);
-        }
-
-        // =====================================================
-        // GOTOVO - POJEDINAČNA STAVKA
-        // =====================================================
-
-        private async void Item_Click(
-            object sender,
-            RoutedEventArgs e)
-        {
-            if (sender is not Button button)
-                return;
-
-            if (button.DataContext is not KitchenDisplayViewModel.OrderItem item)
-                return;
-
-            if (DataContext is not KitchenDisplayViewModel vm)
-                return;
-
-            var order = FindParentOrder(button);
-
-            if (order == null)
-                return;
-
-            await vm.FinishItemAsync(item, order);
-        }
-
-        // =====================================================
-        // PRONALAŽENJE RODITELJSKE NARUDŽBE
-        // =====================================================
-
-        private static KitchenDisplayViewModel.DisplayOrder?
-            FindParentOrder(DependencyObject element)
-        {
-            DependencyObject? current = element;
-
-            while (current != null)
+            if (!Dispatcher.CheckAccess())
             {
-                if (current is FrameworkElement frameworkElement &&
-                    frameworkElement.DataContext is
-                        KitchenDisplayViewModel.DisplayOrder order)
+                Dispatcher.BeginInvoke(new Action(() => KeyboardService_ScrollKeyChanged(direction, pressed)));
+                return;
+            }
+
+            if (direction == 1)
+                _f6Held = pressed;
+            else if (direction == -1)
+                _f7Held = pressed;
+            else
+                return;
+
+            if (pressed)
+            {
+                _scrollDirection = direction;
+                OrdersScrollViewer.ScrollToVerticalOffset(OrdersScrollViewer.VerticalOffset + direction * 40);
+            }
+            else if (_scrollDirection == direction)
+            {
+                _scrollDirection = _f6Held ? 1 : _f7Held ? -1 : 0;
+            }
+
+            if (_scrollDirection == 0)
+            {
+                StopScrollRendering();
+            }
+            else if (!_scrollRenderingActive)
+            {
+                _lastScrollFrame = TimeSpan.Zero;
+                CompositionTarget.Rendering += ScrollRendering;
+                _scrollRenderingActive = true;
+            }
+        }
+
+        // Skrolanje je sinhronizovano s WPF iscrtavanjem.
+        private void ScrollRendering(object? sender, EventArgs e)
+        {
+            if (_scrollDirection == 0 || e is not RenderingEventArgs args)
+                return;
+
+            if (_lastScrollFrame == TimeSpan.Zero)
+            {
+                _lastScrollFrame = args.RenderingTime;
+                return;
+            }
+
+            double seconds = (args.RenderingTime - _lastScrollFrame).TotalSeconds;
+            _lastScrollFrame = args.RenderingTime;
+
+            if (seconds <= 0)
+                return;
+
+            seconds = Math.Min(seconds, 0.05);
+
+            OrdersScrollViewer.ScrollToVerticalOffset(OrdersScrollViewer.VerticalOffset + _scrollDirection * ScrollSpeed * seconds);
+        }
+
+        private void StopScrollRendering()
+        {
+            if (_scrollRenderingActive)
+            {
+                CompositionTarget.Rendering -= ScrollRendering;
+                _scrollRenderingActive = false;
+            }
+
+            _lastScrollFrame = TimeSpan.Zero;
+        }
+
+        // VM bira narudžbu, a View je po potrebi dovodi u vidljivi dio.
+        private void ScrollToSelectedOrder()
+        {
+            if (DataContext is not KitchenDisplayViewModel vm)
+                return;
+
+            var selected = vm.Orders.FirstOrDefault(order =>
+                order.IsKeyboardSelected ||
+                order.Items.Any(item => item.IsKeyboardSelected));
+
+            if (selected == null)
+                return;
+
+            var card = FindOrderCard(OrdersScrollViewer, selected);
+
+            if (card == null)
+                return;
+
+            OrdersScrollViewer.UpdateLayout();
+
+            Rect bounds = card.TransformToAncestor(OrdersScrollViewer)
+                              .TransformBounds(new Rect(card.RenderSize));
+
+            double viewportHeight = OrdersScrollViewer.ViewportHeight;
+
+            if (bounds.Top < 0)
+            {
+                OrdersScrollViewer.ScrollToVerticalOffset(
+                    OrdersScrollViewer.VerticalOffset + bounds.Top);
+            }
+            else if (bounds.Bottom > viewportHeight)
+            {
+                OrdersScrollViewer.ScrollToVerticalOffset(
+                    OrdersScrollViewer.VerticalOffset + bounds.Bottom - viewportHeight);
+            }
+        }
+
+        private static Border? FindOrderCard(
+            DependencyObject root,
+            KitchenDisplayViewModel.DisplayOrder order)
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(root); i++)
+            {
+                var child = VisualTreeHelper.GetChild(root, i);
+
+                if (child is Border border &&  ReferenceEquals(border.DataContext, order))
                 {
-                    return order;
+                    return border;
                 }
 
-                current = VisualTreeHelper.GetParent(current);
+                var result = FindOrderCard(child, order);
+
+                if (result != null)
+                    return result;
             }
 
             return null;
+        }
+
+        private static T? FindAncestor<T>(DependencyObject element)
+            where T : DependencyObject
+        {
+            for (var parent = VisualTreeHelper.GetParent(element);
+                 parent != null;
+                 parent = VisualTreeHelper.GetParent(parent))
+            {
+                if (parent is T match)
+                    return match;
+            }
+
+            return null;
+        }
+
+        private void KitchenDisplay_Closed(object? sender, EventArgs e)
+        {
+            _scrollDirection = 0;
+            StopScrollRendering();
+
+            _keyboardService.ScrollKeyChanged -= KeyboardService_ScrollKeyChanged;
+            _keyboardService.CommandReceived -= KeyboardService_CommandReceived;
+            _keyboardService.Dispose();
+
+            Debug.WriteLine("[KUHINJA TASTATURA] Raw Input servis zaustavljen.");
         }
     }
 }

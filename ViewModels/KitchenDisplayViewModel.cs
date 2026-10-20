@@ -15,6 +15,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 
@@ -85,8 +86,8 @@ namespace Caupo.ViewModels
 
             public string ColorGreenBackgroundHex { get; set; } = "#1E3A2B";
             public string ColorGreenBorderHex { get; set; } = "#2F9E44";
-            public string ColorYellowBackgroundHex { get; set; } = "#3A2F1A";
-            public string ColorYellowBorderHex { get; set; } = "#F59F00";
+            public string ColorYellowBackgroundHex { get; set; } = "#EDB705";
+            public string ColorYellowBorderHex { get; set; } = "#BA8F02";
             public string ColorRedBackgroundHex { get; set; } = "#3A1E1E";
             public string ColorRedBorderHex { get; set; } = "#E03131";
 
@@ -137,31 +138,33 @@ namespace Caupo.ViewModels
                 _ => ColorGreenBorderHex
             });
 
+           
+
             public Brush HeaderBackground => MakeBrush(ColorState switch
             {
                 2 => "#482626",
-                1 => "#493B22",
+                1 => "#D6A505",
                 _ => "#294B37"
             });
 
             public Brush HeaderBorder => MakeBrush(ColorState switch
             {
                 2 => "#874343",
-                1 => "#896A32",
+                1 => "#BA8F02",
                 _ => "#3D7950"
             });
 
             public Brush ItemBackground => MakeBrush(ColorState switch
             {
                 2 => "#512B2B",
-                1 => "#514128",
+                1 => "#D6A505",
                 _ => "#30583F"
             });
 
             public Brush ItemBorder => MakeBrush(ColorState switch
             {
                 2 => "#975050",
-                1 => "#99783C",
+                1 => "#BA8F02",
                 _ => "#4B8860"
             });
 
@@ -212,7 +215,215 @@ namespace Caupo.ViewModels
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
+        // Komande su jedinstvena ulazna tačka za tastaturu, miš i touch.
+        private sealed class KitchenCommand : ICommand
+        {
+            private readonly Action<object?> _execute;
+            private readonly Predicate<object?> _canExecute;
+
+            public KitchenCommand(Action<object?> execute, Predicate<object?> canExecute)
+            {
+                _execute = execute;
+                _canExecute = canExecute;
+            }
+
+            public bool CanExecute(object? parameter) => _canExecute(parameter);
+
+            public void Execute(object? parameter)
+            {
+                if (CanExecute(parameter))
+                    _execute(parameter);
+            }
+
+            public event EventHandler? CanExecuteChanged;
+
+            public void Refresh() =>
+                CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        public ICommand PreviousOrderCommand { get; }
+        public ICommand NextOrderCommand { get; }
+        public ICommand PreviousItemCommand { get; }
+        public ICommand NextItemCommand { get; }
+        public ICommand FinishSelectionCommand { get; }
+        public ICommand FinishOrderCommand { get; }
+        public ICommand FinishItemCommand { get; }
+        public ICommand UndoCommand { get; }
+        public ICommand ConfirmNewOrderCommand { get; }
+
+        private readonly List<KitchenCommand> _commands = new();
+
+        private KitchenCommand Register(
+            Action<object?> execute,
+            Predicate<object?> canExecute)
+        {
+            var command = new KitchenCommand(execute, canExecute);
+            _commands.Add(command);
+            return command;
+        }
+
+        private void RefreshCommands()
+        {
+            foreach (var command in _commands)
+                command.Refresh();
+        }
+
         public ObservableCollection<DisplayOrder> Orders { get; set; } = new();
+
+        // Nove narudžbe čekaju F12; potvrđene se prikazuju hronološki.
+        private readonly Queue<DisplayOrder> _pendingOrders = new();
+        private readonly HashSet<int> _pendingOrderNumbers = new();
+        private bool _initialOrdersLoaded;
+
+        // Historija posljednjih 10 završavanja, bez obzira na F5, miš ili touch.
+        private readonly Stack<(DisplayOrder Order, List<int> ItemIds)> _undoHistory = new();
+
+        public event EventHandler? PendingOrdersChanged;
+
+        public DisplayOrder? PendingOrder =>
+            _pendingOrders.Count == 0 ? null : _pendingOrders.Peek();
+
+        public bool HasPendingOrders => _pendingOrders.Count > 0;
+
+        public bool CanUndo =>
+            _undoHistory.Count > 0 && !HasPendingOrders && !_undoInProgress;
+
+        private void NotifyPendingOrdersChanged()
+        {
+            OnPropertyChanged(nameof(PendingOrder));
+            OnPropertyChanged(nameof(HasPendingOrders));
+            OnPropertyChanged(nameof(CanUndo));
+            PendingOrdersChanged?.Invoke(this, EventArgs.Empty);
+            RefreshCommands();
+        }
+
+        private void InsertOrderSorted(DisplayOrder order)
+        {
+            if (Orders.Any(o => o.Number == order.Number))
+                return;
+
+            int index = 0;
+
+            while (index < Orders.Count &&
+                   (Orders[index].OrderTime < order.OrderTime ||
+                    (Orders[index].OrderTime == order.OrderTime &&
+                     Orders[index].Number < order.Number)))
+            {
+                index++;
+            }
+
+            Orders.Insert(index, order);
+            RefreshCommands();
+        }
+
+        public bool ConfirmPendingOrder()
+        {
+            Application.Current.Dispatcher.VerifyAccess();
+
+            if (_pendingOrders.Count == 0)
+                return false;
+
+            var order = _pendingOrders.Dequeue();
+            _pendingOrderNumbers.Remove(order.Number);
+
+            InsertOrderSorted(order);
+            NotifyPendingOrdersChanged();
+
+            return true;
+        }
+
+        private void RecordUndo(DisplayOrder order, List<int> ids)
+        {
+            if (ids.Count == 0)
+                return;
+
+            _undoHistory.Push((order, ids));
+            OnPropertyChanged(nameof(CanUndo));
+            RefreshCommands();
+
+            // Čuvamo samo posljednjih 10 uspješnih završavanja.
+            if (_undoHistory.Count <= 10)
+                return;
+
+            var latest = _undoHistory.ToArray().Take(10).Reverse().ToArray();
+            _undoHistory.Clear();
+
+            foreach (var action in latest)
+                _undoHistory.Push(action);
+        }
+
+        public async Task UndoLastFinishAsync()
+        {
+            if (!CanUndo)
+                return;
+
+            _undoInProgress = true;
+            OnPropertyChanged(nameof(CanUndo));
+            RefreshCommands();
+
+            await _operationGate.WaitAsync();
+
+            try
+            {
+                if (HasPendingOrders || _undoHistory.Count == 0)
+                    return;
+
+                var action = _undoHistory.Peek();
+
+                using var db = new AppDbContext();
+
+                var items = await db.KuhinjaStavke
+                    .Where(s => s.IdKuhinje == action.Order.Number &&
+                                action.ItemIds.Contains(s.IdStavke) &&
+                                s.Zavrseno == "DA")
+                    .ToListAsync();
+
+                // Vraćamo samo stavke koje je završila konkretna akcija.
+                // Djelimičan Undo ne dozvoljavamo.
+                if (items.Count != action.ItemIds.Count)
+                {
+                    Debug.WriteLine(
+                        $"[KUHINJA] Undo odbijen: promijenjeno stanje bloka {action.Order.Number}.");
+                    return;
+                }
+
+                foreach (var item in items)
+                    item.Zavrseno = "NE";
+
+                await db.SaveChangesAsync();
+
+                var names = items
+                    .Select(s => $"{s.Kolicina}x  {s.Artikl}")
+                    .ToList();
+
+                _undoHistory.Pop();
+                OnPropertyChanged(nameof(CanUndo));
+                RefreshCommands();
+
+                foreach (var item in action.Order.Items
+                    .Where(i => action.ItemIds.Contains(i.IdStavke)))
+                {
+                    item.IsFinished = false;
+                }
+
+                InsertOrderSorted(action.Order);
+                RefreshKeyboardSelection();
+
+                // Ispravka konobaru nakon uspješno vraćenog stanja u bazi.
+                await SendUndoCorrectionAsync(action.Order, names);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[KUHINJA] Undo greška: {ex}");
+            }
+            finally
+            {
+                _operationGate.Release();
+                _undoInProgress = false;
+                OnPropertyChanged(nameof(CanUndo));
+                RefreshCommands();
+            }
+        }
 
         private readonly DispatcherTimer timer;
         private readonly SemaphoreSlim _operationGate = new(1, 1);
@@ -220,9 +431,54 @@ namespace Caupo.ViewModels
         private int? _selectedOrderNumber;
         private int? _selectedItemId;
         private bool _finishingKeyboardSelection;
+        private bool _undoInProgress;
 
         public KitchenDisplayViewModel()
         {
+            PreviousOrderCommand = Register(
+                _ => SelectPreviousOrder(),
+                _ => !HasPendingOrders && Orders.Any(o => o.CanFinish));
+
+            NextOrderCommand = Register(
+                _ => SelectNextOrder(),
+                _ => !HasPendingOrders && Orders.Any(o => o.CanFinish));
+
+            PreviousItemCommand = Register(
+                _ => SelectPreviousItem(),
+                _ => !HasPendingOrders && Orders.Any(o => o.Items.Any(i => i.CanFinish)));
+
+            NextItemCommand = Register(
+                _ => SelectNextItem(),
+                _ => !HasPendingOrders && Orders.Any(o => o.Items.Any(i => i.CanFinish)));
+
+            FinishSelectionCommand = Register(
+                _ => _ = FinishKeyboardSelectionAsync(),
+                _ => !HasPendingOrders &&
+                     !_finishingKeyboardSelection &&
+                     _selectedOrderNumber.HasValue);
+
+            FinishOrderCommand = Register(
+                p => _ = FinishOrderAsync((DisplayOrder)p!),
+                p => p is DisplayOrder o &&
+                     !HasPendingOrders &&
+                     o.CanFinish &&
+                     Orders.Contains(o));
+
+            FinishItemCommand = Register(
+                p => _ = FinishItemFromCommandAsync((OrderItem)p!),
+                p => p is OrderItem i &&
+                     !HasPendingOrders &&
+                     i.CanFinish &&
+                     Orders.Any(o => o.Items.Contains(i) && o.CanFinish));
+
+            UndoCommand = Register(
+                _ => _ = UndoLastFinishAsync(),
+                _ => CanUndo);
+
+            ConfirmNewOrderCommand = Register(
+                _ => ConfirmPendingOrder(),
+                _ => HasPendingOrders);
+
             timer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(1)
@@ -250,6 +506,8 @@ namespace Caupo.ViewModels
         {
             if (e.Action != NotifyCollectionChangedAction.Reset)
                 RefreshKeyboardSelection();
+
+            RefreshCommands();
         }
 
         private void RefreshKeyboardSelection()
@@ -258,8 +516,7 @@ namespace Caupo.ViewModels
                 ? Orders.FirstOrDefault(o => o.Number == _selectedOrderNumber.Value)
                 : null;
 
-            // Dok F5 završava narudžbu ili stavku, ne brišemo
-            // identitet selekcije zbog privremenog IsBusy stanja.
+            // Tokom F5 čuvamo identitet selekcije uprkos privremenom IsBusy stanju.
             if (!_finishingKeyboardSelection)
             {
                 if (order == null || order.IsBusy)
@@ -281,8 +538,7 @@ namespace Caupo.ViewModels
             foreach (var currentOrder in Orders)
             {
                 bool selectedOrder =
-                    ReferenceEquals(currentOrder, order) &&
-                    !currentOrder.IsBusy;
+                    ReferenceEquals(currentOrder, order) && !currentOrder.IsBusy;
 
                 currentOrder.IsKeyboardSelected =
                     selectedOrder && !_selectedItemId.HasValue;
@@ -300,9 +556,7 @@ namespace Caupo.ViewModels
 
         private void SelectOrder(int direction)
         {
-            var available = Orders
-                .Where(o => o.CanFinish)
-                .ToList();
+            var available = Orders.Where(o => o.CanFinish).ToList();
 
             if (available.Count == 0)
             {
@@ -329,15 +583,13 @@ namespace Caupo.ViewModels
         {
             var order = _selectedOrderNumber.HasValue
                 ? Orders.FirstOrDefault(o =>
-                    o.Number == _selectedOrderNumber.Value &&
-                    o.CanFinish)
+                    o.Number == _selectedOrderNumber.Value && o.CanFinish)
                 : null;
 
             if (order == null)
             {
                 order = Orders.FirstOrDefault(o =>
-                    o.CanFinish &&
-                    o.Items.Any(i => i.CanFinish));
+                    o.CanFinish && o.Items.Any(i => i.CanFinish));
 
                 if (order == null)
                     return;
@@ -345,9 +597,7 @@ namespace Caupo.ViewModels
                 _selectedOrderNumber = order.Number;
             }
 
-            var available = order.Items
-                .Where(i => i.CanFinish)
-                .ToList();
+            var available = order.Items.Where(i => i.CanFinish).ToList();
 
             if (available.Count == 0)
             {
@@ -364,7 +614,6 @@ namespace Caupo.ViewModels
                 : (index + direction + available.Count) % available.Count;
 
             _selectedItemId = available[index].IdStavke;
-
             RefreshKeyboardSelection();
         }
 
@@ -398,9 +647,12 @@ namespace Caupo.ViewModels
 
         public async Task FinishKeyboardSelectionAsync()
         {
-            if (_finishingKeyboardSelection ||
+            if (HasPendingOrders ||
+                _finishingKeyboardSelection ||
                 !_selectedOrderNumber.HasValue)
+            {
                 return;
+            }
 
             var order = Orders.FirstOrDefault(
                 o => o.Number == _selectedOrderNumber.Value);
@@ -415,21 +667,21 @@ namespace Caupo.ViewModels
 
             if (_selectedItemId.HasValue &&
                 (item == null || !item.CanFinish))
+            {
                 return;
+            }
 
-            // Pamtimo redoslijed prije završavanja.
-            // MasonryPanel može prerasporediti kartice nakon uklanjanja.
+            // Pamtimo redoslijed prije završavanja radi pravilne naredne selekcije.
             var orderNumbers = Orders
                 .Where(o => o.CanFinish)
                 .Select(o => o.Number)
                 .ToList();
 
             int oldOrderIndex = orderNumbers.IndexOf(order.Number);
-            int oldItemIndex = item != null
-                ? order.Items.IndexOf(item)
-                : -1;
+            int oldItemIndex = item != null ? order.Items.IndexOf(item) : -1;
 
             _finishingKeyboardSelection = true;
+            RefreshCommands();
 
             try
             {
@@ -442,51 +694,44 @@ namespace Caupo.ViewModels
                     await FinishOrderAsync(order);
                 }
 
-                // Ako je narudžba još prisutna, ostajemo na njoj.
                 if (Orders.Contains(order))
                 {
                     _selectedOrderNumber = order.Number;
 
                     if (item != null)
                     {
-                        // Ako završavanje nije uspjelo, zadržavamo
-                        // istu stavku umjesto preskakanja.
                         if (!item.IsFinished)
                         {
+                            // Ako spremanje nije uspjelo, ostajemo na istoj stavci.
                             _selectedItemId = item.IdStavke;
                         }
                         else
                         {
-                            // Sljedeća nezavršena stavka iza prethodne.
                             var nextItem = order.Items
                                 .Skip(oldItemIndex + 1)
                                 .FirstOrDefault(i => i.CanFinish);
 
-                            // Ako nema sljedeće, vraćamo se na početak
-                            // liste nezavršenih stavki iste narudžbe.
-                            nextItem ??= order.Items
-                                .FirstOrDefault(i => i.CanFinish);
+                            nextItem ??= order.Items.FirstOrDefault(
+                                i => i.CanFinish);
 
-                            // Ako nema stavki, selektujemo zaglavlje.
                             _selectedItemId = nextItem?.IdStavke;
                         }
                     }
                     else
                     {
-                        // Narudžba nije uklonjena.
-                        // Ne prelazimo dalje ako završavanje nije uspjelo.
                         _selectedItemId = null;
                     }
                 }
                 else
                 {
-                    // Narudžba je uklonjena.
-                    // Tražimo prvu narednu narudžbu prema starom redoslijedu.
+                    // Biramo narednu postojeću narudžbu prema prethodnom redoslijedu.
                     int? nextOrderNumber = null;
 
                     if (oldOrderIndex >= 0)
                     {
-                        for (int offset = 1; offset < orderNumbers.Count; offset++)
+                        for (int offset = 1;
+                             offset < orderNumbers.Count;
+                             offset++)
                         {
                             int index =
                                 (oldOrderIndex + offset) % orderNumbers.Count;
@@ -502,8 +747,6 @@ namespace Caupo.ViewModels
                         }
                     }
 
-                    // Ako su u međuvremenu dodane nove narudžbe,
-                    // a nijedna stara nije ostala, biramo prvu novu.
                     nextOrderNumber ??= Orders
                         .FirstOrDefault(o => o.CanFinish)?.Number;
 
@@ -515,6 +758,7 @@ namespace Caupo.ViewModels
             {
                 _finishingKeyboardSelection = false;
                 RefreshKeyboardSelection();
+                RefreshCommands();
             }
         }
 
@@ -531,15 +775,13 @@ namespace Caupo.ViewModels
                 using var db = new AppDbContext();
 
                 var headers = await db.Kuhinja.AsNoTracking()
-                    .Where(k => db.KuhinjaStavke.Any(
-                        s => s.IdKuhinje == k.IdKuhinje &&
-                             s.Zavrseno == "NE"))
+                    .Where(k => db.KuhinjaStavke.Any(s =>
+                        s.IdKuhinje == k.IdKuhinje && s.Zavrseno == "NE"))
                     .OrderBy(k => k.Datum)
+                    .ThenByDescending(k => k.IdKuhinje)
                     .ToListAsync();
 
-                var ids = headers
-                    .Select(h => h.IdKuhinje)
-                    .ToList();
+                var ids = headers.Select(h => h.IdKuhinje).ToList();
 
                 var allItems = await db.KuhinjaStavke.AsNoTracking()
                     .Where(s => ids.Contains(s.IdKuhinje))
@@ -553,7 +795,6 @@ namespace Caupo.ViewModels
                     TableName = h.NazivStola ?? string.Empty,
                     OrderTime = h.Datum,
                     Elapsed = DateTime.Now - h.Datum,
-
                     Items = new ObservableCollection<OrderItem>(
                         allItems
                             .Where(s => s.IdKuhinje == h.IdKuhinje)
@@ -567,10 +808,18 @@ namespace Caupo.ViewModels
                             }))
                 }).ToList();
 
-                Orders.Clear();
+                if (!_initialOrdersLoaded)
+                {
+                    foreach (var order in loaded
+                        .OrderBy(o => o.OrderTime)
+                        .ThenBy(o => o.Number))
+                    {
+                        if (!_pendingOrderNumbers.Contains(order.Number))
+                            InsertOrderSorted(order);
+                    }
 
-                foreach (var order in loaded)
-                    Orders.Add(order);
+                    _initialOrdersLoaded = true;
+                }
 
                 RefreshKeyboardSelection();
             }
@@ -587,10 +836,20 @@ namespace Caupo.ViewModels
 
         public void AddOrder(DisplayOrder order)
         {
-            if (order == null)
+            if (order == null || order.Number <= 0)
                 return;
 
-            _ = LoadPendingOrdersAsync();
+            Application.Current.Dispatcher.VerifyAccess();
+
+            if (_pendingOrderNumbers.Contains(order.Number))
+                return;
+
+            if (Orders.Any(o => o.Number == order.Number))
+                return;
+
+            _pendingOrderNumbers.Add(order.Number);
+            _pendingOrders.Enqueue(order);
+            NotifyPendingOrdersChanged();
         }
 
         public async void RemoveOrder(DisplayOrder order)
@@ -604,12 +863,16 @@ namespace Caupo.ViewModels
 
         public async Task FinishOrderAsync(DisplayOrder order)
         {
-            if (order == null ||
+            if (HasPendingOrders ||
+                order == null ||
                 order.IsBusy ||
                 !Orders.Contains(order))
+            {
                 return;
+            }
 
             order.IsBusy = true;
+            RefreshCommands();
             await _operationGate.WaitAsync();
 
             try
@@ -633,6 +896,11 @@ namespace Caupo.ViewModels
 
                 await db.SaveChangesAsync();
 
+                // Svako uspješno završavanje ide u Undo historiju.
+                RecordUndo(
+                    order,
+                    remaining.Select(s => s.IdStavke).ToList());
+
                 var names = remaining
                     .Select(s => $"{s.Kolicina}x  {s.Artikl}")
                     .ToList();
@@ -651,26 +919,39 @@ namespace Caupo.ViewModels
             {
                 order.IsBusy = false;
                 _operationGate.Release();
+                RefreshCommands();
             }
+        }
+
+        // Komanda dobija stavku iz DataTemplate; narudžbu pronalazi u modelu.
+        private async Task FinishItemFromCommandAsync(OrderItem item)
+        {
+            var order = Orders.FirstOrDefault(
+                o => o.Items.Contains(item));
+
+            if (order != null)
+                await FinishItemAsync(item, order);
         }
 
         // =====================================================
         // ZAVRŠAVANJE POJEDINAČNE STAVKE
         // =====================================================
 
-        public async Task FinishItemAsync(
-            OrderItem item,
-            DisplayOrder order)
+        public async Task FinishItemAsync(OrderItem item, DisplayOrder order)
         {
-            if (item == null ||
+            if (HasPendingOrders ||
+                item == null ||
                 order == null ||
                 item.IdStavke <= 0 ||
                 item.IsFinished ||
                 order.IsBusy ||
                 !Orders.Contains(order))
+            {
                 return;
+            }
 
             order.IsBusy = true;
+            RefreshCommands();
             await _operationGate.WaitAsync();
 
             try
@@ -705,6 +986,11 @@ namespace Caupo.ViewModels
                 dbItem.Zavrseno = "DA";
                 await db.SaveChangesAsync();
 
+                // Završavanje mišem/touchom ima isti Undo tretman kao F5.
+                RecordUndo(
+                    order,
+                    new List<int> { dbItem.IdStavke });
+
                 item.IsFinished = true;
 
                 var names = new List<string>
@@ -712,20 +998,15 @@ namespace Caupo.ViewModels
                     $"{dbItem.Kolicina}x  {dbItem.Artikl}"
                 };
 
-                var hasRemaining =
-                    await db.KuhinjaStavke.AnyAsync(s =>
-                        s.IdKuhinje == order.Number &&
-                        s.Zavrseno == "NE");
+                var hasRemaining = await db.KuhinjaStavke.AnyAsync(s =>
+                    s.IdKuhinje == order.Number &&
+                    s.Zavrseno == "NE");
 
                 if (!hasRemaining)
                     Orders.Remove(order);
 
                 ShowCompletedPopup(order, names);
-
-                await SendNotificationAsync(
-                    order,
-                    names,
-                    !hasRemaining);
+                await SendNotificationAsync(order, names, !hasRemaining);
             }
             catch (Exception ex)
             {
@@ -736,6 +1017,7 @@ namespace Caupo.ViewModels
             {
                 order.IsBusy = false;
                 _operationGate.Release();
+                RefreshCommands();
             }
         }
 
@@ -754,8 +1036,7 @@ namespace Caupo.ViewModels
 
                 var player = new MediaPlayer();
 
-                player.MediaEnded += (s, e) =>
-                    player.Close();
+                player.MediaEnded += (s, e) => player.Close();
 
                 player.MediaFailed += (s, e) =>
                 {
@@ -768,8 +1049,7 @@ namespace Caupo.ViewModels
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(
-                    $"[KUHINJA] Zvuk: {ex.Message}");
+                Debug.WriteLine($"[KUHINJA] Zvuk: {ex.Message}");
 
                 try
                 {
@@ -790,14 +1070,66 @@ namespace Caupo.ViewModels
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(
-                    $"[KUHINJA] Popup: {ex}");
+                Debug.WriteLine($"[KUHINJA] Popup: {ex}");
             }
         }
 
         // =====================================================
         // ANDROID NOTIFIKACIJE
         // =====================================================
+
+        private static async Task SendUndoCorrectionAsync(
+            DisplayOrder order,
+            List<string> names)
+        {
+            try
+            {
+                string message =
+                    $"ISPRAVKA IZ KUHINJE: Prethodna obavijest o završetku za narudžbu broj {order.Number}, " +
+                    $"{order.TableName}, poslana je greškom. Ponovo je u pripremi: {string.Join(", ", names)}.";
+
+                var payload = new
+                {
+                    Status = "OK",
+                    Data = new
+                    {
+                        type = "KUHINJA",
+                        orderNumber = order.Number,
+                        tableName = order.TableName,
+                        message
+                    }
+                };
+
+                var session = ClientRegistry.Get(order.Waiter);
+
+                if (session == null)
+                {
+                    Debug.WriteLine(
+                        $"[KUHINJA] Undo: nema Android sesije za '{order.Waiter}'.");
+                    return;
+                }
+
+                if (session.Client?.Connected != true)
+                {
+                    ClientRegistry.Remove(order.Waiter);
+                    return;
+                }
+
+                var json = JsonSerializer.Serialize(payload) + "\n";
+                var bytes = Encoding.UTF8.GetBytes(json);
+
+                await session.Stream.WriteAsync(
+                    bytes, 0, bytes.Length);
+
+                Debug.WriteLine(
+                    $"[KUHINJA] Android Undo ispravka poslana: {json}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(
+                    $"[KUHINJA] Android Undo ispravka nije poslana: {ex}");
+            }
+        }
 
         private static async Task SendNotificationAsync(
             DisplayOrder order,
@@ -823,7 +1155,6 @@ namespace Caupo.ViewModels
                 };
 
                 var json = JsonSerializer.Serialize(payload) + "\n";
-
                 var session = ClientRegistry.Get(order.Waiter);
 
                 if (session == null)
@@ -842,9 +1173,7 @@ namespace Caupo.ViewModels
                 var bytes = Encoding.UTF8.GetBytes(json);
 
                 await session.Stream.WriteAsync(
-                    bytes,
-                    0,
-                    bytes.Length);
+                    bytes, 0, bytes.Length);
 
                 Debug.WriteLine(
                     $"[KUHINJA] Android poruka poslana: {json}");

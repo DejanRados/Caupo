@@ -14,23 +14,158 @@ namespace Caupo.Views
     public partial class SettingsPage : UserControl
     {
         private bool _initializingCashRegisterType;
-
+        private KitchenKeyboardService? _temporaryKeyboardService;
+        private KitchenKeyboardService? _selectionService;
 
         public SettingsPage()
         {
             InitializeComponent ();
 
-
-            DataContext =
-                new SettingsViewModel ();
-
-
-          
-
+            DataContext = new SettingsViewModel ();
 
             InitializeCashRegisterType ();
+
+            UpdateKitchenKeyboardStatus();
+            Unloaded += SettingsPage_Unloaded;
         }
 
+        // =====================================================
+        // Tatstatura za kuhinjski ekran
+        // ====================================================
+
+        private void UpdateKitchenKeyboardStatus()
+        {
+            bool configured = !string.IsNullOrWhiteSpace(
+                Properties.Settings.Default.KitchenKeyboardId);
+
+            txtKitchenKeyboardStatus.Text =
+                configured ? "Odabrana" : "Nije odabrana";
+
+            btnRemoveKitchenKeyboard.IsEnabled = configured;
+            btnSelectKitchenKeyboard.Content =
+                configured ? "Promijeni tastaturu" : "Odaberi tastaturu";
+        }
+
+        private void SelectKitchenKeyboard_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            if (_selectionService != null)
+                return;
+
+            Window? window = Window.GetWindow(this);
+
+            if (window == null)
+                return;
+
+            try
+            {
+                KitchenKeyboardService? service =
+                    KitchenKeyboardService.Active;
+
+                if (service == null)
+                {
+                    _temporaryKeyboardService =
+                        new KitchenKeyboardService();
+
+                    _temporaryKeyboardService.Start(window);
+                    service = _temporaryKeyboardService;
+                }
+
+                _selectionService = service;
+                _selectionService.KeyboardDetected +=
+                    KitchenKeyboard_Detected;
+
+                _selectionService.BeginKeyboardSelection();
+
+                txtKitchenKeyboardStatus.Text = "Pritisnite F1...";
+                btnSelectKitchenKeyboard.IsEnabled = false;
+                btnRemoveKitchenKeyboard.IsEnabled = false;
+            }
+            catch (Exception ex)
+            {
+                EndKitchenKeyboardSelection();
+
+                MessageBox.Show(
+                    "Nije moguće pokrenuti odabir tastature.\n\n" +
+                    ex.Message,
+                    "Kuhinjska tastatura",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        private void KitchenKeyboard_Detected(
+            object? sender,
+            string identifier)
+        {
+            // Prekidamo režim odabira prije prikaza potvrde.
+            EndKitchenKeyboardSelection();
+
+            var popup = new YesNoPopup
+            {
+                Owner = Window.GetWindow(this),
+                PopupTitle = "Kuhinjska tastatura",
+                PopupMessage = "Tastatura je prepoznata.\n\nŽelite li je koristiti za kuhinjski ekran?",
+                ConfirmText = "Da",
+                CancelText = "Ne"
+            };
+
+            if (popup.ShowDialog() == true)
+            {
+                Properties.Settings.Default.KitchenKeyboardId = identifier;
+                Properties.Settings.Default.Save();
+                KitchenKeyboardService.Active?.SetKeyboardIdentifier(identifier);
+            }
+
+            UpdateKitchenKeyboardStatus();
+        }
+
+        private void RemoveKitchenKeyboard_Click(
+            object sender,
+            RoutedEventArgs e)
+        {
+            if (_selectionService != null)
+                return;
+
+            Properties.Settings.Default.KitchenKeyboardId =
+                string.Empty;
+
+            Properties.Settings.Default.Save();
+
+            KitchenKeyboardService.Active?
+                .SetKeyboardIdentifier(string.Empty);
+
+            UpdateKitchenKeyboardStatus();
+        }
+
+        private void EndKitchenKeyboardSelection()
+        {
+            if (_selectionService != null)
+            {
+                _selectionService.KeyboardDetected -=
+                    KitchenKeyboard_Detected;
+
+                _selectionService.CancelKeyboardSelection();
+                _selectionService = null;
+            }
+
+            if (_temporaryKeyboardService != null)
+            {
+                _temporaryKeyboardService.Dispose();
+                _temporaryKeyboardService = null;
+            }
+
+            btnSelectKitchenKeyboard.IsEnabled = true;
+            UpdateKitchenKeyboardStatus();
+        }
+
+        private void SettingsPage_Unloaded(
+            object sender,
+            RoutedEventArgs e)
+        {
+            EndKitchenKeyboardSelection();
+        }
 
         // =====================================================
         // TIP KASE
