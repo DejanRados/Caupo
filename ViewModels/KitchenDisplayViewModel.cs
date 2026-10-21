@@ -352,6 +352,8 @@ namespace Caupo.ViewModels
                 _undoHistory.Push(action);
         }
 
+
+
         public async Task UndoLastFinishAsync()
         {
             if (!CanUndo)
@@ -382,8 +384,7 @@ namespace Caupo.ViewModels
                 // Djelimičan Undo ne dozvoljavamo.
                 if (items.Count != action.ItemIds.Count)
                 {
-                    Debug.WriteLine(
-                        $"[KUHINJA] Undo odbijen: promijenjeno stanje bloka {action.Order.Number}.");
+                    Debug.WriteLine($"[KUHINJA] Undo odbijen: promijenjeno stanje bloka {action.Order.Number}.");
                     return;
                 }
 
@@ -392,24 +393,33 @@ namespace Caupo.ViewModels
 
                 await db.SaveChangesAsync();
 
-                var names = items
-                    .Select(s => $"{s.Kolicina}x  {s.Artikl}")
-                    .ToList();
+                var names = items.Select(s => $"{s.Kolicina}x  {s.Artikl}").ToList();
 
                 _undoHistory.Pop();
                 OnPropertyChanged(nameof(CanUndo));
                 RefreshCommands();
 
-                foreach (var item in action.Order.Items
-                    .Where(i => action.ItemIds.Contains(i.IdStavke)))
-                {
+                foreach (var item in action.Order.Items.Where(i => action.ItemIds.Contains(i.IdStavke)))
                     item.IsFinished = false;
-                }
 
                 InsertOrderSorted(action.Order);
                 RefreshKeyboardSelection();
 
-                // Ispravka konobaru nakon uspješno vraćenog stanja u bazi.
+                try
+                {
+                    Caupo.MainWindow.Instance?.ShowKitchenNotification(
+                        action.Order.Waiter,
+                        action.Order.TableName,
+                        action.Order.Number,
+                        names,
+                        action.ItemIds,
+                        true);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[KUHINJA] Undo notifikacija: {ex}");
+                }
+
                 await SendUndoCorrectionAsync(action.Order, names);
             }
             catch (Exception ex)
@@ -424,6 +434,8 @@ namespace Caupo.ViewModels
                 RefreshCommands();
             }
         }
+
+
 
         private readonly DispatcherTimer timer;
         private readonly SemaphoreSlim _operationGate = new(1, 1);
@@ -861,15 +873,11 @@ namespace Caupo.ViewModels
         // ZAVRŠAVANJE CIJELE NARUDŽBE
         // =====================================================
 
+
         public async Task FinishOrderAsync(DisplayOrder order)
         {
-            if (HasPendingOrders ||
-                order == null ||
-                order.IsBusy ||
-                !Orders.Contains(order))
-            {
+            if (HasPendingOrders || order == null || order.IsBusy || !Orders.Contains(order))
                 return;
-            }
 
             order.IsBusy = true;
             RefreshCommands();
@@ -880,9 +888,7 @@ namespace Caupo.ViewModels
                 using var db = new AppDbContext();
 
                 var remaining = await db.KuhinjaStavke
-                    .Where(s =>
-                        s.IdKuhinje == order.Number &&
-                        s.Zavrseno == "NE")
+                    .Where(s => s.IdKuhinje == order.Number && s.Zavrseno == "NE")
                     .ToListAsync();
 
                 if (remaining.Count == 0)
@@ -896,24 +902,19 @@ namespace Caupo.ViewModels
 
                 await db.SaveChangesAsync();
 
-                // Svako uspješno završavanje ide u Undo historiju.
-                RecordUndo(
-                    order,
-                    remaining.Select(s => s.IdStavke).ToList());
+                var itemIds = remaining.Select(s => s.IdStavke).ToList();
+                RecordUndo(order, itemIds);
 
-                var names = remaining
-                    .Select(s => $"{s.Kolicina}x  {s.Artikl}")
-                    .ToList();
+                var names = remaining.Select(s => $"{s.Kolicina}x  {s.Artikl}").ToList();
 
                 Orders.Remove(order);
 
-                ShowCompletedPopup(order, names);
+                ShowCompletedPopup(order, names, itemIds);
                 await SendNotificationAsync(order, names, true);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(
-                    $"[KUHINJA] Završavanje narudžbe {order.Number}: {ex}");
+                Debug.WriteLine($"[KUHINJA] Završavanje narudžbe {order.Number}: {ex}");
             }
             finally
             {
@@ -922,6 +923,7 @@ namespace Caupo.ViewModels
                 RefreshCommands();
             }
         }
+
 
         // Komanda dobija stavku iz DataTemplate; narudžbu pronalazi u modelu.
         private async Task FinishItemFromCommandAsync(OrderItem item)
@@ -937,18 +939,12 @@ namespace Caupo.ViewModels
         // ZAVRŠAVANJE POJEDINAČNE STAVKE
         // =====================================================
 
+
         public async Task FinishItemAsync(OrderItem item, DisplayOrder order)
         {
-            if (HasPendingOrders ||
-                item == null ||
-                order == null ||
-                item.IdStavke <= 0 ||
-                item.IsFinished ||
-                order.IsBusy ||
-                !Orders.Contains(order))
-            {
+            if (HasPendingOrders || item == null || order == null || item.IdStavke <= 0 ||
+                item.IsFinished || order.IsBusy || !Orders.Contains(order))
                 return;
-            }
 
             order.IsBusy = true;
             RefreshCommands();
@@ -959,9 +955,7 @@ namespace Caupo.ViewModels
                 using var db = new AppDbContext();
 
                 var dbItem = await db.KuhinjaStavke
-                    .FirstOrDefaultAsync(s =>
-                        s.IdStavke == item.IdStavke &&
-                        s.IdKuhinje == order.Number);
+                    .FirstOrDefaultAsync(s => s.IdStavke == item.IdStavke && s.IdKuhinje == order.Number);
 
                 if (dbItem == null)
                     return;
@@ -971,8 +965,7 @@ namespace Caupo.ViewModels
                     item.IsFinished = true;
 
                     if (!await db.KuhinjaStavke.AnyAsync(s =>
-                        s.IdKuhinje == order.Number &&
-                        s.Zavrseno == "NE"))
+                        s.IdKuhinje == order.Number && s.Zavrseno == "NE"))
                     {
                         Orders.Remove(order);
                     }
@@ -986,32 +979,25 @@ namespace Caupo.ViewModels
                 dbItem.Zavrseno = "DA";
                 await db.SaveChangesAsync();
 
-                // Završavanje mišem/touchom ima isti Undo tretman kao F5.
-                RecordUndo(
-                    order,
-                    new List<int> { dbItem.IdStavke });
+                var itemIds = new List<int> { dbItem.IdStavke };
+                RecordUndo(order, itemIds);
 
                 item.IsFinished = true;
 
-                var names = new List<string>
-                {
-                    $"{dbItem.Kolicina}x  {dbItem.Artikl}"
-                };
+                var names = new List<string> { $"{dbItem.Kolicina}x  {dbItem.Artikl}" };
 
                 var hasRemaining = await db.KuhinjaStavke.AnyAsync(s =>
-                    s.IdKuhinje == order.Number &&
-                    s.Zavrseno == "NE");
+                    s.IdKuhinje == order.Number && s.Zavrseno == "NE");
 
                 if (!hasRemaining)
                     Orders.Remove(order);
 
-                ShowCompletedPopup(order, names);
+                ShowCompletedPopup(order, names, itemIds);
                 await SendNotificationAsync(order, names, !hasRemaining);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(
-                    $"[KUHINJA] Završavanje stavke {item.IdStavke}: {ex}");
+                Debug.WriteLine($"[KUHINJA] Završavanje stavke {item.IdStavke}: {ex}");
             }
             finally
             {
@@ -1021,23 +1007,21 @@ namespace Caupo.ViewModels
             }
         }
 
+
         // =====================================================
         // ZVUK I POPUP
         // =====================================================
 
-        private static void ShowCompletedPopup(
-            DisplayOrder order,
-            List<string> names)
+
+
+        private static void ShowCompletedPopup(DisplayOrder order, List<string> names, IEnumerable<int> itemIds)
         {
             try
             {
-                var uri = new Uri(
-                    "pack://application:,,,/Caupo;component/Sounds/notificationbell.mp3");
-
+                var uri = new Uri("pack://application:,,,/Caupo;component/Sounds/notificationbell.mp3");
                 var player = new MediaPlayer();
 
                 player.MediaEnded += (s, e) => player.Close();
-
                 player.MediaFailed += (s, e) =>
                 {
                     Debug.WriteLine(e.ErrorException);
@@ -1062,17 +1046,16 @@ namespace Caupo.ViewModels
 
             try
             {
-                new Caupo.Views.OrderCompletedPopup(
-                    order.Waiter,
-                    order.TableName,
-                    order.Number.ToString(),
-                    names).Show();
+                Caupo.MainWindow.Instance?.ShowKitchenNotification(
+                    order.Waiter, order.TableName, order.Number, names, itemIds);
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[KUHINJA] Popup: {ex}");
+                Debug.WriteLine($"[KUHINJA] Notifikacija: {ex}");
             }
         }
+
+
 
         // =====================================================
         // ANDROID NOTIFIKACIJE

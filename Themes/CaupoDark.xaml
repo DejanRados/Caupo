@@ -1,5 +1,4 @@
-﻿
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <!-- CAUPO: mijenjaj samo Color vrijednosti u ovom fajlu -->
     <SolidColorBrush x:Key="GlobalBackgroundColor" Color="#191c1d"/>
@@ -35,4 +34,6 @@
     <SolidColorBrush x:Key="ThemeInputBrush" Color="#2f372f"/>
     <SolidColorBrush x:Key="ThemePopupBrush" Color="#2d3935"/>
     <SolidColorBrush x:Key="ThemeHeaderTextBrush" Color="#f1f4f1"/>
+    <SolidColorBrush x:Key="ThemeKitchenUndoHeaderBrush" Color="#872F35"/>
+    <SolidColorBrush x:Key="ThemeKitchenUndoStampBrush" Color="#F0444F"/>
 </ResourceDictionary>

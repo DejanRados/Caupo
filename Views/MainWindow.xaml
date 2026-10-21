@@ -5,49 +5,151 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:Caupo.ViewModels"
         mc:Ignorable="d"
-
         Title="MainWindow"
         Height="760"
         Width="1360"
-
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         WindowState="Maximized"
-
         Background="{DynamicResource GlobalBackgroundColor}"
-        
-
         Loaded="Window_Loaded">
 
     <Window.DataContext>
-        <vm:MainViewModel />
+        <vm:MainViewModel/>
     </Window.DataContext>
 
+    <Window.Resources>
+        <DataTemplate x:Key="KitchenNotificationTemplate">
+            <Border Width="420" MinHeight="255" CornerRadius="12" BorderThickness="1"
+                    Background="{DynamicResource ThemePopupBrush}"
+                    BorderBrush="{DynamicResource GlobalBorderColor}"
+                    HorizontalAlignment="Right" VerticalAlignment="Bottom" Cursor="Hand" ClipToBounds="True">
+                <Border.Effect>
+                    <DropShadowEffect Color="{DynamicResource ThemeShadowColor}" BlurRadius="18" ShadowDepth="5" Opacity="0.28"/>
+                </Border.Effect>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- HEADER -->
+                    <Border x:Name="KitchenNotificationHeader" Grid.Row="0" CornerRadius="11,11,0,0" Padding="18,13,18,12">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="{DynamicResource ThemePrimaryBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsUndo}" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource ThemeKitchenUndoHeaderBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <StackPanel>
+                            <Grid Margin="0,0,0,13">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0" Text="CAUPO · KUHINJA" FontSize="14" FontWeight="SemiBold"
+                                           VerticalAlignment="Center" Foreground="{DynamicResource ThemePrimaryForegroundBrush}"/>
+
+                                <TextBlock Grid.Column="1" Text="{Binding Time}" FontSize="14" FontWeight="Medium"
+                                           VerticalAlignment="Center" Foreground="{DynamicResource ThemePrimaryForegroundBrush}"/>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,9">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0" Text="{Binding Table}" FontSize="30" FontWeight="Bold"
+                                           TextWrapping="Wrap" Margin="0,0,10,0" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource ThemePrimaryForegroundBrush}"/>
+
+                                <TextBlock Grid.Column="1" FontSize="23" FontWeight="SemiBold"
+                                           VerticalAlignment="Center" Foreground="{DynamicResource ThemePrimaryForegroundBrush}">
+                                    <Run Text="#"/><Run Text="{Binding OrderNumber, Mode=OneWay}"/>
+                                </TextBlock>
+                            </Grid>
+
+                            <TextBlock Text="{Binding Waiter, StringFormat='Konobar: {0}'}"
+                                       FontSize="15" FontWeight="Medium" TextWrapping="Wrap"
+                                       Margin="0,0,0,12" Foreground="{DynamicResource ThemePrimaryForegroundBrush}"/>
+
+                            <Border Height="1" Opacity="0.35" Background="{DynamicResource ThemePrimaryForegroundBrush}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- STAVKE -->
+                    <Border Grid.Row="1" Padding="18,17,12,14" CornerRadius="0,0,11,11"
+                            Background="{DynamicResource ThemePopupBrush}">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                      PanningMode="VerticalOnly">
+                            <ItemsControl ItemsSource="{Binding Items}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" FontSize="18" FontWeight="SemiBold"
+                                                   TextWrapping="Wrap" Margin="0,0,0,9"
+                                                   Foreground="{DynamicResource GlobalFontColor}"/>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Border>
+
+
+                    <!-- DIJAGONALNI PEČAT ZA UNDO -->
+                    <Grid x:Name="UndoStamp" Grid.Row="0" Grid.RowSpan="2" Panel.ZIndex="10"   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsHitTestVisible="False">
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsUndo}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+
+                        <Border Width="340" Height="86" CornerRadius="43" BorderThickness="5"
+                            BorderBrush="{DynamicResource ThemeKitchenUndoStampBrush}"
+                            Background="Transparent" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            RenderTransformOrigin="0.5,0.5">
+                            <Border.RenderTransform>
+                                <RotateTransform Angle="-20"/>
+                            </Border.RenderTransform>
+
+                            <TextBlock Text="NIJE SPREMNO" FontSize="43" FontWeight="ExtraBold"
+                                   Foreground="{DynamicResource ThemeKitchenUndoStampBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </Grid>
+
+                </Grid>
+            </Border>
+
+
+        </DataTemplate>
+    </Window.Resources>
+
     <Grid Background="{DynamicResource GlobalBackgroundColor}">
+        <Grid x:Name="Workspace">
+            <ContentControl x:Name="MainContent" Content="{Binding CurrentPage}"
+                            Background="{DynamicResource GlobalBackgroundColor}"/>
 
-        <!--
-            Glavni sadržaj aplikacije.
-            Content se mijenja isključivo preko
-            MainViewModel.CurrentPage.
-        -->
-        <ContentControl
-            x:Name="MainContent"
-            Content="{Binding CurrentPage}"
-            Background="{DynamicResource GlobalBackgroundColor}"
-             />
+            <ContentControl x:Name="KeyboardHost"
+                            HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
+                            Background="{DynamicResource GlobalBackgroundColor}"
+                            Visibility="Collapsed"/>
+        </Grid>
 
-        <!--
-            Virtualna tastatura.
-            Pozadina prati aktivnu Caupo temu.
-        -->
-        <ContentControl
-            x:Name="KeyboardHost"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Bottom"
-            Background="{DynamicResource GlobalBackgroundColor}"
-            Visibility="Collapsed" />
-
+        <Grid x:Name="NotificationHost" Panel.ZIndex="1000"
+              Background="#663A3A40" Visibility="Collapsed">
+            <Grid x:Name="NotificationCards" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        </Grid>
     </Grid>
-
 </Window>
-

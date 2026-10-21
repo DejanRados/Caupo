@@ -1,6 +1,5 @@
-﻿<ResourceDictionary
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ===================================================== -->
     <!-- CAUPO BLUE THEME                                      -->
@@ -16,7 +15,6 @@
     <SolidColorBrush x:Key="ThemePrimaryBrush" Color="#356A7A"/>
     <SolidColorBrush x:Key="ThemePrimaryHoverBrush" Color="#427F90"/>
     <SolidColorBrush x:Key="ThemePrimaryPressedBrush" Color="#2C5967"/>
-    <!-- LIGHT -->
     <SolidColorBrush x:Key="ThemePrimaryForegroundBrush" Color="#FAFAFA"/>
 
     <!-- SECONDARY -->
@@ -41,10 +39,31 @@
     <SolidColorBrush x:Key="ThemeWarningBrush" Color="#F59E0B"/>
     <SolidColorBrush x:Key="ThemeNeutralBorderBrush" Color="#CBD5E1"/>
 
+    <!-- SJENA -->
     <Color x:Key="ThemeShadowColor">#26343D</Color>
-    
-    
 
+    <!-- POVRŠINE I KONTROLE -->
+    <SolidColorBrush x:Key="ThemeSurfaceBrush" Color="#F1F4F6"/>
+    <SolidColorBrush x:Key="ThemeControlBrush" Color="#D7E0E6"/>
+    <SolidColorBrush x:Key="ThemeMutedForegroundBrush" Color="#667A89"/>
 
+    <!-- ARTIKLI -->
+    <SolidColorBrush x:Key="ThemeArticleBrush" Color="#DCE5EA"/>
+    <SolidColorBrush x:Key="ThemeArticleHoverBrush" Color="#CAD9E1"/>
+
+    <!-- HEADER I OKVIRI -->
+    <SolidColorBrush x:Key="ThemeHeaderForegroundBrush" Color="#FAFAFA"/>
+    <SolidColorBrush x:Key="ThemeOutlineBrush" Color="#8AA4B2"/>
+
+    <!-- POSEBNE POVRŠINE -->
+    <SolidColorBrush x:Key="ThemeSidebarBrush" Color="#E0E7EC"/>
+    <SolidColorBrush x:Key="ThemeReceiptBrush" Color="#F8FAFB"/>
+    <SolidColorBrush x:Key="ThemeInputBrush" Color="#F8FAFB"/>
+    <SolidColorBrush x:Key="ThemePopupBrush" Color="#F8FAFB"/>
+    <SolidColorBrush x:Key="ThemeHeaderTextBrush" Color="#FAFAFA"/>
+
+    <!-- KUHINJA - UNDO NOTIFIKACIJE -->
+    <SolidColorBrush x:Key="ThemeKitchenUndoHeaderBrush" Color="#A5353B"/>
+    <SolidColorBrush x:Key="ThemeKitchenUndoStampBrush" Color="#C62828"/>
 
 </ResourceDictionary>

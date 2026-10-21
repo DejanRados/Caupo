@@ -89,12 +89,9 @@
         <Style x:Key="KitchenOrderSelectionStyle" TargetType="Border">
             <Setter Property="BorderThickness" Value="5"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
-           
-            
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsKeyboardSelected}" Value="True">
                     <Setter Property="BorderBrush" Value="#b9fa05"/>
-                   
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -103,11 +100,9 @@
         <Style x:Key="KitchenItemSelectionStyle" TargetType="Border">
             <Setter Property="BorderThickness" Value="5"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
-           
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsKeyboardSelected}" Value="True">
                     <Setter Property="BorderBrush" Value="#b9fa05"/>
-                    
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -131,6 +126,7 @@
                     </Style.Triggers>
                 </Style>
             </Grid.Style>
+
             <Grid.RowDefinitions>
                 <RowDefinition Height="55"/>
                 <RowDefinition Height="*"/>
@@ -157,8 +153,7 @@
                             <!-- KARTICA NARUDŽBE -->
                             <Border Style="{StaticResource KitchenOrderSelectionStyle}"
                                     Background="{Binding Background}"
-                                   
-                                    CornerRadius="10"   
+                                    CornerRadius="10"
                                     VerticalAlignment="Top"
                                     Padding="2"
                                     Margin="0"
@@ -167,7 +162,7 @@
 
                                     <!-- ZAGLAVLJE NARUDŽBE -->
                                     <Button Style="{StaticResource KitchenOrderHeaderStyle}"
-                                            Margin="5"  
+                                            Margin="5"
                                             Background="{Binding HeaderBackground}"
                                             BorderBrush="{Binding HeaderBorder}"
                                             IsEnabled="{Binding CanFinish}"
@@ -190,8 +185,6 @@
                                                 <Run Text="Sto: "/>
                                                 <Run Text="{Binding TableName}"/>
                                             </TextBlock>
-
-                                     
 
                                             <TextBlock FontSize="15" Foreground="{DynamicResource ThemePrimaryForegroundBrush}" TextWrapping="Wrap">
                                                 <Run Text="Proteklo: "/>
@@ -302,12 +295,38 @@
             </ScrollViewer>
         </Grid>
 
+        <!-- BROJAČ AKTIVNIH NARUDŽBI -->
+        <Border Panel.ZIndex="100"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Margin="0,68,28,0"
+                Padding="16,10"
+                MinWidth="185"
+                Background="{DynamicResource ThemePrimaryBrush}"
+  
+                CornerRadius="10">
+
+            <StackPanel>
+                <TextBlock Text="AKTIVNE NARUDŽBE"
+                           HorizontalAlignment="Center"
+                           Foreground="{DynamicResource ThemePrimaryForegroundBrush}"
+                           FontSize="10"
+                           FontWeight="SemiBold"/>
+
+                <TextBlock Text="{Binding Orders.Count, Mode=OneWay}"
+                           HorizontalAlignment="Center"
+                           Foreground="{DynamicResource ThemePrimaryForegroundBrush}"
+                           FontSize="46"
+                           FontWeight="Bold"/>
+            </StackPanel>
+        </Border>
+
         <!-- PLUTAJUĆE UNDO DUGME: F11, MIŠ I TOUCH -->
         <Button x:Name="UndoButton"
                 Panel.ZIndex="100"
-                Width="84"
-                Height="84"
-                Margin="0,0,38,38"
+                Width="94"
+                Height="94"
+                Margin="0,0,48,48"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
                 Command="{Binding UndoCommand}"
@@ -323,6 +342,7 @@
                                  Stroke="{DynamicResource ThemePrimaryBrush}"
                                  StrokeThickness="2"/>
                         <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#FluentSystemIcons-Regular"
+                                   Foreground="{DynamicResource ThemePrimaryForegroundBrush}"
                                    Text="&#xF140;"
                                    FontSize="48"
                                    FontWeight="Bold"
@@ -338,7 +358,8 @@
                             <Setter TargetName="UndoCircle" Property="Fill" Value="{DynamicResource ThemePrimaryPressedBrush}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="UndoCircle" Property="Opacity" Value="0.65"/>
+                            <Setter TargetName="UndoCircle" Property="Fill" Value="{DynamicResource ThemeCancelBrush}"/>
+                            <Setter TargetName="UndoCircle" Property="Stroke" Value="{DynamicResource ThemeCancelBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -351,8 +372,7 @@
         <!-- ===================================================== -->
         <Grid x:Name="NewOrderOverlay"
               Panel.ZIndex="999"
-              Visibility="{Binding HasPendingOrders, Converter={StaticResource BoolToVis}}"
-              >
+              Visibility="{Binding HasPendingOrders, Converter={StaticResource BoolToVis}}">
             <Grid.Background>
                 <SolidColorBrush Color="{DynamicResource ThemeShadowColor}" Opacity="0.6"/>
             </Grid.Background>
