@@ -1,0 +1,276 @@
+﻿<UserControl x:Class="Caupo.UserControls.DashboardMenuBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="280" d:DesignHeight="650"
+             Width="280" HorizontalAlignment="Left" VerticalAlignment="Stretch">
+
+    <UserControl.Resources>
+
+        <Style x:Key="DashboardMenuIconStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="pack://application:,,,/Assets/Fonts/#FluentSystemIcons-Regular"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="DashboardSubIconStyle" TargetType="TextBlock" BasedOn="{StaticResource DashboardMenuIconStyle}">
+            <Setter Property="FontSize" Value="21"/>
+            <Setter Property="Width" Value="29"/>
+        </Style>
+
+        <Style x:Key="DashboardMenuButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="Padding" Value="16,0,12,0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GlobalBorderColor}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="{DynamicResource ThemePrimaryBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryForegroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="{DynamicResource ThemePrimaryPressedBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DashboardSubButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="43"/>
+            <Setter Property="Padding" Value="27,0,12,0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GlobalBorderColor}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="{DynamicResource ThemeSecondaryHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="{DynamicResource ThemeSecondaryPressedBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Border Background="{DynamicResource ThemePopupBrush}" BorderBrush="{DynamicResource GlobalBorderColor}"
+            BorderThickness="1" CornerRadius="12" Margin="10">
+        <Border.Effect>
+            <DropShadowEffect Color="{DynamicResource ThemeShadowColor}" BlurRadius="10" ShadowDepth="5" Opacity="0.28"/>
+        </Border.Effect>
+
+        <DockPanel LastChildFill="True">
+
+            <!-- ZAGLAVLJE -->
+            <Border DockPanel.Dock="Top" Height="76" Background="{DynamicResource ThemePrimaryBrush}" CornerRadius="11,11,0,0">
+                <StackPanel VerticalAlignment="Center" Margin="17,0">
+                    <TextBlock Text="CAUPO" FontSize="13" FontWeight="SemiBold"
+                               Foreground="{DynamicResource ThemePrimaryForegroundBrush}" Opacity="0.75"/>
+                    <TextBlock Text="Izvještaji i promet" FontSize="20" FontWeight="Bold"
+                               Foreground="{DynamicResource ThemePrimaryForegroundBrush}" Margin="0,4,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <StackPanel>
+
+                <!-- DNEVNI PROMET -->
+                <Button Style="{StaticResource DashboardMenuButtonStyle}" Click="DailyButton_Click">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xF223;" Style="{StaticResource DashboardMenuIconStyle}"
+                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                            <TextBlock Text="Dnevni promet" VerticalAlignment="Center"
+                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                        </StackPanel>
+                        <TextBlock Text="›" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                   Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}">
+                            <TextBlock.RenderTransform>
+                                <RotateTransform x:Name="DailyArrowTransform"/>
+                            </TextBlock.RenderTransform>
+                        </TextBlock>
+                    </Grid>
+                </Button>
+
+                <StackPanel x:Name="DailyPanel" Visibility="Collapsed" Background="{DynamicResource ThemeControlBrush}">
+
+                    <Button Tag="DnevniPromet" Click="ReportButton_Click" Style="{StaticResource DashboardSubButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xF033F;" Style="{StaticResource DashboardSubIconStyle}"/>
+                            <TextBlock Text="Ukupan promet" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Tag="DnevniPrometPoRadniku" Click="ReportButton_Click" Style="{StaticResource DashboardSubButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE902;" Style="{StaticResource DashboardSubIconStyle}"/>
+                            <TextBlock Text="Promet po radniku" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Tag="DnevniPrometPoArtiklima" Click="ReportButton_Click" Style="{StaticResource DashboardSubButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xF138;" Style="{StaticResource DashboardSubIconStyle}"/>
+                            <TextBlock Text="Promet po artiklima" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Tag="DnevniPrometSanka" Click="ReportButton_Click" Style="{StaticResource DashboardSubButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xF3C6;" Style="{StaticResource DashboardSubIconStyle}"/>
+                            <TextBlock Text="Promet šanka" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Tag="DnevniPrometKuhinje" Click="ReportButton_Click" Style="{StaticResource DashboardSubButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xF444;" Style="{StaticResource DashboardSubIconStyle}"/>
+                            <TextBlock Text="Promet kuhinje" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Tag="DnevniPrometOstalo" Click="ReportButton_Click" Style="{StaticResource DashboardSubButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE429;" Style="{StaticResource DashboardSubIconStyle}"/>
+                            <TextBlock Text="Promet ostalo" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Tag="DnevniUtrosakNamirnica" Click="ReportButton_Click" Style="{StaticResource DashboardSubButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xEEE9;" Style="{StaticResource DashboardSubIconStyle}"/>
+                            <TextBlock Text="Utrošak namirnica" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                </StackPanel>
+
+                <!-- PERIODIČNI PROMET -->
+                <Button Style="{StaticResource DashboardMenuButtonStyle}" Click="PeriodicButton_Click">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xF0285;" Style="{StaticResource DashboardMenuIconStyle}"
+                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                            <TextBlock Text="Periodični promet" VerticalAlignment="Center"
+                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                        </StackPanel>
+                        <TextBlock Text="›" FontSize="22" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                   Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}">
+                            <TextBlock.RenderTransform>
+                                <RotateTransform x:Name="PeriodicArrowTransform"/>
+                            </TextBlock.RenderTransform>
+                        </TextBlock>
+                    </Grid>
+                </Button>
+
+                <StackPanel x:Name="PeriodicPanel" Visibility="Collapsed" Background="{DynamicResource ThemeControlBrush}">
+
+                    <Button Tag="PeriodicniPromet" Click="ReportButton_Click" Style="{StaticResource DashboardSubButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xF033F;" Style="{StaticResource DashboardSubIconStyle}"/>
+                            <TextBlock Text="Ukupan promet" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Tag="PeriodicniPrometPoRadniku" Click="ReportButton_Click" Style="{StaticResource DashboardSubButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE902;" Style="{StaticResource DashboardSubIconStyle}"/>
+                            <TextBlock Text="Promet po radniku" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Tag="PeriodicniPrometPoArtiklima" Click="ReportButton_Click" Style="{StaticResource DashboardSubButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xF138;" Style="{StaticResource DashboardSubIconStyle}"/>
+                            <TextBlock Text="Promet po artiklima" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Tag="PeriodicniPrometSanka" Click="ReportButton_Click" Style="{StaticResource DashboardSubButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xF3C6;" Style="{StaticResource DashboardSubIconStyle}"/>
+                            <TextBlock Text="Promet šanka" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Tag="PeriodicniPrometKuhinje" Click="ReportButton_Click" Style="{StaticResource DashboardSubButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xF444;" Style="{StaticResource DashboardSubIconStyle}"/>
+                            <TextBlock Text="Promet kuhinje" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Tag="PeriodicniPrometOstalo" Click="ReportButton_Click" Style="{StaticResource DashboardSubButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE429;" Style="{StaticResource DashboardSubIconStyle}"/>
+                            <TextBlock Text="Promet ostalo" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Tag="PeriodicniUtrosakNamirnica" Click="ReportButton_Click" Style="{StaticResource DashboardSubButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xEEE9;" Style="{StaticResource DashboardSubIconStyle}"/>
+                            <TextBlock Text="Utrošak namirnica" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                </StackPanel>
+
+                <!-- ZALIHA NAMIRNICA -->
+                <Button Tag="ZalihaNamirnica" Click="ReportButton_Click" Style="{StaticResource DashboardMenuButtonStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xEEE9;" Style="{StaticResource DashboardMenuIconStyle}"
+                                   Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                        <TextBlock Text="Zaliha namirnica" VerticalAlignment="Center"
+                                   Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                    </StackPanel>
+                </Button>
+
+                <!-- REKAPITULACIJA PROMETA -->
+                <Button Tag="RekapitulacijaPrometa" Click="ReportButton_Click" Style="{StaticResource DashboardMenuButtonStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE713;" Style="{StaticResource DashboardMenuIconStyle}"
+                                   Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                        <TextBlock Text="Rekapitulacija prometa" VerticalAlignment="Center"
+                                   Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                    </StackPanel>
+                </Button>
+
+            </StackPanel>
+        </DockPanel>
+    </Border>
+</UserControl>

@@ -4,20 +4,17 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             d:DesignWidth="280"
-             d:DesignHeight="230"
-             Width="280"
-             HorizontalAlignment="Left"
-             VerticalAlignment="Top">
+             d:DesignWidth="280" d:DesignHeight="330"
+             Width="280" HorizontalAlignment="Left" VerticalAlignment="Top">
 
     <UserControl.Resources>
         <Style x:Key="RoomFloatingMenuButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="45"/>
-            <Setter Property="Padding" Value="14,0,10,0"/>
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="Padding" Value="16,0,12,0"/>
             <Setter Property="Margin" Value="0"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GlobalBorderColor}"/>
             <Setter Property="BorderThickness" Value="0,0,0,1"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -27,24 +24,24 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="ButtonBorder"
-                                Background="{TemplateBinding Background}"
+                        <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                Opacity="0.85">
+                                BorderThickness="{TemplateBinding BorderThickness}">
                             <ContentPresenter Margin="{TemplateBinding Padding}"
                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="1"/>
+                                <Setter TargetName="ButtonBorder" Property="Background" Value="{DynamicResource ThemePrimaryBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource ThemePrimaryForegroundBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.65"/>
+                                <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.75"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.35"/>
+                                <Setter Property="Cursor" Value="Arrow"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -53,54 +50,50 @@
         </Style>
     </UserControl.Resources>
 
-    <Border Background="{DynamicResource GlobalBackgroundColor}"
-            BorderBrush="{DynamicResource GlobalFontColor}"
-            BorderThickness="1"
-            CornerRadius="8">
+    <Border Background="{DynamicResource ThemePopupBrush}"
+            BorderBrush="{DynamicResource GlobalBorderColor}"
+            BorderThickness="1" CornerRadius="12" Margin="10">
+        <Border.Effect>
+            <DropShadowEffect Color="{DynamicResource ThemeShadowColor}"
+                              BlurRadius="10" ShadowDepth="5" Opacity="0.28"/>
+        </Border.Effect>
 
         <StackPanel>
-            <Border x:Name="TitleBar"
-                    Height="64"
-                    Background="{DynamicResource GlobalBackgroundColor}"
-                    BorderBrush="{DynamicResource GlobalFontColor}"
-                    BorderThickness="0,0,0,1"
-                    CornerRadius="7,7,0,0"
-                    Cursor="SizeAll"
+            <!-- ZAGLAVLJE: POVLAČENJE MENIJA -->
+            <Border x:Name="TitleBar" Height="76"
+                    Background="{DynamicResource ThemePrimaryBrush}"
+                    CornerRadius="11,11,0,0" Cursor="SizeAll"
                     MouseLeftButtonDown="TitleBar_MouseLeftButtonDown"
                     MouseMove="TitleBar_MouseMove"
                     MouseLeftButtonUp="TitleBar_MouseLeftButtonUp">
+                <Grid Margin="17,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="24"/>
+                    </Grid.ColumnDefinitions>
 
-                <Grid>
-                    <Border Background="{DynamicResource GlobalFontColor}" CornerRadius="7,7,0,0" Opacity="0.10"/>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="UREĐIVANJE SALE" FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource ThemePrimaryForegroundBrush}"/>
+                        <TextBlock x:Name="RoomNameText" Text="Sala" FontSize="20" FontWeight="Bold"
+                                   Foreground="{DynamicResource ThemePrimaryForegroundBrush}"
+                                   Margin="0,4,0,0" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
 
-                    <Grid Margin="14,7,12,7">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Text="Uređivanje sale"
-                                   
-                                   FontSize="15"
-                                   FontWeight="SemiBold"
-                                   VerticalAlignment="Center"/>
-
-                        <TextBlock x:Name="RoomNameText"
-                                   Grid.Row="1"
-                                   Text="Sala"
-                                   
-                                   FontSize="11"
-                                   Opacity="0.70"
-                                   VerticalAlignment="Center"
-                                   TextTrimming="CharacterEllipsis"/>
-                    </Grid>
+                    <TextBlock Grid.Column="1" Text="⠿" FontSize="24" Opacity="0.65"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               Foreground="{DynamicResource ThemePrimaryForegroundBrush}"
+                               IsHitTestVisible="False"/>
                 </Grid>
             </Border>
 
+            <!-- PREIMENUJ SALU -->
             <Button Style="{StaticResource RoomFloatingMenuButtonStyle}" Click="RenameButton_Click">
                 <Grid>
-                    <TextBlock Text="Preimenuj salu" VerticalAlignment="Center"/>
-                    <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Text="›" FontSize="20">
+                    <TextBlock Text="Preimenuj salu" VerticalAlignment="Center"
+                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                    <TextBlock Text="›" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="22"
+                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}">
                         <TextBlock.RenderTransform>
                             <RotateTransform x:Name="RenameArrowTransform" Angle="0"/>
                         </TextBlock.RenderTransform>
@@ -108,31 +101,39 @@
                 </Grid>
             </Button>
 
-            <StackPanel x:Name="RenamePanel" Visibility="Collapsed" Margin="12,8,12,12">
-                <TextBlock Text="Novi naziv sale"  Margin="0,0,0,5"/>
-                <TextBox x:Name="RoomNameInput" Style="{StaticResource TextBoxCustom}" Height="38" FontSize="14" VerticalContentAlignment="Center" Padding="8,0"/>
+            <StackPanel x:Name="RenamePanel" Visibility="Collapsed" Margin="15,12,15,14">
+                <TextBlock Text="Novi naziv sale" FontSize="13" Margin="0,0,0,8"
+                           Foreground="{DynamicResource GlobalFontColor}"/>
+                <TextBox x:Name="RoomNameInput" Style="{StaticResource TextBoxCustom}"
+                         Height="42" FontSize="14" VerticalContentAlignment="Center" Padding="10,0"/>
 
-                <Grid Margin="0,10,0,0">
+                <Grid Margin="0,12,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="10"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Button Grid.Column="0" Style="{StaticResource CancelButtonStyle}" Click="CloseSubMenuButton_Click">
+                    <Button Grid.Column="0" Height="42" Style="{StaticResource CancelButtonStyle}"
+                            Click="CloseSubMenuButton_Click">
                         <TextBlock Text="Odustani"/>
                     </Button>
 
-                    <Button Grid.Column="2" Style="{StaticResource PrimaryButtonStyle}" Click="SaveNameButton_Click">
+                    <Button Grid.Column="2" Height="42" Style="{StaticResource PrimaryButtonStyle}"
+                            Click="SaveNameButton_Click">
                         <TextBlock Text="Spremi"/>
                     </Button>
                 </Grid>
             </StackPanel>
 
-            <Button x:Name="DeleteButton" Style="{StaticResource RoomFloatingMenuButtonStyle}" Click="DeleteButton_Click">
+            <!-- OBRIŠI SALU -->
+            <Button x:Name="DeleteButton" Style="{StaticResource RoomFloatingMenuButtonStyle}"
+                    Click="DeleteButton_Click">
                 <Grid>
-                    <TextBlock Text="Obriši salu" VerticalAlignment="Center"/>
-                    <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center" Text="›" FontSize="20">
+                    <TextBlock Text="Obriši salu" VerticalAlignment="Center"
+                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
+                    <TextBlock Text="›" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="22"
+                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}">
                         <TextBlock.RenderTransform>
                             <RotateTransform x:Name="DeleteArrowTransform" Angle="0"/>
                         </TextBlock.RenderTransform>
@@ -140,39 +141,38 @@
                 </Grid>
             </Button>
 
-            <StackPanel x:Name="DeletePanel" Visibility="Collapsed" Margin="12,8,12,12">
+            <StackPanel x:Name="DeletePanel" Visibility="Collapsed" Margin="15,12,15,14">
                 <TextBlock Text="Da li ste sigurni da želite obrisati ovu salu?"
-                           
-                           FontSize="13"
-                           TextWrapping="Wrap"
-                           Margin="0,0,0,5"/>
+                           FontSize="13" TextWrapping="Wrap" Margin="0,0,0,8"
+                           Foreground="{DynamicResource GlobalFontColor}"/>
 
-                <TextBlock x:Name="DeleteRoomNameText"
-                           
-                           FontSize="13"
-                           FontWeight="SemiBold"
-                           TextWrapping="Wrap"
-                           Margin="0,0,0,10"/>
+                <TextBlock x:Name="DeleteRoomNameText" FontSize="16" FontWeight="SemiBold"
+                           TextWrapping="Wrap" Margin="0,0,0,14"
+                           Foreground="{DynamicResource GlobalFontColor}"/>
 
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="10"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Button Grid.Column="0" Style="{StaticResource CancelButtonStyle}" Click="CloseSubMenuButton_Click">
+                    <Button Grid.Column="0" Height="42" Style="{StaticResource CancelButtonStyle}"
+                            Click="CloseSubMenuButton_Click">
                         <TextBlock Text="Odustani"/>
                     </Button>
 
-                    <Button Grid.Column="2" Style="{StaticResource DestructiveButtonStyle}" Click="ConfirmDeleteButton_Click">
+                    <Button Grid.Column="2" Height="42" Style="{StaticResource DestructiveButtonStyle}"
+                            Click="ConfirmDeleteButton_Click">
                         <TextBlock Text="Obriši"/>
                     </Button>
                 </Grid>
             </StackPanel>
 
-            <Button Style="{StaticResource CancelButtonStyle}" BorderThickness="1" Click="FinishButton_Click" Margin="10">
-                <TextBlock Text="Odustani" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            <!-- ZATVORI MENI -->
+            <Button Style="{StaticResource CancelButtonStyle}" BorderThickness="1"
+                    Height="44" Click="FinishButton_Click" Margin="12,14,12,12">
+                <TextBlock Text="Zatvori meni" FontWeight="SemiBold" VerticalAlignment="Center"/>
             </Button>
         </StackPanel>
     </Border>

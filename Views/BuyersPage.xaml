@@ -123,11 +123,11 @@
                     <TextBlock Text="&#xE710;"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="20"
-                               Foreground="{DynamicResource GlobalFontColor}"
+                               
                                VerticalAlignment="Center"
                                Margin="0,0,8,0"/>
                     <TextBlock Text="Dodaj"
-                               Foreground="{DynamicResource GlobalFontColor}"
+                               
                                VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
@@ -144,11 +144,11 @@
                     <TextBlock Text="&#xE70F;"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="19"
-                               Foreground="{DynamicResource GlobalFontColor}"
+                               
                                VerticalAlignment="Center"
                                Margin="0,0,8,0"/>
                     <TextBlock Text="Izmijeni"
-                               Foreground="{DynamicResource GlobalFontColor}"
+                               
                                VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
@@ -165,11 +165,11 @@
                     <TextBlock Text="&#xE74D;"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="19"
-                               Foreground="{DynamicResource GlobalFontColor}"
+                              
                                VerticalAlignment="Center"
                                Margin="0,0,8,0"/>
                     <TextBlock Text="Obriši"
-                               Foreground="{DynamicResource GlobalFontColor}"
+                             
                                VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
@@ -186,11 +186,11 @@
                     <TextBlock Text="&#xE8A5;"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="19"
-                               Foreground="{DynamicResource GlobalFontColor}"
+                              
                                VerticalAlignment="Center"
                                Margin="0,0,8,0"/>
                     <TextBlock Text="Faktura"
-                               Foreground="{DynamicResource GlobalFontColor}"
+                              
                                VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
@@ -335,105 +335,119 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Kupaca: "
                                            FontSize="13"
-                                           Foreground="{DynamicResource GlobalFontColor}"/>
+                                           />
                                 <TextBlock Text="{Binding BuyersFilter.Count}"
                                            FontSize="13"
                                            FontWeight="SemiBold"
-                                           Foreground="{DynamicResource GlobalFontColor}"/>
+                                           />
                             </StackPanel>
                         </Border>
                     </Grid>
 
-                    <DataGrid x:Name="ListaKupaca"
-                              Grid.Row="1"
-                              Margin="0,5"
-                              ItemsSource="{Binding BuyersFilter}"
-                              SelectedItem="{Binding SelectedBuyer, Mode=TwoWay}"
-                              SelectionChanged="ListaKupaca_SelectionChanged"
-                              AutoGenerateColumns="False"
-                              IsReadOnly="True"
-                              HeadersVisibility="Column"
-                              CanUserAddRows="False"
-                              CanUserDeleteRows="False"
-                              CanUserResizeRows="False"
-                              CanUserSortColumns="True"
-                              GridLinesVisibility="None"
-                              Background="Transparent"
-                              BorderThickness="0"
-                              Foreground="{DynamicResource GlobalFontColor}"
-                              HorizontalScrollBarVisibility="Disabled"
-                              ScrollViewer.VerticalScrollBarVisibility="Auto"
-                              SelectionMode="Single"
-                              SelectionUnit="FullRow"
-                              RowHeight="49"
-                              ColumnHeaderHeight="45"
-                              ClipToBounds="True"
-                              RowStyle="{StaticResource BuyerDataGridRowStyle}">
+
+
+
+
+
+
+                    <DataGrid x:Name="ListaKupaca" Grid.Row="1" Margin="0,5"
+          ItemsSource="{Binding BuyersFilter}" SelectedItem="{Binding SelectedBuyer, Mode=TwoWay}"
+          SelectionChanged="ListaKupaca_SelectionChanged"
+          AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column"
+          CanUserAddRows="False" CanUserDeleteRows="False" CanUserResizeRows="False" CanUserSortColumns="False"
+          GridLinesVisibility="None" Background="Transparent" BorderThickness="0"
+          
+          HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto"
+          SelectionMode="Single" SelectionUnit="FullRow"
+          RowHeight="70" ColumnHeaderHeight="45" ClipToBounds="True"
+          RowStyle="{StaticResource BuyerDataGridRowStyle}">
 
                         <DataGrid.Resources>
-                            <Style TargetType="ScrollBar"
-                                   BasedOn="{StaticResource WideVerticalScrollBar}"/>
+                            <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
                         </DataGrid.Resources>
 
                         <DataGrid.Columns>
-
-                            <DataGridTemplateColumn Header="Kupac"
-                                                    Width="2*"
-                                                    SortMemberPath="Kupac">
+                            <!-- NAZIV KUPCA I ADRESA -->
+                            <DataGridTemplateColumn Header="Kupac / Mjesto" Width="2.5*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Kupac}"
-                                                   Style="{StaticResource BuyerGridText}"/>
+                                        <Grid Margin="7,5">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="2*"/>
+                                                <RowDefinition Height="1*"/>
+                                            </Grid.RowDefinitions>
+
+                                            <TextBlock Grid.Row="0" Text="{Binding Kupac}" FontSize="14" FontWeight="SemiBold"
+                                    TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center" ToolTip="{Binding Kupac}"/>
+
+                                            <TextBlock Grid.Row="1" Text="{Binding Mjesto}" FontSize="11" Opacity="0.75"
+                                    TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center" ToolTip="{Binding Mjesto}"/>
+                                        </Grid>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
 
-                            <DataGridTemplateColumn Header="Adresa"
-                                                    Width="1.5*"
-                                                    SortMemberPath="Adresa">
+                            <!-- MJESTO -->
+                            <DataGridTemplateColumn Header="Adresa" Width="1.7*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Adresa}"
-                                                   Style="{StaticResource BuyerGridText}"/>
+                                        <Grid Margin="7,5">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="2*"/>
+                                                <RowDefinition Height="1*"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Row="0" Text="" FontSize="11"     VerticalAlignment="Center" />
+                                            <TextBlock Grid.Row="1" Text="{Binding Adresa}" FontSize="10" Opacity="0.75" TextWrapping="Wrap"
+                                    TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center" ToolTip="{Binding Adresa}"/>
+                                        </Grid>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
 
-                            <DataGridTemplateColumn Header="Mjesto"
-                                                    Width="1.2*"
-                                                    SortMemberPath="Mjesto">
+                            <!-- JIB -->
+                            <DataGridTemplateColumn Header="JIB" Width="1.25*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Mjesto}"
-                                                   Style="{StaticResource BuyerGridText}"/>
+                                        <Grid Margin="7,5">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="2*"/>
+                                                <RowDefinition Height="1*"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Row="0" Text="" FontSize="10"     VerticalAlignment="Center" />
+                                            <TextBlock Grid.Row="1" Text="{Binding JIB}" FontSize="10" Opacity="0.75"
+                                    TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center" ToolTip="{Binding JIB}"/>
+                                        </Grid>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
 
-                            <DataGridTemplateColumn Header="JIB"
-                                                    Width="1.2*"
-                                                    SortMemberPath="JIB">
+                            <!-- PDV -->
+                            <DataGridTemplateColumn Header="PDV" Width="1.25*">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding JIB}"
-                                                   Style="{StaticResource BuyerGridText}"/>
+                                        <Grid Margin="7,5">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="2*"/>
+                                                <RowDefinition Height="1*"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Grid.Row="0" Text="" FontSize="11"     VerticalAlignment="Center" />
+                                            <TextBlock Grid.Row="1" Text="{Binding PDV}" FontSize="10" Opacity="0.75"  TextTrimming="CharacterEllipsis"       VerticalAlignment="Center" ToolTip="{Binding PDV}"/>
+                                        </Grid>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-
-                            <DataGridTemplateColumn Header="PDV"
-                                                    Width="1.2*"
-                                                    SortMemberPath="PDV">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding PDV}"
-                                                   Style="{StaticResource BuyerGridText}"/>
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                            </DataGridTemplateColumn>
-
                         </DataGrid.Columns>
                     </DataGrid>
+
+
+
+
+
+
                 </Grid>
             </Border>
 
@@ -470,11 +484,11 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Računa: "
                                            FontSize="13"
-                                           Foreground="{DynamicResource GlobalFontColor}"/>
+                                           />
                                 <TextBlock Text="{Binding Receipts.Count}"
                                            FontSize="13"
                                            FontWeight="SemiBold"
-                                           Foreground="{DynamicResource GlobalFontColor}"/>
+                                           />
                             </StackPanel>
                         </Border>
                     </Grid>
@@ -495,7 +509,7 @@
                               GridLinesVisibility="None"
                               Background="Transparent"
                               BorderThickness="0"
-                              Foreground="{DynamicResource GlobalFontColor}"
+                              
                               HorizontalScrollBarVisibility="Disabled"
                               ScrollViewer.VerticalScrollBarVisibility="Auto"
                               SelectionMode="Single"

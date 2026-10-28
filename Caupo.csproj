@@ -4096,6 +4096,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Update="UserControls\DashboardMenuBar.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\DashboardPage.xaml.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -1,71 +1,106 @@
 ﻿<Window x:Class="Caupo.Views.MyInputBox"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:Caupo.Views"
-        xmlns:loc="clr-namespace:Caupo"
-         WindowStartupLocation="CenterScreen"
- WindowStyle="None"
- WindowState="Maximized"
- AllowsTransparency="True"
- Background="Transparent"
-        Loaded="Window_Loaded"   >
-    <Grid >
-        <Border      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#33000000">
-            <Border   Height="255" Width="420" CornerRadius="7"   HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="0.5" BorderBrush="{DynamicResource GlobalFontColor}" Background="{DynamicResource GlobalBackgroundColor}">
-                <Grid >
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="80"/>
-                        <RowDefinition Height="95"/>
-                        <RowDefinition Height="80"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Foreground="{DynamicResource GlobalFontColor}" Margin="15" FontSize="45"  FontWeight="ExtraLight" Text="&#xEA74;"  HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Row="0"/>
-                    <TextBlock x:Name="InputTitle" Foreground="{DynamicResource GlobalFontColor}" Text="Input Title" HorizontalAlignment="Center" FontSize="20" VerticalAlignment="Center" TextAlignment="Center" Grid.Row="0" TextWrapping="WrapWithOverflow" Width="250" Margin="0"/>
-                    
-                    <TextBox x:Name="InputText" HorizontalContentAlignment="Center" 
-                             Style="{DynamicResource TextBoxCustom}" 
-                             GotFocus="TextBox_GotFocus"
-                             LostFocus="TextBox_LostFocus" 
-                             PreviewMouseLeftButtonDown="InputText_PreviewMouseLeftButtonDown" 
-                             PreviewKeyDown="InputText_PreviewKeyDown"
-                             BorderBrush="{DynamicResource GlobalFontColor}" 
-                             BorderThickness="0,0,0,1" 
-                              
-                             CaretBrush="{DynamicResource GlobalFontColor}" 
-                             Text="" 
-                             Width="250"
-                             Height="90"
-                             HorizontalAlignment="Center" 
-                   
-                             TextWrapping="Wrap" 
-                             Background="Transparent"     
-                             TextAlignment="Center" 
-                             VerticalContentAlignment="Bottom"
-                             VerticalAlignment="Top" 
-                             Grid.Row="1"  />
-                    
-                    <StackPanel Orientation="Horizontal" Grid.Row="2" HorizontalAlignment="Center">
-                      
-                            <Button Style="{StaticResource CancelButtonStyle}"   BorderThickness="1" x:Name="CancelButton"  Click="CancelButton_Click"   Width="120"  Margin="5"  Height="50"        Grid.Column="0">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" >
-                                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="20" Width="20" FontWeight="ExtraLight" Text="&#60039;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Odustani"  VerticalAlignment="Center"   />
-                                </StackPanel>
-                            </Button>
-                      
-                       
-                            <Button  Style="{StaticResource PrimaryButtonStyle}"    x:Name="OKButton"  Click="OKButton_Click"  Width="120" Margin="5"   Height="50"        Grid.Column="1" HorizontalAlignment="Left">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon" Margin="5" FontSize="20" Width="20" FontWeight="ExtraLight" Text="&#xEAB2;"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <TextBlock Text="U redu"  VerticalAlignment="Center"    />
-                                </StackPanel>
-                            </Button>
-                      
-                    </StackPanel>
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        WindowState="Maximized"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Loaded="Window_Loaded"
+        UseLayoutRounding="True">
 
+    <Grid Background="#663A3A40">
+        <Border Width="460" MinHeight="290" MaxHeight="540" CornerRadius="12"
+                BorderThickness="1" Background="{DynamicResource ThemePopupBrush}"
+                BorderBrush="{DynamicResource GlobalBorderColor}"
+                HorizontalAlignment="Center" VerticalAlignment="Center" >
+            <Border.Effect>
+                <DropShadowEffect Color="{DynamicResource ThemeShadowColor}" BlurRadius="18" ShadowDepth="5" Opacity="0.28"/>
+            </Border.Effect>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- ZAGLAVLJE -->
+                <Border Grid.Row="0" Background="{DynamicResource ThemePrimaryBrush}"
+                        CornerRadius="11,11,0,0" Padding="20,17">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="40"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                   Text="&#xEA74;" FontSize="28" FontWeight="ExtraLight"
+                                   Foreground="{DynamicResource ThemePrimaryForegroundBrush}"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock x:Name="InputTitle" Grid.Column="1" Text="Unesite vrijednost"
+                                   FontSize="19" FontWeight="SemiBold" TextWrapping="Wrap"
+                                   TextAlignment="Left" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource ThemePrimaryForegroundBrush}"/>
+                    </Grid>
+                </Border>
+
+                <!-- UNOS -->
+                <Grid Grid.Row="1" Margin="26,24,26,18">
+                    <TextBox x:Name="InputText" Height="56" MinWidth="260"
+                             HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                             Style="{DynamicResource TextBoxCustom}"
+                             GotFocus="TextBox_GotFocus"
+                             LostFocus="TextBox_LostFocus"
+                             PreviewMouseLeftButtonDown="InputText_PreviewMouseLeftButtonDown"
+                             PreviewKeyDown="InputText_PreviewKeyDown"
+                             Background="Transparent"
+                             Foreground="{DynamicResource GlobalFontColor}"
+                             CaretBrush="{DynamicResource GlobalFontColor}"
+                             BorderBrush="{DynamicResource GlobalBorderColor}"
+                             BorderThickness="0,0,0,1"
+                             FontSize="23" TextAlignment="Center"
+                             HorizontalContentAlignment="Center"
+                             VerticalContentAlignment="Center"
+                             TextWrapping="Wrap"/>
                 </Grid>
-            </Border>
+
+                <!-- AKCIJE -->
+                <Grid Grid.Row="2" Margin="22,0,22,22">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button x:Name="CancelButton" Grid.Column="0" Height="48"
+                            Style="{StaticResource CancelButtonStyle}" Click="CancelButton_Click">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                       Text="&#60039;" FontSize="19" Margin="0,0,9,0"
+                                       Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
+                            <TextBlock Text="Odustani" FontSize="15"
+                                       Foreground="{DynamicResource GlobalFontColor}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="OKButton" Grid.Column="2" Height="48"
+                            Style="{StaticResource PrimaryButtonStyle}" Click="OKButton_Click">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#codicon"
+                                       Text="&#xEAB2;" FontSize="19" Margin="0,0,9,0"
+                                       Foreground="{DynamicResource ThemePrimaryForegroundBrush}" VerticalAlignment="Center"/>
+                            <TextBlock Text="U redu" FontSize="15" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource ThemePrimaryForegroundBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Grid>
         </Border>
-        <ContentControl x:Name="KeyboardHost"  HorizontalAlignment="Stretch" Background="AliceBlue"   VerticalAlignment="Bottom"      Visibility="Collapsed" Margin="5"/>
+
+        <ContentControl x:Name="KeyboardHost" HorizontalAlignment="Stretch"
+                        VerticalAlignment="Bottom" Background="Transparent"
+                        Visibility="Collapsed" Panel.ZIndex="10"/>
     </Grid>
 </Window>

@@ -1038,6 +1038,15 @@ namespace Caupo.Data
             public decimal? Kolicina { get; set; }
             public decimal? Cijena { get; set; }
             public decimal? Ukupno => Kolicina * Cijena;
+
+            [NotMapped]
+            public decimal? Kalo { get; set; }
+
+            [NotMapped]
+            public decimal? NetoKolicina =>
+                Kolicina.HasValue && Kalo.HasValue
+                    ? Kolicina.Value * (1m - Kalo.Value / 100m)
+                    : null;
             public int IdProizvoda { get; set; }
         }
         [Table ("tblOtpis")]
@@ -1345,7 +1354,7 @@ namespace Caupo.Data
             }
             public decimal? NabavnaCijena { get; set; }
             public decimal? PlanskaCijena { get; set; }
-            public decimal? Zaliha { get; set; }
+            public decimal? Kalo { get; set; }
         }
         [Table ("tblUlaz")]
         public class TblUlaz

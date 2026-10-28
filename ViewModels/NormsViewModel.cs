@@ -1,4 +1,5 @@
-﻿using Caupo.Data;
+﻿
+using Caupo.Data;
 using Caupo.Properties;
 using Caupo.Views;
 using CommunityToolkit.Mvvm.Input;
@@ -17,199 +18,141 @@ namespace Caupo.ViewModels
 {
     public class NormsViewModel : INotifyPropertyChanged
     {
-
         private decimal? proizvodnaCijena;
         public decimal? ProizvodnaCijena
         {
-            get { return proizvodnaCijena; }
-            set
-            {
-                proizvodnaCijena = value;
-                OnPropertyChanged(nameof(ProizvodnaCijena));
-            }
+            get => proizvodnaCijena;
+            set { proizvodnaCijena = value; OnPropertyChanged(); }
         }
 
         private decimal? prodajnaCijena;
         public decimal? ProdajnaCijena
         {
-            get { return prodajnaCijena; }
-            set
-            {
-                prodajnaCijena = value;
-                OnPropertyChanged(nameof(ProdajnaCijena));
-            }
+            get => prodajnaCijena;
+            set { prodajnaCijena = value; OnPropertyChanged(); }
         }
 
         private string? marza;
         public string? Marza
         {
-            get { return marza; }
-            set
-            {
-                marza = value;
-                OnPropertyChanged(nameof(Marza));
-            }
+            get => marza;
+            set { marza = value; OnPropertyChanged(); }
         }
 
         private string? _imagePathFirstButton;
         public string? ImagePathFirstButton
         {
-            get { return _imagePathFirstButton; }
-            set
-            {
-                _imagePathFirstButton = value;
-                OnPropertyChanged(nameof(ImagePathFirstButton));
-            }
+            get => _imagePathFirstButton;
+            set { _imagePathFirstButton = value; OnPropertyChanged(); }
         }
 
         private string? _imagePathLastButton;
         public string? ImagePathLastButton
         {
-            get { return _imagePathLastButton; }
-            set
-            {
-                _imagePathLastButton = value;
-                OnPropertyChanged(nameof(ImagePathLastButton));
-            }
+            get => _imagePathLastButton;
+            set { _imagePathLastButton = value; OnPropertyChanged(); }
         }
 
         private string? _imagePathPhotoButton;
         public string? ImagePathPhotoButton
         {
-            get { return _imagePathPhotoButton; }
-            set
-            {
-                _imagePathPhotoButton = value;
-                OnPropertyChanged(nameof(ImagePathPhotoButton));
-            }
+            get => _imagePathPhotoButton;
+            set { _imagePathPhotoButton = value; OnPropertyChanged(); }
         }
+
         private string? _imagePathEditButton;
         public string? ImagePathEditButton
         {
-            get { return _imagePathEditButton; }
-            set
-            {
-                _imagePathEditButton = value;
-                OnPropertyChanged(nameof(ImagePathEditButton));
-            }
+            get => _imagePathEditButton;
+            set { _imagePathEditButton = value; OnPropertyChanged(); }
         }
+
         private string? _imagePathAddButton;
         public string? ImagePathAddButton
         {
-            get { return _imagePathAddButton; }
-            set
-            {
-                _imagePathAddButton = value;
-                OnPropertyChanged(nameof(ImagePathAddButton));
-            }
+            get => _imagePathAddButton;
+            set { _imagePathAddButton = value; OnPropertyChanged(); }
         }
+
         private string? _imagePathDeleteButton;
         public string? ImagePathDeleteButton
         {
-            get { return _imagePathDeleteButton; }
-            set
-            {
-                _imagePathDeleteButton = value;
-                OnPropertyChanged(nameof(ImagePathDeleteButton));
-            }
+            get => _imagePathDeleteButton;
+            set { _imagePathDeleteButton = value; OnPropertyChanged(); }
         }
 
         private string? _imagePathCancelButton;
         public string? ImagePathCancelButton
         {
-            get { return _imagePathCancelButton; }
-            set
-            {
-                _imagePathCancelButton = value;
-                OnPropertyChanged(nameof(ImagePathCancelButton));
-            }
+            get => _imagePathCancelButton;
+            set { _imagePathCancelButton = value; OnPropertyChanged(); }
         }
 
         private string? _imagePathSaveButton;
         public string? ImagePathSaveButton
         {
-            get { return _imagePathSaveButton; }
-            set
-            {
-                _imagePathSaveButton = value;
-                OnPropertyChanged(nameof(ImagePathSaveButton));
-            }
+            get => _imagePathSaveButton;
+            set { _imagePathSaveButton = value; OnPropertyChanged(); }
         }
 
         private string? _imagePathExportButton;
         public string? ImagePathExportButton
         {
-            get { return _imagePathExportButton; }
-            set
-            {
-                _imagePathExportButton = value;
-                OnPropertyChanged(nameof(ImagePathExportButton));
-            }
+            get => _imagePathExportButton;
+            set { _imagePathExportButton = value; OnPropertyChanged(); }
         }
 
         private string? _imagePathImportButton;
         public string? ImagePathImportButton
         {
-            get { return _imagePathImportButton; }
-            set
-            {
-                _imagePathImportButton = value;
-                OnPropertyChanged(nameof(ImagePathImportButton));
-            }
+            get => _imagePathImportButton;
+            set { _imagePathImportButton = value; OnPropertyChanged(); }
         }
+
         private string? _imagePathSearchTextBox;
         public string? ImagePathSearchTextBox
         {
-            get { return _imagePathSearchTextBox; }
-            set
-            {
-                _imagePathSearchTextBox = value;
-                OnPropertyChanged(nameof(ImagePathSearchTextBox));
-            }
+            get => _imagePathSearchTextBox;
+            set { _imagePathSearchTextBox = value; OnPropertyChanged(); }
         }
 
         private Brush? _fontColor;
         public Brush? FontColor
         {
-            get { return _fontColor; }
+            get => _fontColor;
             set
             {
-                if (_fontColor != value)
-                {
-                    _fontColor = value;
-                    OnPropertyChanged(nameof(FontColor));
-                }
+                if (_fontColor == value) return;
+                _fontColor = value;
+                OnPropertyChanged();
             }
         }
 
         private Brush? _backColor;
         public Brush? BackColor
         {
-            get { return _backColor; }
+            get => _backColor;
             set
             {
-                if (_backColor != value)
-                {
-                    _backColor = value;
-                    OnPropertyChanged(nameof(BackColor));
-                }
+                if (_backColor == value) return;
+                _backColor = value;
+                OnPropertyChanged();
             }
         }
 
-        private ObservableCollection<TblArtikli> _jela;
+        private ObservableCollection<TblArtikli> _jela = new();
         public ObservableCollection<TblArtikli> Jela
         {
             get => _jela;
             set { _jela = value; OnPropertyChanged(); }
         }
 
-        private ObservableCollection<TblArtikli> _suggestions;
+        private ObservableCollection<TblArtikli> _suggestions = new();
         public ObservableCollection<TblArtikli> Suggestions
         {
             get => _suggestions;
             set { _suggestions = value; OnPropertyChanged(); }
         }
-
 
         public IEnumerable<SearchSuggestion> SearchSuggestions =>
             Suggestions.Select(jelo => new SearchSuggestion
@@ -220,90 +163,69 @@ namespace Caupo.ViewModels
                 Item = jelo
             });
 
+        public ObservableCollection<TblRepromaterijal> Ingredients { get; set; } = new();
+        public ObservableCollection<TblJediniceMjere> JediniceMjere { get; set; } = new();
 
-        public ObservableCollection<DatabaseTables.TblRepromaterijal> Ingredients { get; set; } = new ObservableCollection<DatabaseTables.TblRepromaterijal>();
-        public ObservableCollection<DatabaseTables.TblJediniceMjere> JediniceMjere { get; set; } = new ObservableCollection<DatabaseTables.TblJediniceMjere>();
-
-        private DatabaseTables.TblRepromaterijal? _selectedIngredient;
-        public DatabaseTables.TblRepromaterijal? SelectedIngredient
+        private TblRepromaterijal? _selectedIngredient;
+        public TblRepromaterijal? SelectedIngredient
         {
             get => _selectedIngredient;
             set
             {
-                if (_selectedIngredient != value)
-                {
-                    _selectedIngredient = value;
-                    OnPropertyChanged(nameof(SelectedIngredient));
-
-                }
+                if (_selectedIngredient == value) return;
+                _selectedIngredient = value;
+                OnPropertyChanged();
             }
         }
 
-        private DatabaseTables.TblNormativ? _selectedNorm;
-        public DatabaseTables.TblNormativ? SelectedNorm
+        private TblNormativ? _selectedNorm;
+        public TblNormativ? SelectedNorm
         {
             get => _selectedNorm;
             set
             {
-                if (_selectedNorm != value)
-                {
-                    _selectedNorm = value;
-                    OnPropertyChanged(nameof(SelectedNorm));
-
-                }
+                if (_selectedNorm == value) return;
+                _selectedNorm = value;
+                OnPropertyChanged();
             }
         }
 
-        private DatabaseTables.TblJediniceMjere? _selectedJedinicaMjere;
-        public DatabaseTables.TblJediniceMjere? SelectedJedinicaMjere
+        private TblJediniceMjere? _selectedJedinicaMjere;
+        public TblJediniceMjere? SelectedJedinicaMjere
         {
             get => _selectedJedinicaMjere;
             set
             {
-                if (_selectedJedinicaMjere != value)
-                {
-                    _selectedJedinicaMjere = value;
-                    OnPropertyChanged(nameof(SelectedJedinicaMjere));
-                }
+                if (_selectedJedinicaMjere == value) return;
+                _selectedJedinicaMjere = value;
+                OnPropertyChanged();
             }
         }
 
-        private DatabaseTables.TblArtikli? _selectedJelo;
-        public DatabaseTables.TblArtikli? SelectedJelo
+        private TblArtikli? _selectedJelo;
+        public TblArtikli? SelectedJelo
         {
             get => _selectedJelo;
             set
             {
-                if (_selectedJelo != value)
-                {
-                    _selectedJelo = value;
-                    OnPropertyChanged(nameof(SelectedJelo));
-                }
+                if (_selectedJelo == value) return;
+                _selectedJelo = value;
+                OnPropertyChanged();
             }
         }
 
-
-        private ObservableCollection<TblNormativ>? _norm;
+        private ObservableCollection<TblNormativ>? _norm = new();
         public ObservableCollection<TblNormativ>? Norm
         {
             get => _norm;
-            set
-            {
-                _norm = value;
-                OnPropertyChanged(nameof(Norm));
-            }
+            set { _norm = value; OnPropertyChanged(); }
         }
 
-
-        private ObservableCollection<TblRepromaterijal>? _ingredientFilter;
+        private ObservableCollection<TblRepromaterijal>? _ingredientFilter = new();
         public ObservableCollection<TblRepromaterijal>? IngredientFilter
         {
             get => _ingredientFilter;
-            set
-            {
-                _ingredientFilter = value;
-                OnPropertyChanged(nameof(IngredientFilter));
-            }
+            set { _ingredientFilter = value; OnPropertyChanged(); }
         }
 
         private bool _isSuggestionsOpen;
@@ -312,86 +234,74 @@ namespace Caupo.ViewModels
             get => _isSuggestionsOpen;
             set
             {
-                if (_isSuggestionsOpen != value)
-                {
-                    _isSuggestionsOpen = value;
-                    OnPropertyChanged();
-                }
+                if (_isSuggestionsOpen == value) return;
+                _isSuggestionsOpen = value;
+                OnPropertyChanged();
             }
         }
 
-        public string? _searchText;
+        private string? _searchText;
         public string? SearchText
         {
             get => _searchText;
             set
             {
-                if (_searchText != value)
-                {
-                    _searchText = value;
-                    OnPropertyChanged(nameof(SearchText));
-                    Debug.WriteLine($"SearchText changed to: ");  // Dodaj log za testiranje
-                    FilterItems(_searchText);
-                   
-                }
+                if (_searchText == value) return;
+                _searchText = value;
+                OnPropertyChanged();
+                Debug.WriteLine("SearchText changed to: " + _searchText);
+                FilterItems(_searchText);
             }
         }
 
-        public string? _searchTextIngredient;
+        private string? _searchTextIngredient;
         public string? SearchTextIngredient
         {
             get => _searchTextIngredient;
             set
             {
-                if (_searchTextIngredient != value)
-                {
-                    _searchTextIngredient = value;
-                    OnPropertyChanged(nameof(SearchTextIngredient));
-                    Debug.WriteLine($"SearchTextIngredient changed to: " + _searchTextIngredient);  // Dodaj log za testiranje
-                    FilterItemsIngredient(_searchTextIngredient);
-
-                }
+                if (_searchTextIngredient == value) return;
+                _searchTextIngredient = value;
+                OnPropertyChanged();
+                Debug.WriteLine("SearchTextIngredient changed to: " + _searchTextIngredient);
+                FilterItemsIngredient(_searchTextIngredient);
             }
         }
 
         public ICommand DeleteCommand { get; }
-
-        // Navigacija kroz jela za CaupoSearchBar.
         public ICommand FirstJeloCommand { get; }
         public ICommand PreviousJeloCommand { get; }
         public ICommand NextJeloCommand { get; }
         public ICommand LastJeloCommand { get; }
 
-
         public NormsViewModel()
         {
-            Start();
             Suggestions = new ObservableCollection<TblArtikli>();
             Jela = new ObservableCollection<TblArtikli>();
             Ingredients = new ObservableCollection<TblRepromaterijal>();
             IngredientFilter = new ObservableCollection<TblRepromaterijal>();
             Norm = new ObservableCollection<TblNormativ>();
-            SelectedIngredient = IngredientFilter?.FirstOrDefault();
+
+            SelectedIngredient = IngredientFilter.FirstOrDefault();
             DeleteCommand = new AsyncRelayCommand(async () => await DeleteNorm(SelectedNorm));
             FirstJeloCommand = new AsyncRelayCommand(async () => await NavigateJeloAsync(0, true));
             PreviousJeloCommand = new AsyncRelayCommand(async () => await NavigateJeloAsync(-1, false));
             NextJeloCommand = new AsyncRelayCommand(async () => await NavigateJeloAsync(1, false));
             LastJeloCommand = new AsyncRelayCommand(async () => await NavigateJeloAsync(-1, true));
-            // Debug.WriteLine("SelectedArticle = " + SelectedIngredient.Repromaterijal);
+
             Debug.WriteLine("SearchText = " + SearchText);
             ProizvodnaCijena = 0;
             ProdajnaCijena = 0;
             Marza = "0.00 KM        0%";
+
+            Start();
         }
-
-
 
         private async Task NavigateJeloAsync(int direction, bool boundary)
         {
-            if (Jela == null || Jela.Count == 0)
-                return;
+            if (Jela.Count == 0) return;
 
-            int currentIndex = Jela.IndexOf(SelectedJelo);
+            int currentIndex = Jela.IndexOf(SelectedJelo!);
             int targetIndex = boundary
                 ? (direction == 0 ? 0 : Jela.Count - 1)
                 : currentIndex + direction;
@@ -399,8 +309,7 @@ namespace Caupo.ViewModels
             if (currentIndex < 0 && !boundary)
                 targetIndex = direction > 0 ? 0 : Jela.Count - 1;
 
-            if (targetIndex < 0 || targetIndex >= Jela.Count)
-                return;
+            if (targetIndex < 0 || targetIndex >= Jela.Count) return;
 
             var jelo = Jela[targetIndex];
             if (SelectedJelo != jelo)
@@ -413,40 +322,46 @@ namespace Caupo.ViewModels
             await LoadJela();
             await LoadIngredientsAsync();
             await LoadJediniceMjere();
-            await LoadNormativ(SelectedJelo);
 
+            if (SelectedJelo != null)
+                await LoadNormativ(SelectedJelo);
         }
 
-        public async Task DeleteNorm(TblNormativ norm)
+        public async Task DeleteNorm(TblNormativ? norm)
         {
+            if (norm == null) return;
 
-
-            YesNoPopup myMessageBox = new YesNoPopup();
-
-            myMessageBox.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            YesNoPopup myMessageBox = new YesNoPopup
+            {
+                WindowStartupLocation = WindowStartupLocation.CenterScreen
+            };
 
             myMessageBox.MessageTitle.Text = "POTVRDA BRISANJA";
-            myMessageBox.MessageText.Text = "Da li ste sigurni da želite obrisati normativ:" + Environment.NewLine + norm.Repromaterijal + ", količina: " + norm.Kolicina + " ?";
+            myMessageBox.MessageText.Text =
+                "Da li ste sigurni da želite obrisati normativ:" +
+                Environment.NewLine + norm.Repromaterijal +
+                ", količina: " + norm.Kolicina + " ?";
             myMessageBox.ShowDialog();
-            if (myMessageBox.Kliknuo == "Da")
+
+            if (myMessageBox.Kliknuo != "Da") return;
+
+            try
             {
-                try
+                using var db = new AppDbContext();
+                var stavka = await db.Normativ.FindAsync(norm.IdStavkeNormativa);
+                if (stavka != null)
                 {
-                    using (var db = new AppDbContext())
-                    {
-                        var stavka = await db.Normativ.FindAsync(norm.IdStavkeNormativa);
-                        if (stavka != null)
-                        {
-                            db.Normativ.Remove(stavka);
-                            await db.SaveChangesAsync();
-                            await LoadNormativ(SelectedJelo);
-                        }
-                    }
+                    db.Normativ.Remove(stavka);
+                    await db.SaveChangesAsync();
+
+                    if (SelectedJelo != null)
+                        await LoadNormativ(SelectedJelo);
                 }
-                catch (Exception d)
-                {
-                    Debug.WriteLine("Brisanje normativa error: " + d.Message + ", " + Environment.NewLine + "Stack: " + d.StackTrace);
-                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Brisanje normativa error: " +
+                    ex.Message + Environment.NewLine + "Stack: " + ex.StackTrace);
             }
         }
 
@@ -454,25 +369,19 @@ namespace Caupo.ViewModels
         {
             try
             {
+                using var db = new AppDbContext();
+                var artikli = await db.Artikli.ToListAsync();
+                var jela = artikli
+                    .Where(a => a.VrstaArtikla == 1)
+                    .OrderBy(a => a.Pozicija)
+                    .ToList();
 
-                using (var db = new AppDbContext())
-                {
-                    var artikli = await db.Artikli.ToListAsync();
+                Jela.Clear();
+                foreach (var jelo in jela)
+                    Jela.Add(jelo);
 
-                    var jela = artikli.Where(a => a.VrstaArtikla == 1).OrderBy(a => a.Pozicija).ToList();
-
-
-                    Jela?.Clear();
-
-                    foreach (var jelo in jela)
-                    {
-                        Jela?.Add(jelo);
-
-                    }
-                    Debug.WriteLine("Jela ima >>>>>> " + Jela.Count);
-                    SelectedJelo = Jela?[0];
-
-                }
+                Debug.WriteLine("Jela ima >>>>>> " + Jela.Count);
+                SelectedJelo = Jela.FirstOrDefault();
             }
             catch (Exception ex)
             {
@@ -482,102 +391,110 @@ namespace Caupo.ViewModels
 
         public async Task InsertNorm(TblNormativ normativ, TblArtikli jelo)
         {
+            using var db = new AppDbContext();
 
-            using (var db = new AppDbContext())
+            var duplicateNormativ = await db.Normativ
+                .Where(a => a.Repromaterijal == normativ.Repromaterijal &&
+                            a.IdProizvoda == normativ.IdProizvoda)
+                .FirstOrDefaultAsync();
+
+            if (duplicateNormativ != null)
             {
-                var duplicateNormativ = await db.Normativ
-                    .Where(a => a.Repromaterijal == normativ.Repromaterijal && a.IdProizvoda == normativ.IdProizvoda)
-                    .FirstOrDefaultAsync();
-
-                if (duplicateNormativ != null)
-                {
-
-                    string poruka = normativ.Repromaterijal + " se već koristi u izradi ovog jela.";
-                    OnErrorOccurred(poruka);
-                    return;
-
-
-                }
-                else
-                {
-                    await db.Normativ.AddAsync(normativ);
-                    db.SaveChanges();
-                    Debug.WriteLine("Novi zapis je uspešno dodat!");
-                    await LoadNormativ(jelo);
-
-                }
+                string poruka = normativ.Repromaterijal +
+                    " se već koristi u izradi ovog jela.";
+                OnErrorOccurred(poruka);
+                return;
             }
+
+            await db.Normativ.AddAsync(normativ);
+            await db.SaveChangesAsync();
+            Debug.WriteLine("Novi zapis je uspešno dodat!");
+            await LoadNormativ(jelo);
         }
 
         public async Task UpdateNorm(TblNormativ normativ, TblArtikli jelo)
         {
-            using (var db = new AppDbContext())
+            using var db = new AppDbContext();
+
+            var existingNorm = await db.Normativ.FirstOrDefaultAsync(
+                a => a.IdStavkeNormativa == normativ.IdStavkeNormativa);
+
+            if (existingNorm == null)
             {
-                // Pronađi postojeći zapis po ID-u
-                var existingNorm = await db.Normativ
-                    .FirstOrDefaultAsync(a => a.IdStavkeNormativa == normativ.IdStavkeNormativa);
-
-                if (existingNorm == null)
-                {
-                    OnErrorOccurred("Normativ nije pronađen u bazi.");
-                    return;
-                }
-
-                // Ažuriraj vrijednosti
-                existingNorm.Repromaterijal = normativ.Repromaterijal;
-                existingNorm.Kolicina = normativ.Kolicina;
-                existingNorm.JedinicaMjere = normativ.JedinicaMjere;
-                existingNorm.IdProizvoda = normativ.IdProizvoda;
-                existingNorm.Cijena = normativ.Cijena;
-
-                await db.SaveChangesAsync();
-                Debug.WriteLine("Zapis je uspješno ažuriran!");
-
-                // Ponovno učitaj podatke za prikaz
-                await LoadNormativ(jelo);
+                OnErrorOccurred("Normativ nije pronađen u bazi.");
+                return;
             }
-        }
 
+            existingNorm.Repromaterijal = normativ.Repromaterijal;
+            existingNorm.Kolicina = normativ.Kolicina;
+            existingNorm.JedinicaMjere = normativ.JedinicaMjere;
+            existingNorm.IdProizvoda = normativ.IdProizvoda;
+            existingNorm.Cijena = normativ.Cijena;
+
+            await db.SaveChangesAsync();
+            Debug.WriteLine("Zapis je uspješno ažuriran!");
+            await LoadNormativ(jelo);
+        }
 
         public async Task LoadNormativ(TblArtikli jelo)
         {
             SelectedJelo = jelo;
-            Norm.Clear();
+            Norm?.Clear();
             ProizvodnaCijena = 0;
             ProdajnaCijena = 0;
             Marza = string.Empty;
+
             Debug.WriteLine("Jelo : " + jelo.Artikl + " ima ID: " + jelo.IdArtikla);
+
             try
             {
+                using var db = new AppDbContext();
 
-                using (var db = new AppDbContext())
+                var norm = await db.Normativ
+                    .Where(a => a.IdProizvoda == jelo.IdArtikla)
+                    .OrderBy(a => a.IdStavkeNormativa)
+                    .ToListAsync();
+
+                var namirnice = await db.Repromaterijal
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                var kaloPoNamirnici = namirnice
+                    .Where(a => !string.IsNullOrWhiteSpace(a.Repromaterijal))
+                    .GroupBy(a => a.Repromaterijal!.Trim(),
+                             StringComparer.OrdinalIgnoreCase)
+                    .ToDictionary(a => a.Key, a => a.First().Kalo,
+                                  StringComparer.OrdinalIgnoreCase);
+
+                foreach (var ingredient in norm)
                 {
-                    var norms = await db.Normativ.ToListAsync();
+                    string naziv = ingredient.Repromaterijal?.Trim() ?? string.Empty;
 
-                    var norm = norms.Where(a => a.IdProizvoda == jelo.IdArtikla).OrderBy(a => a.IdStavkeNormativa).ToList();
+                    ingredient.Kalo = kaloPoNamirnici.TryGetValue(naziv, out var kalo)
+                        ? kalo
+                        : null;
 
-                    if (norm.Count != 0)
-                    {
-
-                        foreach (var ingredient in norm)
-                        {
-                            Norm?.Add(ingredient);
-                            ProizvodnaCijena += ingredient.Ukupno;
-                        }
-                        Debug.WriteLine("Jelo ima >>>>>> " + Norm.Count + " sastojaka");
-                        decimal marzarazlika = (jelo.Cijena ?? 0) - (proizvodnaCijena ?? 0);
-                        decimal marzapostotak = ((jelo.Cijena ?? 0) / (proizvodnaCijena ?? 0)) * 100;
-                        Marza = marzarazlika.ToString("F2") + " KM    " + marzapostotak.ToString("F2") + "%";
-                        ProdajnaCijena = jelo.Cijena;
-                        SelectedNorm = Norm[0];
-                    }
-                    else
-                    {
-                        ProdajnaCijena = jelo.Cijena;
-                        ProizvodnaCijena = 0;
-                        Marza = string.Empty;
-                    }
+                    Norm?.Add(ingredient);
+                    ProizvodnaCijena += ingredient.Ukupno;
                 }
+
+                ProdajnaCijena = jelo.Cijena;
+                SelectedNorm = Norm?.FirstOrDefault();
+
+                if (norm.Count > 0)
+                {
+                    decimal proizvodna = ProizvodnaCijena ?? 0m;
+                    decimal prodajna = ProdajnaCijena ?? 0m;
+                    decimal razlika = prodajna - proizvodna;
+
+                    decimal postotak = prodajna != 0m
+                        ? razlika / prodajna * 100m
+                        : 0m;
+
+                    Marza = $"{razlika:F2} KM    {postotak:F2}%";
+                }
+
+                Debug.WriteLine("Jelo ima >>>>>> " + Norm?.Count + " sastojaka");
             }
             catch (Exception ex)
             {
@@ -589,18 +506,15 @@ namespace Caupo.ViewModels
         {
             try
             {
+                using var db = new AppDbContext();
+                var JM = await db.JediniceMjere.ToListAsync();
 
-                using (var db = new AppDbContext())
+                JediniceMjere.Clear();
+                foreach (var jm in JM)
                 {
-                    var JM = await db.JediniceMjere.ToListAsync();
-
-                    JediniceMjere.Clear();
-                    foreach (var jm in JM)
-                    {
-                        JediniceMjere.Add(jm);
-                        Debug.WriteLine(jm.JedinicaMjere + ", JM Count = " + JediniceMjere.Count);
-                    }
-
+                    JediniceMjere.Add(jm);
+                    Debug.WriteLine(jm.JedinicaMjere +
+                        ", JM Count = " + JediniceMjere.Count);
                 }
             }
             catch (Exception ex)
@@ -609,11 +523,8 @@ namespace Caupo.ViewModels
             }
         }
 
-
-
-
-
         public event EventHandler<string?>? ErrorOccurred;
+
         protected virtual void OnErrorOccurred(string? message)
         {
             ErrorOccurred?.Invoke(this, message);
@@ -627,62 +538,31 @@ namespace Caupo.ViewModels
             if (tema == "Tamna")
             {
                 Debug.WriteLine("Aktivna tema koju vidi viewmodel je : " + tema);
-                //ImagePathFirstButton = "pack://application:,,,/Images/Dark/first.svg";
-                //ImagePathLastButton = "pack://application:,,,/Images/Dark/last.svg";
-                //ImagePathPhotoButton = "pack://application:,,,/Images/Dark/image.png";
-                //ImagePathSearchTextBox = "pack://application:,,,/Images/Dark/search.svg";
-                //ImagePathEditButton = "pack://application:,,,/Images/Dark/edit.svg";
-                // ImagePathAddButton = "pack://application:,,,/Images/Dark/plus.svg";
-                // ImagePathDeleteButton = "pack://application:,,,/Images/Dark/delete.svg";
-                // ImagePathCancelButton = "pack://application:,,,/Images/Dark/cancel.svg";
-                //ImagePathSaveButton = "pack://application:,,,/Images/Dark/save.svg";
-                //ImagePathExportButton = "pack://application:,,,/Images/Dark/export.svg";
-                //ImagePathImportButton = "pack://application:,,,/Images/Dark/import.svg";
-                FontColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(212, 212, 212));
-                //Application.Current.Resources["GlobalFontColor"] = FontColor;
-                BackColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 50, 50));
-
-
+                FontColor = new SolidColorBrush(Color.FromRgb(212, 212, 212));
+                BackColor = new SolidColorBrush(Color.FromRgb(50, 50, 50));
             }
             else
             {
                 Debug.WriteLine("Aktivna tema koju vidi viewmodel je : " + tema);
-                // ImagePathFirstButton = "pack://application:,,,/Images/Light/first.svg";
-                //  ImagePathLastButton = "pack://application:,,,/Images/Light/last.svg";
-                // ImagePathPhotoButton = "pack://application:,,,/Images/Light/image.svg";
-                // ImagePathSearchTextBox = "pack://application:,,,/Images/Light/search.svg";
-                // ImagePathEditButton = "pack://application:,,,/Images/Light/edit.svg";
-                // ImagePathAddButton = "pack://application:,,,/Images/Light/plus.svg";
-                //   ImagePathDeleteButton = "pack://application:,,,/Images/Light/delete.svg";
-                //   ImagePathCancelButton = "pack://application:,,,/Images/Light/cancel.svg";
-                // ImagePathSaveButton = "pack://application:,,,/Images/Light/save.svg";
-                //ImagePathExportButton = "pack://application:,,,/Images/Light/export.svg";
-                //ImagePathImportButton = "pack://application:,,,/Images/Light/import.svg";
-                FontColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(50, 50, 50));
-                //Application.Current.Resources["GlobalFontColor"] = FontColor;
-                BackColor = new SolidColorBrush(System.Windows.Media.Color.FromRgb(212, 212, 212));
-                //FontColorAdv = new System.Windows.Media.Color();
-                //FontColorAdv = System.Windows.Media.Color.FromRgb(50, 50, 50);
+                FontColor = new SolidColorBrush(Color.FromRgb(50, 50, 50));
+                BackColor = new SolidColorBrush(Color.FromRgb(212, 212, 212));
             }
         }
+
         public async Task LoadIngredientsAsync()
         {
             try
             {
+                using var db = new AppDbContext();
+                var ingredients = await db.Repromaterijal.ToListAsync();
 
-                using (var db = new AppDbContext())
+                Ingredients.Clear();
+                IngredientFilter?.Clear();
+
+                foreach (var ingredient in ingredients)
                 {
-                    var ingredients = await db.Repromaterijal.ToListAsync();
-                    Ingredients.Clear();
-                    IngredientFilter?.Clear();
-                    foreach (var ingredient in ingredients)
-                    {
-
-                        Ingredients.Add(ingredient);
-                        IngredientFilter?.Add(ingredient);
-
-                    }
-
+                    Ingredients.Add(ingredient);
+                    IngredientFilter?.Add(ingredient);
                 }
             }
             catch (Exception ex)
@@ -691,12 +571,9 @@ namespace Caupo.ViewModels
             }
         }
 
-
-
         public void FilterItems(string? searchtext)
         {
             string query = (searchtext ?? string.Empty).Trim();
-
             Suggestions.Clear();
 
             if (!string.IsNullOrWhiteSpace(query))
@@ -712,25 +589,27 @@ namespace Caupo.ViewModels
             OnPropertyChanged(nameof(SearchSuggestions));
         }
 
-
         public void FilterItemsIngredient(string? searchtext)
         {
             Debug.WriteLine("Okida search");
 
             var filtered = Ingredients
-                 .Where(a => (a.Repromaterijal ?? string.Empty)
-                 .ToLower()
-                 .Contains((SearchTextIngredient ?? string.Empty).ToLower()))
-                 .ToList();
+                .Where(a => (a.Repromaterijal ?? string.Empty)
+                    .Contains(searchtext ?? string.Empty,
+                              StringComparison.OrdinalIgnoreCase))
+                .ToList();
 
-
-            IngredientFilter = new ObservableCollection<DatabaseTables.TblRepromaterijal>(filtered);
+            IngredientFilter =
+                new ObservableCollection<TblRepromaterijal>(filtered);
         }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        protected virtual void OnPropertyChanged(
+            [CallerMemberName] string? propertyName = null)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            PropertyChanged?.Invoke(
+                this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

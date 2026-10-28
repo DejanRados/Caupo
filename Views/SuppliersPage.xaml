@@ -217,76 +217,110 @@
                             <TextBlock Text="Pregled dobavljača" Style="{StaticResource SuppliersSectionDescription}" Margin="0,2,0,0"/>
                         </StackPanel>
 
+
                         <DataGrid x:Name="ListaDobavljaca" Grid.Row="1"
-                                  ItemsSource="{Binding SuppliersFilter}"
-                                  SelectedItem="{Binding SelectedSupplier, Mode=TwoWay}"
-                                  SelectionChanged="ListaDobavljaca_SelectionChanged"
-                                  AutoGenerateColumns="False"
-                                  IsReadOnly="True"
-                                  HeadersVisibility="Column"
-                                  CanUserAddRows="False"
-                                  CanUserResizeRows="False"
-                                  CanUserSortColumns="False"
-                                  GridLinesVisibility="None"
-                                  RowHeight="35"
-                                  Background="Transparent"
-                                  BorderThickness="0"
-                                  BorderBrush="{DynamicResource GlobalFontColor}"
-                                  Foreground="{DynamicResource GlobalFontColor}"
-                                  HorizontalScrollBarVisibility="Disabled"
-                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                  SelectionMode="Single"
-                                  ClipToBounds="True">
+          ItemsSource="{Binding SuppliersFilter}"
+          SelectedItem="{Binding SelectedSupplier, Mode=TwoWay}"
+          SelectionChanged="ListaDobavljaca_SelectionChanged"
+          AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column"
+          CanUserAddRows="False" CanUserResizeRows="False" CanUserSortColumns="False"
+          GridLinesVisibility="None" RowHeight="70" ColumnHeaderHeight="45"
+          Background="Transparent" BorderThickness="0"
+          BorderBrush="{DynamicResource GlobalFontColor}"
+          Foreground="{DynamicResource GlobalFontColor}"
+          HorizontalScrollBarVisibility="Disabled"
+          ScrollViewer.VerticalScrollBarVisibility="Auto"
+          SelectionMode="Single" SelectionUnit="FullRow" ClipToBounds="True">
 
                             <DataGrid.Resources>
                                 <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
                             </DataGrid.Resources>
 
                             <DataGrid.Columns>
-
-                                <DataGridTemplateColumn Header="Dobavljač" Width="2*">
+                                <!-- NAZIV DOBAVLJAČA I ADRESA -->
+                                <DataGridTemplateColumn Header="Dobavljač / Mjesto" Width="2*">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding Dobavljac}" TextWrapping="Wrap" TextAlignment="Left" Padding="8,0" VerticalAlignment="Center"/>
+                                            <Grid Margin="7,5">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="2*"/>
+                                                    <RowDefinition Height="1*"/>
+                                                </Grid.RowDefinitions>
+
+                                                <TextBlock Grid.Row="0" Text="{Binding Dobavljac}" FontSize="14" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource GlobalFontColor}" TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center" ToolTip="{Binding Dobavljac}"/>
+
+                                                <TextBlock Grid.Row="1" Text="{Binding Mjesto}" FontSize="11" Opacity="0.75"
+                                   Foreground="{DynamicResource GlobalFontColor}" TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center" ToolTip="{Binding Mjesto}"/>
+                                            </Grid>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
 
-                                <DataGridTemplateColumn Header="Adresa" Width="1.5*">
+                                <!-- MJESTO -->
+                                <DataGridTemplateColumn Header="Adresa" Width="1.7*">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding Adresa}" TextAlignment="Left" TextTrimming="CharacterEllipsis" Padding="8,0" VerticalAlignment="Center"/>
+                                            <Grid Margin="7,5">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="2*"/>
+                                                    <RowDefinition Height="1*"/>
+                                                </Grid.RowDefinitions>
+
+                                                <TextBlock Grid.Row="0" Text="" FontSize="11" VerticalAlignment="Center"/>
+
+                                                <TextBlock Grid.Row="1" Text="{Binding Adresa}" FontSize="11" Opacity="0.75"
+                                   Foreground="{DynamicResource GlobalFontColor}" TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center" ToolTip="{Binding Adresa}"/>
+                                            </Grid>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
 
-                                <DataGridTemplateColumn Header="Mjesto" Width="1.2*">
+                                <!-- JIB -->
+                                <DataGridTemplateColumn Header="JIB" Width="1.25*">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding Mjesto}" TextAlignment="Left" TextTrimming="CharacterEllipsis" Padding="8,0" VerticalAlignment="Center"/>
+                                            <Grid Margin="7,5">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="2*"/>
+                                                    <RowDefinition Height="1*"/>
+                                                </Grid.RowDefinitions>
+
+                                                <TextBlock Grid.Row="0" Text="" FontSize="11" VerticalAlignment="Center"/>
+
+                                                <TextBlock Grid.Row="1" Text="{Binding JIB}" FontSize="11" Opacity="0.75"
+                                   Foreground="{DynamicResource GlobalFontColor}" TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center" ToolTip="{Binding JIB}"/>
+                                            </Grid>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
 
-                                <DataGridTemplateColumn Header="JIB" Width="1*">
+                                <!-- PDV -->
+                                <DataGridTemplateColumn Header="PDV" Width="1.25*">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding JIB}" TextAlignment="Center" VerticalAlignment="Center"/>
+                                            <Grid Margin="7,5">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="2*"/>
+                                                    <RowDefinition Height="1*"/>
+                                                </Grid.RowDefinitions>
+
+                                                <TextBlock Grid.Row="0" Text="" FontSize="11" VerticalAlignment="Center"/>
+
+                                                <TextBlock Grid.Row="1" Text="{Binding PDV}" FontSize="11" Opacity="0.75"
+                                   Foreground="{DynamicResource GlobalFontColor}" TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center" ToolTip="{Binding PDV}"/>
+                                            </Grid>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
-
-                                <DataGridTemplateColumn Header="PDV" Width="1*">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding PDV}" TextAlignment="Center" VerticalAlignment="Center"/>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-
                             </DataGrid.Columns>
-
                         </DataGrid>
+
 
                     </Grid>
 

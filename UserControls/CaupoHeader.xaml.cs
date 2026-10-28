@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿
+using System.Windows;
 using System.Windows.Controls;
 
 namespace Caupo.UserControls
@@ -9,28 +10,51 @@ namespace Caupo.UserControls
         {
             InitializeComponent();
 
-            Loaded += (_, _) =>
-            {
-                var source = DependencyPropertyHelper.GetValueSource(
-                    lblUlogovaniKorisnik,
-                    Control.ForegroundProperty);
-               
+            Loaded += CaupoHeader_Loaded;
+            Unloaded += CaupoHeader_Unloaded;
 
-                System.Diagnostics.Debug.WriteLine(
-    $"[HEADER] Text='{lblUlogovaniKorisnik.Content}', " +
-    $"Width={lblUlogovaniKorisnik.ActualWidth}, " +
-    $"Height={lblUlogovaniKorisnik.ActualHeight}, " +
-    $"Visibility={lblUlogovaniKorisnik.Visibility}, " +
-    $"Opacity={lblUlogovaniKorisnik.Opacity}, " +
-    $"Foreground={lblUlogovaniKorisnik.Foreground}");
+            RefreshLoggedInUser();
+        }
 
-                System.Diagnostics.Debug.WriteLine(
-                    $"[HEADER] Foreground izvor: {source.BaseValueSource}, " +
-                    $"Expression: {source.IsExpression}, " +
-                    $"Animated: {source.IsAnimated}, " +
-                    $"Coerced: {source.IsCoerced}");
-            };
+        private void CaupoHeader_Loaded(object sender, RoutedEventArgs e)
+        {
+            Globals.UlogovaniKorisnikChanged -= Globals_UlogovaniKorisnikChanged;
+            Globals.UlogovaniKorisnikChanged += Globals_UlogovaniKorisnikChanged;
 
+            RefreshLoggedInUser();
+
+            var source = DependencyPropertyHelper.GetValueSource(lblUlogovaniKorisnik, Control.ForegroundProperty);
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[HEADER] Text='{lblUlogovaniKorisnik.Content}', " +
+                $"Width={lblUlogovaniKorisnik.ActualWidth}, " +
+                $"Height={lblUlogovaniKorisnik.ActualHeight}, " +
+                $"Visibility={lblUlogovaniKorisnik.Visibility}, " +
+                $"Opacity={lblUlogovaniKorisnik.Opacity}, " +
+                $"Foreground={lblUlogovaniKorisnik.Foreground}");
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[HEADER] Foreground izvor: {source.BaseValueSource}, " +
+                $"Expression: {source.IsExpression}, " +
+                $"Animated: {source.IsAnimated}, " +
+                $"Coerced: {source.IsCoerced}");
+        }
+
+        private void CaupoHeader_Unloaded(object sender, RoutedEventArgs e)
+        {
+            Globals.UlogovaniKorisnikChanged -= Globals_UlogovaniKorisnikChanged;
+        }
+
+        private void Globals_UlogovaniKorisnikChanged(object? sender, EventArgs e)
+        {
+            if (Dispatcher.CheckAccess())
+                RefreshLoggedInUser();
+            else
+                Dispatcher.BeginInvoke(RefreshLoggedInUser);
+        }
+
+        private void RefreshLoggedInUser()
+        {
             lblUlogovaniKorisnik.Content = Globals.ulogovaniKorisnik?.Radnik ?? string.Empty;
         }
 

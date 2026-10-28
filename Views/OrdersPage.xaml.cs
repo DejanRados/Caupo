@@ -459,8 +459,8 @@ namespace Caupo.Views
                 Child = tableFloatingMenu,
                 PlacementTarget = button,
                 Placement = PlacementMode.Right,
-                HorizontalOffset = 6,
-                VerticalOffset = 0,
+                HorizontalOffset = -4,
+                VerticalOffset = -10,
                 StaysOpen = true,
                 AllowsTransparency = true,
                 PopupAnimation = PopupAnimation.Fade
@@ -606,8 +606,8 @@ namespace Caupo.Views
                 Child = roomFloatingMenu,
                 PlacementTarget = tab,
                 Placement = PlacementMode.Bottom,
-                HorizontalOffset = 0,
-                VerticalOffset = 6,
+                HorizontalOffset = -4,
+                VerticalOffset = -10,
                 StaysOpen = true,
                 AllowsTransparency = true,
                 PopupAnimation = PopupAnimation.Fade
@@ -777,8 +777,8 @@ namespace Caupo.Views
                 Child = tableOrderMenu,
                 PlacementTarget = button,
                 Placement = PlacementMode.Right,
-                HorizontalOffset = 6,
-                VerticalOffset = 0,
+                HorizontalOffset = -4,
+                VerticalOffset = -10,
                 StaysOpen = true,
                 AllowsTransparency = true,
                 PopupAnimation = PopupAnimation.Fade
