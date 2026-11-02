@@ -21,7 +21,8 @@ namespace Caupo.ViewModels
         private string _doVrijeme = "23:59";
         private string _errorMessage = string.Empty;
         private bool _isLoading;
-
+        private bool _isPeriodicMode;
+        private string _selectedReport = "DnevniPromet";
         private decimal _bruto;
         private decimal _reklamirano;
         private decimal _gotovina;
@@ -31,8 +32,10 @@ namespace Caupo.ViewModels
         private decimal _sank;
         private decimal _kuhinja;
         private decimal _ostalo;
+        private decimal _artikliUkupno;
 
         public ObservableCollection<WorkerSummary> Radnici { get; } = new();
+        public ObservableCollection<ArticleSummary> Artikli { get; } = new();
 
         public IAsyncRelayCommand RefreshCommand { get; }
         public IAsyncRelayCommand TodayCommand { get; }
@@ -67,6 +70,37 @@ namespace Caupo.ViewModels
             set => Set(ref _doVrijeme, value);
         }
 
+        public bool IsPeriodicMode
+        {
+            get => _isPeriodicMode;
+            set => Set(ref _isPeriodicMode, value);
+        }
+
+        public string SelectedReport
+        {
+            get => _selectedReport;
+            set
+            {
+                if (_selectedReport == value) return;
+                _selectedReport = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsArticleReport));
+                OnPropertyChanged(nameof(ReportTitle));
+            }
+        }
+
+        public bool IsArticleReport => SelectedReport.EndsWith("PoArtiklima", StringComparison.Ordinal) ||
+            SelectedReport.EndsWith("Sanka", StringComparison.Ordinal) ||
+            SelectedReport.EndsWith("Kuhinje", StringComparison.Ordinal) ||
+            SelectedReport.EndsWith("Ostalo", StringComparison.Ordinal);
+
+        public string ReportTitle => SelectedReport.EndsWith("Sanka", StringComparison.Ordinal) ? "Promet šanka" :
+            SelectedReport.EndsWith("Kuhinje", StringComparison.Ordinal) ? "Promet kuhinje" :
+            SelectedReport.EndsWith("Ostalo", StringComparison.Ordinal) ? "Promet ostalo" : "Promet po artiklima";
+
+        public decimal ArtikliUkupno => _artikliUkupno;
+        public bool NemaArtikala => Artikli.Count == 0;
+
         public string ErrorMessage
         {
             get => _errorMessage;
@@ -82,22 +116,18 @@ namespace Caupo.ViewModels
         public decimal Bruto => _bruto;
         public decimal Reklamirano => _reklamirano;
         public decimal Neto => Bruto - Reklamirano;
-
         public decimal Gotovina => _gotovina;
         public decimal Kartica => _kartica;
         public decimal Cek => _cek;
         public decimal Virman => _virman;
-
         public decimal Sank => _sank;
         public decimal Kuhinja => _kuhinja;
         public decimal Ostalo => _ostalo;
-
         public bool NemaPrometa => Radnici.Count == 0;
 
         private async Task ShowTodayAsync()
         {
-            if (IsLoading)
-                return;
+            if (IsLoading) return;
 
             OdDatuma = DateTime.Today;
             DoDatuma = DateTime.Today;
@@ -109,11 +139,8 @@ namespace Caupo.ViewModels
 
         public async Task RefreshAsync()
         {
-            if (IsLoading)
-                return;
-
-            if (!TryGetPeriod(out DateTime od, out DateTime doExclusive))
-                return;
+            if (IsLoading) return;
+            if (!TryGetPeriod(out DateTime od, out DateTime doExclusive)) return;
 
             IsLoading = true;
             ErrorMessage = string.Empty;
@@ -131,6 +158,7 @@ namespace Caupo.ViewModels
                     x => x.Radnik ?? string.Empty);
 
                 var summaries = new Dictionary<string, WorkerSummary>();
+                var articles = new List<ArticleSummary>();
 
                 decimal bruto = 0m;
                 decimal reklamirano = 0m;
@@ -223,6 +251,34 @@ namespace Caupo.ViewModels
                             }
                         }
                     }
+
+                    if (IsArticleReport)
+                    {
+                        await using var command = CreateCommand(connection, ArticlesSql, od, doExclusive);
+                        await using var reader = await command.ExecuteReaderAsync();
+
+                        while (await reader.ReadAsync())
+                        {
+                            int type = reader.IsDBNull(4) ? 2 :
+                                Convert.ToInt32(reader.GetValue(4), CultureInfo.InvariantCulture);
+
+                            if (SelectedReport.EndsWith("Sanka", StringComparison.Ordinal) && type != 0 ||
+                                SelectedReport.EndsWith("Kuhinje", StringComparison.Ordinal) && type != 1 ||
+                                SelectedReport.EndsWith("Ostalo", StringComparison.Ordinal) && type != 2)
+                                continue;
+
+                            int? unit = reader.IsDBNull(1) ? null :
+                                Convert.ToInt32(reader.GetValue(1), CultureInfo.InvariantCulture);
+
+                            articles.Add(new ArticleSummary
+                            {
+                                Naziv = reader.IsDBNull(0) ? string.Empty : reader.GetString(0),
+                                JedinicaMjere = UnitName(unit),
+                                Cijena = ReadDecimal(reader, 2),
+                                Kolicina = ReadDecimal(reader, 3)
+                            });
+                        }
+                    }
                 }
                 finally
                 {
@@ -241,13 +297,19 @@ namespace Caupo.ViewModels
 
                 Radnici.Clear();
 
-                foreach (var worker in summaries.Values
-                    .OrderByDescending(x => x.Neto)
-                    .ThenBy(x => x.Ime))
+                foreach (var worker in summaries.Values.OrderByDescending(x => x.Neto).ThenBy(x => x.Ime))
                 {
                     worker.RoundAmounts();
                     Radnici.Add(worker);
                 }
+
+                Artikli.Clear();
+                foreach (var article in articles.OrderBy(x => x.Naziv).ThenBy(x => x.Cijena))
+                    Artikli.Add(article);
+
+                _artikliUkupno = Artikli.Sum(x => x.Iznos);
+                OnPropertyChanged(nameof(ArtikliUkupno));
+                OnPropertyChanged(nameof(NemaArtikala));
 
                 NotifyTotals();
             }
@@ -266,18 +328,24 @@ namespace Caupo.ViewModels
             od = default;
             doExclusive = default;
 
-            if (!OdDatuma.HasValue || !DoDatuma.HasValue)
+            if (!OdDatuma.HasValue || (IsPeriodicMode && !DoDatuma.HasValue))
             {
                 ErrorMessage = "Odaberite početni i završni datum.";
                 return false;
+            }
+
+            if (!IsPeriodicMode)
+            {
+                od = OdDatuma.Value.Date;
+                doExclusive = od.AddDays(1);
+                return true;
             }
 
             const string format = @"hh\:mm";
 
             if (!TimeSpan.TryParseExact(OdVrijeme, format, CultureInfo.InvariantCulture, out TimeSpan startTime) ||
                 !TimeSpan.TryParseExact(DoVrijeme, format, CultureInfo.InvariantCulture, out TimeSpan endTime) ||
-                startTime >= TimeSpan.FromDays(1) ||
-                endTime >= TimeSpan.FromDays(1))
+                startTime >= TimeSpan.FromDays(1) || endTime >= TimeSpan.FromDays(1))
             {
                 ErrorMessage = "Vrijeme mora biti u formatu HH:mm, npr. 18:30.";
                 return false;
@@ -317,9 +385,7 @@ namespace Caupo.ViewModels
 
         private static decimal ReadDecimal(DbDataReader reader, int column)
         {
-            if (reader.IsDBNull(column))
-                return 0m;
-
+            if (reader.IsDBNull(column)) return 0m;
             return Convert.ToDecimal(reader.GetValue(column), CultureInfo.InvariantCulture);
         }
 
@@ -370,6 +436,41 @@ namespace Caupo.ViewModels
               AND (r.TipRacuna IS NULL OR r.TipRacuna <> 'Storno' COLLATE NOCASE)
             GROUP BY COALESCE(s.VrstaArtikla, 2);";
 
+        private const string ArticlesSql = @"
+            SELECT COALESCE(s.Artikl, ''), s.JedinicaMjere, COALESCE(s.Cijena, 0),
+                   SUM(COALESCE(s.Kolicina, 0)), COALESCE(s.VrstaArtikla, 2)
+            FROM tblRacunStavke s
+            INNER JOIN tblRacuni r ON r.BrojRacuna = s.BrojRacuna
+            WHERE r.Datum >= @od AND r.Datum < @do
+              AND (r.TipRacuna IS NULL OR r.TipRacuna <> 'Storno' COLLATE NOCASE)
+              AND (r.Reklamiran IS NULL OR r.Reklamiran <> 'DA' COLLATE NOCASE)
+            GROUP BY s.IdArtikla, s.Sifra, s.Artikl, s.JedinicaMjere,
+                     s.Cijena, COALESCE(s.VrstaArtikla, 2);";
+
+        private static string UnitName(int? unit) => unit switch
+        {
+            1 => "kom",
+            2 => "kg",
+            3 => "m",
+            4 => "m2",
+            5 => "m3",
+            6 => "lit",
+            7 => "tona",
+            8 => "g",
+            9 => "por",
+            10 => "pak",
+            _ => ""
+        };
+
+        public sealed class ArticleSummary
+        {
+            public string Naziv { get; set; } = string.Empty;
+            public string JedinicaMjere { get; set; } = string.Empty;
+            public decimal Cijena { get; set; }
+            public decimal Kolicina { get; set; }
+            public decimal Iznos => Cijena * Kolicina;
+        }
+
         private void NotifyTotals()
         {
             OnPropertyChanged(nameof(Bruto));
@@ -387,9 +488,7 @@ namespace Caupo.ViewModels
 
         private void Set<T>(ref T field, T value, [CallerMemberName] string? name = null)
         {
-            if (EqualityComparer<T>.Default.Equals(field, value))
-                return;
-
+            if (EqualityComparer<T>.Default.Equals(field, value)) return;
             field = value;
             OnPropertyChanged(name);
         }
@@ -402,11 +501,9 @@ namespace Caupo.ViewModels
         public sealed class WorkerSummary
         {
             public string Ime { get; set; } = string.Empty;
-
             public decimal Bruto { get; set; }
             public decimal Reklamirano { get; set; }
             public decimal Neto => Bruto - Reklamirano;
-
             public decimal Gotovina { get; set; }
             public decimal Kartica { get; set; }
             public decimal Cek { get; set; }

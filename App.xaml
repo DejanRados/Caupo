@@ -930,9 +930,8 @@
 
 
 
-            <Style x:Key="WideVerticalScrollBar"
-       TargetType="{x:Type ScrollBar}">
-
+            <Style x:Key="WideVerticalScrollBar"  TargetType="{x:Type ScrollBar}">
+                <Setter Property="Margin" Value="0,5"/>
                 <Setter Property="Width" Value="44"/>
                 <Setter Property="MinWidth" Value="24"/>
                 <Setter Property="Background" Value="Transparent"/>
@@ -1614,9 +1613,8 @@
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="{x:Type CalendarDayButton}">
-                                        <Border x:Name="DayBorder" Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="3" Margin="2">
+                                        <Border x:Name="DayBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="3" Margin="2">
                                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
                                                   TextElement.Foreground="{TemplateBinding Foreground}"/>
                                         </Border>
@@ -1701,54 +1699,48 @@
                                                                     <ColumnDefinition Width="52"/>
                                                                 </Grid.ColumnDefinitions>
 
-                                                                <Button x:Name="PART_PreviousButton" Grid.Column="0" Content="&#x2039;"
-                                                            FontSize="32" FontWeight="Light" Cursor="Hand" BorderThickness="0"
-                                                            Background="Transparent" Foreground="{DynamicResource ThemePrimaryForegroundBrush}">
-                                                                    <Button.Style>
-                                                                        <Style TargetType="Button">
-                                                                            <Setter Property="Template">
-                                                                                <Setter.Value>
-                                                                                    <ControlTemplate TargetType="Button">
-                                                                                        <Border x:Name="NavBorder" Background="{TemplateBinding Background}" CornerRadius="4" Margin="3">
-                                                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                                                        </Border>
-                                                                                        <ControlTemplate.Triggers>
-                                                                                            <Trigger Property="IsMouseOver" Value="True">
-                                                                                                <Setter TargetName="NavBorder" Property="Background" Value="{DynamicResource ThemePrimaryHoverBrush}"/>
-                                                                                            </Trigger>
-                                                                                        </ControlTemplate.Triggers>
-                                                                                    </ControlTemplate>
-                                                                                </Setter.Value>
-                                                                            </Setter>
-                                                                        </Style>
-                                                                    </Button.Style>
+                                                                <Button x:Name="PART_PreviousButton" Grid.Column="0" Content="&#x2039;" FontSize="32"
+                                                            FontWeight="Light" Cursor="Hand" Background="Transparent" BorderThickness="0">
+                                                                    <Button.Template>
+                                                                        <ControlTemplate TargetType="Button">
+                                                                            <Border x:Name="NavBorder" Background="{TemplateBinding Background}" CornerRadius="4" Margin="3">
+                                                                                <TextBlock Text="{TemplateBinding Content}" Foreground="#F1F4F1" FontSize="32"
+                                                                               FontWeight="Light" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                            </Border>
+                                                                            <ControlTemplate.Triggers>
+                                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                                    <Setter TargetName="NavBorder" Property="Background" Value="{DynamicResource ThemePrimaryHoverBrush}"/>
+                                                                                </Trigger>
+                                                                            </ControlTemplate.Triggers>
+                                                                        </ControlTemplate>
+                                                                    </Button.Template>
                                                                 </Button>
 
                                                                 <Button x:Name="PART_HeaderButton" Grid.Column="1" FontSize="17" FontWeight="SemiBold"
-                                                            Background="Transparent" BorderThickness="0" Cursor="Hand"
-                                                            Foreground="{DynamicResource ThemePrimaryForegroundBrush}"/>
+                                                            Cursor="Hand" Background="Transparent" BorderThickness="0">
+                                                                    <Button.Template>
+                                                                        <ControlTemplate TargetType="Button">
+                                                                            <TextBlock Text="{TemplateBinding Content}" Foreground="#F1F4F1" FontSize="17"
+                                                                           FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                        </ControlTemplate>
+                                                                    </Button.Template>
+                                                                </Button>
 
-                                                                <Button x:Name="PART_NextButton" Grid.Column="2" Content="&#x203A;"
-                                                            FontSize="32" FontWeight="Light" Cursor="Hand" BorderThickness="0"
-                                                            Background="Transparent" Foreground="{DynamicResource ThemePrimaryForegroundBrush}">
-                                                                    <Button.Style>
-                                                                        <Style TargetType="Button">
-                                                                            <Setter Property="Template">
-                                                                                <Setter.Value>
-                                                                                    <ControlTemplate TargetType="Button">
-                                                                                        <Border x:Name="NavBorder" Background="{TemplateBinding Background}" CornerRadius="4" Margin="3">
-                                                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                                                        </Border>
-                                                                                        <ControlTemplate.Triggers>
-                                                                                            <Trigger Property="IsMouseOver" Value="True">
-                                                                                                <Setter TargetName="NavBorder" Property="Background" Value="{DynamicResource ThemePrimaryHoverBrush}"/>
-                                                                                            </Trigger>
-                                                                                        </ControlTemplate.Triggers>
-                                                                                    </ControlTemplate>
-                                                                                </Setter.Value>
-                                                                            </Setter>
-                                                                        </Style>
-                                                                    </Button.Style>
+                                                                <Button x:Name="PART_NextButton" Grid.Column="2" Content="&#x203A;" FontSize="32"
+                                                            FontWeight="Light" Cursor="Hand" Background="Transparent" BorderThickness="0">
+                                                                    <Button.Template>
+                                                                        <ControlTemplate TargetType="Button">
+                                                                            <Border x:Name="NavBorder" Background="{TemplateBinding Background}" CornerRadius="4" Margin="3">
+                                                                                <TextBlock Text="{TemplateBinding Content}" Foreground="#F1F4F1" FontSize="32"
+                                                                               FontWeight="Light" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                            </Border>
+                                                                            <ControlTemplate.Triggers>
+                                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                                    <Setter TargetName="NavBorder" Property="Background" Value="{DynamicResource ThemePrimaryHoverBrush}"/>
+                                                                                </Trigger>
+                                                                            </ControlTemplate.Triggers>
+                                                                        </ControlTemplate>
+                                                                    </Button.Template>
                                                                 </Button>
                                                             </Grid>
                                                         </Border>
@@ -1791,6 +1783,17 @@
                                                         </Grid>
                                                     </Grid>
                                                 </Border>
+
+                                                <ControlTemplate.Triggers>
+                                                    <DataTrigger Binding="{Binding DisplayMode, RelativeSource={RelativeSource AncestorType={x:Type Calendar}}}" Value="Year">
+                                                        <Setter TargetName="PART_MonthView" Property="Visibility" Value="Collapsed"/>
+                                                        <Setter TargetName="PART_YearView" Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding DisplayMode, RelativeSource={RelativeSource AncestorType={x:Type Calendar}}}" Value="Decade">
+                                                        <Setter TargetName="PART_MonthView" Property="Visibility" Value="Collapsed"/>
+                                                        <Setter TargetName="PART_YearView" Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </ControlTemplate.Triggers>
                                             </ControlTemplate>
                                         </CalendarItem.Template>
                                     </CalendarItem>

@@ -3,12 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:uc="clr-namespace:Caupo.UserControls"
              Background="{DynamicResource GlobalBackgroundColor}"
-             Foreground="{DynamicResource GlobalFontColor}" UseLayoutRounding="True">
+             Foreground="{DynamicResource GlobalFontColor}"
+             UseLayoutRounding="True">
 
     <UserControl.Resources>
-
         <Style x:Key="DashCard" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource ThemeSurfaceBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource ThemeControlBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource GlobalBorderColor}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="12"/>
@@ -46,29 +46,7 @@
             <Setter Property="Padding" Value="6,0"/>
         </Style>
 
-        <!-- KALENDAR KAO U KNJIZI ŠANKA -->
-        <Style x:Key="LedgerDatePickerTextBoxStyle" TargetType="DatePickerTextBox">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="FontSize" Value="15"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="DatePickerTextBox">
-                        <ScrollViewer x:Name="PART_ContentHost" Background="Transparent" Focusable="False" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="Text">
-                <Setter.Value>
-                    <Binding Path="SelectedDate" RelativeSource="{RelativeSource AncestorType=DatePicker}" StringFormat="dd.MM.yyyy"/>
-                </Setter.Value>
-            </Setter>
-        </Style>
+       
 
         <Style x:Key="DashErrorBorderStyle" TargetType="Border">
             <Setter Property="Visibility" Value="Visible"/>
@@ -79,6 +57,75 @@
             </Style.Triggers>
         </Style>
 
+        <Style x:Key="TotalGridStyle" TargetType="Grid">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsArticleReport}" Value="True">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="TotalPanelStyle" TargetType="StackPanel">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsArticleReport}" Value="True">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="TotalScrollStyle" TargetType="ScrollViewer">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsArticleReport}" Value="True">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ArticlesReportStyle" TargetType="Border" BasedOn="{StaticResource DashCard}">
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsArticleReport}" Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="PeriodicPanelStyle" TargetType="StackPanel">
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsPeriodicMode}" Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="PeriodicTimeStyle" TargetType="TextBox" BasedOn="{StaticResource DashTimeTextBoxStyle}">
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsPeriodicMode}" Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ReportHeaderText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="ReportNumberHeader" TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="{DynamicResource ThemeSelectionBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="8,0,18,0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Right"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GlobalBorderColor}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        </Style>
     </UserControl.Resources>
 
     <Grid Background="{DynamicResource GlobalBackgroundColor}">
@@ -87,300 +134,657 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <uc:CaupoHeader Grid.Row="0" Title="Caupo - Dashboard" Close="CloseButton_Click"/>
+        <uc:CaupoHeader Grid.Row="0" Title="Caupo - Analiza poslovanja" Close="CloseButton_Click"/>
 
-        <!-- MENI LIJEVO, SADRŽAJ DESNO -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="280"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <uc:DashboardMenuBar x:Name="DashboardMenu" Grid.Column="0" VerticalAlignment="Stretch"/>
+            <uc:DashboardMenuBar x:Name="DashboardMenu"
+                                 Grid.Column="0"
+                                 VerticalAlignment="Stretch"
+                                 ModeChanged="DashboardMenu_ModeChanged"/>
 
-            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                <Grid Margin="16,20,24,24" MaxWidth="1600">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
+            <Grid Grid.Column="1" Margin="16,20,24,24" MaxWidth="1600">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-                    <!-- IZBOR PERIODA -->
-                    <Border Grid.Row="0" Style="{StaticResource DashCard}" Padding="18" Margin="0,0,0,18">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                                <TextBlock Text="PREGLED PROMETA" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource GlobalFontColor}"/>
-                                <TextBlock Text="Odaberi datum i vrijeme" Margin="15,2,0,0" Style="{StaticResource DashCaption}"/>
+                <!-- DATUM I PERIOD -->
+                <Border Grid.Row="0" Style="{StaticResource DashCard}"
+                        Padding="18" Margin="0,0,0,18">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                            <TextBlock Text="PREGLED PROMETA"
+                                       FontSize="16" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource GlobalFontColor}"/>
+                            <TextBlock Text="Odaberi datum"
+                                       Margin="15,2,0,0"
+                                       Style="{StaticResource DashCaption}"/>
+                        </StackPanel>
+
+                        <WrapPanel VerticalAlignment="Center">
+                            <StackPanel Margin="0,0,15,8">
+                                <TextBlock Margin="0,0,0,5">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource DashCaption}">
+                                            <Setter Property="Text" Value="Datum"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsPeriodicMode}" Value="True">
+                                                    <Setter Property="Text" Value="Od datuma"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+
+                                <Border Width="220" Height="48" Margin="0,0,8,0"
+                                        BorderThickness="1"
+                                        BorderBrush="{DynamicResource GlobalFontColor}"
+                                        CornerRadius="6" Background="Transparent">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <DatePicker x:Name="DpFromDate"
+                                                    SelectedDateChanged="DatePicker_SelectedDateChanged"
+                                                    CalendarStyle="{StaticResource styleCalendar}"
+                                                    Margin="10,0" Language="bs-BA"
+                                                    SelectedDate="{Binding OdDatuma, Mode=TwoWay}"
+                                                    SelectedDateFormat="Short"
+                                                    Focusable="False" BorderThickness="0"
+                                                    Background="Transparent"
+                                                    Foreground="{DynamicResource GlobalFontColor}"
+                                                    HorizontalContentAlignment="Center"
+                                                    VerticalContentAlignment="Center" FontSize="15">
+                                            <DatePicker.Resources>
+                                                <Style TargetType="DatePickerTextBox"
+                                                       BasedOn="{StaticResource LedgerDatePickerTextBoxStyle}"/>
+                                            </DatePicker.Resources>
+                                        </DatePicker>
+
+                                        <TextBox Style="{StaticResource PeriodicTimeStyle}"
+                                                 LostFocus="TimeBox_LostFocus"
+                                                 Text="{Binding OdVrijeme, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+                                </Border>
                             </StackPanel>
 
-                            <WrapPanel VerticalAlignment="Center">
+                            <StackPanel Style="{StaticResource PeriodicPanelStyle}" Margin="0,0,15,8">
+                                <TextBlock Text="Do datuma"
+                                           Style="{StaticResource DashCaption}"
+                                           Margin="0,0,0,5"/>
 
-                                <!-- OD DATUMA I VREMENA -->
-                                <StackPanel Margin="0,0,15,8">
-                                    <TextBlock Text="Od datuma" Style="{StaticResource DashCaption}" Margin="0,0,0,5"/>
-                                   
-                                        <Border Width="220" Height="48" Margin="0,0,8,0" BorderThickness="1" BorderBrush="{DynamicResource GlobalFontColor}" CornerRadius="6" Background="Transparent">
-                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                            <DatePicker x:Name="DpFromDate" CalendarStyle="{StaticResource styleCalendar}" Margin="10,0" Language="bs-BA" SelectedDate="{Binding OdDatuma, Mode=TwoWay}" SelectedDateFormat="Short" Focusable="False" BorderThickness="0" Background="Transparent" Foreground="{DynamicResource GlobalFontColor}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="15">
-                                                <DatePicker.Resources>
-                                                    <Style TargetType="DatePickerTextBox" BasedOn="{StaticResource LedgerDatePickerTextBoxStyle}"/>
-                                                </DatePicker.Resources>
-                                            </DatePicker>
-                                        
-                                        <TextBox Style="{StaticResource DashTimeTextBoxStyle}" Text="{Binding OdVrijeme, UpdateSourceTrigger=PropertyChanged}"/>
-                                        </StackPanel>
-                                        </Border>
-                                   
-                                </StackPanel>
+                                <Border Width="220" Height="48" Margin="0,0,8,0"
+                                        BorderThickness="1"
+                                        BorderBrush="{DynamicResource GlobalFontColor}"
+                                        CornerRadius="6" Background="Transparent">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <DatePicker x:Name="DpToDate"
+                                                    SelectedDateChanged="DatePicker_SelectedDateChanged"
+                                                    CalendarStyle="{StaticResource styleCalendar}"
+                                                    Margin="10,0" Language="bs-BA"
+                                                    SelectedDate="{Binding DoDatuma, Mode=TwoWay}"
+                                                    SelectedDateFormat="Short"
+                                                    Focusable="False" BorderThickness="0"
+                                                    Background="Transparent"
+                                                    Foreground="{DynamicResource GlobalFontColor}"
+                                                    HorizontalContentAlignment="Center"
+                                                    VerticalContentAlignment="Center" FontSize="15">
+                                            <DatePicker.Resources>
+                                                <Style TargetType="DatePickerTextBox"
+                                                       BasedOn="{StaticResource LedgerDatePickerTextBoxStyle}"/>
+                                            </DatePicker.Resources>
+                                        </DatePicker>
 
-                                <!-- DO DATUMA I VREMENA -->
-                                <StackPanel Margin="0,0,15,8">
-                                    <TextBlock Text="Do datuma" Style="{StaticResource DashCaption}" Margin="0,0,0,5"/>
-                                   
-                                        <Border Width="220" Height="48" Margin="0,0,8,0" BorderThickness="1" BorderBrush="{DynamicResource GlobalFontColor}" CornerRadius="6" Background="Transparent">
-                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                            <DatePicker x:Name="DpToDate" Margin="10,0" CalendarStyle="{StaticResource styleCalendar}" Language="bs-BA" SelectedDate="{Binding DoDatuma, Mode=TwoWay}" SelectedDateFormat="Short" Focusable="False" BorderThickness="0" Background="Transparent" Foreground="{DynamicResource GlobalFontColor}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="15">
-                                                <DatePicker.Resources>
-                                                    <Style TargetType="DatePickerTextBox" BasedOn="{StaticResource LedgerDatePickerTextBoxStyle}"/>
-                                                </DatePicker.Resources>
-                                            </DatePicker>
-                                            <TextBox Style="{StaticResource DashTimeTextBoxStyle}" Text="{Binding DoVrijeme, UpdateSourceTrigger=PropertyChanged}"/>
-                                        </StackPanel>
-                                    </Border>
-                                      
-                                </StackPanel>
+                                        <TextBox Style="{StaticResource DashTimeTextBoxStyle}"
+                                                 LostFocus="TimeBox_LostFocus"
+                                                 Text="{Binding DoVrijeme, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
 
-                                <Button Content="DANAS" Width="105" Height="48" Margin="0,19,10,8"
-                                        Style="{StaticResource SecondaryButtonStyle}" Command="{Binding TodayCommand}"/>
+                <!-- GREŠKA -->
+                <Border Grid.Row="1" Style="{StaticResource DashErrorBorderStyle}"
+                        Background="{DynamicResource ThemeControlBrush}"
+                        BorderBrush="{DynamicResource ThemeWarningBrush}"
+                        BorderThickness="1" CornerRadius="8"
+                        Padding="12" Margin="0,0,0,15">
+                    <TextBlock Text="{Binding ErrorMessage}"
+                               Foreground="{DynamicResource GlobalFontColor}"
+                               TextWrapping="Wrap"/>
+                </Border>
 
-                                <Button Content="PRIKAŽI" Width="125" Height="48" Margin="0,19,0,8"
-                                        Style="{StaticResource PrimaryButtonStyle}" Command="{Binding RefreshCommand}"/>
+                <!-- UKUPAN PROMET -->
+                <ScrollViewer Grid.Row="2" Style="{StaticResource TotalScrollStyle}"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <ScrollViewer.Resources>
+                        <Style TargetType="ScrollBar" BasedOn="{StaticResource WideVerticalScrollBar}"/>
+                    </ScrollViewer.Resources>
 
-                            </WrapPanel>
-                        </StackPanel>
-                    </Border>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                    <!-- GREŠKA -->
-                    <Border Grid.Row="1" Style="{StaticResource DashErrorBorderStyle}"
-                            Background="{DynamicResource ThemeControlBrush}" BorderBrush="{DynamicResource ThemeWarningBrush}"
-                            BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,15">
-                        <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource GlobalFontColor}" TextWrapping="Wrap"/>
-                    </Border>
+                        <!-- UKUPAN PROMET I PLAĆANJA -->
+                        <Grid Grid.Row="0" Margin="0,0,0,20" Style="{StaticResource TotalGridStyle}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.05*"/>
+                                <ColumnDefinition Width="1.3*"/>
+                            </Grid.ColumnDefinitions>
 
-                    <!-- UKUPAN PROMET I NAČINI PLAĆANJA -->
-                    <Grid Grid.Row="2" Margin="0,0,0,20">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1.05*"/>
-                            <ColumnDefinition Width="1.3*"/>
-                        </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" CornerRadius="14"
+                                    Background="{DynamicResource ThemePrimaryBrush}"
+                                    Padding="26" Margin="0,0,12,0" MinHeight="215">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
 
-                        <Border Grid.Column="0" CornerRadius="14" Background="{DynamicResource ThemePrimaryBrush}"
-                                Padding="26" Margin="0,0,12,0" MinHeight="215">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-
-                                <StackPanel>
-                                    <TextBlock Text="UKUPAN NETO PROMET" FontSize="14" FontWeight="SemiBold"
-                                               Foreground="{DynamicResource ThemePrimaryForegroundBrush}"/>
-                                    <TextBlock Text="Za odabrani period" FontSize="12" Margin="0,5,0,0" Opacity="0.7"
-                                               Foreground="{DynamicResource ThemePrimaryForegroundBrush}"/>
-                                </StackPanel>
-
-                                <TextBlock Grid.Row="1" Text="{Binding Neto, StringFormat={}{0:N2}}"
-                                           Foreground="{DynamicResource ThemePrimaryForegroundBrush}"
-                                           FontSize="49" FontWeight="Bold" VerticalAlignment="Center"/>
-
-                                <Grid Grid.Row="2">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Bruto promet" FontSize="12" Opacity="0.7"
+                                    <StackPanel>
+                                        <TextBlock Text="UKUPAN NETO PROMET"
+                                                   FontSize="14" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource ThemePrimaryForegroundBrush}"/>
-                                        <TextBlock Text="{Binding Bruto, StringFormat={}{0:N2}}"
-                                                   Foreground="{DynamicResource ThemePrimaryForegroundBrush}"
-                                                   FontSize="18" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Za odabrani period"
+                                                   FontSize="12" Margin="0,5,0,0"
+                                                   Opacity="0.7"
+                                                   Foreground="{DynamicResource ThemePrimaryForegroundBrush}"/>
                                     </StackPanel>
 
-                                    <StackPanel Grid.Column="1">
-                                        <TextBlock Text="Reklamirano" FontSize="12" Opacity="0.7"
-                                                   Foreground="{DynamicResource ThemePrimaryForegroundBrush}"/>
-                                        <TextBlock Text="{Binding Reklamirano, StringFormat={}{0:N2}}"
-                                                   Foreground="{DynamicResource ThemePrimaryForegroundBrush}"
-                                                   FontSize="18" FontWeight="SemiBold"/>
-                                    </StackPanel>
+                                    <TextBlock Grid.Row="1"
+                                               Text="{Binding Neto, StringFormat={}{0:N2}}"
+                                               Foreground="{DynamicResource ThemePrimaryForegroundBrush}"
+                                               FontSize="49" FontWeight="Bold"
+                                               VerticalAlignment="Center"/>
+
+                                    <Grid Grid.Row="2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="Bruto promet"
+                                                       FontSize="12" Opacity="0.7"
+                                                       Foreground="{DynamicResource ThemePrimaryForegroundBrush}"/>
+                                            <TextBlock Text="{Binding Bruto, StringFormat={}{0:N2}}"
+                                                       Foreground="{DynamicResource ThemePrimaryForegroundBrush}"
+                                                       FontSize="18" FontWeight="SemiBold"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="Reklamirano"
+                                                       FontSize="12" Opacity="0.7"
+                                                       Foreground="{DynamicResource ThemePrimaryForegroundBrush}"/>
+                                            <TextBlock Text="{Binding Reklamirano, StringFormat={}{0:N2}}"
+                                                       Foreground="{DynamicResource ThemePrimaryForegroundBrush}"
+                                                       FontSize="18" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                    </Grid>
                                 </Grid>
+                            </Border>
+
+                            <Border Grid.Column="1" Style="{StaticResource DashCard}">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Text="NAČINI PLAĆANJA"
+                                               FontSize="15" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource GlobalFontColor}"
+                                               Margin="0,0,0,15"/>
+
+                                    <UniformGrid Grid.Row="1" Rows="2" Columns="2">
+                                        <StackPanel Margin="0,0,12,12">
+                                            <TextBlock Text="GOTOVINA" Style="{StaticResource DashCaption}"/>
+                                            <TextBlock Text="{Binding Gotovina, StringFormat={}{0:N2}}"
+                                                       Style="{StaticResource DashValue}"
+                                                       Margin="0,4,0,0"/>
+                                        </StackPanel>
+
+                                        <StackPanel Margin="0,0,0,12">
+                                            <TextBlock Text="KARTICA" Style="{StaticResource DashCaption}"/>
+                                            <TextBlock Text="{Binding Kartica, StringFormat={}{0:N2}}"
+                                                       Style="{StaticResource DashValue}"
+                                                       Margin="0,4,0,0"/>
+                                        </StackPanel>
+
+                                        <StackPanel Margin="0,0,12,0">
+                                            <TextBlock Text="ČEK" Style="{StaticResource DashCaption}"/>
+                                            <TextBlock Text="{Binding Cek, StringFormat={}{0:N2}}"
+                                                       Style="{StaticResource DashValue}"
+                                                       Margin="0,4,0,0"/>
+                                        </StackPanel>
+
+                                        <StackPanel>
+                                            <TextBlock Text="VIRMAN" Style="{StaticResource DashCaption}"/>
+                                            <TextBlock Text="{Binding Virman, StringFormat={}{0:N2}}"
+                                                       Style="{StaticResource DashValue}"
+                                                       Margin="0,4,0,0"/>
+                                        </StackPanel>
+                                    </UniformGrid>
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                        <!-- PROMET PO VRSTI ARTIKLA -->
+                        <StackPanel Grid.Row="1" Margin="0,0,0,20"
+                                    Style="{StaticResource TotalPanelStyle}">
+                            <TextBlock Text="Promet po vrsti artikla"
+                                       Style="{StaticResource DashSectionTitle}"
+                                       Margin="0,0,0,13"/>
+
+                            <UniformGrid Columns="3">
+                                <Border Style="{StaticResource DashCard}" Margin="0,0,12,0">
+                                    <StackPanel>
+                                        <TextBlock Text="ŠANK" Style="{StaticResource DashCaption}"/>
+                                        <TextBlock Text="{Binding Sank, StringFormat={}{0:N2}}"
+                                                   Style="{StaticResource DashValue}"
+                                                   FontSize="30" Margin="0,9,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Style="{StaticResource DashCard}" Margin="0,0,12,0">
+                                    <StackPanel>
+                                        <TextBlock Text="KUHINJA" Style="{StaticResource DashCaption}"/>
+                                        <TextBlock Text="{Binding Kuhinja, StringFormat={}{0:N2}}"
+                                                   Style="{StaticResource DashValue}"
+                                                   FontSize="30" Margin="0,9,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Style="{StaticResource DashCard}">
+                                    <StackPanel>
+                                        <TextBlock Text="OSTALO" Style="{StaticResource DashCaption}"/>
+                                        <TextBlock Text="{Binding Ostalo, StringFormat={}{0:N2}}"
+                                                   Style="{StaticResource DashValue}"
+                                                   FontSize="30" Margin="0,9,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </UniformGrid>
+                        </StackPanel>
+
+                        <!-- PROMET PO RADNICIMA -->
+                        <StackPanel Grid.Row="2" Style="{StaticResource TotalPanelStyle}">
+                            <TextBlock Text="Promet po radnicima"
+                                       Style="{StaticResource DashSectionTitle}"
+                                       Margin="0,0,0,13"/>
+
+                            <ItemsControl ItemsSource="{Binding Radnici}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Width="310" MinHeight="242"
+                                                Margin="0,0,14,14"
+                                                Style="{StaticResource DashCard}">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Ime}"
+                                                           FontSize="18" FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource GlobalFontColor}"/>
+
+                                                <TextBlock Text="{Binding Neto, StringFormat={}{0:N2}}"
+                                                           Style="{StaticResource DashValue}"
+                                                           FontSize="31" Margin="0,10,0,12"/>
+
+                                                <Border Height="1"
+                                                        Background="{DynamicResource GlobalBorderColor}"
+                                                        Margin="0,0,0,9"/>
+
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <TextBlock Grid.Row="0" Text="Gotovina"
+                                                               Style="{StaticResource DashCaption}"
+                                                               Margin="0,3"/>
+                                                    <TextBlock Grid.Row="0" Grid.Column="1"
+                                                               Text="{Binding Gotovina, StringFormat={}{0:N2}}"
+                                                               Foreground="{DynamicResource GlobalFontColor}"
+                                                               FontWeight="SemiBold" Margin="0,3"/>
+
+                                                    <TextBlock Grid.Row="1" Text="Kartica"
+                                                               Style="{StaticResource DashCaption}"
+                                                               Margin="0,3"/>
+                                                    <TextBlock Grid.Row="1" Grid.Column="1"
+                                                               Text="{Binding Kartica, StringFormat={}{0:N2}}"
+                                                               Foreground="{DynamicResource GlobalFontColor}"
+                                                               FontWeight="SemiBold" Margin="0,3"/>
+
+                                                    <TextBlock Grid.Row="2" Text="Ček"
+                                                               Style="{StaticResource DashCaption}"
+                                                               Margin="0,3"/>
+                                                    <TextBlock Grid.Row="2" Grid.Column="1"
+                                                               Text="{Binding Cek, StringFormat={}{0:N2}}"
+                                                               Foreground="{DynamicResource GlobalFontColor}"
+                                                               FontWeight="SemiBold" Margin="0,3"/>
+
+                                                    <TextBlock Grid.Row="3" Text="Virman"
+                                                               Style="{StaticResource DashCaption}"
+                                                               Margin="0,3"/>
+                                                    <TextBlock Grid.Row="3" Grid.Column="1"
+                                                               Text="{Binding Virman, StringFormat={}{0:N2}}"
+                                                               Foreground="{DynamicResource GlobalFontColor}"
+                                                               FontWeight="SemiBold" Margin="0,3"/>
+
+                                                    <TextBlock Grid.Row="4" Text="Reklamirano"
+                                                               Style="{StaticResource DashCaption}"
+                                                               Margin="0,3"/>
+                                                    <TextBlock Grid.Row="4" Grid.Column="1"
+                                                               Text="{Binding Reklamirano, StringFormat={}{0:N2}}"
+                                                               Foreground="{DynamicResource GlobalFontColor}"
+                                                               FontWeight="SemiBold" Margin="0,3"/>
+                                                </Grid>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <TextBlock Text="Nema računa za odabrani period."
+                                       Foreground="{DynamicResource ThemeMutedForegroundBrush}"
+                                       FontSize="15" Margin="0,5,0,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding NemaPrometa}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Grid>
+                </ScrollViewer>
+
+                <!-- PROMET PO ARTIKLIMA / ŠANK / KUHINJA / OSTALO -->
+                <Border Grid.Row="2" Style="{StaticResource ArticlesReportStyle}"
+                        Margin="0" MinHeight="0">
+                    <Grid MinHeight="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*" MinHeight="0"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- NASLOV -->
+                        <Grid Grid.Row="0" Margin="4,0,4,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel>
+                                <TextBlock Text="{Binding ReportTitle}"
+                                           Style="{StaticResource DashSectionTitle}"
+                                           FontSize="23"/>
+                                <TextBlock Text="Pregled prodatih artikala za odabrani datum ili period"
+                                           Style="{StaticResource DashCaption}"
+                                           Margin="0,6,0,0"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- TABELA ARTIKALA -->
+                        <Border Grid.Row="1" CornerRadius="10,10,0,0" Padding="5"
+                                Background="{DynamicResource ThemeSelectionBrush}"
+                                BorderThickness="1"
+                                BorderBrush="{DynamicResource GlobalBorderColor}"
+                                ClipToBounds="True" MinHeight="0">
+                            <Grid MinHeight="0">
+                                <DataGrid ItemsSource="{Binding Artikli}"
+                                          AutoGenerateColumns="False"
+                                          IsReadOnly="True"
+                                          CanUserAddRows="False"
+                                          CanUserDeleteRows="False"
+                                          CanUserResizeRows="False"
+                                          CanUserReorderColumns="False"
+                                          CanUserSortColumns="True"
+                                          HeadersVisibility="Column"
+                                          SelectionUnit="FullRow"
+                                          SelectionMode="Single"
+                                          GridLinesVisibility="Horizontal"
+                                          HorizontalGridLinesBrush="{DynamicResource GlobalBorderColor}"
+                                          RowHeight="40"
+                                          ColumnHeaderHeight="44"
+                                          MinHeight="0"
+                                          BorderThickness="0"
+                                          RowHeaderWidth="0"
+                                          Background="{DynamicResource ThemeControlBrush}"
+                                          Foreground="{DynamicResource GlobalFontColor}"
+                                          RowBackground="{DynamicResource ThemeControlBrush}"
+                                          AlternatingRowBackground="{DynamicResource ThemeControlBrush}"
+                                          HorizontalScrollBarVisibility="Auto"
+                                          VerticalScrollBarVisibility="Auto"
+                                          EnableRowVirtualization="True"
+                                          EnableColumnVirtualization="True"
+                                          ScrollViewer.CanContentScroll="True">
+
+                                    <DataGrid.Resources>
+                                        <!-- CAUPO SCROLLBAR -->
+                                        <Style TargetType="{x:Type ScrollBar}"
+                                               BasedOn="{StaticResource WideVerticalScrollBar}"/>
+
+                                        <!-- ZAGLAVLJA -->
+                                        <Style TargetType="DataGridColumnHeader">
+                                            <Setter Property="Background" Value="{DynamicResource ThemeSelectionBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+                                            <Setter Property="FontSize" Value="12"/>
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                            <Setter Property="Padding" Value="18,0"/>
+                                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource GlobalBorderColor}"/>
+                                            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                        </Style>
+
+                                        <!-- REDOVI -->
+                                        <Style TargetType="DataGridRow">
+                                            <Setter Property="Background" Value="{DynamicResource ThemeControlBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource ThemeSelectionBrush}"/>
+                                                </Trigger>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource ThemeSelectionBrush}"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+
+                                        <!-- ĆELIJE -->
+                                        <Style TargetType="DataGridCell">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="Padding" Value="0"/>
+                                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter Property="Background" Value="Transparent"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGrid.Resources>
+
+                                    <DataGrid.Columns>
+                                        <!-- ARTIKL -->
+                                        <DataGridTextColumn Width="*" MinWidth="250"
+                                                            SortMemberPath="Naziv"
+                                                            Binding="{Binding Naziv}">
+                                            <DataGridTextColumn.Header>
+                                                <TextBlock Text="ARTIKL"
+                                                           Style="{StaticResource ReportHeaderText}"/>
+                                            </DataGridTextColumn.Header>
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+                                                    <Setter Property="FontSize" Value="14"/>
+                                                    <Setter Property="FontWeight" Value="Medium"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    <Setter Property="Padding" Value="18,0,8,0"/>
+                                                    <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+
+                                        <!-- JEDINICA MJERE -->
+                                        <DataGridTextColumn Width="105"
+                                                            SortMemberPath="JedinicaMjere"
+                                                            Binding="{Binding JedinicaMjere}">
+                                            <DataGridTextColumn.Header>
+                                                <TextBlock Text="JED. MJERE"
+                                                           Style="{StaticResource ReportHeaderText}"/>
+                                            </DataGridTextColumn.Header>
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource ThemeMutedForegroundBrush}"/>
+                                                    <Setter Property="FontSize" Value="13"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    <Setter Property="Padding" Value="8,0,8,0"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+
+                                        <!-- CIJENA -->
+                                        <DataGridTextColumn Width="125"
+                                                            SortMemberPath="Cijena"
+                                                            Binding="{Binding Cijena, StringFormat={}{0:N2}}"
+                                                            HeaderStyle="{StaticResource ReportNumberHeader}">
+                                            <DataGridTextColumn.Header>
+                                                <TextBlock Text="CIJENA"
+                                                           Style="{StaticResource ReportHeaderText}"/>
+                                            </DataGridTextColumn.Header>
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+                                                    <Setter Property="FontSize" Value="14"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    <Setter Property="TextAlignment" Value="Right"/>
+                                                    <Setter Property="Padding" Value="8,0,18,0"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+
+                                        <!-- KOLIČINA -->
+                                        <DataGridTextColumn Width="135"
+                                                            SortMemberPath="Kolicina"
+                                                            Binding="{Binding Kolicina, StringFormat={}{0:N3}}"
+                                                            HeaderStyle="{StaticResource ReportNumberHeader}">
+                                            <DataGridTextColumn.Header>
+                                                <TextBlock Text="KOLIČINA"
+                                                           Style="{StaticResource ReportHeaderText}"/>
+                                            </DataGridTextColumn.Header>
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+                                                    <Setter Property="FontSize" Value="14"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    <Setter Property="TextAlignment" Value="Right"/>
+                                                    <Setter Property="Padding" Value="8,0,18,0"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+
+                                        <!-- IZNOS -->
+                                        <DataGridTextColumn Width="145"
+                                                            SortMemberPath="Iznos"
+                                                            Binding="{Binding Iznos, StringFormat={}{0:N2}}"
+                                                            HeaderStyle="{StaticResource ReportNumberHeader}">
+                                            <DataGridTextColumn.Header>
+                                                <TextBlock Text="IZNOS"
+                                                           Style="{StaticResource ReportHeaderText}"/>
+                                            </DataGridTextColumn.Header>
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource GlobalFontColor}"/>
+                                                    <Setter Property="FontSize" Value="14"/>
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                                    <Setter Property="TextAlignment" Value="Right"/>
+                                                    <Setter Property="Padding" Value="8,0,18,0"/>
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+
+                                <!-- POPUNA PROSTORA IZNAD SCROLLBARA -->
+                                <Border Width="44" Height="44"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Top"
+                                        Background="{DynamicResource ThemeSelectionBrush}"
+                                        CornerRadius="0"
+                                        IsHitTestVisible="False"/>
                             </Grid>
                         </Border>
 
-                        <Border Grid.Column="1" Style="{StaticResource DashCard}">
+                        <!-- UKUPAN IZNOS -->
+                        <Border Grid.Row="2" Margin="0,-10,0,0"
+                                Padding="18,15"
+                                Background="{DynamicResource ThemeSelectionBrush}"
+                                CornerRadius="0,0,10,10">
                             <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
 
-                                <TextBlock Text="NAČINI PLAĆANJA" FontSize="15" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource GlobalFontColor}" Margin="0,0,0,15"/>
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                    <TextBlock Text="UKUPAN IZNOS"
+                                               Style="{x:Null}"
+                                               FontSize="12"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource GlobalFontColor}"/>
+                                    <TextBlock Text="Za odabrani izvještaj"
+                                               Style="{x:Null}"
+                                               FontSize="12"
+                                               Foreground="{DynamicResource ThemeMutedForegroundBrush}"
+                                               Margin="0,4,0,0"/>
+                                </StackPanel>
 
-                                <UniformGrid Grid.Row="1" Rows="2" Columns="2">
-                                    <StackPanel Margin="0,0,12,12">
-                                        <TextBlock Text="GOTOVINA" Style="{StaticResource DashCaption}"/>
-                                        <TextBlock Text="{Binding Gotovina, StringFormat={}{0:N2}}"
-                                                   Style="{StaticResource DashValue}" Margin="0,4,0,0"/>
-                                    </StackPanel>
-
-                                    <StackPanel Margin="0,0,0,12">
-                                        <TextBlock Text="KARTICA" Style="{StaticResource DashCaption}"/>
-                                        <TextBlock Text="{Binding Kartica, StringFormat={}{0:N2}}"
-                                                   Style="{StaticResource DashValue}" Margin="0,4,0,0"/>
-                                    </StackPanel>
-
-                                    <StackPanel Margin="0,0,12,0">
-                                        <TextBlock Text="ČEK" Style="{StaticResource DashCaption}"/>
-                                        <TextBlock Text="{Binding Cek, StringFormat={}{0:N2}}"
-                                                   Style="{StaticResource DashValue}" Margin="0,4,0,0"/>
-                                    </StackPanel>
-
-                                    <StackPanel>
-                                        <TextBlock Text="VIRMAN" Style="{StaticResource DashCaption}"/>
-                                        <TextBlock Text="{Binding Virman, StringFormat={}{0:N2}}"
-                                                   Style="{StaticResource DashValue}" Margin="0,4,0,0"/>
-                                    </StackPanel>
-                                </UniformGrid>
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding ArtikliUkupno, StringFormat={}{0:N2}}"
+                                           Style="{x:Null}"
+                                           FontSize="25"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource GlobalFontColor}"
+                                           VerticalAlignment="Center"
+                                           TextAlignment="Right"/>
                             </Grid>
                         </Border>
                     </Grid>
-
-                    <!-- PROMET PO VRSTI ARTIKLA -->
-                    <StackPanel Grid.Row="3" Margin="0,0,0,20">
-                        <TextBlock Text="Promet po vrsti artikla" Style="{StaticResource DashSectionTitle}" Margin="0,0,0,13"/>
-
-                        <UniformGrid Columns="3">
-                            <Border Style="{StaticResource DashCard}" Margin="0,0,12,0">
-                                <StackPanel>
-                                    <TextBlock Text="ŠANK" Style="{StaticResource DashCaption}"/>
-                                    <TextBlock Text="{Binding Sank, StringFormat={}{0:N2}}"
-                                               Style="{StaticResource DashValue}" FontSize="30" Margin="0,9,0,0"/>
-                                </StackPanel>
-                            </Border>
-
-                            <Border Style="{StaticResource DashCard}" Margin="0,0,12,0">
-                                <StackPanel>
-                                    <TextBlock Text="KUHINJA" Style="{StaticResource DashCaption}"/>
-                                    <TextBlock Text="{Binding Kuhinja, StringFormat={}{0:N2}}"
-                                               Style="{StaticResource DashValue}" FontSize="30" Margin="0,9,0,0"/>
-                                </StackPanel>
-                            </Border>
-
-                            <Border Style="{StaticResource DashCard}">
-                                <StackPanel>
-                                    <TextBlock Text="OSTALO" Style="{StaticResource DashCaption}"/>
-                                    <TextBlock Text="{Binding Ostalo, StringFormat={}{0:N2}}"
-                                               Style="{StaticResource DashValue}" FontSize="30" Margin="0,9,0,0"/>
-                                </StackPanel>
-                            </Border>
-                        </UniformGrid>
-                    </StackPanel>
-
-                    <!-- PROMET PO RADNICIMA -->
-                    <StackPanel Grid.Row="4">
-                        <TextBlock Text="Promet po radnicima" Style="{StaticResource DashSectionTitle}" Margin="0,0,0,13"/>
-
-                        <ItemsControl ItemsSource="{Binding Radnici}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Width="310" MinHeight="242" Margin="0,0,14,14" Style="{StaticResource DashCard}">
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding Ime}" FontSize="18" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource GlobalFontColor}"/>
-
-                                            <TextBlock Text="{Binding Neto, StringFormat={}{0:N2}}"
-                                                       Style="{StaticResource DashValue}" FontSize="31" Margin="0,10,0,12"/>
-
-                                            <Border Height="1" Background="{DynamicResource GlobalBorderColor}" Margin="0,0,0,9"/>
-
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                </Grid.RowDefinitions>
-
-                                                <TextBlock Grid.Row="0" Text="Gotovina" Style="{StaticResource DashCaption}" Margin="0,3"/>
-                                                <TextBlock Grid.Row="0" Grid.Column="1"
-                                                           Text="{Binding Gotovina, StringFormat={}{0:N2}}"
-                                                           Foreground="{DynamicResource GlobalFontColor}"
-                                                           FontWeight="SemiBold" Margin="0,3"/>
-
-                                                <TextBlock Grid.Row="1" Text="Kartica" Style="{StaticResource DashCaption}" Margin="0,3"/>
-                                                <TextBlock Grid.Row="1" Grid.Column="1"
-                                                           Text="{Binding Kartica, StringFormat={}{0:N2}}"
-                                                           Foreground="{DynamicResource GlobalFontColor}"
-                                                           FontWeight="SemiBold" Margin="0,3"/>
-
-                                                <TextBlock Grid.Row="2" Text="Ček" Style="{StaticResource DashCaption}" Margin="0,3"/>
-                                                <TextBlock Grid.Row="2" Grid.Column="1"
-                                                           Text="{Binding Cek, StringFormat={}{0:N2}}"
-                                                           Foreground="{DynamicResource GlobalFontColor}"
-                                                           FontWeight="SemiBold" Margin="0,3"/>
-
-                                                <TextBlock Grid.Row="3" Text="Virman" Style="{StaticResource DashCaption}" Margin="0,3"/>
-                                                <TextBlock Grid.Row="3" Grid.Column="1"
-                                                           Text="{Binding Virman, StringFormat={}{0:N2}}"
-                                                           Foreground="{DynamicResource GlobalFontColor}"
-                                                           FontWeight="SemiBold" Margin="0,3"/>
-
-                                                <TextBlock Grid.Row="4" Text="Reklamirano" Style="{StaticResource DashCaption}" Margin="0,3"/>
-                                                <TextBlock Grid.Row="4" Grid.Column="1"
-                                                           Text="{Binding Reklamirano, StringFormat={}{0:N2}}"
-                                                           Foreground="{DynamicResource GlobalFontColor}"
-                                                           FontWeight="SemiBold" Margin="0,3"/>
-                                            </Grid>
-                                        </StackPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-
-                        <TextBlock Text="Nema računa za odabrani period."
-                                   Foreground="{DynamicResource ThemeMutedForegroundBrush}" FontSize="15" Margin="0,5,0,0">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding NemaPrometa}" Value="True">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </StackPanel>
-
-                </Grid>
-            </ScrollViewer>
+                </Border>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>
