@@ -7,7 +7,6 @@
              Width="280" HorizontalAlignment="Left" VerticalAlignment="Stretch">
 
     <UserControl.Resources>
-
         <Style x:Key="DashboardMenuIconStyle" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="pack://application:,,,/Assets/Fonts/#FluentSystemIcons-Regular"/>
             <Setter Property="FontSize" Value="24"/>
@@ -37,8 +36,11 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
-                            <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -70,8 +72,11 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
-                            <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter Margin="{TemplateBinding Padding}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -85,7 +90,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
     </UserControl.Resources>
 
     <Border Background="{DynamicResource ThemePopupBrush}" BorderBrush="{DynamicResource GlobalBorderColor}"
@@ -95,7 +99,6 @@
         </Border.Effect>
 
         <DockPanel LastChildFill="True">
-
             <!-- ZAGLAVLJE -->
             <Border DockPanel.Dock="Top" Height="76" Background="{DynamicResource ThemePrimaryBrush}" CornerRadius="11,11,0,0">
                 <StackPanel VerticalAlignment="Center" Margin="17,0">
@@ -107,7 +110,6 @@
             </Border>
 
             <StackPanel>
-
                 <!-- DNEVNI PROMET -->
                 <Button Style="{StaticResource DashboardMenuButtonStyle}" Click="DailyButton_Click">
                     <Grid>
@@ -127,7 +129,6 @@
                 </Button>
 
                 <StackPanel x:Name="DailyPanel" Visibility="Collapsed" Background="{DynamicResource ThemeControlBrush}">
-
                     <Button Tag="DnevniPromet" Click="ReportButton_Click" Style="{StaticResource DashboardSubButtonStyle}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xF033F;" Style="{StaticResource DashboardSubIconStyle}"/>
@@ -177,6 +178,12 @@
                         </StackPanel>
                     </Button>
 
+                    <Button Tag="ZalihaNamirnica" Click="ReportButton_Click" Style="{StaticResource DashboardSubButtonStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xEEE9;" Style="{StaticResource DashboardSubIconStyle}"/>
+                            <TextBlock Text="Zaliha namirnica" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
 
                 <!-- PERIODIČNI PROMET -->
@@ -198,7 +205,6 @@
                 </Button>
 
                 <StackPanel x:Name="PeriodicPanel" Visibility="Collapsed" Background="{DynamicResource ThemeControlBrush}">
-
                     <Button Tag="PeriodicniPromet" Click="ReportButton_Click" Style="{StaticResource DashboardSubButtonStyle}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xF033F;" Style="{StaticResource DashboardSubIconStyle}"/>
@@ -247,18 +253,7 @@
                             <TextBlock Text="Utrošak namirnica" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
-
                 </StackPanel>
-
-                <!-- ZALIHA NAMIRNICA -->
-                <Button Tag="ZalihaNamirnica" Click="ReportButton_Click" Style="{StaticResource DashboardMenuButtonStyle}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xEEE9;" Style="{StaticResource DashboardMenuIconStyle}"
-                                   Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
-                        <TextBlock Text="Zaliha namirnica" VerticalAlignment="Center"
-                                   Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
-                    </StackPanel>
-                </Button>
 
                 <!-- REKAPITULACIJA PROMETA -->
                 <Button Tag="RekapitulacijaPrometa" Click="ReportButton_Click" Style="{StaticResource DashboardMenuButtonStyle}">
@@ -269,7 +264,6 @@
                                    Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"/>
                     </StackPanel>
                 </Button>
-
             </StackPanel>
         </DockPanel>
     </Border>

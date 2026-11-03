@@ -23,16 +23,10 @@ namespace Caupo.ViewModels
         private bool _isLoading;
         private bool _isPeriodicMode;
         private string _selectedReport = "DnevniPromet";
-        private decimal _bruto;
-        private decimal _reklamirano;
-        private decimal _gotovina;
-        private decimal _kartica;
-        private decimal _cek;
-        private decimal _virman;
-        private decimal _sank;
-        private decimal _kuhinja;
-        private decimal _ostalo;
-        private decimal _artikliUkupno;
+        private decimal _bruto, _reklamirano, _gotovina, _kartica, _cek, _virman;
+        private decimal _sank, _kuhinja, _ostalo, _artikliUkupno;
+        private WorkerSummary? _selectedWorker;
+        private Dictionary<string, List<ArticleSummary>> _workerArticles = new();
 
         public ObservableCollection<WorkerSummary> Radnici { get; } = new();
         public ObservableCollection<ArticleSummary> Artikli { get; } = new();
@@ -85,18 +79,47 @@ namespace Caupo.ViewModels
                 _selectedReport = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsArticleReport));
+                OnPropertyChanged(nameof(IsWorkerReport));
+                OnPropertyChanged(nameof(IsConsumptionReport));
+                OnPropertyChanged(nameof(IsStockReport));
+                OnPropertyChanged(nameof(IsQuantityReport));
+                OnPropertyChanged(nameof(IsNormalArticleReport));
+                OnPropertyChanged(nameof(QuantityHeader));
                 OnPropertyChanged(nameof(ReportTitle));
             }
         }
 
-        public bool IsArticleReport => SelectedReport.EndsWith("PoArtiklima", StringComparison.Ordinal) ||
+        public bool IsWorkerReport => SelectedReport.EndsWith("PoRadniku", StringComparison.Ordinal);
+        public bool IsConsumptionReport => SelectedReport.EndsWith("UtrosakNamirnica", StringComparison.Ordinal);
+        public bool IsStockReport => SelectedReport == "ZalihaNamirnica";
+        public bool IsQuantityReport => IsConsumptionReport || IsStockReport;
+        public bool IsNormalArticleReport => IsArticleReport && !IsQuantityReport;
+        public string QuantityHeader => IsStockReport ? "ZALIHA" : "UTROŠENO";
+
+        public bool IsArticleReport => IsWorkerReport || IsQuantityReport ||
+            SelectedReport.EndsWith("PoArtiklima", StringComparison.Ordinal) ||
             SelectedReport.EndsWith("Sanka", StringComparison.Ordinal) ||
             SelectedReport.EndsWith("Kuhinje", StringComparison.Ordinal) ||
             SelectedReport.EndsWith("Ostalo", StringComparison.Ordinal);
 
-        public string ReportTitle => SelectedReport.EndsWith("Sanka", StringComparison.Ordinal) ? "Promet šanka" :
+        public string ReportTitle => IsStockReport ? "Zaliha namirnica" :
+            IsConsumptionReport ? "Utrošak namirnica" :
+            IsWorkerReport ? "Promet po radniku" :
+            SelectedReport.EndsWith("Sanka", StringComparison.Ordinal) ? "Promet šanka" :
             SelectedReport.EndsWith("Kuhinje", StringComparison.Ordinal) ? "Promet kuhinje" :
             SelectedReport.EndsWith("Ostalo", StringComparison.Ordinal) ? "Promet ostalo" : "Promet po artiklima";
+
+        public WorkerSummary? SelectedWorker
+        {
+            get => _selectedWorker;
+            set
+            {
+                if (ReferenceEquals(_selectedWorker, value)) return;
+                _selectedWorker = value;
+                OnPropertyChanged();
+                if (IsWorkerReport) ShowWorkerArticles();
+            }
+        }
 
         public decimal ArtikliUkupno => _artikliUkupno;
         public bool NemaArtikala => Artikli.Count == 0;
@@ -128,12 +151,10 @@ namespace Caupo.ViewModels
         private async Task ShowTodayAsync()
         {
             if (IsLoading) return;
-
             OdDatuma = DateTime.Today;
             DoDatuma = DateTime.Today;
             OdVrijeme = "00:00";
             DoVrijeme = "23:59";
-
             await RefreshAsync();
         }
 
@@ -149,9 +170,40 @@ namespace Caupo.ViewModels
             {
                 await using var db = new AppDbContext();
 
+                if (IsStockReport)
+                {
+                    DateTime dan = OdDatuma!.Value.Date;
+
+                    var stock = await db.KnjigaKuhinje.AsNoTracking()
+                        .Where(x => x.Datum >= dan && x.Datum < dan.AddDays(1))
+                        .OrderBy(x => x.Artikl)
+                        .Select(x => new { x.Artikl, x.JedinicaMjere, x.Zaliha })
+                        .ToListAsync();
+
+                    SelectedWorker = null;
+                    _workerArticles.Clear();
+                    Radnici.Clear();
+
+                    if (stock.Count == 0)
+                    {
+                        SetArticles(Array.Empty<ArticleSummary>());
+                        ErrorMessage = $"Knjiga kuhinje nije obračunata za {dan:dd.MM.yyyy}.";
+                    }
+                    else
+                    {
+                        SetArticles(stock.Select(x => new ArticleSummary
+                        {
+                            Naziv = x.Artikl ?? string.Empty,
+                            JedinicaMjere = UnitName(x.JedinicaMjere),
+                            Kolicina = x.Zaliha ?? 0m
+                        }));
+                    }
+
+                    return;
+                }
+
                 var workers = await db.Radnici.AsNoTracking()
-                    .Select(x => new { x.IdRadnika, x.Radnik })
-                    .ToListAsync();
+                    .Select(x => new { x.IdRadnika, x.Radnik }).ToListAsync();
 
                 var workerNames = workers.ToDictionary(
                     x => x.IdRadnika.ToString(CultureInfo.InvariantCulture),
@@ -159,16 +211,12 @@ namespace Caupo.ViewModels
 
                 var summaries = new Dictionary<string, WorkerSummary>();
                 var articles = new List<ArticleSummary>();
+                var workerArticles = new Dictionary<string, List<ArticleSummary>>();
+                string? previousWorkerId = SelectedWorker?.Id;
 
-                decimal bruto = 0m;
-                decimal reklamirano = 0m;
-                decimal gotovina = 0m;
-                decimal kartica = 0m;
-                decimal cek = 0m;
-                decimal virman = 0m;
-                decimal sank = 0m;
-                decimal kuhinja = 0m;
-                decimal ostalo = 0m;
+                decimal bruto = 0m, reklamirano = 0m, gotovina = 0m;
+                decimal kartica = 0m, cek = 0m, virman = 0m;
+                decimal sank = 0m, kuhinja = 0m, ostalo = 0m;
 
                 await db.Database.OpenConnectionAsync();
 
@@ -182,13 +230,11 @@ namespace Caupo.ViewModels
 
                         while (await reader.ReadAsync())
                         {
-                            string workerId = reader.IsDBNull(0)
-                                ? string.Empty
-                                : Convert.ToString(reader.GetValue(0), CultureInfo.InvariantCulture) ?? string.Empty;
+                            string workerId = reader.IsDBNull(0) ? string.Empty :
+                                Convert.ToString(reader.GetValue(0), CultureInfo.InvariantCulture) ?? string.Empty;
 
-                            int paymentType = reader.IsDBNull(1)
-                                ? -1
-                                : Convert.ToInt32(reader.GetValue(1), CultureInfo.InvariantCulture);
+                            int paymentType = reader.IsDBNull(1) ? -1 :
+                                Convert.ToInt32(reader.GetValue(1), CultureInfo.InvariantCulture);
 
                             decimal grossAmount = ReadDecimal(reader, 2);
                             decimal refundedAmount = ReadDecimal(reader, 3);
@@ -208,13 +254,10 @@ namespace Caupo.ViewModels
                             if (!summaries.TryGetValue(workerId, out WorkerSummary? worker))
                             {
                                 string name = workerNames.TryGetValue(workerId, out string? found)
-                                    && !string.IsNullOrWhiteSpace(found)
-                                    ? found
-                                    : string.IsNullOrWhiteSpace(workerId)
-                                        ? "Nepoznat radnik"
-                                        : $"Radnik #{workerId}";
+                                    && !string.IsNullOrWhiteSpace(found) ? found
+                                    : string.IsNullOrWhiteSpace(workerId) ? "Nepoznat radnik" : $"Radnik #{workerId}";
 
-                                worker = new WorkerSummary { Ime = name };
+                                worker = new WorkerSummary { Id = workerId, Ime = name };
                                 summaries.Add(workerId, worker);
                             }
 
@@ -237,9 +280,8 @@ namespace Caupo.ViewModels
 
                         while (await reader.ReadAsync())
                         {
-                            int type = reader.IsDBNull(0)
-                                ? 2
-                                : Convert.ToInt32(reader.GetValue(0), CultureInfo.InvariantCulture);
+                            int type = reader.IsDBNull(0) ? 2 :
+                                Convert.ToInt32(reader.GetValue(0), CultureInfo.InvariantCulture);
 
                             decimal amount = ReadDecimal(reader, 1);
 
@@ -252,7 +294,50 @@ namespace Caupo.ViewModels
                         }
                     }
 
-                    if (IsArticleReport)
+                    if (IsConsumptionReport)
+                    {
+                        await using var command = CreateCommand(connection, ConsumptionSql, od, doExclusive);
+                        await using var reader = await command.ExecuteReaderAsync();
+
+                        while (await reader.ReadAsync())
+                        {
+                            articles.Add(new ArticleSummary
+                            {
+                                Naziv = reader.IsDBNull(0) ? string.Empty : reader.GetString(0),
+                                JedinicaMjere = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                                Kolicina = ReadDecimal(reader, 2)
+                            });
+                        }
+                    }
+                    else if (IsWorkerReport)
+                    {
+                        await using var command = CreateCommand(connection, WorkerArticlesSql, od, doExclusive);
+                        await using var reader = await command.ExecuteReaderAsync();
+
+                        while (await reader.ReadAsync())
+                        {
+                            string workerId = reader.IsDBNull(0) ? string.Empty :
+                                Convert.ToString(reader.GetValue(0), CultureInfo.InvariantCulture) ?? string.Empty;
+
+                            int? unit = reader.IsDBNull(2) ? null :
+                                Convert.ToInt32(reader.GetValue(2), CultureInfo.InvariantCulture);
+
+                            if (!workerArticles.TryGetValue(workerId, out List<ArticleSummary>? items))
+                            {
+                                items = new List<ArticleSummary>();
+                                workerArticles.Add(workerId, items);
+                            }
+
+                            items.Add(new ArticleSummary
+                            {
+                                Naziv = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                                JedinicaMjere = UnitName(unit),
+                                Cijena = ReadDecimal(reader, 3),
+                                Kolicina = ReadDecimal(reader, 4)
+                            });
+                        }
+                    }
+                    else if (IsArticleReport)
                     {
                         await using var command = CreateCommand(connection, ArticlesSql, od, doExclusive);
                         await using var reader = await command.ExecuteReaderAsync();
@@ -295,6 +380,7 @@ namespace Caupo.ViewModels
                 _kuhinja = Math.Round(kuhinja, 2, MidpointRounding.AwayFromZero);
                 _ostalo = Math.Round(ostalo, 2, MidpointRounding.AwayFromZero);
 
+                _workerArticles = workerArticles;
                 Radnici.Clear();
 
                 foreach (var worker in summaries.Values.OrderByDescending(x => x.Neto).ThenBy(x => x.Ime))
@@ -303,24 +389,47 @@ namespace Caupo.ViewModels
                     Radnici.Add(worker);
                 }
 
-                Artikli.Clear();
-                foreach (var article in articles.OrderBy(x => x.Naziv).ThenBy(x => x.Cijena))
-                    Artikli.Add(article);
-
-                _artikliUkupno = Artikli.Sum(x => x.Iznos);
-                OnPropertyChanged(nameof(ArtikliUkupno));
-                OnPropertyChanged(nameof(NemaArtikala));
+                if (IsWorkerReport)
+                {
+                    SelectedWorker = Radnici.FirstOrDefault(x => x.Id == previousWorkerId)
+                        ?? Radnici.FirstOrDefault();
+                    ShowWorkerArticles();
+                }
+                else
+                {
+                    SelectedWorker = null;
+                    SetArticles(articles);
+                }
 
                 NotifyTotals();
             }
             catch (Exception ex)
             {
+                if (IsStockReport) SetArticles(Array.Empty<ArticleSummary>());
                 ErrorMessage = "Greška pri učitavanju Dashboarda: " + ex.Message;
             }
             finally
             {
                 IsLoading = false;
             }
+        }
+
+        private void ShowWorkerArticles()
+        {
+            SetArticles(SelectedWorker != null && _workerArticles.TryGetValue(SelectedWorker.Id, out var items)
+                ? items : Array.Empty<ArticleSummary>());
+        }
+
+        private void SetArticles(IEnumerable<ArticleSummary> articles)
+        {
+            Artikli.Clear();
+
+            foreach (var article in articles.OrderBy(x => x.Naziv).ThenBy(x => x.Cijena))
+                Artikli.Add(article);
+
+            _artikliUkupno = Artikli.Sum(x => x.Iznos);
+            OnPropertyChanged(nameof(ArtikliUkupno));
+            OnPropertyChanged(nameof(NemaArtikala));
         }
 
         private bool TryGetPeriod(out DateTime od, out DateTime doExclusive)
@@ -392,47 +501,29 @@ namespace Caupo.ViewModels
         private const string PaymentsSql = @"
             WITH ReceiptTotals AS
             (
-                SELECT
-                    r.BrojRacuna,
-                    r.Radnik,
-                    r.NacinPlacanja,
-                    r.Reklamiran,
-                    ROUND(SUM(
-                        COALESCE(s.Kolicina, 0) * COALESCE(s.Cijena, 0)
-                    ), 2) AS Iznos
+                SELECT r.BrojRacuna, r.Radnik, r.NacinPlacanja, r.Reklamiran,
+                       ROUND(SUM(COALESCE(s.Kolicina, 0) * COALESCE(s.Cijena, 0)), 2) AS Iznos
                 FROM tblRacuni r
                 INNER JOIN tblRacunStavke s ON s.BrojRacuna = r.BrojRacuna
-                WHERE r.Datum >= @od
-                  AND r.Datum < @do
+                WHERE r.Datum >= @od AND r.Datum < @do
                   AND (r.TipRacuna IS NULL OR r.TipRacuna <> 'Storno' COLLATE NOCASE)
-                GROUP BY
-                    r.BrojRacuna,
-                    r.Radnik,
-                    r.NacinPlacanja,
-                    r.Reklamiran
+                GROUP BY r.BrojRacuna, r.Radnik, r.NacinPlacanja, r.Reklamiran
             )
-            SELECT
-                Radnik,
-                NacinPlacanja,
-                COALESCE(SUM(Iznos), 0) AS Bruto,
-                COALESCE(SUM(
-                    CASE WHEN Reklamiran = 'DA' COLLATE NOCASE THEN Iznos ELSE 0 END
-                ), 0) AS Reklamirano
+            SELECT Radnik, NacinPlacanja,
+                   COALESCE(SUM(Iznos), 0) AS Bruto,
+                   COALESCE(SUM(CASE WHEN Reklamiran = 'DA' COLLATE NOCASE THEN Iznos ELSE 0 END), 0) AS Reklamirano
             FROM ReceiptTotals
             GROUP BY Radnik, NacinPlacanja;";
 
         private const string CategoriesSql = @"
-            SELECT
-                COALESCE(s.VrstaArtikla, 2) AS Vrsta,
-                COALESCE(SUM(
-                    CASE WHEN r.Reklamiran = 'DA' COLLATE NOCASE THEN 0
-                    ELSE COALESCE(s.Kolicina, 0) * COALESCE(s.Cijena, 0)
-                    END
-                ), 0) AS Iznos
+            SELECT COALESCE(s.VrstaArtikla, 2) AS Vrsta,
+                   COALESCE(SUM(
+                       CASE WHEN r.Reklamiran = 'DA' COLLATE NOCASE THEN 0
+                            ELSE COALESCE(s.Kolicina, 0) * COALESCE(s.Cijena, 0) END
+                   ), 0) AS Iznos
             FROM tblRacunStavke s
             INNER JOIN tblRacuni r ON r.BrojRacuna = s.BrojRacuna
-            WHERE r.Datum >= @od
-              AND r.Datum < @do
+            WHERE r.Datum >= @od AND r.Datum < @do
               AND (r.TipRacuna IS NULL OR r.TipRacuna <> 'Storno' COLLATE NOCASE)
             GROUP BY COALESCE(s.VrstaArtikla, 2);";
 
@@ -446,6 +537,30 @@ namespace Caupo.ViewModels
               AND (r.Reklamiran IS NULL OR r.Reklamiran <> 'DA' COLLATE NOCASE)
             GROUP BY s.IdArtikla, s.Sifra, s.Artikl, s.JedinicaMjere,
                      s.Cijena, COALESCE(s.VrstaArtikla, 2);";
+
+        private const string WorkerArticlesSql = @"
+            SELECT COALESCE(r.Radnik, ''), COALESCE(s.Artikl, ''), s.JedinicaMjere,
+                   COALESCE(s.Cijena, 0), SUM(COALESCE(s.Kolicina, 0))
+            FROM tblRacunStavke s
+            INNER JOIN tblRacuni r ON r.BrojRacuna = s.BrojRacuna
+            WHERE r.Datum >= @od AND r.Datum < @do
+              AND (r.TipRacuna IS NULL OR r.TipRacuna <> 'Storno' COLLATE NOCASE)
+              AND (r.Reklamiran IS NULL OR r.Reklamiran <> 'DA' COLLATE NOCASE)
+            GROUP BY r.Radnik, s.IdArtikla, s.Sifra, s.Artikl, s.JedinicaMjere, s.Cijena;";
+
+        private const string ConsumptionSql = @"
+            SELECT n.Repromaterijal, COALESCE(n.JedinicaMjere, ''),
+                   SUM(COALESCE(s.Kolicina, 0) * COALESCE(n.Kolicina, 0))
+            FROM tblRacunStavke s
+            INNER JOIN tblRacuni r ON r.BrojRacuna = s.BrojRacuna
+            INNER JOIN tblNormativi n ON n.IdProizvoda = s.IdArtikla
+            WHERE r.Datum >= @od AND r.Datum < @do
+              AND s.VrstaArtikla = 1
+              AND (r.TipRacuna IS NULL OR r.TipRacuna <> 'Storno' COLLATE NOCASE)
+              AND (r.Reklamiran IS NULL OR r.Reklamiran <> 'DA' COLLATE NOCASE)
+              AND n.Repromaterijal IS NOT NULL AND n.Repromaterijal <> ''
+            GROUP BY n.Repromaterijal, n.JedinicaMjere
+            ORDER BY n.Repromaterijal, n.JedinicaMjere;";
 
         private static string UnitName(int? unit) => unit switch
         {
@@ -500,6 +615,7 @@ namespace Caupo.ViewModels
 
         public sealed class WorkerSummary
         {
+            public string Id { get; set; } = string.Empty;
             public string Ime { get; set; } = string.Empty;
             public decimal Bruto { get; set; }
             public decimal Reklamirano { get; set; }
