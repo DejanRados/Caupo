@@ -1,5 +1,4 @@
-﻿
-using Caupo.Helpers;
+﻿using Caupo.Helpers;
 using Caupo.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
@@ -32,6 +31,7 @@ namespace Caupo.Views
             Loaded -= DashboardPage_Loaded;
             _initialized = true;
             RequestRefresh();
+            _ = _viewModel.LoadTurnoverAsync();
         }
 
         private void DashboardMenu_ReportSelected(object? sender, string report)
@@ -125,6 +125,37 @@ namespace Caupo.Views
             {
                 _refreshRunning = false;
             }
+        }
+
+        private async void TurnoverMode_Click(object sender, RoutedEventArgs e) =>
+            await _viewModel.ToggleTurnoverModeAsync();
+
+        private async void TurnoverPrevious_Click(object sender, RoutedEventArgs e) =>
+            await _viewModel.ShiftTurnoverAsync(-1);
+
+        private async void TurnoverNext_Click(object sender, RoutedEventArgs e) =>
+            await _viewModel.ShiftTurnoverAsync(1);
+
+        private void TurnoverChart_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            if (TurnoverChart.ActualWidth <= 0) return;
+
+            double fraction = e.GetPosition(TurnoverChart).X / TurnoverChart.ActualWidth;
+            TurnoverChart.ToolTip = _viewModel.GetTurnoverTooltip(fraction);
+        }
+
+        private void TurnoverChart_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e) =>
+            TurnoverChart.ToolTip = null;
+
+        private void TurnoverChart_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (TurnoverChart.ActualWidth <= 0) return;
+
+            DateTime? day = _viewModel.GetTurnoverDate(
+                e.GetPosition(TurnoverChart).X / TurnoverChart.ActualWidth);
+
+            if (day.HasValue)
+                DpFromDate.SelectedDate = day.Value;
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)

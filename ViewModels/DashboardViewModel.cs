@@ -1,5 +1,4 @@
-﻿
-using Caupo.Data;
+﻿using Caupo.Data;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.ObjectModel;
@@ -8,6 +7,8 @@ using System.Data;
 using System.Data.Common;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Windows;
+using System.Windows.Media;
 
 namespace Caupo.ViewModels
 {
@@ -27,6 +28,13 @@ namespace Caupo.ViewModels
         private decimal _sank, _kuhinja, _ostalo, _artikliUkupno;
         private WorkerSummary? _selectedWorker;
         private Dictionary<string, List<ArticleSummary>> _workerArticles = new();
+        private readonly Dictionary<(bool Yearly, int Year, int Month), decimal[,]> _turnoverCache = new();
+        private DateTime _turnoverPeriod = new(DateTime.Today.Year, DateTime.Today.Month, 1);
+        private bool _turnoverYearly, _turnoverLoading;
+        private int _turnoverRequest;
+        private decimal[,]? _turnoverDays;
+        private ImageSource? _turnoverImage;
+        private string _turnoverError = string.Empty;
 
         public ObservableCollection<WorkerSummary> Radnici { get; } = new();
         public ObservableCollection<ArticleSummary> Artikli { get; } = new();
@@ -148,6 +156,337 @@ namespace Caupo.ViewModels
         public decimal Ostalo => _ostalo;
         public bool NemaPrometa => Radnici.Count == 0;
 
+        public bool TurnoverYearly => _turnoverYearly;
+        public bool TurnoverLoading => _turnoverLoading;
+        public ImageSource? TurnoverImage => _turnoverImage;
+        public string TurnoverError => _turnoverError;
+        public string TurnoverModeText => _turnoverYearly ? "Godišnji" : "Mjesečni";
+        public string TurnoverPeriodText => _turnoverYearly ? _turnoverPeriod.ToString("yyyy", CultureInfo.InvariantCulture) :
+            _turnoverPeriod.ToString("MMMM yyyy", CultureInfo.GetCultureInfo("bs-BA"));
+
+        public async Task ToggleTurnoverModeAsync()
+        {
+            _turnoverYearly = !_turnoverYearly;
+            _turnoverPeriod = new DateTime(DateTime.Today.Year, _turnoverYearly ? 1 : DateTime.Today.Month, 1);
+            OnPropertyChanged(nameof(TurnoverModeText));
+            OnPropertyChanged(nameof(TurnoverPeriodText));
+            await LoadTurnoverAsync();
+        }
+
+        public async Task ShiftTurnoverAsync(int direction)
+        {
+            _turnoverPeriod = _turnoverYearly ? _turnoverPeriod.AddYears(direction) : _turnoverPeriod.AddMonths(direction);
+            OnPropertyChanged(nameof(TurnoverPeriodText));
+            await LoadTurnoverAsync();
+        }
+
+        public async Task LoadTurnoverAsync()
+        {
+            int request = ++_turnoverRequest;
+            DateTime start = new(_turnoverPeriod.Year, _turnoverYearly ? 1 : _turnoverPeriod.Month, 1);
+            DateTime end = _turnoverYearly ? start.AddYears(1) : start.AddMonths(1);
+            var key = (_turnoverYearly, start.Year, _turnoverYearly ? 0 : start.Month);
+            _turnoverLoading = true;
+            _turnoverDays = null;
+            _turnoverImage = null;
+            OnPropertyChanged(nameof(TurnoverImage));
+            _turnoverError = string.Empty;
+            OnPropertyChanged(nameof(TurnoverLoading));
+            OnPropertyChanged(nameof(TurnoverError));
+
+            try
+            {
+                if (!_turnoverCache.TryGetValue(key, out decimal[,]? days))
+                {
+                    days = new decimal[(end - start).Days, 3];
+                    await using var db = new AppDbContext();
+                    await db.Database.OpenConnectionAsync();
+                    try
+                    {
+                        await using DbCommand command = CreateCommand(db.Database.GetDbConnection(), TurnoverSql, start, end);
+                        await using DbDataReader reader = await command.ExecuteReaderAsync();
+                        while (await reader.ReadAsync())
+                        {
+                            string dateText = reader.GetString(0);
+                            if (!DateTime.TryParseExact(dateText, "yyyy-MM-dd", CultureInfo.InvariantCulture,
+                                DateTimeStyles.None, out DateTime day)) continue;
+                            int dayIndex = (day - start).Days;
+                            int type = reader.IsDBNull(1) ? 2 : Convert.ToInt32(reader.GetValue(1), CultureInfo.InvariantCulture);
+                            if (dayIndex >= 0 && dayIndex < days.GetLength(0))
+                                days[dayIndex, type is 0 or 1 ? type : 2] += ReadDecimal(reader, 2);
+                        }
+                    }
+                    finally { await db.Database.CloseConnectionAsync(); }
+                    _turnoverCache[key] = days;
+                }
+                if (request != _turnoverRequest) return;
+                _turnoverDays = days;
+                _turnoverImage = BuildTurnoverImage(days, start);
+                OnPropertyChanged(nameof(TurnoverImage));
+            }
+            catch (Exception ex)
+            {
+                if (request != _turnoverRequest) return;
+                _turnoverDays = null;
+                _turnoverImage = null;
+                _turnoverError = "Greška grafikona: " + ex.Message;
+                OnPropertyChanged(nameof(TurnoverImage));
+                OnPropertyChanged(nameof(TurnoverError));
+            }
+            finally
+            {
+                if (request == _turnoverRequest)
+                {
+                    _turnoverLoading = false;
+                    OnPropertyChanged(nameof(TurnoverLoading));
+                }
+            }
+        }
+
+        public DateTime? GetTurnoverDate(double fraction)
+        {
+            if (_turnoverDays == null || !double.IsFinite(fraction)) return null;
+
+            int count = _turnoverDays.GetLength(0);
+            double slotWidth = count <= 31 ? 14d : 3d;
+            double plotWidth = count * slotWidth;
+            double totalWidth = 52d + plotWidth + 4d;
+            double x = fraction * totalWidth - 52d;
+
+            if (x < 0d || x >= plotWidth) return null;
+
+            int index = (int)(x / slotWidth);
+            return new DateTime(_turnoverPeriod.Year, _turnoverYearly ? 1 : _turnoverPeriod.Month, 1).AddDays(index);
+        }
+
+        public string? GetTurnoverTooltip(double fraction)
+        {
+            DateTime? day = GetTurnoverDate(fraction);
+            if (day == null || _turnoverDays == null) return null;
+            DateTime start = new(_turnoverPeriod.Year, _turnoverYearly ? 1 : _turnoverPeriod.Month, 1);
+            int index = (day.Value - start).Days;
+            decimal sank = _turnoverDays[index, 0], kuhinja = _turnoverDays[index, 1], ostalo = _turnoverDays[index, 2];
+            return $"{day:dd.MM.yyyy.}\nŠank: {sank:N2}\nKuhinja: {kuhinja:N2}\nOstalo: {ostalo:N2}\nUkupno: {sank + kuhinja + ostalo:N2}";
+        }
+
+        private static ImageSource BuildTurnoverImage(decimal[,] days, DateTime start)
+        {
+            int count = days.GetLength(0);
+            bool monthly = count <= 31;
+
+            const double leftAxisWidth = 52d;
+            const double topPadding = 5d;
+            const double rightPadding = 4d;
+
+            double slotWidth = monthly ? 14d : 3d;
+            double barWidth = slotWidth * 0.55d;
+            double chartHeight = 156d;
+            double bottomLabelHeight = monthly ? 18d : 4d;
+
+            double plotWidth = count * slotWidth;
+            double totalWidth = leftAxisWidth + plotWidth + rightPadding;
+            double totalHeight = topPadding + chartHeight + bottomLabelHeight;
+
+            decimal max = 0m;
+            for (int i = 0; i < count; i++)
+                max = Math.Max(max, days[i, 0] + days[i, 1] + days[i, 2]);
+
+            decimal step = max <= 2000m ? 0m : max <= 5000m ? 1000m : Math.Ceiling(max / 4000m) * 1000m;
+            decimal axisTop = max <= 2000m ? 2000m : Math.Ceiling(max / step) * step;
+
+            List<decimal> axisLabels = max <= 2000m
+                ? new List<decimal> { 100m, 500m, 1000m, 2000m }
+                : Enumerable.Range(1, (int)(axisTop / step)).Select(i => i * step).ToList();
+
+            Brush[] colors =
+            {
+        new SolidColorBrush(Color.FromRgb(52, 138, 215)),
+        new SolidColorBrush(Color.FromRgb(241, 171, 63)),
+        new SolidColorBrush(Color.FromRgb(41, 174, 145))
+    };
+
+            var gridBrush = new SolidColorBrush(Color.FromArgb(45, 140, 150, 155));
+            var labelBrush = new SolidColorBrush(Color.FromRgb(185, 195, 200));
+            var drawing = new DrawingGroup();
+
+            using (DrawingContext dc = drawing.Open())
+            {
+                dc.DrawRectangle(Brushes.Transparent, null, new Rect(0, 0, totalWidth, totalHeight));
+
+                double baseline = topPadding + chartHeight;
+
+                foreach (decimal value in axisLabels)
+                {
+                    double y = baseline - (double)(value / axisTop) * chartHeight;
+                    dc.DrawRectangle(gridBrush, null, new Rect(leftAxisWidth, y, plotWidth, 0.45));
+
+                    var label = new FormattedText(
+                        value.ToString("N0", CultureInfo.InvariantCulture),
+                        CultureInfo.InvariantCulture,
+                        FlowDirection.LeftToRight,
+                        new Typeface("Segoe UI"),
+                        9,
+                        labelBrush,
+                        1.0);
+
+                    dc.DrawText(label, new Point(leftAxisWidth - label.Width - 7, y - label.Height / 2));
+                }
+
+                for (int i = 0; i < count; i++)
+                {
+                    double x = leftAxisWidth + i * slotWidth + (slotWidth - barWidth) / 2d;
+                    double bottom = baseline;
+
+                    for (int type = 0; type < 3; type++)
+                    {
+                        decimal value = days[i, type];
+                        if (value <= 0m) continue;
+
+                        double height = (double)(value / axisTop) * chartHeight;
+                        bottom -= height;
+                        dc.DrawRectangle(colors[type], null, new Rect(x, bottom, barWidth, height));
+                    }
+
+                    if (monthly)
+                    {
+                        var label = new FormattedText(
+                            (i + 1).ToString(CultureInfo.InvariantCulture),
+                            CultureInfo.InvariantCulture,
+                            FlowDirection.LeftToRight,
+                            new Typeface("Segoe UI"),
+                            8,
+                            labelBrush,
+                            1.0);
+
+                        double labelX = leftAxisWidth + i * slotWidth + (slotWidth - label.Width) / 2d;
+                        dc.DrawText(label, new Point(labelX, baseline + 2d));
+                    }
+                    else if (i > 0 && start.AddDays(i).Day == 1)
+                    {
+                        double monthX = leftAxisWidth + i * slotWidth;
+                        dc.DrawRectangle(gridBrush, null, new Rect(monthX, topPadding, 0.6, chartHeight));
+                    }
+                }
+            }
+
+            drawing.Freeze();
+            var image = new DrawingImage(drawing);
+            image.Freeze();
+            return image;
+        }
+
+        private const string TurnoverSql = @"
+            SELECT substr(r.Datum, 1, 10), COALESCE(s.VrstaArtikla, 2),
+                   COALESCE(SUM(CASE WHEN r.Reklamiran = 'DA' COLLATE NOCASE THEN 0
+                       ELSE COALESCE(s.Kolicina, 0) * COALESCE(s.Cijena, 0) END), 0)
+            FROM tblRacuni r
+            INNER JOIN tblRacunStavke s ON s.BrojRacuna = r.BrojRacuna
+            WHERE r.Datum >= @od AND r.Datum < @do
+              AND (r.TipRacuna IS NULL OR r.TipRacuna <> 'Storno' COLLATE NOCASE)
+            GROUP BY substr(r.Datum, 1, 10), COALESCE(s.VrstaArtikla, 2);";
+
+        public IReadOnlyList<PieSlice> PaymentPie => BuildPie(
+            ("Gotovina", Gotovina, Color.FromRgb(52, 138, 215)),
+            ("Kartica", Kartica, Color.FromRgb(41, 174, 145)),
+            ("Ček", Cek, Color.FromRgb(241, 171, 63)),
+            ("Virman", Virman, Color.FromRgb(156, 107, 218)));
+
+        public IReadOnlyList<PieSlice> CategoryPie => BuildPie(
+            ("Šank", Sank, Color.FromRgb(52, 138, 215)),
+            ("Kuhinja", Kuhinja, Color.FromRgb(241, 171, 63)),
+            ("Ostalo", Ostalo, Color.FromRgb(41, 174, 145)));
+
+        public IReadOnlyList<PieSlice> WorkerPie => BuildPie(Radnici.Select(worker =>
+        {
+            int id = int.TryParse(worker.Id, out int value) ? value : 0;
+            return (worker.Ime, worker.Neto, WorkerColor(id));
+        }).ToArray());
+
+        private static Color WorkerColor(int index)
+        {
+            double hue = (index * 137.508) % 360;
+            double chroma = 0.72 * 0.88;
+            double x = chroma * (1 - Math.Abs((hue / 60) % 2 - 1));
+            double m = 0.88 - chroma;
+
+            (double r, double g, double b) = hue switch
+            {
+                < 60 => (chroma, x, 0d),
+                < 120 => (x, chroma, 0d),
+                < 180 => (0d, chroma, x),
+                < 240 => (0d, x, chroma),
+                < 300 => (x, 0d, chroma),
+                _ => (chroma, 0d, x)
+            };
+
+            return Color.FromRgb((byte)Math.Round((r + m) * 255),
+                (byte)Math.Round((g + m) * 255), (byte)Math.Round((b + m) * 255));
+        }
+
+        private static IReadOnlyList<PieSlice> BuildPie(params (string Name, decimal Value, Color Color)[] values)
+        {
+            const double center = 66, radius = 62, labelRadius = 39;
+            var valid = values.Where(x => x.Value > 0).ToArray();
+            decimal total = valid.Sum(x => x.Value);
+            if (total <= 0) return Array.Empty<PieSlice>();
+
+            var result = new List<PieSlice>(valid.Length);
+            double angle = -90;
+
+            foreach (var (name, value, color) in valid)
+            {
+                double percentage = (double)(value / total * 100m);
+                double sweep = percentage * 3.6;
+                double middle = (angle + sweep / 2) * Math.PI / 180;
+                Geometry geometry;
+
+                if (sweep >= 359.999)
+                {
+                    geometry = new EllipseGeometry(new Point(center, center), radius, radius);
+                }
+                else
+                {
+                    double startRadians = angle * Math.PI / 180;
+                    double endRadians = (angle + sweep) * Math.PI / 180;
+                    var start = new Point(center + radius * Math.Cos(startRadians),
+                        center + radius * Math.Sin(startRadians));
+                    var end = new Point(center + radius * Math.Cos(endRadians),
+                        center + radius * Math.Sin(endRadians));
+
+                    var figure = new PathFigure { StartPoint = new Point(center, center), IsClosed = true, IsFilled = true };
+                    figure.Segments.Add(new LineSegment(start, true));
+                    figure.Segments.Add(new ArcSegment(end, new Size(radius, radius), 0,
+                        sweep > 180, SweepDirection.Clockwise, true));
+                    geometry = new PathGeometry(new[] { figure });
+                }
+
+                result.Add(new PieSlice
+                {
+                    Name = name,
+                    Percentage = percentage,
+                    Label = $"{percentage:0.#}%",
+                    Fill = new SolidColorBrush(color),
+                    Geometry = geometry,
+                    LabelX = center + labelRadius * Math.Cos(middle) - 23,
+                    LabelY = center + labelRadius * Math.Sin(middle) - 9
+                });
+                angle += sweep;
+            }
+            return result;
+        }
+
+        public sealed class PieSlice
+        {
+            public string Name { get; init; } = string.Empty;
+            public double Percentage { get; init; }
+            public string Label { get; init; } = string.Empty;
+            public Brush Fill { get; init; } = Brushes.Transparent;
+            public Geometry Geometry { get; init; } = Geometry.Empty;
+            public double LabelX { get; init; }
+            public double LabelY { get; init; }
+            public string Tooltip => $"{Name}: {Percentage:N1}%";
+        }
+
         private async Task ShowTodayAsync()
         {
             if (IsLoading) return;
@@ -173,7 +512,6 @@ namespace Caupo.ViewModels
                 if (IsStockReport)
                 {
                     DateTime dan = OdDatuma!.Value.Date;
-
                     var stock = await db.KnjigaKuhinje.AsNoTracking()
                         .Where(x => x.Datum >= dan && x.Datum < dan.AddDays(1))
                         .OrderBy(x => x.Artikl)
@@ -198,7 +536,6 @@ namespace Caupo.ViewModels
                             Kolicina = x.Zaliha ?? 0m
                         }));
                     }
-
                     return;
                 }
 
@@ -219,7 +556,6 @@ namespace Caupo.ViewModels
                 decimal sank = 0m, kuhinja = 0m, ostalo = 0m;
 
                 await db.Database.OpenConnectionAsync();
-
                 try
                 {
                     DbConnection connection = db.Database.GetDbConnection();
@@ -227,7 +563,6 @@ namespace Caupo.ViewModels
                     await using (var command = CreateCommand(connection, PaymentsSql, od, doExclusive))
                     {
                         await using var reader = await command.ExecuteReaderAsync();
-
                         while (await reader.ReadAsync())
                         {
                             string workerId = reader.IsDBNull(0) ? string.Empty :
@@ -277,14 +612,12 @@ namespace Caupo.ViewModels
                     await using (var command = CreateCommand(connection, CategoriesSql, od, doExclusive))
                     {
                         await using var reader = await command.ExecuteReaderAsync();
-
                         while (await reader.ReadAsync())
                         {
                             int type = reader.IsDBNull(0) ? 2 :
                                 Convert.ToInt32(reader.GetValue(0), CultureInfo.InvariantCulture);
 
                             decimal amount = ReadDecimal(reader, 1);
-
                             switch (type)
                             {
                                 case 0: sank += amount; break;
@@ -400,7 +733,6 @@ namespace Caupo.ViewModels
                     SelectedWorker = null;
                     SetArticles(articles);
                 }
-
                 NotifyTotals();
             }
             catch (Exception ex)
@@ -423,10 +755,8 @@ namespace Caupo.ViewModels
         private void SetArticles(IEnumerable<ArticleSummary> articles)
         {
             Artikli.Clear();
-
             foreach (var article in articles.OrderBy(x => x.Naziv).ThenBy(x => x.Cijena))
                 Artikli.Add(article);
-
             _artikliUkupno = Artikli.Sum(x => x.Iznos);
             OnPropertyChanged(nameof(ArtikliUkupno));
             OnPropertyChanged(nameof(NemaArtikala));
@@ -451,7 +781,6 @@ namespace Caupo.ViewModels
             }
 
             const string format = @"hh\:mm";
-
             if (!TimeSpan.TryParseExact(OdVrijeme, format, CultureInfo.InvariantCulture, out TimeSpan startTime) ||
                 !TimeSpan.TryParseExact(DoVrijeme, format, CultureInfo.InvariantCulture, out TimeSpan endTime) ||
                 startTime >= TimeSpan.FromDays(1) || endTime >= TimeSpan.FromDays(1))
@@ -468,7 +797,6 @@ namespace Caupo.ViewModels
                 ErrorMessage = "Završetak perioda mora biti poslije početka.";
                 return false;
             }
-
             return true;
         }
 
@@ -488,7 +816,6 @@ namespace Caupo.ViewModels
             end.DbType = DbType.DateTime;
             end.Value = doExclusive;
             command.Parameters.Add(end);
-
             return command;
         }
 
@@ -599,6 +926,9 @@ namespace Caupo.ViewModels
             OnPropertyChanged(nameof(Kuhinja));
             OnPropertyChanged(nameof(Ostalo));
             OnPropertyChanged(nameof(NemaPrometa));
+            OnPropertyChanged(nameof(PaymentPie));
+            OnPropertyChanged(nameof(CategoryPie));
+            OnPropertyChanged(nameof(WorkerPie));
         }
 
         private void Set<T>(ref T field, T value, [CallerMemberName] string? name = null)
