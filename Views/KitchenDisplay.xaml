@@ -96,13 +96,18 @@
             </Style.Triggers>
         </Style>
 
-        <!-- Žuti okvir selektovane stavke -->
+        <!-- Žuti okvir tastature; plavi okvir stavki označenih za završavanje -->
         <Style x:Key="KitchenItemSelectionStyle" TargetType="Border">
             <Setter Property="BorderThickness" Value="5"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="CornerRadius" Value="15"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsKeyboardSelected}" Value="True">
                     <Setter Property="BorderBrush" Value="#b9fa05"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsMarked}" Value="True">
+                    <Setter Property="BorderBrush" Value="Transparent"/>
+                    
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -208,7 +213,7 @@
                                                             Background="{Binding Tag.ItemBackground, RelativeSource={RelativeSource AncestorType={x:Type Border}}}"
                                                             BorderBrush="{Binding Tag.ItemBorder, RelativeSource={RelativeSource AncestorType={x:Type Border}}}"
                                                             IsEnabled="{Binding CanFinish}"
-                                                            Command="{Binding DataContext.FinishItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            Command="{Binding DataContext.ToggleItemSelectionCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             CommandParameter="{Binding}">
                                                         <StackPanel>
                                                             <DockPanel LastChildFill="True">
@@ -219,7 +224,7 @@
                                                                            Foreground="{DynamicResource ThemePrimaryForegroundBrush}"
                                                                            FontSize="18"
                                                                            FontWeight="Bold"
-                                                                           Margin="0,0,3,0">
+                                                                           Margin="0,-15,3,0">
                                                                     <TextBlock.Style>
                                                                         <Style TargetType="TextBlock">
                                                                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -263,8 +268,12 @@
                                                                        Margin="0,5,0,0"
                                                                        Visibility="{Binding Visible, Converter={StaticResource BoolToVis}}"/>
 
+                                                            <!-- ODABRANO ZA ZAJEDNIČKO ZAVRŠAVANJE -->
+                                                            <TextBlock FontFamily="pack://application:,,,/Assets/Fonts/#FluentSystemIcons-Regular"  Text="&#xF295;" Foreground="{DynamicResource ThemePrimaryForegroundBrush}" FontSize="12" FontWeight="Bold" HorizontalAlignment="Right" Margin="0,5,0,0"
+                                                                       Visibility="{Binding IsMarked, Converter={StaticResource BoolToVis}}"/>
+
                                                             <!-- STATUS STAVKE -->
-                                                            <TextBlock Text="GOTOVO"
+                                                            <TextBlock Text="Gotovo"
                                                                        Foreground="{DynamicResource ThemePrimaryForegroundBrush}"
                                                                        FontSize="11"
                                                                        FontWeight="Bold"
@@ -303,9 +312,7 @@
                 Padding="16,10"
                 MinWidth="185"
                 Background="{DynamicResource ThemePrimaryBrush}"
-  
                 CornerRadius="10">
-
             <StackPanel>
                 <TextBlock Text="AKTIVNE NARUDŽBE"
                            HorizontalAlignment="Center"

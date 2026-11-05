@@ -1,4 +1,5 @@
-﻿using Caupo.Data;
+﻿
+using Caupo.Data;
 using Caupo.Server;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -65,6 +66,18 @@ namespace Caupo.ViewModels
                 {
                     if (_isKeyboardSelected == value) return;
                     _isKeyboardSelected = value;
+                    OnPropertyChanged();
+                }
+            }
+
+            private bool _isMarked;
+            public bool IsMarked
+            {
+                get => _isMarked;
+                set
+                {
+                    if (_isMarked == value) return;
+                    _isMarked = value;
                     OnPropertyChanged();
                 }
             }
@@ -137,8 +150,6 @@ namespace Caupo.ViewModels
                 1 => ColorYellowBorderHex,
                 _ => ColorGreenBorderHex
             });
-
-           
 
             public Brush HeaderBackground => MakeBrush(ColorState switch
             {
@@ -248,14 +259,13 @@ namespace Caupo.ViewModels
         public ICommand FinishSelectionCommand { get; }
         public ICommand FinishOrderCommand { get; }
         public ICommand FinishItemCommand { get; }
+        public ICommand ToggleItemSelectionCommand { get; }
         public ICommand UndoCommand { get; }
         public ICommand ConfirmNewOrderCommand { get; }
 
         private readonly List<KitchenCommand> _commands = new();
 
-        private KitchenCommand Register(
-            Action<object?> execute,
-            Predicate<object?> canExecute)
+        private KitchenCommand Register(Action<object?> execute, Predicate<object?> canExecute)
         {
             var command = new KitchenCommand(execute, canExecute);
             _commands.Add(command);
@@ -352,8 +362,6 @@ namespace Caupo.ViewModels
                 _undoHistory.Push(action);
         }
 
-
-
         public async Task UndoLastFinishAsync()
         {
             if (!CanUndo)
@@ -435,8 +443,6 @@ namespace Caupo.ViewModels
             }
         }
 
-
-
         private readonly DispatcherTimer timer;
         private readonly SemaphoreSlim _operationGate = new(1, 1);
 
@@ -483,6 +489,11 @@ namespace Caupo.ViewModels
                      i.CanFinish &&
                      Orders.Any(o => o.Items.Contains(i) && o.CanFinish));
 
+            ToggleItemSelectionCommand = Register(
+                p => { if (p is OrderItem item) item.IsMarked = !item.IsMarked; },
+                p => p is OrderItem i && !HasPendingOrders && i.CanFinish &&
+                     Orders.Any(o => o.Items.Contains(i) && o.CanFinish));
+
             UndoCommand = Register(
                 _ => _ = UndoLastFinishAsync(),
                 _ => CanUndo);
@@ -512,9 +523,7 @@ namespace Caupo.ViewModels
         // SELEKCIJA TASTATUROM
         // =====================================================
 
-        private void Orders_CollectionChanged(
-            object? sender,
-            NotifyCollectionChangedEventArgs e)
+        private void Orders_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action != NotifyCollectionChangedAction.Reset)
                 RefreshKeyboardSelection();
@@ -682,6 +691,10 @@ namespace Caupo.ViewModels
             {
                 return;
             }
+
+            // Označena grupa ima prednost nad pojedinačnom selekcijom tastature.
+            if (order.Items.Any(i => i.IsMarked && i.CanFinish))
+                item = null;
 
             // Pamtimo redoslijed prije završavanja radi pravilne naredne selekcije.
             var orderNumbers = Orders
@@ -870,14 +883,16 @@ namespace Caupo.ViewModels
         }
 
         // =====================================================
-        // ZAVRŠAVANJE CIJELE NARUDŽBE
+        // ZAVRŠAVANJE CIJELE NARUDŽBE I OZNAČENE GRUPE
         // =====================================================
-
 
         public async Task FinishOrderAsync(DisplayOrder order)
         {
             if (HasPendingOrders || order == null || order.IsBusy || !Orders.Contains(order))
                 return;
+
+            var selectedIds = order.Items.Where(i => i.IsMarked && i.CanFinish)
+                .Select(i => i.IdStavke).ToHashSet();
 
             order.IsBusy = true;
             RefreshCommands();
@@ -891,9 +906,22 @@ namespace Caupo.ViewModels
                     .Where(s => s.IdKuhinje == order.Number && s.Zavrseno == "NE")
                     .ToListAsync();
 
+                if (selectedIds.Count > 0)
+                {
+                    remaining = remaining.Where(s => selectedIds.Contains(s.IdStavke)).ToList();
+
+                    if (remaining.Count != selectedIds.Count)
+                    {
+                        Debug.WriteLine($"[KUHINJA] Grupno završavanje odbijeno: promijenjeno stanje bloka {order.Number}.");
+                        return;
+                    }
+                }
+
                 if (remaining.Count == 0)
                 {
-                    Orders.Remove(order);
+                    if (selectedIds.Count == 0)
+                        Orders.Remove(order);
+
                     return;
                 }
 
@@ -905,12 +933,26 @@ namespace Caupo.ViewModels
                 var itemIds = remaining.Select(s => s.IdStavke).ToList();
                 RecordUndo(order, itemIds);
 
+                var finishedIds = itemIds.ToHashSet();
+
+                foreach (var item in order.Items)
+                {
+                    if (finishedIds.Contains(item.IdStavke))
+                        item.IsFinished = true;
+
+                    item.IsMarked = false;
+                }
+
+                bool hasRemaining = await db.KuhinjaStavke.AnyAsync(s =>
+                    s.IdKuhinje == order.Number && s.Zavrseno == "NE");
+
+                if (!hasRemaining)
+                    Orders.Remove(order);
+
                 var names = remaining.Select(s => $"{s.Kolicina}x  {s.Artikl}").ToList();
 
-                Orders.Remove(order);
-
                 ShowCompletedPopup(order, names, itemIds);
-                await SendNotificationAsync(order, names, true);
+                await SendNotificationAsync(order, names, !hasRemaining);
             }
             catch (Exception ex)
             {
@@ -920,12 +962,11 @@ namespace Caupo.ViewModels
             {
                 order.IsBusy = false;
                 _operationGate.Release();
+                RefreshKeyboardSelection();
                 RefreshCommands();
             }
         }
 
-
-        // Komanda dobija stavku iz DataTemplate; narudžbu pronalazi u modelu.
         private async Task FinishItemFromCommandAsync(OrderItem item)
         {
             var order = Orders.FirstOrDefault(
@@ -938,7 +979,6 @@ namespace Caupo.ViewModels
         // =====================================================
         // ZAVRŠAVANJE POJEDINAČNE STAVKE
         // =====================================================
-
 
         public async Task FinishItemAsync(OrderItem item, DisplayOrder order)
         {
@@ -963,6 +1003,7 @@ namespace Caupo.ViewModels
                 if (dbItem.Zavrseno == "DA")
                 {
                     item.IsFinished = true;
+                    item.IsMarked = false;
 
                     if (!await db.KuhinjaStavke.AnyAsync(s =>
                         s.IdKuhinje == order.Number && s.Zavrseno == "NE"))
@@ -983,6 +1024,7 @@ namespace Caupo.ViewModels
                 RecordUndo(order, itemIds);
 
                 item.IsFinished = true;
+                item.IsMarked = false;
 
                 var names = new List<string> { $"{dbItem.Kolicina}x  {dbItem.Artikl}" };
 
@@ -1007,12 +1049,9 @@ namespace Caupo.ViewModels
             }
         }
 
-
         // =====================================================
         // ZVUK I POPUP
         // =====================================================
-
-
 
         private static void ShowCompletedPopup(DisplayOrder order, List<string> names, IEnumerable<int> itemIds)
         {
@@ -1055,15 +1094,11 @@ namespace Caupo.ViewModels
             }
         }
 
-
-
         // =====================================================
         // ANDROID NOTIFIKACIJE
         // =====================================================
 
-        private static async Task SendUndoCorrectionAsync(
-            DisplayOrder order,
-            List<string> names)
+        private static async Task SendUndoCorrectionAsync(DisplayOrder order, List<string> names)
         {
             try
             {
@@ -1087,8 +1122,7 @@ namespace Caupo.ViewModels
 
                 if (session == null)
                 {
-                    Debug.WriteLine(
-                        $"[KUHINJA] Undo: nema Android sesije za '{order.Waiter}'.");
+                    Debug.WriteLine($"[KUHINJA] Undo: nema Android sesije za '{order.Waiter}'.");
                     return;
                 }
 
@@ -1101,23 +1135,17 @@ namespace Caupo.ViewModels
                 var json = JsonSerializer.Serialize(payload) + "\n";
                 var bytes = Encoding.UTF8.GetBytes(json);
 
-                await session.Stream.WriteAsync(
-                    bytes, 0, bytes.Length);
+                await session.Stream.WriteAsync(bytes, 0, bytes.Length);
 
-                Debug.WriteLine(
-                    $"[KUHINJA] Android Undo ispravka poslana: {json}");
+                Debug.WriteLine($"[KUHINJA] Android Undo ispravka poslana: {json}");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(
-                    $"[KUHINJA] Android Undo ispravka nije poslana: {ex}");
+                Debug.WriteLine($"[KUHINJA] Android Undo ispravka nije poslana: {ex}");
             }
         }
 
-        private static async Task SendNotificationAsync(
-            DisplayOrder order,
-            List<string> names,
-            bool complete)
+        private static async Task SendNotificationAsync(DisplayOrder order, List<string> names, bool complete)
         {
             try
             {
@@ -1142,8 +1170,7 @@ namespace Caupo.ViewModels
 
                 if (session == null)
                 {
-                    Debug.WriteLine(
-                        $"[KUHINJA] Nema Android sesije za '{order.Waiter}'");
+                    Debug.WriteLine($"[KUHINJA] Nema Android sesije za '{order.Waiter}'");
                     return;
                 }
 
@@ -1155,27 +1182,21 @@ namespace Caupo.ViewModels
 
                 var bytes = Encoding.UTF8.GetBytes(json);
 
-                await session.Stream.WriteAsync(
-                    bytes, 0, bytes.Length);
+                await session.Stream.WriteAsync(bytes, 0, bytes.Length);
 
-                Debug.WriteLine(
-                    $"[KUHINJA] Android poruka poslana: {json}");
+                Debug.WriteLine($"[KUHINJA] Android poruka poslana: {json}");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(
-                    $"[KUHINJA] Android notifikacija nije poslana: {ex}");
+                Debug.WriteLine($"[KUHINJA] Android notifikacija nije poslana: {ex}");
             }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected void OnPropertyChanged(
-            [CallerMemberName] string? name = null)
+        protected void OnPropertyChanged([CallerMemberName] string? name = null)
         {
-            PropertyChanged?.Invoke(
-                this,
-                new PropertyChangedEventArgs(name));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

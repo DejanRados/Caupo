@@ -68,6 +68,8 @@ namespace Caupo
         protected override async void OnStartup(StartupEventArgs e)
         {
 
+            System.Diagnostics.Debug.WriteLine(Caupo.Licensing.LicenseSelfTest.Run());
+
             VirtualKeyboardManager.Initialize();
 
 
