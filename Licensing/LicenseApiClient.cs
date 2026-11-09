@@ -1,4 +1,5 @@
-﻿using Caupo.Licensing.Models;
+﻿
+using Caupo.Licensing.Models;
 using System;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -60,25 +61,32 @@ public sealed class LicenseApiClient : IDisposable
 
         return result;
     }
+
     public async Task<LicenseClaimResponse> ActivateManualAsync(
-    LicenseDeviceIdentity device, string licenseKey,
-    CancellationToken cancellationToken = default)
+        LicenseDeviceIdentity device, string licenseKey,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(licenseKey))
             throw new ArgumentException("Unesi licencni ključ.", nameof(licenseKey));
 
+        licenseKey = licenseKey.Trim().ToUpperInvariant();
+        long timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        string nonce = NewNonce();
+
         var request = new
         {
-            license_key = licenseKey.Trim(),
+            license_key = licenseKey,
             fingerprint_sha256 = device.FingerprintSha256,
             device_public_key = device.PublicKey,
-            device_name = Environment.MachineName
+            device_name = Environment.MachineName,
+            timestamp,
+            nonce,
+            device_signature = device.SignActivation(licenseKey, timestamp, nonce)
         };
 
         return await PostAsync<LicenseClaimResponse>(
             "activate", request, cancellationToken);
     }
-
 
     public async Task<LicenseClaimResponse> GetCheckoutStatusAsync(
         LicenseDeviceIdentity device, string sessionId,
@@ -152,7 +160,6 @@ public sealed class LicenseApiClient : IDisposable
         }
 
         T? result = await response.Content.ReadFromJsonAsync<T>(JsonOptions, cancellationToken);
-
         return result ?? throw new InvalidOperationException("Licencni server je vratio prazan odgovor.");
     }
 

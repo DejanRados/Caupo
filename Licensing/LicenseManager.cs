@@ -1,4 +1,5 @@
-﻿using Caupo.Licensing.Models;
+﻿
+using Caupo.Licensing.Models;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -9,6 +10,14 @@ namespace Caupo.Licensing;
 
 public sealed class LicenseManager : IDisposable
 {
+    private const string ServerKeyId = "caupo-751c6702ded63a08d785b5f5";
+    private const string ServerPublicKey = """
+        -----BEGIN PUBLIC KEY-----
+        MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEwFl+AbiwbYorPTHMAIN5BuV781N7
+        wOSmGrniyaoTLrXiGNFvoMKFXJCVaDI4fSwoVuxOMbkrUYVyjSSSP/dUfA==
+        -----END PUBLIC KEY-----
+        """;
+
     private readonly LicenseDeviceIdentity _device;
     private readonly LicenseApiClient _api;
     private readonly LicenseValidator _validator;
@@ -20,6 +29,13 @@ public sealed class LicenseManager : IDisposable
     public LicenseState State { get; private set; } = LicenseState.NotActivated();
     public bool CanOperate => EvaluateLocal().CanOperate;
     public string? PendingCheckoutSession => _storage.LoadCheckoutSession();
+
+    public LicenseManager() : this(new Dictionary<string, string>
+    {
+        [ServerKeyId] = ServerPublicKey
+    })
+    {
+    }
 
     public LicenseManager(IReadOnlyDictionary<string, string> trustedServerKeys)
     {
