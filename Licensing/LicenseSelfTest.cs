@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
@@ -43,44 +44,29 @@ public static class LicenseSelfTest
             Expect(first.FingerprintSha256 == second.FingerprintSha256, "Promijenjen fingerprint.");
         });
 
-        Check("ECDSA P-256 potpis uređaja", () =>
+        Check("ECDSA P-256 potpis aktivacije", () =>
         {
             using var device = LicenseDeviceIdentity.LoadOrCreate();
             using var key = ECDsa.Create();
             key.ImportSubjectPublicKeyInfo(Convert.FromBase64String(device.PublicKey), out _);
 
-            const string session = "cs_test_selftest";
+            string licenseKey = new string('A', 64);
             const long timestamp = 1793890000;
             const string nonce = "1234567890abcdef1234567890abcdef";
 
-            string message = $"caupo-claim\n{session}\n{timestamp}\n{nonce}";
-            byte[] signature = Convert.FromBase64String(device.SignClaim(session, timestamp, nonce));
+            string message = $"caupo-activate\n{licenseKey}\n{device.FingerprintSha256}\n" +
+                $"{device.PublicKey}\n{timestamp}\n{nonce}";
 
-            Expect(key.VerifyData(Encoding.UTF8.GetBytes(message), signature, HashAlgorithmName.SHA256,
-                DSASignatureFormat.Rfc3279DerSequence), "Potpis nije prihvaćen.");
+            byte[] signature = Convert.FromBase64String(
+                device.SignActivation(licenseKey, timestamp, nonce));
 
-            Expect(!key.VerifyData(Encoding.UTF8.GetBytes(message + "changed"), signature, HashAlgorithmName.SHA256,
-                DSASignatureFormat.Rfc3279DerSequence), "Izmijenjena poruka je prihvaćena.");
-        });
+            Expect(key.VerifyData(Encoding.UTF8.GetBytes(message), signature,
+                HashAlgorithmName.SHA256, DSASignatureFormat.Rfc3279DerSequence),
+                "Potpis aktivacije nije prihvaćen.");
 
-        Check("DPAPI pohrana Checkout sesije", () =>
-        {
-            var storage = new LicenseStorage();
-            string? original = storage.LoadCheckoutSession();
-            string test = "cs_test_" + Guid.NewGuid().ToString("N");
-
-            try
-            {
-                storage.SaveCheckoutSession(test);
-                Expect(storage.LoadCheckoutSession() == test, "Sesija nije ispravno učitana.");
-            }
-            finally
-            {
-                if (original is null)
-                    storage.ClearCheckoutSession();
-                else
-                    storage.SaveCheckoutSession(original);
-            }
+            Expect(!key.VerifyData(Encoding.UTF8.GetBytes(message + "changed"), signature,
+                HashAlgorithmName.SHA256, DSASignatureFormat.Rfc3279DerSequence),
+                "Izmijenjena poruka je prihvaćena.");
         });
 
         using var serverKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
@@ -130,9 +116,12 @@ public static class LicenseSelfTest
         Check("Sedmodnevni dodatni period", () =>
         {
             LicenseState result = validator.Validate(validToken, deviceId, paidUntil.AddDays(3));
-            Expect(result.Status == LicenseOperationalStatus.GracePeriod, "Dodatni period nije prepoznat.");
-            Expect(result.CanOperate && result.RequiresWarning, "Dodatni period nema očekivana prava.");
-            Expect(result.GraceUntil == paidUntil.AddDays(7), "Pogrešan kraj dodatnog perioda.");
+            Expect(result.Status == LicenseOperationalStatus.GracePeriod,
+                "Dodatni period nije prepoznat.");
+            Expect(result.CanOperate && result.RequiresWarning,
+                "Dodatni period nema očekivana prava.");
+            Expect(result.GraceUntil == paidUntil.AddDays(7),
+                "Pogrešan kraj dodatnog perioda.");
         });
 
         Check("Blokada nakon dodatnih 7 dana", () =>
@@ -147,7 +136,8 @@ public static class LicenseSelfTest
         return log.ToString();
     }
 
-    private static string CreateToken(ECDsa key, string deviceId, DateTimeOffset now, DateTimeOffset paidUntil)
+    private static string CreateToken(
+        ECDsa key, string deviceId, DateTimeOffset now, DateTimeOffset paidUntil)
     {
         var header = new
         {

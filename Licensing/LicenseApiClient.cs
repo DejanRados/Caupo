@@ -1,10 +1,10 @@
-﻿
-using Caupo.Licensing.Models;
+﻿using Caupo.Licensing.Models;
 using System;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,9 +12,9 @@ namespace Caupo.Licensing;
 
 public sealed class LicenseApiClient : IDisposable
 {
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private readonly HttpClient _http;
     private readonly bool _ownsClient;
-    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
     public LicenseApiClient(HttpClient? client = null)
     {
@@ -24,54 +24,95 @@ public sealed class LicenseApiClient : IDisposable
         _http.Timeout = TimeSpan.FromSeconds(30);
     }
 
+    public async Task<PaddleCatalogResponse> GetCatalogAsync(CancellationToken cancellationToken = default)
+    {
+        using HttpResponseMessage response = await _http.GetAsync("paddle-plans.php", cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+
+        PaddleCatalogResponse? catalog = await response.Content.ReadFromJsonAsync<PaddleCatalogResponse>(
+            JsonOptions, cancellationToken);
+
+        if (catalog is null || catalog.Currency != "EUR" || catalog.Plans is null)
+            throw new InvalidOperationException("Server je vratio neispravan cjenovnik.");
+
+        return catalog;
+    }
+
     public async Task<CheckoutResponse> StartCheckoutAsync(
-        LicenseDeviceIdentity device, string company, string email, string plan,
+        PaddleCustomer customer, int planId, int quantity, string renewal, string requestToken,
         CancellationToken cancellationToken = default)
     {
-        company = company.Trim();
-        email = email.Trim();
-        plan = plan.Trim();
+        ArgumentNullException.ThrowIfNull(customer);
 
-        long timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        string nonce = NewNonce();
+        if (planId < 1 || quantity is < 1 or > 10)
+            throw new ArgumentException("Plan ili broj licenci nije ispravan.");
+
+        if (renewal is not ("subscription" or "one_time"))
+            throw new ArgumentException("Način plaćanja nije ispravan.", nameof(renewal));
+
+        if (!Regex.IsMatch(requestToken, @"\A[a-f0-9]{32}\z"))
+            throw new ArgumentException("Identifikator zahtjeva nije ispravan.", nameof(requestToken));
+
+        if (string.IsNullOrWhiteSpace(customer.CompanyName)
+            || string.IsNullOrWhiteSpace(customer.ContactName)
+            || string.IsNullOrWhiteSpace(customer.Email)
+            || string.IsNullOrWhiteSpace(customer.Phone)
+            || string.IsNullOrWhiteSpace(customer.Address)
+            || string.IsNullOrWhiteSpace(customer.City)
+            || string.IsNullOrWhiteSpace(customer.PostalCode)
+            || string.IsNullOrWhiteSpace(customer.CountryCode)
+            || string.IsNullOrWhiteSpace(customer.TaxNumber))
+            throw new ArgumentException("Svi podaci kupca su obavezni.", nameof(customer));
 
         var request = new
         {
-            company,
-            email,
-            plan,
-            fingerprint_sha256 = device.FingerprintSha256,
-            device_public_key = device.PublicKey,
-            device_signature = device.SignCheckout(
-                plan, device.FingerprintSha256, company, email, timestamp, nonce),
-            nonce,
-            timestamp
+            customer,
+            plan_id = planId,
+            quantity,
+            renewal,
+            request_token = requestToken
         };
 
         CheckoutResponse result = await PostAsync<CheckoutResponse>(
-            "start-checkout.php", request, cancellationToken);
+            "paddle-start-checkout.php", request, cancellationToken);
 
-        if (string.IsNullOrWhiteSpace(result.SessionId)
+        if (!Regex.IsMatch(result.TransactionId, @"\Atxn_[a-z0-9]{26}\z")
             || !Uri.TryCreate(result.CheckoutUrl, UriKind.Absolute, out Uri? url)
             || url.Scheme != Uri.UriSchemeHttps
-            || !string.Equals(url.Host, "checkout.stripe.com", StringComparison.OrdinalIgnoreCase))
-        {
-            throw new InvalidOperationException("Server nije vratio ispravnu Stripe Checkout sesiju.");
-        }
+            || !string.Equals(url.Host, "caupo.app", StringComparison.OrdinalIgnoreCase)
+            || url.AbsolutePath.TrimEnd('/') != "/checkout"
+            || !url.Query.Contains("_ptxn=" + result.TransactionId, StringComparison.Ordinal))
+            throw new InvalidOperationException("Server nije vratio ispravnu Paddle transakciju.");
 
         return result;
     }
 
-    public async Task<LicenseClaimResponse> ActivateManualAsync(
-        LicenseDeviceIdentity device, string licenseKey,
-        CancellationToken cancellationToken = default)
+    public Task<WpfLicenseResult> GetWpfLicenseAsync(
+        string transactionId, string requestToken, CancellationToken cancellationToken = default)
     {
+        if (!Regex.IsMatch(transactionId, @"\Atxn_[a-z0-9]{26}\z")
+            || !Regex.IsMatch(requestToken, @"\A[a-f0-9]{32}\z"))
+            throw new ArgumentException("Podaci kupovine nisu ispravni.");
+
+        return PostAsync<WpfLicenseResult>("paddle-wpf-license.php",
+            new { transaction_id = transactionId, request_token = requestToken }, cancellationToken);
+    }
+
+    public async Task<LicenseClaimResponse> ActivateAsync(
+        LicenseDeviceIdentity device, string licenseKey, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(device);
+
         if (string.IsNullOrWhiteSpace(licenseKey))
-            throw new ArgumentException("Unesi licencni ključ.", nameof(licenseKey));
+            throw new ArgumentException("Unesite licencni ključ.", nameof(licenseKey));
 
         licenseKey = licenseKey.Trim().ToUpperInvariant();
+
+        if (!Regex.IsMatch(licenseKey, @"\A[A-F0-9]{64}\z"))
+            throw new ArgumentException("Format licencnog ključa nije ispravan.", nameof(licenseKey));
+
         long timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        string nonce = NewNonce();
+        string nonce = NewRequestToken();
 
         var request = new
         {
@@ -84,88 +125,54 @@ public sealed class LicenseApiClient : IDisposable
             device_signature = device.SignActivation(licenseKey, timestamp, nonce)
         };
 
-        return await PostAsync<LicenseClaimResponse>(
-            "activate", request, cancellationToken);
+        return await PostAsync<LicenseClaimResponse>("activate", request, cancellationToken);
     }
 
-    public async Task<LicenseClaimResponse> GetCheckoutStatusAsync(
-        LicenseDeviceIdentity device, string sessionId,
-        CancellationToken cancellationToken = default)
+    public sealed class WpfLicenseResult
     {
-        var request = CreateClaimRequest(device, sessionId);
+        public string Status { get; set; } = string.Empty;
 
-        return await PostAsync<LicenseClaimResponse>(
-            "checkout-status.php", request, cancellationToken);
+        [System.Text.Json.Serialization.JsonPropertyName("license_key")]
+        public string LicenseKey { get; set; } = string.Empty;
     }
 
-    public async Task<BillingPortalResponse> OpenBillingPortalAsync(
-        LicenseDeviceIdentity device, string sessionId,
-        CancellationToken cancellationToken = default)
-    {
-        var request = CreateClaimRequest(device, sessionId);
+    public static string NewRequestToken() =>
+        Convert.ToHexString(RandomNumberGenerator.GetBytes(16)).ToLowerInvariant();
 
-        BillingPortalResponse result = await PostAsync<BillingPortalResponse>(
-            "billing-portal.php", request, cancellationToken);
-
-        if (!Uri.TryCreate(result.Url, UriKind.Absolute, out Uri? url)
-            || url.Scheme != Uri.UriSchemeHttps
-            || !string.Equals(url.Host, "billing.stripe.com", StringComparison.OrdinalIgnoreCase))
-        {
-            throw new InvalidOperationException("Server nije vratio ispravan Stripe Billing Portal URL.");
-        }
-
-        return result;
-    }
-
-    private static object CreateClaimRequest(LicenseDeviceIdentity device, string sessionId)
-    {
-        if (string.IsNullOrWhiteSpace(sessionId))
-            throw new ArgumentException("Nedostaje Stripe Checkout session ID.", nameof(sessionId));
-
-        long timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        string nonce = NewNonce();
-
-        return new
-        {
-            session_id = sessionId,
-            timestamp,
-            nonce,
-            signature = device.SignClaim(sessionId, timestamp, nonce)
-        };
-    }
-
-    private async Task<T> PostAsync<T>(string endpoint, object request, CancellationToken cancellationToken)
+    private async Task<T> PostAsync<T>(
+        string endpoint, object request, CancellationToken cancellationToken)
     {
         using HttpResponseMessage response = await _http.PostAsJsonAsync(
             endpoint, request, JsonOptions, cancellationToken);
 
-        if (!response.IsSuccessStatusCode)
-        {
-            string message = $"Licencni server je vratio HTTP {(int)response.StatusCode}.";
-
-            try
-            {
-                LicenseApiError? error = await response.Content.ReadFromJsonAsync<LicenseApiError>(
-                    JsonOptions, cancellationToken);
-
-                if (!string.IsNullOrWhiteSpace(error?.Error))
-                    message = error.Error;
-            }
-            catch (JsonException)
-            {
-                // Zadržava se HTTP greška ako odgovor nije JSON.
-            }
-
-            throw new HttpRequestException(message, null, response.StatusCode);
-        }
+        await EnsureSuccessAsync(response, cancellationToken);
 
         T? result = await response.Content.ReadFromJsonAsync<T>(JsonOptions, cancellationToken);
         return result ?? throw new InvalidOperationException("Licencni server je vratio prazan odgovor.");
     }
 
-    private static string NewNonce()
+    private static async Task EnsureSuccessAsync(
+        HttpResponseMessage response, CancellationToken cancellationToken)
     {
-        return Convert.ToHexString(RandomNumberGenerator.GetBytes(16)).ToLowerInvariant();
+        if (response.IsSuccessStatusCode)
+            return;
+
+        string message = $"Licencni server je vratio HTTP {(int)response.StatusCode}.";
+
+        try
+        {
+            LicenseApiError? error = await response.Content.ReadFromJsonAsync<LicenseApiError>(
+                JsonOptions, cancellationToken);
+
+            if (!string.IsNullOrWhiteSpace(error?.Error))
+                message = error.Error;
+        }
+        catch (JsonException)
+        {
+            // Ako odgovor nije JSON, zadržavamo HTTP grešku.
+        }
+
+        throw new HttpRequestException(message, null, response.StatusCode);
     }
 
     public void Dispose()

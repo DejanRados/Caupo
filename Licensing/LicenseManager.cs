@@ -1,8 +1,8 @@
-﻿
-using Caupo.Licensing.Models;
+﻿using Caupo.Licensing.Models;
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,12 +23,10 @@ public sealed class LicenseManager : IDisposable
     private readonly LicenseValidator _validator;
     private readonly LicenseStorage _storage;
     private readonly SemaphoreSlim _sync = new(1, 1);
-
     private bool _disposed;
 
     public LicenseState State { get; private set; } = LicenseState.NotActivated();
     public bool CanOperate => EvaluateLocal().CanOperate;
-    public string? PendingCheckoutSession => _storage.LoadCheckoutSession();
 
     public LicenseManager() : this(new Dictionary<string, string>
     {
@@ -57,12 +55,14 @@ public sealed class LicenseManager : IDisposable
                 return State = LicenseState.NotActivated();
 
             if (!string.Equals(stored.PublicKey, _device.PublicKey, StringComparison.Ordinal))
-                return State = new LicenseState(LicenseOperationalStatus.Invalid, "Identitet instalacije se promijenio.");
+                return State = new LicenseState(
+                    LicenseOperationalStatus.Invalid, "Identitet instalacije se promijenio.");
 
             DateTimeOffset now = DateTimeOffset.UtcNow;
 
             if (now < stored.LastCheckedUtc.AddMinutes(-5))
-                return State = new LicenseState(LicenseOperationalStatus.ClockError, "Windows sat je vraćen unazad. Provjerite vrijeme.");
+                return State = new LicenseState(
+                    LicenseOperationalStatus.ClockError, "Windows sat je vraćen unazad. Provjerite vrijeme.");
 
             LicenseState validated = _validator.Validate(stored.Token, stored.DeviceId, now);
 
@@ -71,29 +71,31 @@ public sealed class LicenseManager : IDisposable
 
             return State = validated;
         }
-        catch (Exception ex) when (ex is System.Security.Cryptography.CryptographicException
-            or System.IO.IOException or UnauthorizedAccessException or System.Text.Json.JsonException)
+        catch (Exception ex) when (ex is CryptographicException or System.IO.IOException
+            or UnauthorizedAccessException or JsonException)
         {
-            return State = new LicenseState(LicenseOperationalStatus.Invalid, "Lokalni podaci licence nisu dostupni ili su neispravni.");
+            return State = new LicenseState(
+                LicenseOperationalStatus.Invalid, "Lokalni podaci licence nisu dostupni ili su neispravni.");
         }
+    }
+
+    public async Task<PaddleCatalogResponse> GetCatalogAsync(CancellationToken cancellationToken = default)
+    {
+        ThrowIfDisposed();
+        return await _api.GetCatalogAsync(cancellationToken);
     }
 
     public async Task<CheckoutResponse> StartPurchaseAsync(
-        string company, string email, string plan,
+        PaddleCustomer customer, int planId, int quantity, string renewal, string requestToken,
         CancellationToken cancellationToken = default)
     {
         ThrowIfDisposed();
-
         await _sync.WaitAsync(cancellationToken);
 
         try
         {
-            CheckoutResponse checkout = await _api.StartCheckoutAsync(
-                _device, company, email, plan, cancellationToken);
-
-            _storage.SaveCheckoutSession(checkout.SessionId);
-
-            return checkout;
+            return await _api.StartCheckoutAsync(
+                customer, planId, quantity, renewal, requestToken, cancellationToken);
         }
         finally
         {
@@ -101,80 +103,29 @@ public sealed class LicenseManager : IDisposable
         }
     }
 
-    public async Task<LicenseState> RefreshAsync(CancellationToken cancellationToken = default)
+    public Task<LicenseApiClient.WpfLicenseResult> GetWpfLicenseAsync(
+        string transactionId, string requestToken, CancellationToken cancellationToken = default)
     {
         ThrowIfDisposed();
-
-        await _sync.WaitAsync(cancellationToken);
-
-        try
-        {
-            LicenseState local = EvaluateLocal();
-            string? sessionId = _storage.LoadCheckoutSession();
-
-            if (string.IsNullOrWhiteSpace(sessionId))
-                return local;
-
-            LicenseClaimResponse response = await _api.GetCheckoutStatusAsync(
-                _device, sessionId, cancellationToken);
-
-            if (response.Status == "processing")
-                return local;
-
-            if (response.Status == "expired")
-                return EvaluateLocal();
-
-            if (response.Status != "active" || string.IsNullOrWhiteSpace(response.Token)
-                || string.IsNullOrWhiteSpace(response.DeviceId))
-            {
-                return State = new LicenseState(
-                    LicenseOperationalStatus.Invalid,
-                    "Server je vratio neispravnu licencu.");
-            }
-
-            LicenseState verified = _validator.Validate(
-                response.Token, response.DeviceId, DateTimeOffset.UtcNow);
-
-            if (verified.Status is not (LicenseOperationalStatus.Active or LicenseOperationalStatus.GracePeriod))
-                return State = verified;
-
-            if (!string.Equals(verified.LicenseId, response.LicenseId, StringComparison.Ordinal)
-                || !string.Equals(verified.DeviceId, response.DeviceId, StringComparison.Ordinal))
-            {
-                return State = new LicenseState(
-                    LicenseOperationalStatus.Invalid,
-                    "Podaci potpisane licence nisu usklađeni.");
-            }
-
-            _storage.SaveBoundLicense(
-                response.Token, response.DeviceId, _device.PublicKey, DateTimeOffset.UtcNow);
-
-            return State = verified;
-        }
-        finally
-        {
-            _sync.Release();
-        }
+        return _api.GetWpfLicenseAsync(transactionId, requestToken, cancellationToken);
     }
 
-    public async Task<LicenseState> ActivateManualAsync(
+    public async Task<LicenseState> ActivateAsync(
         string licenseKey, CancellationToken cancellationToken = default)
     {
         ThrowIfDisposed();
-
         await _sync.WaitAsync(cancellationToken);
 
         try
         {
-            LicenseClaimResponse response = await _api.ActivateManualAsync(
+            LicenseClaimResponse response = await _api.ActivateAsync(
                 _device, licenseKey, cancellationToken);
 
             if (response.Status != "active" || string.IsNullOrWhiteSpace(response.Token)
                 || string.IsNullOrWhiteSpace(response.DeviceId))
             {
                 return State = new LicenseState(
-                    LicenseOperationalStatus.Invalid,
-                    "Server nije odobrio aktivaciju.");
+                    LicenseOperationalStatus.Invalid, "Server nije odobrio aktivaciju.");
             }
 
             LicenseState verified = _validator.Validate(
@@ -185,8 +136,7 @@ public sealed class LicenseManager : IDisposable
                 || verified.DeviceId != response.DeviceId)
             {
                 return State = new LicenseState(
-                    LicenseOperationalStatus.Invalid,
-                    "Digitalna provjera licence nije uspjela.");
+                    LicenseOperationalStatus.Invalid, "Digitalna provjera licence nije uspjela.");
             }
 
             _storage.SaveBoundLicense(
@@ -200,32 +150,18 @@ public sealed class LicenseManager : IDisposable
         }
     }
 
-    public async Task<LicenseState> InitializeAsync(CancellationToken cancellationToken = default)
-    {
-        LicenseState local = EvaluateLocal();
+    public Task<LicenseState> ActivateManualAsync(
+        string licenseKey, CancellationToken cancellationToken = default) =>
+        ActivateAsync(licenseKey, cancellationToken);
 
-        try
-        {
-            return await RefreshAsync(cancellationToken);
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            throw;
-        }
-        catch (HttpRequestException)
-        {
-            return State = local;
-        }
-        catch (TaskCanceledException)
-        {
-            return State = local;
-        }
+    public Task<LicenseState> InitializeAsync(CancellationToken cancellationToken = default)
+    {
+        ThrowIfDisposed();
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult(EvaluateLocal());
     }
 
-    private void ThrowIfDisposed()
-    {
-        ObjectDisposedException.ThrowIf(_disposed, this);
-    }
+    private void ThrowIfDisposed() => ObjectDisposedException.ThrowIf(_disposed, this);
 
     public void Dispose()
     {

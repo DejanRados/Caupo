@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -28,25 +29,8 @@ public sealed class LicenseStorage
         public DateTimeOffset LastCheckedUtc { get; set; }
     }
 
-    public void SaveCheckoutSession(string sessionId)
-    {
-        if (string.IsNullOrWhiteSpace(sessionId) || sessionId.Length > 255)
-            throw new ArgumentException("Neispravan Checkout session ID.", nameof(sessionId));
-
-        Save("checkout.dat", sessionId);
-    }
-
-    public string? LoadCheckoutSession() => Load("checkout.dat");
-
-    public void ClearCheckoutSession()
-    {
-        string path = Path.Combine(_directory, "checkout.dat");
-
-        if (File.Exists(path))
-            File.Delete(path);
-    }
-
-    public void SaveBoundLicense(string token, string deviceId, string publicKey, DateTimeOffset lastCheckedUtc)
+    public void SaveBoundLicense(
+        string token, string deviceId, string publicKey, DateTimeOffset lastCheckedUtc)
     {
         if (string.IsNullOrWhiteSpace(token) || token.Length > 65536
             || string.IsNullOrWhiteSpace(deviceId) || deviceId.Length > 128
@@ -68,20 +52,16 @@ public sealed class LicenseStorage
     {
         string? json = Load("license.dat");
 
-        if (json is null)
-            return null;
-
-        return JsonSerializer.Deserialize<StoredLicense>(json);
+        return json is null
+            ? null
+            : JsonSerializer.Deserialize<StoredLicense>(json);
     }
 
     public void UpdateLastChecked(DateTimeOffset utcNow)
     {
         StoredLicense? stored = LoadBoundLicense();
 
-        if (stored is null)
-            return;
-
-        if (utcNow <= stored.LastCheckedUtc)
+        if (stored is null || utcNow <= stored.LastCheckedUtc)
             return;
 
         stored.LastCheckedUtc = utcNow;
@@ -96,7 +76,8 @@ public sealed class LicenseStorage
 
         try
         {
-            byte[] protectedBytes = ProtectedData.Protect(plain, Entropy, DataProtectionScope.CurrentUser);
+            byte[] protectedBytes = ProtectedData.Protect(
+                plain, Entropy, DataProtectionScope.CurrentUser);
 
             try
             {

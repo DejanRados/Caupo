@@ -599,7 +599,8 @@ namespace Caupo.Data
             public string? Racuni { get; set; }
             public string? Printed { get; set; }
         }
-        [Table ("tblFirma")]
+
+        [Table("tblFirma")]
         public class TblFirma
         {
             [NotNull]
@@ -611,7 +612,12 @@ namespace Caupo.Data
             public string? ZiroRacun { get; set; }
             public string? Telefon { get; set; }
             public string? Web { get; set; }
+            public string? KontaktOsoba { get; set; }
+            public string? Email { get; set; }
+            public string? PostanskiBroj { get; set; }
+            public string? DrzavaKod { get; set; }
         }
+
         [Table ("tblJediniceMjere")]
         public class TblJediniceMjere
         {

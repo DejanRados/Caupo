@@ -663,7 +663,7 @@ namespace Caupo
         private static void InitializeTheme()
         {
             string tema = Settings.Default.Tema?.Trim() ?? string.Empty;
-
+           
             if (string.IsNullOrWhiteSpace(tema))
             {
                 tema = "Tamna";

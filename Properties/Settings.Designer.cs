@@ -742,5 +742,53 @@ namespace Caupo.Properties {
                 this["KitchenKeyboardId"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string KontaktOsoba {
+            get {
+                return ((string)(this["KontaktOsoba"]));
+            }
+            set {
+                this["KontaktOsoba"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Telefon {
+            get {
+                return ((string)(this["Telefon"]));
+            }
+            set {
+                this["Telefon"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string PostanskiBroj {
+            get {
+                return ((string)(this["PostanskiBroj"]));
+            }
+            set {
+                this["PostanskiBroj"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string DrzavaKod {
+            get {
+                return ((string)(this["DrzavaKod"]));
+            }
+            set {
+                this["DrzavaKod"] = value;
+            }
+        }
     }
 }
