@@ -128,6 +128,37 @@ public sealed class LicenseApiClient : IDisposable
         return await PostAsync<LicenseClaimResponse>("activate", request, cancellationToken);
     }
 
+    public Task<LicenseCheckResponse> CheckLicenseAsync(
+        LicenseDeviceIdentity device, string licenseId, string deviceId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(device);
+
+        if (!Guid.TryParseExact(licenseId, "D", out _)
+            || !Guid.TryParseExact(deviceId, "D", out _))
+            throw new ArgumentException("Identifikatori licence ili uređaja nisu ispravni.");
+
+        long timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        string nonce = NewRequestToken();
+
+        return PostAsync<LicenseCheckResponse>("license-check.php", new
+        {
+            license_id = licenseId,
+            device_id = deviceId,
+            timestamp,
+            nonce,
+            device_signature = device.SignLicenseCheck(licenseId, deviceId, timestamp, nonce)
+        }, cancellationToken);
+    }
+
+    public sealed class LicenseCheckResponse
+    {
+        public string Status { get; set; } = string.Empty;
+        public string LicenseId { get; set; } = string.Empty;
+        public string DeviceId { get; set; } = string.Empty;
+        public string Token { get; set; } = string.Empty;
+    }
+
     public sealed class WpfLicenseResult
     {
         public string Status { get; set; } = string.Empty;

@@ -27,6 +27,7 @@ public sealed class LicenseWizardViewModel : INotifyPropertyChanged
     private string? _requestToken;
     private string? _requestContent;
     private string? _selectedFiscalRegion;
+    private bool _manualActivationNeedsRegion;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -54,6 +55,7 @@ public sealed class LicenseWizardViewModel : INotifyPropertyChanged
             Notify(nameof(IsReview));
             Notify(nameof(IsCheckout));
             Notify(nameof(IsActivation));
+            Notify(nameof(IsMultiLicenseDecision));
             Notify(nameof(StepTitle));
         }
     }
@@ -64,6 +66,7 @@ public sealed class LicenseWizardViewModel : INotifyPropertyChanged
     public bool IsReview => Step == 3;
     public bool IsCheckout => Step == 4;
     public bool IsActivation => Step == 5;
+    public bool IsMultiLicenseDecision => Step == 6;
 
     public string StepTitle => Step switch
     {
@@ -73,6 +76,7 @@ public sealed class LicenseWizardViewModel : INotifyPropertyChanged
         3 => "Pregled kupovine",
         4 => "Plaćanje",
         5 => "Aktivacija licence",
+        6 => "Kupljene licence",
         _ => "Licenciranje"
     };
 
@@ -170,6 +174,20 @@ public sealed class LicenseWizardViewModel : INotifyPropertyChanged
             Notify();
         }
     }
+
+    public bool ManualActivationNeedsRegion
+    {
+        get => _manualActivationNeedsRegion;
+        private set
+        {
+            if (_manualActivationNeedsRegion == value) return;
+            _manualActivationNeedsRegion = value;
+            Notify();
+            Notify(nameof(ActivationButtonText));
+        }
+    }
+
+    public string ActivationButtonText => ManualActivationNeedsRegion ? "Nastavi" : "Aktiviraj";
 
     public string LicenseKey
     {
@@ -292,6 +310,8 @@ public sealed class LicenseWizardViewModel : INotifyPropertyChanged
 
     public void OpenActivation()
     {
+        ManualActivationNeedsRegion = false;
+        SelectedFiscalRegion = null;
         StatusMessage = string.Empty;
         Step = 5;
     }
@@ -308,6 +328,8 @@ public sealed class LicenseWizardViewModel : INotifyPropertyChanged
 
     public void Back()
     {
+        if (ManualActivationNeedsRegion) return;
+
         StatusMessage = string.Empty;
         Step = Step switch
         {
@@ -366,13 +388,32 @@ public sealed class LicenseWizardViewModel : INotifyPropertyChanged
         }
     }
 
+    public int PurchasedQuantity => int.TryParse(QuantityText, out int quantity) ? quantity : 0;
+
+    public void ShowMultiLicenseDecision()
+    {
+        if (PurchasedQuantity <= 1 || Checkout is null || _requestToken is null)
+            throw new InvalidOperationException("Kupovina više licenci nije dostupna.");
+
+        StatusMessage = string.Empty;
+        Step = 6;
+    }
+
+    public void DeclineMultiLicenseActivation()
+    {
+        if (!IsMultiLicenseDecision) return;
+
+        OpenActivation();
+        StatusMessage = "Svi ključevi bit će poslani na e-mail nakon potvrde servera. Kasnije možete aktivirati licencu unosom ključa.";
+    }
+
     public bool IsSingleLicensePurchase =>
         int.TryParse(QuantityText, out int quantity) && quantity == 1;
 
     public async Task<bool> CompleteCheckoutAsync(
         string transactionId, CancellationToken cancellationToken = default)
     {
-        if (!IsSingleLicensePurchase || Checkout?.TransactionId != transactionId || _requestToken is null)
+        if (PurchasedQuantity < 1 || Checkout?.TransactionId != transactionId || _requestToken is null)
             throw new InvalidOperationException("Kupovina nije povezana s ovom Caupo aplikacijom.");
 
         Busy = true;
@@ -417,6 +458,82 @@ public sealed class LicenseWizardViewModel : INotifyPropertyChanged
         }
     }
 
+    public async Task<LicenseState> ActivateAsync(CancellationToken cancellationToken = default)
+    {
+        Busy = true;
+        StatusMessage = "Provjeravam licencu...";
+
+        try
+        {
+            LicenseState result = await _licenseManager.ActivateManualAsync(LicenseKey, cancellationToken);
+            if (!result.CanOperate)
+            {
+                StatusMessage = result.Message;
+                return result;
+            }
+
+            PaddleCustomer customer = _licenseManager.LastActivatedCustomer
+                ?? throw new InvalidOperationException("Server nije vratio podatke kupca licence.");
+
+            CopyCustomer(customer);
+
+            if (Customer.CountryCode == "BA")
+            {
+                SelectedFiscalRegion = null;
+                ManualActivationNeedsRegion = true;
+                StatusMessage = "Licenca je potvrđena. Odaberite fiskalnu regiju za nastavak.";
+                return result;
+            }
+
+            SaveCustomerSettings();
+            StatusMessage = "Licenca je uspješno aktivirana.";
+            return result;
+        }
+        finally
+        {
+            Busy = false;
+        }
+    }
+
+    public void FinishManualActivation()
+    {
+        if (!ManualActivationNeedsRegion)
+            throw new InvalidOperationException("Nema aktivacije koja čeka izbor fiskalne regije.");
+
+        if (SelectedFiscalRegion is not ("FederacijaBiH" or "RepublikaSrpska"))
+            throw new InvalidOperationException("Odaberite Federaciju BiH ili Republiku Srpsku.");
+
+        SaveCustomerSettings();
+        ManualActivationNeedsRegion = false;
+        StatusMessage = "Licenca je uspješno aktivirana.";
+    }
+
+    private void CopyCustomer(PaddleCustomer source)
+    {
+        Customer.CompanyName = source.CompanyName;
+        Customer.ContactName = source.ContactName;
+        Customer.Email = source.Email;
+        Customer.Phone = source.Phone;
+        Customer.Address = source.Address;
+        Customer.City = source.City;
+        Customer.PostalCode = source.PostalCode;
+        Customer.TaxNumber = source.TaxNumber;
+        CountryCode = source.CountryCode;
+
+        if (string.IsNullOrWhiteSpace(Customer.CompanyName)
+            || string.IsNullOrWhiteSpace(Customer.ContactName)
+            || string.IsNullOrWhiteSpace(Customer.Email)
+            || string.IsNullOrWhiteSpace(Customer.Phone)
+            || string.IsNullOrWhiteSpace(Customer.Address)
+            || string.IsNullOrWhiteSpace(Customer.City)
+            || string.IsNullOrWhiteSpace(Customer.PostalCode)
+            || string.IsNullOrWhiteSpace(Customer.TaxNumber)
+            || Customer.CountryCode is not ("BA" or "HR" or "RS"))
+        {
+            throw new InvalidOperationException("Server nije vratio potpune podatke kupca.");
+        }
+    }
+
     private void SaveCustomerSettings()
     {
         var settings = Caupo.Properties.Settings.Default;
@@ -440,23 +557,6 @@ public sealed class LicenseWizardViewModel : INotifyPropertyChanged
         };
 
         settings.Save();
-    }
-
-    public async Task<LicenseState> ActivateAsync(CancellationToken cancellationToken = default)
-    {
-        Busy = true;
-        StatusMessage = "Provjeravam licencu...";
-
-        try
-        {
-            LicenseState result = await _licenseManager.ActivateAsync(LicenseKey, cancellationToken);
-            StatusMessage = result.Message;
-            return result;
-        }
-        finally
-        {
-            Busy = false;
-        }
     }
 
     private PaddlePriceTier? FindTier(int quantity) =>

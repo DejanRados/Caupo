@@ -62,7 +62,6 @@
 
                     <StackPanel Grid.Column="1">
                         <TextBlock Text="Odaberite licencu" FontSize="21" FontWeight="SemiBold" Margin="0,0,0,24"/>
-
                         <TextBlock Text="Plan licenciranja" Style="{StaticResource WizardLabel}"/>
                         <ComboBox ItemsSource="{Binding Plans}" SelectedItem="{Binding SelectedPlan}"
                                   DisplayMemberPath="Name" Height="46" FontSize="16" Margin="0,0,0,22"/>
@@ -72,16 +71,14 @@
                                  Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"/>
 
                         <TextBlock Text="Način plaćanja" Style="{StaticResource WizardLabel}"/>
-                        <ComboBox SelectedIndex="{Binding RenewalSelection, Mode=TwoWay}"
-                                  Height="46" FontSize="16">
+                        <ComboBox SelectedIndex="{Binding RenewalSelection, Mode=TwoWay}" Height="46" FontSize="16">
                             <ComboBoxItem Content="Pretplata"/>
                             <ComboBoxItem Content="Bez pretplate"/>
                         </ComboBox>
 
                         <TextBlock Text="{Binding RenewalDescription}" FontSize="14"
                                    TextWrapping="Wrap" Height="50" VerticalAlignment="Center"
-                                   Foreground="{DynamicResource ThemeMutedForegroundBrush}"
-                                   Margin="0,10,0,18"/>
+                                   Foreground="{DynamicResource ThemeMutedForegroundBrush}" Margin="0,10,0,18"/>
 
                         <Border Background="{DynamicResource ThemeControlBrush}" CornerRadius="9" Padding="20">
                             <StackPanel>
@@ -213,11 +210,14 @@
                 <TextBlock Text="{Binding SelectedPlanDescription}" FontSize="19" Margin="0,0,0,14"/>
                 <TextBlock Text="{Binding Customer.CompanyName}" FontSize="17" Margin="0,0,0,8"/>
                 <TextBlock Text="{Binding Customer.Email}" FontSize="16" Margin="0,0,0,24"/>
+
                 <Border Background="{DynamicResource ThemeControlBrush}" CornerRadius="9" Padding="20">
                     <TextBlock Text="{Binding PriceDescription}" FontSize="24" FontWeight="SemiBold"/>
                 </Border>
+
                 <TextBlock Text="{Binding RenewalDescription}" TextWrapping="Wrap" FontSize="14"
                            Foreground="{DynamicResource ThemeMutedForegroundBrush}" Margin="0,18,0,0"/>
+
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,30,0,0">
                     <Button Content="Nazad" Style="{StaticResource SecondaryButtonStyle}"
                             Width="135" Height="46" Margin="0,0,12,0" Click="Back_Click"/>
@@ -257,18 +257,50 @@
                 </Grid>
             </Grid>
 
+            <!-- ODABIR NAKON KUPOVINE VIŠE LICENCI -->
+            <StackPanel Width="680" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Visibility="{Binding IsMultiLicenseDecision, Converter={StaticResource BoolToVisibility}}">
+                <TextBlock Text="Kupovina je prihvaćena" FontSize="22" FontWeight="SemiBold" Margin="0,0,0,18"/>
+                <TextBlock Text="Sve kupljene licence bit će poslane na e-mail(LICENCA 1, LICENCA 2  ...)"
+                           FontSize="16" TextWrapping="Wrap" Margin="0,0,0,20"/>
+                <TextBlock Text="Želite li odmah aktivirati licencu na ovom računaru?"
+                           FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,28"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Ne, kasnije" Style="{StaticResource SecondaryButtonStyle}"
+                            Width="155" Height="46" Margin="0,0,12,0"
+                            Click="MultiLicenseNo_Click" IsEnabled="{Binding NotBusy}"/>
+                    <Button Content="Da, aktiviraj" Style="{StaticResource PrimaryButtonStyle}"
+                            Width="155" Height="46"
+                            Click="MultiLicenseYes_Click" IsEnabled="{Binding NotBusy}"/>
+                </StackPanel>
+            </StackPanel>
+
             <!-- RUČNA AKTIVACIJA -->
             <StackPanel Width="600" HorizontalAlignment="Center" VerticalAlignment="Center"
                         Visibility="{Binding IsActivation, Converter={StaticResource BoolToVisibility}}">
                 <TextBlock Text="Unesite licencni ključ" FontSize="19" FontWeight="SemiBold"
                            Margin="0,0,0,16"/>
+
                 <TextBox Style="{StaticResource WizardInput}"
                          Text="{Binding LicenseKey, UpdateSourceTrigger=PropertyChanged}"
-                         Margin="0,0,0,26"/>
+                         IsEnabled="{Binding NotBusy}" Margin="0,0,0,22"/>
+
+                <StackPanel Visibility="{Binding ManualActivationNeedsRegion, Converter={StaticResource BoolToVisibility}}"
+                            Margin="0,0,0,22">
+                    <TextBlock Text="Licenca je potvrđena. Odaberite fiskalnu regiju:"
+                               TextWrapping="Wrap" FontSize="15" Margin="0,0,0,14"/>
+                    <ComboBox SelectedValue="{Binding SelectedFiscalRegion, Mode=TwoWay}"
+                              SelectedValuePath="Tag" Height="44" FontSize="16">
+                        <ComboBoxItem Content="Federacija Bosne i Hercegovine" Tag="FederacijaBiH"/>
+                        <ComboBoxItem Content="Republika Srpska" Tag="RepublikaSrpska"/>
+                    </ComboBox>
+                </StackPanel>
+
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="Nazad" Style="{StaticResource SecondaryButtonStyle}"
                             Width="135" Height="46" Margin="0,0,12,0" Click="Back_Click"/>
-                    <Button Content="Aktiviraj" Style="{StaticResource PrimaryButtonStyle}"
+                    <Button Content="{Binding ActivationButtonText}"
+                            Style="{StaticResource PrimaryButtonStyle}"
                             Width="155" Height="46" Click="ActivateLicense_Click"
                             IsEnabled="{Binding NotBusy}"/>
                 </StackPanel>

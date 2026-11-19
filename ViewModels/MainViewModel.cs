@@ -1,5 +1,4 @@
-﻿
-using Caupo.Data;
+﻿using Caupo.Data;
 using Caupo.Helpers;
 using Caupo.Licensing;
 using Caupo.Properties;
@@ -12,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Threading;
 using static Caupo.Data.DatabaseTables;
 
 namespace Caupo.ViewModels;
@@ -19,6 +19,9 @@ namespace Caupo.ViewModels;
 public class MainViewModel : INotifyPropertyChanged
 {
     private object? _currentPage;
+    private DispatcherTimer? _licenseTimer;
+    private bool _licenseCheckRunning;
+    private LicenseOperationalStatus _lastLicenseStatus = LicenseOperationalStatus.NotActivated;
 
     public object? CurrentPage
     {
@@ -65,9 +68,12 @@ public class MainViewModel : INotifyPropertyChanged
 
             if (state.CanOperate)
             {
+                _lastLicenseStatus = state.Status;
+
                 if (state.RequiresWarning)
                     ShowLicenseMessage("Licenca je u dodatnom periodu.\n\n" + state.Message);
 
+                StartLicenseTimer();
                 HandleValidLicense();
                 return;
             }
@@ -78,6 +84,68 @@ public class MainViewModel : INotifyPropertyChanged
         {
             Debug.WriteLine($"[MAIN] Neočekivana greška u startupu: {ex}");
             ShowLicenseMessage("Dogodila se greška prilikom pokretanja aplikacije.\n\n" + ex.Message);
+        }
+    }
+
+    private void StartLicenseTimer()
+    {
+        if (_licenseTimer is not null)
+            return;
+
+        _licenseTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromHours(1)
+        };
+
+        _licenseTimer.Tick += LicenseTimer_Tick;
+        _licenseTimer.Start();
+        Debug.WriteLine("[LICENSE] Periodična provjera licence pokrenuta.");
+    }
+
+    private void StopLicenseTimer()
+    {
+        if (_licenseTimer is null)
+            return;
+
+        _licenseTimer.Stop();
+        _licenseTimer.Tick -= LicenseTimer_Tick;
+        _licenseTimer = null;
+    }
+
+    private async void LicenseTimer_Tick(object? sender, EventArgs e)
+    {
+        if (_licenseCheckRunning)
+            return;
+
+        _licenseCheckRunning = true;
+
+        try
+        {
+            LicenseState state;
+            using (var manager = new Caupo.Licensing.LicenseManager())
+                state = await manager.RefreshAsync();
+
+            Debug.WriteLine($"[LICENSE] Periodična provjera: {state.Status}, PaidUntil={state.PaidUntil:O}");
+
+            if (state.CanOperate)
+            {
+                if (state.RequiresWarning && _lastLicenseStatus != LicenseOperationalStatus.GracePeriod)
+                    ShowLicenseMessage("Licenca je u dodatnom periodu.\n\n" + state.Message);
+
+                _lastLicenseStatus = state.Status;
+                return;
+            }
+
+            StopLicenseTimer();
+            OpenLicenseWizard(state);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[LICENSE] Greška periodične provjere: {ex}");
+        }
+        finally
+        {
+            _licenseCheckRunning = false;
         }
     }
 
@@ -152,8 +220,8 @@ public class MainViewModel : INotifyPropertyChanged
             && !string.IsNullOrWhiteSpace(Settings.Default.Adresa)
             && !string.IsNullOrWhiteSpace(Settings.Default.Mjesto)
             && !string.IsNullOrWhiteSpace(Settings.Default.JIB)
-            && !string.IsNullOrWhiteSpace(Settings.Default.PDV)
-            && !string.IsNullOrWhiteSpace(Settings.Default.ZR)
+            //&& !string.IsNullOrWhiteSpace(Settings.Default.PDV)
+            //&& !string.IsNullOrWhiteSpace(Settings.Default.ZR)
             && !string.IsNullOrWhiteSpace(Settings.Default.Email);
     }
 
@@ -175,6 +243,8 @@ public class MainViewModel : INotifyPropertyChanged
             page.ActivationSucceeded -= LicenseWizard_ActivationSucceeded;
 
         Debug.WriteLine("[LICENSE] Aktivacija potvrđena. Nastavljam startup.");
+        _lastLicenseStatus = LicenseOperationalStatus.Active;
+        StartLicenseTimer();
         HandleValidLicense();
     }
 

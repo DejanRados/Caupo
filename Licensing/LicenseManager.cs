@@ -1,6 +1,8 @@
 ﻿using Caupo.Licensing.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading;
@@ -26,6 +28,7 @@ public sealed class LicenseManager : IDisposable
     private bool _disposed;
 
     public LicenseState State { get; private set; } = LicenseState.NotActivated();
+    public PaddleCustomer? LastActivatedCustomer { get; private set; }
     public bool CanOperate => EvaluateLocal().CanOperate;
 
     public LicenseManager() : this(new Dictionary<string, string>
@@ -71,11 +74,67 @@ public sealed class LicenseManager : IDisposable
 
             return State = validated;
         }
-        catch (Exception ex) when (ex is CryptographicException or System.IO.IOException
+        catch (Exception ex) when (ex is CryptographicException or IOException
             or UnauthorizedAccessException or JsonException)
         {
             return State = new LicenseState(
                 LicenseOperationalStatus.Invalid, "Lokalni podaci licence nisu dostupni ili su neispravni.");
+        }
+    }
+
+    public async Task<LicenseState> RefreshAsync(CancellationToken cancellationToken = default)
+    {
+        ThrowIfDisposed();
+        await _sync.WaitAsync(cancellationToken);
+
+        try
+        {
+            LicenseState local = EvaluateLocal();
+
+            if (local.Status is LicenseOperationalStatus.NotActivated
+                or LicenseOperationalStatus.Invalid or LicenseOperationalStatus.ClockError
+                || string.IsNullOrWhiteSpace(local.LicenseId)
+                || string.IsNullOrWhiteSpace(local.DeviceId))
+                return local;
+
+            try
+            {
+                LicenseApiClient.LicenseCheckResponse response = await _api.CheckLicenseAsync(
+                    _device, local.LicenseId, local.DeviceId, cancellationToken);
+
+                if (response.Status == "inactive")
+                    return State = new LicenseState(
+                        LicenseOperationalStatus.Invalid, "Licenca više nije aktivna na serveru.");
+
+                if (response.Status != "active")
+                    return State = local;
+
+                if (!string.Equals(response.LicenseId, local.LicenseId, StringComparison.Ordinal)
+                    || !string.Equals(response.DeviceId, local.DeviceId, StringComparison.Ordinal)
+                    || string.IsNullOrWhiteSpace(response.Token))
+                    return State = local;
+
+                DateTimeOffset now = DateTimeOffset.UtcNow;
+                LicenseState verified = _validator.Validate(response.Token, response.DeviceId, now);
+
+                if (verified.Status != LicenseOperationalStatus.Active
+                    || verified.LicenseId != local.LicenseId
+                    || verified.DeviceId != local.DeviceId)
+                    return State = local;
+
+                _storage.SaveBoundLicense(response.Token, response.DeviceId, _device.PublicKey, now);
+                return State = verified;
+            }
+            catch (Exception ex) when (ex is HttpRequestException or JsonException or IOException
+                or CryptographicException or UnauthorizedAccessException
+                or TaskCanceledException && !cancellationToken.IsCancellationRequested)
+            {
+                return State = local;
+            }
+        }
+        finally
+        {
+            _sync.Release();
         }
     }
 
@@ -118,6 +177,8 @@ public sealed class LicenseManager : IDisposable
 
         try
         {
+            LastActivatedCustomer = null;
+
             LicenseClaimResponse response = await _api.ActivateAsync(
                 _device, licenseKey, cancellationToken);
 
@@ -142,6 +203,7 @@ public sealed class LicenseManager : IDisposable
             _storage.SaveBoundLicense(
                 response.Token, response.DeviceId, _device.PublicKey, DateTimeOffset.UtcNow);
 
+            LastActivatedCustomer = response.Customer;
             return State = verified;
         }
         finally
@@ -154,12 +216,8 @@ public sealed class LicenseManager : IDisposable
         string licenseKey, CancellationToken cancellationToken = default) =>
         ActivateAsync(licenseKey, cancellationToken);
 
-    public Task<LicenseState> InitializeAsync(CancellationToken cancellationToken = default)
-    {
-        ThrowIfDisposed();
-        cancellationToken.ThrowIfCancellationRequested();
-        return Task.FromResult(EvaluateLocal());
-    }
+    public Task<LicenseState> InitializeAsync(CancellationToken cancellationToken = default) =>
+        RefreshAsync(cancellationToken);
 
     private void ThrowIfDisposed() => ObjectDisposedException.ThrowIf(_disposed, this);
 

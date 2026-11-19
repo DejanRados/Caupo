@@ -13,7 +13,6 @@ public sealed class PaddleCatalogResponse
     public List<PaddlePlan> Plans { get; set; } = new();
 }
 
-
 public sealed class PaddlePlan
 {
     [JsonPropertyName("id")]
@@ -33,7 +32,6 @@ public sealed class PaddlePlan
 
     public override string ToString() => Name;
 }
-
 
 public sealed class PaddlePriceTier
 {
@@ -108,6 +106,9 @@ public sealed class LicenseClaimResponse
 
     [JsonPropertyName("token")]
     public string? Token { get; set; }
+
+    [JsonPropertyName("customer")]
+    public PaddleCustomer? Customer { get; set; }
 }
 
 public sealed class LicenseApiError

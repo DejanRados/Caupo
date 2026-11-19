@@ -175,8 +175,7 @@ public partial class LicenseWizardPage : UserControl
         {
             if (!_viewModel.IsSingleLicensePurchase)
             {
-                _viewModel.StatusMessage =
-                    "Plaćanje je prihvaćeno. Licence će biti poslane na e-mail nakon potvrde servera.";
+                _viewModel.ShowMultiLicenseDecision();
                 return;
             }
 
@@ -197,6 +196,35 @@ public partial class LicenseWizardPage : UserControl
             ShowError("Plaćanje je prihvaćeno, ali aktivacija nije završena.\n\n" + ex.Message);
         }
     }
+
+    private async void MultiLicenseYes_Click(object sender, RoutedEventArgs e)
+    {
+        if (_activeTransactionId is null || !_viewModel.IsMultiLicenseDecision || _viewModel.Busy) return;
+
+        try
+        {
+            bool activated = await _viewModel.CompleteCheckoutAsync(_activeTransactionId);
+            if (!activated || _disposed) return;
+
+            string remaining = _viewModel.PurchasedQuantity == 2
+                ? "LICENCA 2 ostaje slobodna za drugi računar."
+                : $"LICENCE 2–{_viewModel.PurchasedQuantity} ostaju slobodne za druge računare.";
+
+            ShowMessage($"LICENCA 1 je uspješno aktivirana na ovom računaru.\n{remaining}");
+            ActivationSucceeded?.Invoke(this, EventArgs.Empty);
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[LICENSING] Aktivacija LICENCE 1: {ex}");
+            if (_disposed) return;
+
+            _viewModel.StatusMessage = "Automatska aktivacija nije uspjela: " + ex.Message;
+            ShowError("Plaćanje je prihvaćeno, ali aktivacija nije završena.\n\n" + ex.Message);
+        }
+    }
+
+    private void MultiLicenseNo_Click(object sender, RoutedEventArgs e) =>
+        _viewModel.DeclineMultiLicenseActivation();
 
     private void SendCustomerToCheckout()
     {
@@ -243,6 +271,14 @@ public partial class LicenseWizardPage : UserControl
     {
         try
         {
+            if (_viewModel.ManualActivationNeedsRegion)
+            {
+                _viewModel.FinishManualActivation();
+                ShowMessage("Licenca je uspješno aktivirana.");
+                ActivationSucceeded?.Invoke(this, EventArgs.Empty);
+                return;
+            }
+
             LicenseState state = await _viewModel.ActivateAsync();
 
             if (!state.CanOperate)
@@ -251,13 +287,16 @@ public partial class LicenseWizardPage : UserControl
                 return;
             }
 
+            if (_viewModel.ManualActivationNeedsRegion)
+                return;
+
             ShowMessage("Licenca je uspješno aktivirana.");
             ActivationSucceeded?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"[LICENSING] Aktivacija: {ex}");
-            ShowError("Aktivacija nije uspjela.\n\n" + ex.Message);
+            ShowError("Aktivacija nije završena.\n\n" + ex.Message);
         }
     }
 

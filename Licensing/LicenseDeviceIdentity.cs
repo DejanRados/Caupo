@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System;
 using System.IO;
 using System.Security.Cryptography;
@@ -133,6 +132,11 @@ public sealed class LicenseDeviceIdentity : IDisposable
     {
         string message = $"caupo-activate\n{licenseKey.Trim().ToUpperInvariant()}\n{FingerprintSha256}\n{PublicKey}\n{timestamp}\n{nonce}";
         return Sign(message);
+    }
+
+    public string SignLicenseCheck(string licenseId, string deviceId, long timestamp, string nonce)
+    {
+        return Sign($"caupo-check-license-v1\n{licenseId}\n{deviceId}\n{timestamp}\n{nonce}");
     }
 
     private string Sign(string message)
