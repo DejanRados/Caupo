@@ -139,6 +139,31 @@ public sealed class LicenseDeviceIdentity : IDisposable
         return Sign($"caupo-check-license-v1\n{licenseId}\n{deviceId}\n{timestamp}\n{nonce}");
     }
 
+    public string SignRegisteredRequest(string operation, string deviceId, long timestamp, string nonce, string payloadHash)
+    {
+        if (operation is not ("additional_licenses" or "license_renewal" or "customer_licenses" or "subscription_cancel"))
+            throw new ArgumentException("Nepoznata operacija licenciranja.", nameof(operation));
+
+        if (!Guid.TryParseExact(deviceId, "D", out _) || string.IsNullOrWhiteSpace(nonce)
+            || nonce.Length != 32 || !IsLowerHex(nonce)
+            || string.IsNullOrWhiteSpace(payloadHash) || payloadHash.Length != 64 || !IsLowerHex(payloadHash))
+            throw new ArgumentException("Neispravni podaci za digitalno potpisivanje.");
+
+        string message = $"caupo-purchase-v1\n{operation}\n{deviceId}\n{timestamp}\n{nonce}\n{payloadHash}";
+        return Sign(message);
+    }
+
+    private static bool IsLowerHex(string value)
+    {
+        foreach (char c in value)
+        {
+            if (c is not (>= '0' and <= '9' or >= 'a' and <= 'f'))
+                return false;
+        }
+
+        return true;
+    }
+
     private string Sign(string message)
     {
         byte[] signature = _key.SignData(

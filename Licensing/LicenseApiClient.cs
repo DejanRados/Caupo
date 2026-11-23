@@ -1,9 +1,11 @@
-﻿using Caupo.Licensing.Models;
+﻿
+using Caupo.Licensing.Models;
 using System;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -151,11 +153,151 @@ public sealed class LicenseApiClient : IDisposable
         }, cancellationToken);
     }
 
+    public Task<CustomerLicensesResponse> GetCustomerLicensesAsync(
+        LicenseDeviceIdentity device, string deviceId, string? transactionId = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(device);
+        if (!Regex.IsMatch(deviceId ?? string.Empty, @"\A[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\z"))
+            throw new ArgumentException("Neispravan uređaj.", nameof(deviceId));
+        if (transactionId != null && !Regex.IsMatch(transactionId, @"\Atxn_[a-z0-9]{26}\z"))
+            throw new ArgumentException("Neispravna transakcija.", nameof(transactionId));
+
+        const string operation = "customer_licenses";
+        string hash = Sha256Hex("{\"scope\":\"customer_licenses\"}");
+        long timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        string nonce = NewRequestToken();
+        string signature = device.SignRegisteredRequest(operation, deviceId, timestamp, nonce, hash);
+        var request = new
+        {
+            operation,
+            device_id = deviceId,
+            timestamp,
+            nonce,
+            device_signature = signature,
+            transaction_id = transactionId
+        };
+
+        return PostAsync<CustomerLicensesResponse>("paddle-customer-overview.php", request, cancellationToken);
+    }
+
+    public Task<SubscriptionCancellationResponse> CancelSubscriptionAsync(
+        LicenseDeviceIdentity device, string deviceId, int subscriptionId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(device);
+
+        if (!Regex.IsMatch(deviceId ?? string.Empty, @"\A[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\z")
+            || subscriptionId < 1)
+            throw new ArgumentException("Neispravni podaci pretplate.");
+
+        const string operation = "subscription_cancel";
+        var selection = new { subscription_id = subscriptionId };
+        string hash = Sha256Hex(JsonSerializer.Serialize(selection, JsonOptions));
+        long timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        string nonce = NewRequestToken();
+
+        var request = new
+        {
+            operation,
+            subscription = selection,
+            device_id = deviceId,
+            timestamp,
+            nonce,
+            device_signature = device.SignRegisteredRequest(operation, deviceId, timestamp, nonce, hash)
+        };
+
+        return PostAsync<SubscriptionCancellationResponse>(
+            "paddle-cancel-subscription.php", request, cancellationToken);
+    }
+
+    public sealed class SubscriptionCancellationResponse
+    {
+        [JsonPropertyName("subscription_id")]
+        public int SubscriptionId { get; set; }
+
+        [JsonPropertyName("status")]
+        public string Status { get; set; } = string.Empty;
+
+        [JsonPropertyName("effective_at")]
+        public string? EffectiveAt { get; set; }
+    }
+
+    public async Task<CheckoutResponse> StartLicenseRenewalAsync(
+        LicenseDeviceIdentity device, string deviceId, int licenseId, int planId,
+        string requestToken, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(device);
+        ValidateRegisteredRequest(deviceId, requestToken, planId);
+        if (licenseId < 1) throw new ArgumentException("Neispravna licenca.", nameof(licenseId));
+
+        const string operation = "license_renewal";
+        var purchase = new { request_token = requestToken, plan_id = planId, license_ids = new[] { licenseId } };
+        return await StartRegisteredCheckoutAsync(device, deviceId, operation, purchase, cancellationToken);
+    }
+
+    public Task<CheckoutResponse> StartAdditionalLicensesAsync(
+        LicenseDeviceIdentity device, string deviceId, int planId, int quantity,
+        string renewal, string requestToken, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(device);
+        ValidateRegisteredRequest(deviceId, requestToken, planId);
+
+        if (quantity is < 1 or > 10 || renewal is not ("subscription" or "one_time"))
+            throw new ArgumentException("Neispravna kupovina.");
+
+        const string operation = "additional_licenses";
+        var purchase = new { request_token = requestToken, plan_id = planId, quantity, renewal };
+        return StartRegisteredCheckoutAsync(device, deviceId, operation, purchase, cancellationToken);
+    }
+
+    private async Task<CheckoutResponse> StartRegisteredCheckoutAsync(
+        LicenseDeviceIdentity device, string deviceId, string operation, object purchase,
+        CancellationToken cancellationToken)
+    {
+        string hash = Sha256Hex(JsonSerializer.Serialize(purchase, JsonOptions));
+        long timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        string nonce = NewRequestToken();
+
+        var request = new
+        {
+            operation,
+            purchase,
+            device_id = deviceId,
+            timestamp,
+            nonce,
+            device_signature = device.SignRegisteredRequest(operation, deviceId, timestamp, nonce, hash)
+        };
+
+        CheckoutResponse response = await PostAsync<CheckoutResponse>(
+            "paddle-registered-checkout.php", request, cancellationToken);
+
+        if (!Regex.IsMatch(response.TransactionId ?? "", @"\Atxn_[a-z0-9]{26}\z"))
+            throw new InvalidOperationException("Server nije vratio ispravnu Paddle transakciju.");
+
+        return response;
+    }
+
+    private static void ValidateRegisteredRequest(string deviceId, string token, int planId)
+    {
+        if (!Regex.IsMatch(deviceId ?? "", @"\A[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\z")
+            || !Regex.IsMatch(token ?? "", @"\A[a-f0-9]{32}\z") || planId < 1)
+            throw new ArgumentException("Neispravni podaci registrovane kupovine.");
+    }
+
+    private static string Sha256Hex(string value) =>
+        Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(value))).ToLowerInvariant();
+
     public sealed class LicenseCheckResponse
     {
         public string Status { get; set; } = string.Empty;
+
+        [JsonPropertyName("license_id")]
         public string LicenseId { get; set; } = string.Empty;
+
+        [JsonPropertyName("device_id")]
         public string DeviceId { get; set; } = string.Empty;
+
         public string Token { get; set; } = string.Empty;
     }
 
@@ -163,7 +305,7 @@ public sealed class LicenseApiClient : IDisposable
     {
         public string Status { get; set; } = string.Empty;
 
-        [System.Text.Json.Serialization.JsonPropertyName("license_key")]
+        [JsonPropertyName("license_key")]
         public string LicenseKey { get; set; } = string.Empty;
     }
 

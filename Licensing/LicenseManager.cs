@@ -1,12 +1,15 @@
-﻿using Caupo.Licensing.Models;
+﻿
+using Caupo.Licensing.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+
 
 namespace Caupo.Licensing;
 
@@ -167,6 +170,132 @@ public sealed class LicenseManager : IDisposable
     {
         ThrowIfDisposed();
         return _api.GetWpfLicenseAsync(transactionId, requestToken, cancellationToken);
+    }
+
+    public async Task<CustomerLicensesResponse> GetCustomerLicensesAsync(
+        string? transactionId = null, CancellationToken cancellationToken = default)
+    {
+        ThrowIfDisposed();
+        await _sync.WaitAsync(cancellationToken);
+
+        try
+        {
+            LicenseState local = RequireLocalLicense();
+            return await LoadCustomerLicensesAsync(local, transactionId, cancellationToken);
+        }
+        finally
+        {
+            _sync.Release();
+        }
+    }
+
+    public async Task<LicenseApiClient.SubscriptionCancellationResponse> CancelLocalSubscriptionAsync(
+        int subscriptionId, CancellationToken cancellationToken = default)
+    {
+        ThrowIfDisposed();
+        await _sync.WaitAsync(cancellationToken);
+
+        try
+        {
+            LicenseState local = RequireLocalLicense();
+            CustomerLicensesResponse overview = await LoadCustomerLicensesAsync(local, null, cancellationToken);
+
+            CustomerLicense? license = overview.Licenses.FirstOrDefault(x =>
+                string.Equals(x.LicensePublicId, local.LicenseId, StringComparison.OrdinalIgnoreCase));
+
+            CustomerLicenseSubscription? subscription = license?.Subscription;
+
+            if (subscription == null || subscription.Id != subscriptionId || subscription.CancelAtPeriodEnd
+                || subscription.Status is not ("active" or "past_due"))
+                throw new InvalidOperationException("Automatska obnova lokalne licence nije dostupna za otkazivanje.");
+
+            LicenseApiClient.SubscriptionCancellationResponse result = await _api.CancelSubscriptionAsync(
+                _device, local.DeviceId!, subscriptionId, cancellationToken);
+
+            if (result.SubscriptionId != subscriptionId
+                || result.Status is not ("cancellation_scheduled" or "canceled"))
+                throw new InvalidOperationException("Server nije potvrdio otkazivanje automatske obnove.");
+
+            return result;
+        }
+        finally
+        {
+            _sync.Release();
+        }
+    }
+
+    public async Task<CheckoutResponse> StartLicenseRenewalAsync(
+        int licenseId, int planId, string requestToken, CancellationToken cancellationToken = default)
+    {
+        ThrowIfDisposed();
+        await _sync.WaitAsync(cancellationToken);
+
+        try
+        {
+            LicenseState local = RequireLocalLicense();
+            CustomerLicensesResponse overview = await LoadCustomerLicensesAsync(local, null, cancellationToken);
+
+            CustomerLicense? license = overview.Licenses.FirstOrDefault(x =>
+                x.LicenseId == licenseId && string.Equals(x.LicensePublicId, local.LicenseId,
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (license == null || license.Plan.Id != planId || !license.CanRenew)
+                throw new InvalidOperationException("Ručna obnova nije dostupna za lokalnu licencu.");
+
+            return await _api.StartLicenseRenewalAsync(
+                _device, local.DeviceId!, licenseId, planId, requestToken, cancellationToken);
+        }
+        finally
+        {
+            _sync.Release();
+        }
+    }
+
+    public async Task<CheckoutResponse> StartAdditionalLicensesAsync(
+        int planId, int quantity, string renewal, string requestToken,
+        CancellationToken cancellationToken = default)
+    {
+        ThrowIfDisposed();
+        await _sync.WaitAsync(cancellationToken);
+
+        try
+        {
+            LicenseState local = RequireLocalLicense();
+            return await _api.StartAdditionalLicensesAsync(
+                _device, local.DeviceId!, planId, quantity, renewal, requestToken, cancellationToken);
+        }
+        finally
+        {
+            _sync.Release();
+        }
+    }
+
+    private LicenseState RequireLocalLicense()
+    {
+        LicenseState local = EvaluateLocal();
+
+        if (!local.CanOperate || string.IsNullOrWhiteSpace(local.LicenseId)
+            || string.IsNullOrWhiteSpace(local.DeviceId))
+            throw new InvalidOperationException("Potrebna je aktivirana licenca ovog računara.");
+
+        return local;
+    }
+
+    private async Task<CustomerLicensesResponse> LoadCustomerLicensesAsync(
+        LicenseState local, string? transactionId, CancellationToken cancellationToken)
+    {
+        CustomerLicensesResponse result = await _api.GetCustomerLicensesAsync(
+            _device, local.DeviceId!, transactionId, cancellationToken);
+
+        if (result.Customer is null || result.Licenses is null || !result.Licenses.Any(x =>
+            string.Equals(x.LicensePublicId, local.LicenseId, StringComparison.OrdinalIgnoreCase)))
+            throw new InvalidOperationException("Server nije vratio lokalnu licencu kupca.");
+
+        if (transactionId != null && (result.Order == null
+            || !string.Equals(result.Order.TransactionId, transactionId, StringComparison.Ordinal)))
+            throw new InvalidOperationException("Server nije potvrdio traženu transakciju.");
+
+        return result;
     }
 
     public async Task<LicenseState> ActivateAsync(

@@ -1,4 +1,4 @@
-﻿
+﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -116,3 +116,110 @@ public sealed class LicenseApiError
     [JsonPropertyName("error")]
     public string Error { get; set; } = string.Empty;
 }
+
+public sealed class CustomerLicensesResponse
+{
+    [JsonPropertyName("customer")]
+    public PaddleCustomer? Customer { get; set; }
+
+    [JsonPropertyName("licenses")]
+    public List<CustomerLicense> Licenses { get; set; } = new();
+
+    [JsonPropertyName("order")]
+    public CustomerOrderStatus? Order { get; set; }
+}
+
+public sealed class CustomerOrderStatus
+{
+    [JsonPropertyName("transaction_id")]
+    public string TransactionId { get; set; } = string.Empty;
+
+    [JsonPropertyName("order_type")]
+    public string OrderType { get; set; } = string.Empty;
+
+    [JsonPropertyName("status")]
+    public string Status { get; set; } = string.Empty;
+
+    [JsonPropertyName("quantity")]
+    public int Quantity { get; set; }
+
+    [JsonPropertyName("issued_count")]
+    public int IssuedCount { get; set; }
+
+    [JsonPropertyName("confirmed")]
+    public bool Confirmed { get; set; }
+}
+
+public sealed class CustomerLicense
+{
+    [JsonPropertyName("license_id")]
+    public int LicenseId { get; set; }
+
+    [JsonPropertyName("license_public_id")]
+    public string LicensePublicId { get; set; } = string.Empty;
+
+    [JsonPropertyName("status")]
+    public string Status { get; set; } = string.Empty;
+
+    [JsonPropertyName("expires_at")]
+    public string? ExpiresAt { get; set; }
+
+    [JsonPropertyName("activated_at")]
+    public string? ActivatedAt { get; set; }
+
+    [JsonPropertyName("period_start")]
+    public string? PeriodStart { get; set; }
+
+    [JsonIgnore]
+    public string ExpiresDisplay => FormatDate(ExpiresAt);
+
+    private static string FormatDate(string? value) =>
+        DateTime.TryParse(value, System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.AssumeUniversal, out var parsed)
+            ? parsed.ToLocalTime().ToString("dd.MM.yyyy. HH:mm") : "—";
+
+    [JsonPropertyName("plan")]
+    public CustomerLicensePlan Plan { get; set; } = new();
+
+    [JsonPropertyName("subscription")]
+    public CustomerLicenseSubscription? Subscription { get; set; }
+
+    [JsonPropertyName("can_renew")]
+    public bool CanRenew { get; set; }
+
+    [JsonPropertyName("device_name")]
+    public string? DeviceName { get; set; }
+
+    [JsonPropertyName("device_public_id")]
+    public string? DevicePublicId { get; set; }
+
+    [JsonIgnore]
+    public string DeviceDescription => string.IsNullOrWhiteSpace(DevicePublicId)
+        ? "Nije aktivirana na uređaju"
+        : string.IsNullOrWhiteSpace(DeviceName) ? "Aktivirana na drugom uređaju" : $"Uređaj: {DeviceName}";
+}
+
+public sealed class CustomerLicensePlan
+{
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+}
+
+public sealed class CustomerLicenseSubscription
+{
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+
+    [JsonPropertyName("status")]
+    public string Status { get; set; } = string.Empty;
+
+    [JsonPropertyName("cancel_at_period_end")]
+    public bool CancelAtPeriodEnd { get; set; }
+
+    [JsonPropertyName("current_period_end")]
+    public string? CurrentPeriodEnd { get; set; }
+}
+
