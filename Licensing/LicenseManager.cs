@@ -10,7 +10,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-
 namespace Caupo.Licensing;
 
 public sealed class LicenseManager : IDisposable
@@ -189,6 +188,22 @@ public sealed class LicenseManager : IDisposable
         }
     }
 
+    public async Task<string> GetBillingPortalUrlAsync(CancellationToken cancellationToken = default)
+    {
+        ThrowIfDisposed();
+        await _sync.WaitAsync(cancellationToken);
+
+        try
+        {
+            LicenseState local = RequireLocalLicense();
+            return await _api.GetBillingPortalUrlAsync(_device, local.DeviceId!, cancellationToken);
+        }
+        finally
+        {
+            _sync.Release();
+        }
+    }
+
     public async Task<LicenseApiClient.SubscriptionCancellationResponse> CancelLocalSubscriptionAsync(
         int subscriptionId, CancellationToken cancellationToken = default)
     {
@@ -243,6 +258,33 @@ public sealed class LicenseManager : IDisposable
                 throw new InvalidOperationException("Ručna obnova nije dostupna za lokalnu licencu.");
 
             return await _api.StartLicenseRenewalAsync(
+                _device, local.DeviceId!, licenseId, planId, requestToken, cancellationToken);
+        }
+        finally
+        {
+            _sync.Release();
+        }
+    }
+
+    public async Task<CheckoutResponse> StartSubscriptionRenewalAsync(
+        int licenseId, int planId, string requestToken, CancellationToken cancellationToken = default)
+    {
+        ThrowIfDisposed();
+        await _sync.WaitAsync(cancellationToken);
+
+        try
+        {
+            LicenseState local = RequireLocalLicense();
+            CustomerLicensesResponse overview = await LoadCustomerLicensesAsync(local, null, cancellationToken);
+
+            CustomerLicense? license = overview.Licenses.FirstOrDefault(x =>
+                x.LicenseId == licenseId && string.Equals(x.LicensePublicId, local.LicenseId,
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (license == null || license.Plan.Id != planId || !license.CanResubscribe)
+                throw new InvalidOperationException("Ponovna aktivacija pretplate nije dostupna za lokalnu licencu.");
+
+            return await _api.StartSubscriptionRenewalAsync(
                 _device, local.DeviceId!, licenseId, planId, requestToken, cancellationToken);
         }
         finally

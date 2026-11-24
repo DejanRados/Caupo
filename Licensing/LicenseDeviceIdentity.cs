@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿
+using Microsoft.Win32;
 using System;
 using System.IO;
 using System.Security.Cryptography;
@@ -44,6 +45,7 @@ public sealed class LicenseDeviceIdentity : IDisposable
             try
             {
                 File.WriteAllBytes(temporary, encrypted);
+
                 try
                 {
                     File.Move(temporary, path);
@@ -75,9 +77,11 @@ public sealed class LicenseDeviceIdentity : IDisposable
         try
         {
             ECDsa key = ECDsa.Create();
+
             try
             {
                 key.ImportPkcs8PrivateKey(privateKey, out int bytesRead);
+
                 if (bytesRead != privateKey.Length || key.KeySize != 256)
                     throw new CryptographicException("Neispravan identitet Caupo uređaja.");
 
@@ -141,7 +145,8 @@ public sealed class LicenseDeviceIdentity : IDisposable
 
     public string SignRegisteredRequest(string operation, string deviceId, long timestamp, string nonce, string payloadHash)
     {
-        if (operation is not ("additional_licenses" or "license_renewal" or "customer_licenses" or "subscription_cancel"))
+        if (operation is not ("additional_licenses" or "license_renewal" or "subscription_renewal"
+            or "customer_licenses" or "subscription_cancel"))
             throw new ArgumentException("Nepoznata operacija licenciranja.", nameof(operation));
 
         if (!Guid.TryParseExact(deviceId, "D", out _) || string.IsNullOrWhiteSpace(nonce)

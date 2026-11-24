@@ -71,7 +71,7 @@ public class MainViewModel : INotifyPropertyChanged
                 _lastLicenseStatus = state.Status;
 
                 if (state.RequiresWarning)
-                    ShowLicenseMessage("Licenca je u dodatnom periodu.\n\n" + state.Message);
+                    ShowLicenseMessage("Vaša licenca je istekla.\n\n" + state.Message);
 
                 StartLicenseTimer();
                 HandleValidLicense();
@@ -130,7 +130,7 @@ public class MainViewModel : INotifyPropertyChanged
             if (state.CanOperate)
             {
                 if (state.RequiresWarning && _lastLicenseStatus != LicenseOperationalStatus.GracePeriod)
-                    ShowLicenseMessage("Licenca je u dodatnom periodu.\n\n" + state.Message);
+                    ShowLicenseMessage("Vaša licenca je istekla.\n\n" + state.Message);
 
                 _lastLicenseStatus = state.Status;
                 return;

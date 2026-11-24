@@ -158,8 +158,10 @@ public sealed class LicenseApiClient : IDisposable
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(device);
+
         if (!Regex.IsMatch(deviceId ?? string.Empty, @"\A[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\z"))
             throw new ArgumentException("Neispravan uređaj.", nameof(deviceId));
+
         if (transactionId != null && !Regex.IsMatch(transactionId, @"\Atxn_[a-z0-9]{26}\z"))
             throw new ArgumentException("Neispravna transakcija.", nameof(transactionId));
 
@@ -168,6 +170,7 @@ public sealed class LicenseApiClient : IDisposable
         long timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         string nonce = NewRequestToken();
         string signature = device.SignRegisteredRequest(operation, deviceId, timestamp, nonce, hash);
+
         var request = new
         {
             operation,
@@ -179,6 +182,48 @@ public sealed class LicenseApiClient : IDisposable
         };
 
         return PostAsync<CustomerLicensesResponse>("paddle-customer-overview.php", request, cancellationToken);
+    }
+
+    public async Task<string> GetBillingPortalUrlAsync(
+        LicenseDeviceIdentity device, string deviceId, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(device);
+
+        if (!Regex.IsMatch(deviceId ?? string.Empty, @"\A[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\z"))
+            throw new ArgumentException("Neispravan uređaj.", nameof(deviceId));
+
+        const string operation = "customer_licenses";
+        string hash = Sha256Hex("{\"scope\":\"customer_licenses\"}");
+        long timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        string nonce = NewRequestToken();
+
+        var request = new
+        {
+            operation,
+            device_id = deviceId,
+            timestamp,
+            nonce,
+            device_signature = device.SignRegisteredRequest(operation, deviceId, timestamp, nonce, hash)
+        };
+
+        BillingPortalResponse response = await PostAsync<BillingPortalResponse>(
+            "paddle-customer-portal.php", request, cancellationToken);
+
+        if (!Uri.TryCreate(response.Url, UriKind.Absolute, out Uri? url)
+            || url.Scheme != Uri.UriSchemeHttps
+            || url.Host is not ("customer-portal.paddle.com" or "sandbox-customer-portal.paddle.com")
+            || !url.IsDefaultPort
+            || !Regex.IsMatch(url.AbsolutePath, @"\A/cpl_[a-z0-9]{26}\z")
+            || !url.Query.Contains("token=pga_", StringComparison.Ordinal))
+            throw new InvalidOperationException("Server nije vratio ispravan link za upravljanje plaćanjima.");
+
+        return response.Url;
+    }
+
+    public sealed class BillingPortalResponse
+    {
+        [JsonPropertyName("url")]
+        public string Url { get; set; } = string.Empty;
     }
 
     public Task<SubscriptionCancellationResponse> CancelSubscriptionAsync(
@@ -229,11 +274,30 @@ public sealed class LicenseApiClient : IDisposable
     {
         ArgumentNullException.ThrowIfNull(device);
         ValidateRegisteredRequest(deviceId, requestToken, planId);
-        if (licenseId < 1) throw new ArgumentException("Neispravna licenca.", nameof(licenseId));
+
+        if (licenseId < 1)
+            throw new ArgumentException("Neispravna licenca.", nameof(licenseId));
 
         const string operation = "license_renewal";
         var purchase = new { request_token = requestToken, plan_id = planId, license_ids = new[] { licenseId } };
+
         return await StartRegisteredCheckoutAsync(device, deviceId, operation, purchase, cancellationToken);
+    }
+
+    public Task<CheckoutResponse> StartSubscriptionRenewalAsync(
+        LicenseDeviceIdentity device, string deviceId, int licenseId, int planId,
+        string requestToken, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(device);
+        ValidateRegisteredRequest(deviceId, requestToken, planId);
+
+        if (licenseId < 1)
+            throw new ArgumentException("Neispravna licenca.", nameof(licenseId));
+
+        const string operation = "subscription_renewal";
+        var purchase = new { request_token = requestToken, plan_id = planId, license_ids = new[] { licenseId } };
+
+        return StartRegisteredCheckoutAsync(device, deviceId, operation, purchase, cancellationToken);
     }
 
     public Task<CheckoutResponse> StartAdditionalLicensesAsync(
@@ -248,6 +312,7 @@ public sealed class LicenseApiClient : IDisposable
 
         const string operation = "additional_licenses";
         var purchase = new { request_token = requestToken, plan_id = planId, quantity, renewal };
+
         return StartRegisteredCheckoutAsync(device, deviceId, operation, purchase, cancellationToken);
     }
 

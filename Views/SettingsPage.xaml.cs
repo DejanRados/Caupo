@@ -2,15 +2,16 @@
 using Caupo.Helpers;
 using Caupo.Licensing;
 using Caupo.Licensing.Models;
+using Caupo.Services;
+using Caupo.ViewModels;
 using Microsoft.Web.WebView2.Core;
+using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Caupo.Services;
-using Caupo.ViewModels;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -30,11 +31,8 @@ namespace Caupo.Views
         public SettingsPage()
         {
             InitializeComponent();
-
             DataContext = new SettingsViewModel();
-
             InitializeCashRegisterType();
-
             UpdateKitchenKeyboardStatus();
             Unloaded += SettingsPage_Unloaded;
         }
@@ -45,11 +43,8 @@ namespace Caupo.Views
 
         private void UpdateKitchenKeyboardStatus()
         {
-            bool configured = !string.IsNullOrWhiteSpace(
-                Properties.Settings.Default.KitchenKeyboardId);
-
+            bool configured = !string.IsNullOrWhiteSpace(Properties.Settings.Default.KitchenKeyboardId);
             txtKitchenKeyboardStatus.Text = configured ? "Odabrana" : "Nije odabrana";
-
             btnRemoveKitchenKeyboard.IsEnabled = configured;
             btnSelectKitchenKeyboard.Content = configured ? "Promijeni tastaturu" : "Odaberi tastaturu";
         }
@@ -86,15 +81,12 @@ namespace Caupo.Views
 
                 MessageBox.Show(
                     "Nije moguće pokrenuti odabir tastature.\n\n" + ex.Message,
-                    "Kuhinjska tastatura",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                    "Kuhinjska tastatura", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void KitchenKeyboard_Detected(object? sender, string identifier)
         {
-            // Prekidamo režim odabira prije prikaza potvrde.
             EndKitchenKeyboardSelection();
 
             var popup = new YesNoPopup
@@ -122,7 +114,6 @@ namespace Caupo.Views
 
             Properties.Settings.Default.KitchenKeyboardId = string.Empty;
             Properties.Settings.Default.Save();
-
             KitchenKeyboardService.Active?.SetKeyboardIdentifier(string.Empty);
 
             UpdateKitchenKeyboardStatus();
@@ -159,7 +150,6 @@ namespace Caupo.Views
         private void InitializeCashRegisterType()
         {
             _initializingCashRegisterType = true;
-
             string currentType = CashRegisterConfigurationService.CashRegisterType;
 
             foreach (object item in cmbCashRegisterType.Items)
@@ -179,7 +169,6 @@ namespace Caupo.Views
                 ? Visibility.Visible : Visibility.Collapsed;
 
             UpdateCashRegisterStatus();
-
             _initializingCashRegisterType = false;
         }
 
@@ -190,10 +179,6 @@ namespace Caupo.Views
 
             string selectedType = selectedItem.Tag?.ToString()
                 ?? CashRegisterConfigurationService.MainCashRegister;
-
-            // =================================================
-            // GLAVNA KASA
-            // =================================================
 
             if (string.Equals(selectedType, CashRegisterConfigurationService.MainCashRegister,
                 StringComparison.OrdinalIgnoreCase))
@@ -206,27 +191,13 @@ namespace Caupo.Views
                 UpdateCashRegisterStatus();
 
                 Debug.WriteLine("[SETTINGS] Izabrana glavna kasa.");
-
                 if (wasSecondary) AskForRestart("Tip kase je promijenjen na Glavnu kasu.");
-
                 return;
             }
 
-            // =================================================
-            // DODATNA KASA
-            // =================================================
-
-            /*
-             * Sam izbor "Dodatna kasa" još NE spremamo.
-             *
-             * Secondary i mrežni DbPath spremaju se zajedno
-             * tek kada discovery pronađe glavnu kasu i kada
-             * provjera baze/pisanja uspješno prođe.
-             */
-
+            // Dodatnu kasu spremamo tek nakon uspješnog povezivanja.
             DbPathButton.Visibility = Visibility.Visible;
             txtCashRegisterStatus.Text = "Dodatna kasa nije još povezana. Kliknite „Pronađi“.";
-
             Debug.WriteLine("[SETTINGS] Izabrana dodatna kasa - čekam povezivanje.");
         }
 
@@ -236,11 +207,7 @@ namespace Caupo.Views
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            var page = new HomePage
-            {
-                DataContext = new HomeViewModel()
-            };
-
+            var page = new HomePage { DataContext = new HomeViewModel() };
             PageNavigator.NavigateWithFade(page);
         }
 
@@ -254,7 +221,6 @@ namespace Caupo.Views
             {
                 DbPathButton.IsEnabled = false;
                 txtCashRegisterStatus.Text = "Tražim glavnu kasu na mreži...";
-
                 Debug.WriteLine("[SETTINGS] Tražim glavnu kasu...");
 
                 MainCashRegisterInfo? main = await CashRegisterConfigurationService
@@ -268,10 +234,7 @@ namespace Caupo.Views
                         "Glavna kasa nije pronađena na mreži.\n\n"
                         + "Provjerite da li je glavna kasa uključena "
                         + "i da li su oba računara spojena na istu mrežu.",
-                        "Caupo",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
-
+                        "Caupo", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -287,9 +250,7 @@ namespace Caupo.Views
                     "Dodatna kasa je uspješno povezana.\n\n"
                     + $"Glavna kasa: {main.MachineName}\n"
                     + $"Baza: {main.DatabasePath}",
-                    "Caupo",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                    "Caupo", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 AskForRestart("Dodatna kasa je uspješno podešena.");
             }
@@ -297,7 +258,6 @@ namespace Caupo.Views
             {
                 Debug.WriteLine($"[SETTINGS] Greška pri povezivanju: {ex}");
                 txtCashRegisterStatus.Text = "Glavna kasa nije pronađena ili nije dostupna.";
-
                 MessageBox.Show(ex.Message, "Caupo", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             finally
@@ -355,12 +315,9 @@ namespace Caupo.Views
                 + "Caupo je potrebno ponovo pokrenuti "
                 + "da bi promjena potpuno stupila na snagu.\n\n"
                 + "Ponovo pokrenuti sada?",
-                "Caupo",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
+                "Caupo", MessageBoxButton.YesNo, MessageBoxImage.Question);
 
             if (result != MessageBoxResult.Yes) return;
-
             RestartCaupo();
         }
 
@@ -389,9 +346,7 @@ namespace Caupo.Views
 
                 MessageBox.Show(
                     "Caupo nije moguće automatski ponovo pokrenuti.\n\n" + ex.Message,
-                    "Caupo",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                    "Caupo", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -403,11 +358,7 @@ namespace Caupo.Views
         {
             if (DataContext is SettingsViewModel vm) vm.DbPath = databasePath;
 
-            /*
-             * Ako DbPath property još nema
-             * OnPropertyChanged(), ručno osvježi binding.
-             */
-
+            // Ako DbPath nema OnPropertyChanged(), osvježi binding.
             BindingExpression? binding = txtDBPath.GetBindingExpression(TextBox.TextProperty);
             binding?.UpdateTarget();
         }
@@ -512,8 +463,10 @@ namespace Caupo.Views
                 throw new InvalidOperationException("Server nije vratio licencu ovog računara.");
 
             CustomerLicense current = _localCustomerLicense;
-            _localSubscriptionLicenseCount = current.Subscription == null ? 0 : response.Licenses.Count(x =>
-                x.Subscription?.Id == current.Subscription.Id);
+            CustomerLicenseSubscription? subscription = current.Subscription;
+
+            _localSubscriptionLicenseCount = subscription == null ? 0 : response.Licenses.Count(x =>
+                x.Subscription?.Id == subscription.Id);
 
             LicencaPlanText.Text = current.Plan.Name;
             LicencaStatusText.Text = GetLicenseDisplayStatus(current);
@@ -533,9 +486,9 @@ namespace Caupo.Views
                     : $"{(int)Math.Ceiling(remaining.TotalDays)} dana";
             }
 
-            LicencaPretplataText.Text = current.Subscription == null ? "Ručna obnova"
-                : current.Subscription.CancelAtPeriodEnd ? "Automatska obnova otkazana za sljedeći period"
-                : current.Subscription.Status switch
+            LicencaPretplataText.Text = subscription == null ? "Ručna obnova"
+                : subscription.CancelAtPeriodEnd ? "Automatska obnova otkazana za sljedeći period"
+                : subscription.Status switch
                 {
                     "active" => "Automatska obnova aktivna",
                     "trialing" => "Probna pretplata",
@@ -543,6 +496,9 @@ namespace Caupo.Views
                     "canceled" => "Automatska obnova otkazana",
                     _ => "Status obnove nije dostupan"
                 };
+
+            ObnoviLicencuButton.Content = current.CanResubscribe
+                ? "Ponovo aktiviraj pretplatu" : "Obnovi licencu";
 
             var others = response.Licenses.Where(x =>
                 !string.Equals(x.LicensePublicId, local.LicenseId, StringComparison.OrdinalIgnoreCase)).ToList();
@@ -564,7 +520,6 @@ namespace Caupo.Views
             UpdateLicensingButtons();
         }
 
-
         private static string GetLicenseDisplayStatus(CustomerLicense license)
         {
             if (DateTimeOffset.TryParse(license.ExpiresAt, CultureInfo.InvariantCulture,
@@ -582,6 +537,46 @@ namespace Caupo.Views
 
         private async void OsvjeziLicenciranje_Click(object sender, RoutedEventArgs e) =>
             await LoadLicensingAsync();
+
+        private async void OtvoriUpravljanjePlacanjima_Click(object sender, RoutedEventArgs e)
+        {
+            LicenseManager? manager = _licensingManager;
+
+            if (manager == null || _licensingBusy || _licensingCustomer == null
+                || _licensingTransactionId != null) return;
+
+            SetLicensingBusy(true);
+
+            try
+            {
+                string url = await manager.GetBillingPortalUrlAsync();
+
+                if (!IsLoaded || !ReferenceEquals(manager, _licensingManager)) return;
+
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = url,
+                    UseShellExecute = true
+                });
+
+                LicenciranjePorukaText.Text = "Stranica za upravljanje plaćanjima je otvorena.";
+            }
+            catch (HttpRequestException ex)
+            {
+                string message = $"HTTP {(int?)ex.StatusCode}: {ex.Message}";
+                Debug.WriteLine($"[LICENSING] Upravljanje plaćanjima: {message}");
+                ShowLicensingError(message);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[LICENSING] Otvaranje plaćanja: {ex.GetType().Name}");
+                ShowLicensingError("Upravljanje plaćanjima trenutno nije dostupno.");
+            }
+            finally
+            {
+                SetLicensingBusy(false);
+            }
+        }
 
         private async void OtkaziAutomatskuObnovu_Click(object sender, RoutedEventArgs e)
         {
@@ -643,17 +638,21 @@ namespace Caupo.Views
             CustomerLicense? license = _localCustomerLicense;
 
             if (manager == null || license == null || _licensingBusy || _licensingTransactionId != null
-                || !license.CanRenew) return;
+                || (!license.CanRenew && !license.CanResubscribe)) return;
 
             SetLicensingBusy(true);
 
             try
             {
-                CheckoutResponse checkout = await manager.StartLicenseRenewalAsync(
-                    license.LicenseId, license.Plan.Id, LicenseApiClient.NewRequestToken());
+                string requestToken = LicenseApiClient.NewRequestToken();
+                bool resubscribe = license.CanResubscribe;
+
+                CheckoutResponse checkout = resubscribe
+                    ? await manager.StartSubscriptionRenewalAsync(license.LicenseId, license.Plan.Id, requestToken)
+                    : await manager.StartLicenseRenewalAsync(license.LicenseId, license.Plan.Id, requestToken);
 
                 if (IsLoaded && ReferenceEquals(manager, _licensingManager))
-                    await OpenLicensingCheckoutAsync(checkout, "license_renewal");
+                    await OpenLicensingCheckoutAsync(checkout, resubscribe ? "subscription_renewal" : "license_renewal");
             }
             catch (Exception ex)
             {
@@ -669,7 +668,6 @@ namespace Caupo.Views
         private async void KupiDodatneLicence_Click(object sender, RoutedEventArgs e)
         {
             LicenseManager? manager = _licensingManager;
-
             if (manager == null || _licensingBusy || _licensingTransactionId != null) return;
 
             if (!TryGetAdditionalPurchase(out PaddlePlan? plan, out int quantity, out string renewal, out _))
@@ -769,7 +767,6 @@ namespace Caupo.Views
             try
             {
                 await LicenciranjePaddleWebView.EnsureCoreWebView2Async();
-
                 if (!IsLoaded || _licensingTransactionId != checkout.TransactionId) return;
 
                 LicenciranjePaddleWebView.CoreWebView2.WebMessageReceived -= LicensingPaddle_WebMessageReceived;
@@ -891,14 +888,18 @@ namespace Caupo.Views
                             int issued = order.IssuedCount;
                             ResetLicensingCheckout();
 
-                            if (operation == "license_renewal") await manager.RefreshAsync();
+                            if (operation is "license_renewal" or "subscription_renewal")
+                                await manager.RefreshAsync();
 
                             await LoadLicensingAsync();
 
                             if (IsLoaded)
-                                LicenciranjePorukaText.Text = operation == "additional_licenses"
-                                    ? $"Kupovina potvrđena. Izdato je {issued} dodatnih licenci."
-                                    : "Obnova licence je potvrđena. Podaci su osvježeni.";
+                                LicenciranjePorukaText.Text = operation switch
+                                {
+                                    "additional_licenses" => $"Kupovina potvrđena. Izdato je {issued} dodatnih licenci.",
+                                    "subscription_renewal" => "Nova automatska pretplata je potvrđena. Licenca je produžena.",
+                                    _ => "Obnova licence je potvrđena. Podaci su osvježeni."
+                                };
 
                             return;
                         }
@@ -997,16 +998,20 @@ namespace Caupo.Views
 
         private void UpdateLicensingButtons()
         {
-            if (ObnoviLicencuButton == null || KupiDodatneLicenceButton == null) return;
+            if (ObnoviLicencuButton == null || KupiDodatneLicenceButton == null
+                || OtvoriUpravljanjePlacanjimaButton == null) return;
 
             ObnoviLicencuButton.IsEnabled = !_licensingBusy && _licensingTransactionId == null
-                && _localCustomerLicense?.CanRenew == true;
+                && (_localCustomerLicense?.CanRenew == true || _localCustomerLicense?.CanResubscribe == true);
 
             CustomerLicenseSubscription? subscription = _localCustomerLicense?.Subscription;
 
             OtkaziAutomatskuObnovuButton.IsEnabled = !_licensingBusy && _licensingTransactionId == null
                 && subscription != null && !subscription.CancelAtPeriodEnd
                 && subscription.Status is "active" or "past_due";
+
+            OtvoriUpravljanjePlacanjimaButton.IsEnabled = !_licensingBusy && _licensingTransactionId == null
+                && _licensingManager != null && _licensingCustomer != null && _localCustomerLicense != null;
 
             UpdateAdditionalPrice();
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
@@ -187,6 +188,9 @@ public sealed class CustomerLicense
     [JsonPropertyName("can_renew")]
     public bool CanRenew { get; set; }
 
+    [JsonPropertyName("can_resubscribe")]
+    public bool CanResubscribe { get; set; }
+
     [JsonPropertyName("device_name")]
     public string? DeviceName { get; set; }
 
@@ -196,7 +200,9 @@ public sealed class CustomerLicense
     [JsonIgnore]
     public string DeviceDescription => string.IsNullOrWhiteSpace(DevicePublicId)
         ? "Nije aktivirana na uređaju"
-        : string.IsNullOrWhiteSpace(DeviceName) ? "Aktivirana na drugom uređaju" : $"Uređaj: {DeviceName}";
+        : string.IsNullOrWhiteSpace(DeviceName)
+            ? "Aktivirana na drugom uređaju"
+            : $"Uređaj: {DeviceName}";
 }
 
 public sealed class CustomerLicensePlan
@@ -222,4 +228,3 @@ public sealed class CustomerLicenseSubscription
     [JsonPropertyName("current_period_end")]
     public string? CurrentPeriodEnd { get; set; }
 }
-

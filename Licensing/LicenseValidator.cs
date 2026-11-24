@@ -117,7 +117,7 @@ public sealed class LicenseValidator : IDisposable
             {
                 return new LicenseState(
                     LicenseOperationalStatus.GracePeriod,
-                    "Plaćeni period je istekao. Caupo radi u dodatnom sedmodnevnom periodu.",
+                    "Kako bismo osigurali kontinuitet vašeg poslovanja, omogućen je prijelazni period od 7 dana do konačnog prestanka rada aplikacije.",
                     licenseId, deviceId, paidUntil, expiresAt);
             }
 
