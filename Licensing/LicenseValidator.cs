@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace Caupo.Licensing;
 
@@ -52,9 +53,12 @@ public sealed class LicenseValidator : IDisposable
         }
     }
 
-    public LicenseState Validate(string token, string expectedDeviceId, DateTimeOffset utcNow)
+    public LicenseState Validate(string token, string expectedDeviceId, string expectedFingerprint, DateTimeOffset utcNow)
     {
-        if (string.IsNullOrWhiteSpace(token) || token.Length > 65536 || string.IsNullOrWhiteSpace(expectedDeviceId))
+        if (string.IsNullOrWhiteSpace(token) || token.Length > 65536
+            || string.IsNullOrWhiteSpace(expectedDeviceId)
+            || string.IsNullOrWhiteSpace(expectedFingerprint)
+            || !Regex.IsMatch(expectedFingerprint, @"\A[a-f0-9]{64}\z"))
             return Invalid();
 
         try
@@ -94,9 +98,17 @@ public sealed class LicenseValidator : IDisposable
 
             string? licenseId = ReadString(p, "license_id");
             string? deviceId = ReadString(p, "device_id");
+            string? planCode = ReadString(p, "plan_code");
+            string? fingerprint = ReadString(p, "fingerprint_sha256");
 
-            if (string.IsNullOrWhiteSpace(licenseId))
+            if (string.IsNullOrWhiteSpace(licenseId) || string.IsNullOrWhiteSpace(planCode)
+                || string.IsNullOrWhiteSpace(fingerprint)
+                || !Regex.IsMatch(fingerprint, @"\A[a-f0-9]{64}\z"))
                 return Invalid();
+
+            if (!string.Equals(fingerprint, expectedFingerprint, StringComparison.Ordinal))
+                return new LicenseState(LicenseOperationalStatus.Invalid,
+                    "Hardverski identitet računara je promijenjen. Kontaktirajte Caupo podršku.");
 
             if (!TryUnixTime(p, "iat", out DateTimeOffset issuedAt)
                 || !TryUnixTime(p, "nbf", out DateTimeOffset notBefore)
@@ -110,18 +122,26 @@ public sealed class LicenseValidator : IDisposable
                 || expiresAt > paidUntil.Add(GracePeriod).AddSeconds(1))
                 return Invalid();
 
+            bool isTrial = planCode == "trial";
+
             if (utcNow >= expiresAt)
-                return new LicenseState(LicenseOperationalStatus.Expired, "Licenca je istekla.", licenseId, deviceId, paidUntil, expiresAt);
+                return new LicenseState(LicenseOperationalStatus.Expired,
+                    isTrial ? "Probni period je istekao." : "Licenca je istekla.",
+                    licenseId, deviceId, paidUntil, expiresAt, planCode, fingerprint);
 
             if (utcNow >= paidUntil)
             {
-                return new LicenseState(
-                    LicenseOperationalStatus.GracePeriod,
-                    "Kako bismo osigurali kontinuitet vašeg poslovanja, omogućen je prijelazni period od 7 dana do konačnog prestanka rada aplikacije.",
-                    licenseId, deviceId, paidUntil, expiresAt);
+                string message = isTrial
+                    ? "Probni period uskoro ističe. Kupite licencu za nastavak korištenja Caupa."
+                    : "Kako bismo osigurali kontinuitet vašeg poslovanja, omogućen je prijelazni period od 7 dana do konačnog prestanka rada aplikacije.";
+
+                return new LicenseState(LicenseOperationalStatus.GracePeriod, message,
+                    licenseId, deviceId, paidUntil, expiresAt, planCode, fingerprint);
             }
 
-            return new LicenseState(LicenseOperationalStatus.Active, "Licenca je važeća.", licenseId, deviceId, paidUntil, expiresAt);
+            return new LicenseState(LicenseOperationalStatus.Active,
+                isTrial ? "Probna verzija Caupa je aktivna." : "Licenca je važeća.",
+                licenseId, deviceId, paidUntil, expiresAt, planCode, fingerprint);
         }
         catch (Exception ex) when (ex is FormatException or JsonException or CryptographicException
             or ArgumentException or InvalidOperationException or OverflowException)

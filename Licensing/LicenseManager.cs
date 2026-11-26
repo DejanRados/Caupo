@@ -1,5 +1,4 @@
-﻿
-using Caupo.Licensing.Models;
+﻿using Caupo.Licensing.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -69,7 +68,8 @@ public sealed class LicenseManager : IDisposable
                 return State = new LicenseState(
                     LicenseOperationalStatus.ClockError, "Windows sat je vraćen unazad. Provjerite vrijeme.");
 
-            LicenseState validated = _validator.Validate(stored.Token, stored.DeviceId, now);
+            LicenseState validated = _validator.Validate(
+                stored.Token, stored.DeviceId, _device.FingerprintSha256, now);
 
             if (validated.Status is LicenseOperationalStatus.Active or LicenseOperationalStatus.GracePeriod)
                 _storage.UpdateLastChecked(now);
@@ -117,7 +117,8 @@ public sealed class LicenseManager : IDisposable
                     return State = local;
 
                 DateTimeOffset now = DateTimeOffset.UtcNow;
-                LicenseState verified = _validator.Validate(response.Token, response.DeviceId, now);
+                LicenseState verified = _validator.Validate(
+                    response.Token, response.DeviceId, _device.FingerprintSha256, now);
 
                 if (verified.Status != LicenseOperationalStatus.Active
                     || verified.LicenseId != local.LicenseId
@@ -361,7 +362,7 @@ public sealed class LicenseManager : IDisposable
             }
 
             LicenseState verified = _validator.Validate(
-                response.Token, response.DeviceId, DateTimeOffset.UtcNow);
+                response.Token, response.DeviceId, _device.FingerprintSha256, DateTimeOffset.UtcNow);
 
             if (verified.Status is not (LicenseOperationalStatus.Active or LicenseOperationalStatus.GracePeriod)
                 || verified.LicenseId != response.LicenseId

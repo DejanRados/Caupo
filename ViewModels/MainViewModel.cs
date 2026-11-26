@@ -1,18 +1,22 @@
-﻿using Caupo.Data;
+﻿
+using Caupo.Data;
 using Caupo.Helpers;
 using Caupo.Licensing;
+using Caupo.Licensing.Models;
 using Caupo.Properties;
 using Caupo.Views;
 using System;
 using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using static Caupo.Data.DatabaseTables;
+using LicenseManager = Caupo.Licensing.LicenseManager;
 
 namespace Caupo.ViewModels;
 
@@ -61,8 +65,15 @@ public class MainViewModel : INotifyPropertyChanged
             Debug.WriteLine("[LICENSE] Provjera Caupo Licensing 2.0 licence.");
 
             LicenseState state;
-            using (var manager = new Caupo.Licensing.LicenseManager())
+            string? warning = null;
+
+            using (var manager = new LicenseManager())
+            {
                 state = await manager.InitializeAsync();
+
+                if (state.CanOperate && state.RequiresWarning)
+                    warning = await GetLicenseWarningAsync(manager, state);
+            }
 
             Debug.WriteLine($"[LICENSE] Status={state.Status}, Message={state.Message}");
 
@@ -70,8 +81,8 @@ public class MainViewModel : INotifyPropertyChanged
             {
                 _lastLicenseStatus = state.Status;
 
-                if (state.RequiresWarning)
-                    ShowLicenseMessage("Vaša licenca je istekla.\n\n" + state.Message);
+                if (warning != null)
+                    ShowLicenseMessage(warning);
 
                 StartLicenseTimer();
                 HandleValidLicense();
@@ -122,15 +133,23 @@ public class MainViewModel : INotifyPropertyChanged
         try
         {
             LicenseState state;
-            using (var manager = new Caupo.Licensing.LicenseManager())
+            string? warning = null;
+
+            using (var manager = new LicenseManager())
+            {
                 state = await manager.RefreshAsync();
+
+                if (state.CanOperate && state.RequiresWarning
+                    && _lastLicenseStatus != LicenseOperationalStatus.GracePeriod)
+                    warning = await GetLicenseWarningAsync(manager, state);
+            }
 
             Debug.WriteLine($"[LICENSE] Periodična provjera: {state.Status}, PaidUntil={state.PaidUntil:O}");
 
             if (state.CanOperate)
             {
-                if (state.RequiresWarning && _lastLicenseStatus != LicenseOperationalStatus.GracePeriod)
-                    ShowLicenseMessage("Vaša licenca je istekla.\n\n" + state.Message);
+                if (warning != null)
+                    ShowLicenseMessage(warning);
 
                 _lastLicenseStatus = state.Status;
                 return;
@@ -147,6 +166,35 @@ public class MainViewModel : INotifyPropertyChanged
         {
             _licenseCheckRunning = false;
         }
+    }
+
+    private static async Task<string> GetLicenseWarningAsync(LicenseManager manager, LicenseState state)
+    {
+        string fallback = "Vaša licenca je istekla.\n\n" + state.Message;
+
+        if (state.Status != LicenseOperationalStatus.GracePeriod)
+            return fallback;
+
+        try
+        {
+            CustomerLicensesResponse response = await manager.GetCustomerLicensesAsync();
+
+            CustomerLicense? license = response.Licenses.FirstOrDefault(x =>
+                string.Equals(x.LicensePublicId, state.LicenseId, StringComparison.OrdinalIgnoreCase));
+
+            if (license?.Subscription?.Status == "past_due")
+            {
+                return "Automatska naplata pretplate nije uspjela.\n\n"
+                    + "Provjerite stanje kartice ili ažurirajte karticu u "
+                    + "Postavke → Licenciranje → Upravljanje plaćanjima.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[LICENSE] Provjera statusa pretplate: {ex}");
+        }
+
+        return fallback;
     }
 
     private static async Task<bool> CheckDatabaseAsync()

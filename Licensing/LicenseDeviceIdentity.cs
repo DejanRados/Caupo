@@ -1,7 +1,8 @@
-﻿
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Management;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -18,15 +19,22 @@ public sealed class LicenseDeviceIdentity : IDisposable
     private LicenseDeviceIdentity(ECDsa key)
     {
         _key = key;
-        PublicKey = Convert.ToBase64String(_key.ExportSubjectPublicKeyInfo());
-        FingerprintSha256 = CreateFingerprint(PublicKey);
+
+        try
+        {
+            PublicKey = Convert.ToBase64String(_key.ExportSubjectPublicKeyInfo());
+            FingerprintSha256 = CreateFingerprint(PublicKey);
+        }
+        catch
+        {
+            _key.Dispose();
+            throw;
+        }
     }
 
     public static LicenseDeviceIdentity LoadOrCreate()
     {
-        string directory = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "Caupo", "Licensing");
+        string directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Caupo", "Licensing");
 
         Directory.CreateDirectory(directory);
         string path = Path.Combine(directory, "device.key");
@@ -105,20 +113,115 @@ public sealed class LicenseDeviceIdentity : IDisposable
 
         try
         {
-            machineGuid = Registry.GetValue(
-                @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography",
-                "MachineGuid", null) as string;
+            machineGuid = Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography", "MachineGuid", null) as string;
         }
         catch (Exception ex) when (ex is System.Security.SecurityException or UnauthorizedAccessException)
         {
-            // Koristi stabilni identitet instalacije ako Windows ne dozvoljava čitanje.
+            // Koristi identitet instalacije ako Windows ne dozvoljava čitanje.
         }
 
         string source = string.IsNullOrWhiteSpace(machineGuid)
             ? "Caupo-V2-Installation\n" + publicKey
             : "Caupo-V2-Machine\n" + machineGuid.Trim();
 
+        string processorId = ReadHardwareValues("SELECT ProcessorId FROM Win32_Processor", "ProcessorId");
+        string motherboardSerial = ReadHardwareValues("SELECT SerialNumber FROM Win32_BaseBoard", "SerialNumber");
+        string diskSerial = ReadSystemDiskSerial();
+
+        source += "\nCPU:" + processorId
+            + "\nBOARD:" + motherboardSerial
+            + "\nDISK:" + diskSerial;
+
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(source))).ToLowerInvariant();
+    }
+
+    private static string ReadHardwareValues(string query, string property)
+    {
+        var values = new SortedSet<string>(StringComparer.Ordinal);
+
+        using var searcher = new ManagementObjectSearcher(query);
+        using var results = searcher.Get();
+
+        foreach (ManagementObject item in results)
+        {
+            using (item)
+            {
+                string? value = NormalizeHardwareValue(item[property]?.ToString());
+
+                if (value is not null)
+                    values.Add(value);
+            }
+        }
+
+        if (values.Count == 0)
+            throw new InvalidOperationException($"Nije moguće očitati hardverski identifikator: {property}.");
+
+        return string.Join("|", values);
+    }
+
+    private static string ReadSystemDiskSerial()
+    {
+        string? systemDrive = Path.GetPathRoot(Environment.SystemDirectory)?.TrimEnd('\\');
+
+        if (string.IsNullOrWhiteSpace(systemDrive))
+            throw new InvalidOperationException("Nije moguće odrediti sistemski disk.");
+
+        var serials = new SortedSet<string>(StringComparer.Ordinal);
+
+        using var partitionsSearcher = new ManagementObjectSearcher(
+            $"ASSOCIATORS OF {{Win32_LogicalDisk.DeviceID='{systemDrive}'}} WHERE AssocClass=Win32_LogicalDiskToPartition");
+
+        using var partitions = partitionsSearcher.Get();
+
+        foreach (ManagementObject partition in partitions)
+        {
+            using (partition)
+            {
+                using var disks = partition.GetRelated("Win32_DiskDrive");
+
+                foreach (ManagementObject disk in disks)
+                {
+                    using (disk)
+                    {
+                        string? serial = NormalizeHardwareValue(disk["SerialNumber"]?.ToString());
+
+                        if (serial is not null)
+                            serials.Add(serial);
+                    }
+                }
+            }
+        }
+
+        if (serials.Count == 0)
+            throw new InvalidOperationException("Nije moguće očitati serijski broj sistemskog diska.");
+
+        return string.Join("|", serials);
+    }
+
+    private static string? NormalizeHardwareValue(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        value = value.Trim().ToUpperInvariant();
+
+        if (value is "UNKNOWN" or "NONE" or "N/A" or "NOT AVAILABLE"
+            or "NOT SPECIFIED" or "DEFAULT STRING" or "TO BE FILLED BY O.E.M."
+            or "SYSTEM SERIAL NUMBER" or "INVALID" or "0")
+            return null;
+
+        bool allZeros = true;
+
+        foreach (char character in value)
+        {
+            if (character != '0' && character != '-' && !char.IsWhiteSpace(character))
+            {
+                allZeros = false;
+                break;
+            }
+        }
+
+        return allZeros ? null : value;
     }
 
     public string SignCheckout(string plan, string fingerprint, string company, string email, long timestamp, string nonce)
@@ -140,13 +243,14 @@ public sealed class LicenseDeviceIdentity : IDisposable
 
     public string SignLicenseCheck(string licenseId, string deviceId, long timestamp, string nonce)
     {
-        return Sign($"caupo-check-license-v1\n{licenseId}\n{deviceId}\n{timestamp}\n{nonce}");
+        string message = $"caupo-check-license-v1\n{licenseId}\n{deviceId}\n{FingerprintSha256}\n{timestamp}\n{nonce}";
+        return Sign(message);
     }
 
     public string SignRegisteredRequest(string operation, string deviceId, long timestamp, string nonce, string payloadHash)
     {
-        if (operation is not ("additional_licenses" or "license_renewal" or "subscription_renewal"
-            or "customer_licenses" or "subscription_cancel"))
+        if (operation is not ("new_purchase" or "additional_licenses" or "license_renewal"
+            or "subscription_renewal" or "customer_licenses" or "subscription_cancel"))
             throw new ArgumentException("Nepoznata operacija licenciranja.", nameof(operation));
 
         if (!Guid.TryParseExact(deviceId, "D", out _) || string.IsNullOrWhiteSpace(nonce)
@@ -154,7 +258,7 @@ public sealed class LicenseDeviceIdentity : IDisposable
             || string.IsNullOrWhiteSpace(payloadHash) || payloadHash.Length != 64 || !IsLowerHex(payloadHash))
             throw new ArgumentException("Neispravni podaci za digitalno potpisivanje.");
 
-        string message = $"caupo-purchase-v1\n{operation}\n{deviceId}\n{timestamp}\n{nonce}\n{payloadHash}";
+        string message = $"caupo-purchase-v1\n{operation}\n{deviceId}\n{FingerprintSha256}\n{timestamp}\n{nonce}\n{payloadHash}";
         return Sign(message);
     }
 
@@ -171,11 +275,7 @@ public sealed class LicenseDeviceIdentity : IDisposable
 
     private string Sign(string message)
     {
-        byte[] signature = _key.SignData(
-            Encoding.UTF8.GetBytes(message),
-            HashAlgorithmName.SHA256,
-            DSASignatureFormat.Rfc3279DerSequence);
-
+        byte[] signature = _key.SignData(Encoding.UTF8.GetBytes(message), HashAlgorithmName.SHA256, DSASignatureFormat.Rfc3279DerSequence);
         return Convert.ToBase64String(signature);
     }
 

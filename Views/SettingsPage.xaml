@@ -2604,21 +2604,21 @@
                                                     <DataTemplate>
                                                         <Border BorderBrush="#3F3F46" BorderThickness="0,0,0,1" Padding="0,9,0,9">
                                                             <StackPanel>
-                                                                <TextBlock Text="{Binding Plan.Name}" FontWeight="SemiBold" FontSize="14"  Foreground="{DynamicResource GlobalFontColor}"/>
+                                                                <TextBlock Text="{Binding Plan.Name}" FontWeight="SemiBold" FontSize="12"  Foreground="{DynamicResource GlobalFontColor}"/>
 
                                                                 <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                                                    <TextBlock Text="●" FontSize="16" Margin="0,0,8,0" VerticalAlignment="Center" Foreground="{Binding StatusBrush}"/>
-                                                                    <TextBlock Text="{Binding DisplayStatus}" VerticalAlignment="Center"   Foreground="{DynamicResource GlobalFontColor}"/>
+                                                                    <TextBlock Text="●" FontSize="12" Margin="0,0,8,0" VerticalAlignment="Center" Foreground="{Binding StatusBrush}"/>
+                                                                    <TextBlock Text="{Binding DisplayStatus}" FontSize="12" VerticalAlignment="Center"   Foreground="{DynamicResource GlobalFontColor}"/>
                                                                 </StackPanel>
 
                                                                 <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
-                                                                    <TextBlock Text="Važi do: " Opacity="0.7" Foreground="{DynamicResource GlobalFontColor}"/>
-                                                                    <TextBlock Text="{Binding ExpiresDisplay}" Foreground="{DynamicResource GlobalFontColor}"/>
+                                                                    <TextBlock Text="Važi do: " FontSize="12" Opacity="0.7" Foreground="{DynamicResource GlobalFontColor}"/>
+                                                                    <TextBlock Text="{Binding ExpiresDisplay}" FontSize="12" Foreground="{DynamicResource GlobalFontColor}"/>
                                                                 </StackPanel>
 
                                                                 <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
-                                                                    <TextBlock Text="Aktivacija: " Opacity="0.7"   Foreground="{DynamicResource GlobalFontColor}"/>
-                                                                    <TextBlock Text="{Binding DeviceDescription}"    Foreground="{DynamicResource GlobalFontColor}"/>
+                                                                    <TextBlock Text="Aktivacija: " Opacity="0.7"  FontSize="12" Foreground="{DynamicResource GlobalFontColor}"/>
+                                                                    <TextBlock Text="{Binding DeviceDescription}"  FontSize="12"  Foreground="{DynamicResource GlobalFontColor}"/>
                                                                 </StackPanel>
                                                             </StackPanel>
                                                         </Border>
@@ -2661,11 +2661,40 @@
                                     <StackPanel Margin="5">
                                         <TextBlock Text="Upravljanje plaćanjima" Style="{StaticResource SettingsSectionTitle}"/>
                                         <TextBlock Text="Kartice, pretplate, računi i podaci za naplatu"
-                                               Style="{StaticResource SettingsSectionDescription}" TextWrapping="Wrap"/>
-                                         <Button x:Name="OtvoriUpravljanjePlacanjimaButton" Content="Otvori"
-                                            Style="{StaticResource PrimaryButtonStyle}" Width="170" Height="44"
-                                            HorizontalAlignment="Left" Margin="9,12,0,5" IsEnabled="False"
-                                            Click="OtvoriUpravljanjePlacanjima_Click"/>
+                   Style="{StaticResource SettingsSectionDescription}" TextWrapping="Wrap"/>
+                                        <Button x:Name="OtvoriUpravljanjePlacanjimaButton" Content="Otvori"
+                Style="{StaticResource PrimaryButtonStyle}" Width="170" Height="44"
+                HorizontalAlignment="Left" Margin="9,12,0,5" IsEnabled="False"
+                Click="OtvoriUpravljanjePlacanjima_Click"/>
+
+                                        <StackPanel Margin="9,16,9,8">
+                                            <StackPanel.Style>
+                                                <Style TargetType="StackPanel">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Text, ElementName=LicencaPretplataText}" Value="Plaćanje obnove nije uspjelo">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </StackPanel.Style>
+
+                                            <TextBlock FontWeight="SemiBold" FontSize="16" Foreground="{DynamicResource GlobalFontColor}"      Text="Automatska naplata nije uspjela" Margin="0,0,0,12"/>
+
+                                            <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource GlobalFontColor}" Margin="0,0,0,12">
+                                                    Vaša pretplata nije otkazana, ali naplata za naredni period nije uspjela.
+                                                    Provjerite stanje kartice ili ažurirajte karticu klikom na dugme.
+                                            </TextBlock>
+
+                                            <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource GlobalFontColor}" Margin="0,0,0,12">
+                                                    Nakon uspješne naplate licenca će se automatski produžiti.
+                                                    <Run FontWeight="Bold">Nije potrebno kupovati novu licencu niti aktivirati novu pretplatu.</Run>
+                                            </TextBlock>
+
+                                            <TextBlock TextWrapping="Wrap" Foreground="{DynamicResource GlobalFontColor}">
+                                                     Ako je plaćeni period već istekao, aplikaciju možete nastaviti koristiti tokom preostalog sedmodnevnog grejs perioda.
+                                            </TextBlock>
+                                        </StackPanel>
                                     </StackPanel>
                                 </Border>
                                 <TextBlock x:Name="LicenciranjePorukaText" Text="" Margin="15,12,15,20" TextWrapping="Wrap" Foreground="{DynamicResource GlobalFontColor}"/>

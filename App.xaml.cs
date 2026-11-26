@@ -68,7 +68,7 @@ namespace Caupo
         protected override async void OnStartup(StartupEventArgs e)
         {
 
-            System.Diagnostics.Debug.WriteLine(Caupo.Licensing.LicenseSelfTest.Run());
+           
             using var manager = new Caupo.Licensing.LicenseManager();
             System.Diagnostics.Debug.WriteLine($"[LICENSING V2] {manager.EvaluateLocal().Status}");
             VirtualKeyboardManager.Initialize();

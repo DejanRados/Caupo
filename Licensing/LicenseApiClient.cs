@@ -1,5 +1,4 @@
-﻿
-using Caupo.Licensing.Models;
+﻿using Caupo.Licensing.Models;
 using System;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -31,8 +30,7 @@ public sealed class LicenseApiClient : IDisposable
         using HttpResponseMessage response = await _http.GetAsync("paddle-plans.php", cancellationToken);
         await EnsureSuccessAsync(response, cancellationToken);
 
-        PaddleCatalogResponse? catalog = await response.Content.ReadFromJsonAsync<PaddleCatalogResponse>(
-            JsonOptions, cancellationToken);
+        PaddleCatalogResponse? catalog = await response.Content.ReadFromJsonAsync<PaddleCatalogResponse>(JsonOptions, cancellationToken);
 
         if (catalog is null || catalog.Currency != "EUR" || catalog.Plans is null)
             throw new InvalidOperationException("Server je vratio neispravan cjenovnik.");
@@ -75,8 +73,7 @@ public sealed class LicenseApiClient : IDisposable
             request_token = requestToken
         };
 
-        CheckoutResponse result = await PostAsync<CheckoutResponse>(
-            "paddle-start-checkout.php", request, cancellationToken);
+        CheckoutResponse result = await PostAsync<CheckoutResponse>("paddle-start-checkout.php", request, cancellationToken);
 
         if (!Regex.IsMatch(result.TransactionId, @"\Atxn_[a-z0-9]{26}\z")
             || !Uri.TryCreate(result.CheckoutUrl, UriKind.Absolute, out Uri? url)
@@ -147,6 +144,7 @@ public sealed class LicenseApiClient : IDisposable
         {
             license_id = licenseId,
             device_id = deviceId,
+            fingerprint_sha256 = device.FingerprintSha256,
             timestamp,
             nonce,
             device_signature = device.SignLicenseCheck(licenseId, deviceId, timestamp, nonce)
@@ -175,6 +173,7 @@ public sealed class LicenseApiClient : IDisposable
         {
             operation,
             device_id = deviceId,
+            fingerprint_sha256 = device.FingerprintSha256,
             timestamp,
             nonce,
             device_signature = signature,
@@ -201,13 +200,13 @@ public sealed class LicenseApiClient : IDisposable
         {
             operation,
             device_id = deviceId,
+            fingerprint_sha256 = device.FingerprintSha256,
             timestamp,
             nonce,
             device_signature = device.SignRegisteredRequest(operation, deviceId, timestamp, nonce, hash)
         };
 
-        BillingPortalResponse response = await PostAsync<BillingPortalResponse>(
-            "paddle-customer-portal.php", request, cancellationToken);
+        BillingPortalResponse response = await PostAsync<BillingPortalResponse>("paddle-customer-portal.php", request, cancellationToken);
 
         if (!Uri.TryCreate(response.Url, UriKind.Absolute, out Uri? url)
             || url.Scheme != Uri.UriSchemeHttps
@@ -247,13 +246,13 @@ public sealed class LicenseApiClient : IDisposable
             operation,
             subscription = selection,
             device_id = deviceId,
+            fingerprint_sha256 = device.FingerprintSha256,
             timestamp,
             nonce,
             device_signature = device.SignRegisteredRequest(operation, deviceId, timestamp, nonce, hash)
         };
 
-        return PostAsync<SubscriptionCancellationResponse>(
-            "paddle-cancel-subscription.php", request, cancellationToken);
+        return PostAsync<SubscriptionCancellationResponse>("paddle-cancel-subscription.php", request, cancellationToken);
     }
 
     public sealed class SubscriptionCancellationResponse
@@ -329,13 +328,13 @@ public sealed class LicenseApiClient : IDisposable
             operation,
             purchase,
             device_id = deviceId,
+            fingerprint_sha256 = device.FingerprintSha256,
             timestamp,
             nonce,
             device_signature = device.SignRegisteredRequest(operation, deviceId, timestamp, nonce, hash)
         };
 
-        CheckoutResponse response = await PostAsync<CheckoutResponse>(
-            "paddle-registered-checkout.php", request, cancellationToken);
+        CheckoutResponse response = await PostAsync<CheckoutResponse>("paddle-registered-checkout.php", request, cancellationToken);
 
         if (!Regex.IsMatch(response.TransactionId ?? "", @"\Atxn_[a-z0-9]{26}\z"))
             throw new InvalidOperationException("Server nije vratio ispravnu Paddle transakciju.");
@@ -380,8 +379,7 @@ public sealed class LicenseApiClient : IDisposable
     private async Task<T> PostAsync<T>(
         string endpoint, object request, CancellationToken cancellationToken)
     {
-        using HttpResponseMessage response = await _http.PostAsJsonAsync(
-            endpoint, request, JsonOptions, cancellationToken);
+        using HttpResponseMessage response = await _http.PostAsJsonAsync(endpoint, request, JsonOptions, cancellationToken);
 
         await EnsureSuccessAsync(response, cancellationToken);
 
@@ -399,8 +397,7 @@ public sealed class LicenseApiClient : IDisposable
 
         try
         {
-            LicenseApiError? error = await response.Content.ReadFromJsonAsync<LicenseApiError>(
-                JsonOptions, cancellationToken);
+            LicenseApiError? error = await response.Content.ReadFromJsonAsync<LicenseApiError>(JsonOptions, cancellationToken);
 
             if (!string.IsNullOrWhiteSpace(error?.Error))
                 message = error.Error;
